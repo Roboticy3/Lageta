@@ -91,16 +91,14 @@ export class GateGraph {
         const inputs = this.inputs[id]
         const outputs = this.outputs[id]
 
-        let type = "input"
         for (let j = 0; j < inputs.length; j++) {
             const input = inputs[id]
-            iter(gate, type, j, input)
+            iter(gate, "input", j, input)
         }
 
-        type = "output"
         for (let j = 0; j < outputs.length; j++) {
             const output = outputs[id]
-            iter(gate, type, j, output)
+            iter(gate, "output", j, output)
         }
     }
 }

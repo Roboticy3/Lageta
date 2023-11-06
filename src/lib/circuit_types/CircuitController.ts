@@ -1,15 +1,38 @@
 import type { Gate } from "./Gate";
-import type { Connection, GateGraph } from "./GateGraph";
-import type { GateGrid } from "./GateGrid";
+import { GateGraph } from "./GateGraph"
+import type { Connection } from "./GateGraph";
+import { GateGrid } from "./GateGrid";
+
+const connectionSelectRadius = 10
+
+export class CircuitControllerQueryResult {
+    object:Gate | Connection | undefined
+    type: "Gate" | "Input" | "Output" | ""
+
+    constructor(
+        object:Gate | Connection | undefined = undefined,
+        type:"Gate" | "Input" | "Output" | "" = ""
+    ) {
+        this.object = object
+        this.type = type
+    }
+}
 
 export class CircuitController {
     gateGrid:GateGrid
 
     constructor(
-        gateGrid:GateGrid
+        gateGrid:GateGrid | undefined = undefined
     )
     {
-        this.gateGrid = gateGrid
+        if (gateGrid !== undefined) {
+            this.gateGrid = gateGrid
+        }
+        else {
+            let graph = new GateGraph()
+            let gateGrid = new GateGrid(graph)
+            this.gateGrid = gateGrid
+        }
     }
 
     query(
@@ -19,9 +42,10 @@ export class CircuitController {
     {
         const [x, y] = this.gateGrid.offsetToIndex(offsetX, offsetY)
         const gate = this.gateGrid.get(x, y)
+        const graph = this.gateGrid.graph
 
         if (gate === undefined) {
-            return undefined
+            return new CircuitControllerQueryResult() 
         }
         const gType = gate.type
 
@@ -33,21 +57,51 @@ export class CircuitController {
             const dY = offsetY - offset[1]
 
             const d = this.gridEuclidDistance(dX, dY)
-            if (d < 10) {
+            if (d < connectionSelectRadius) {
                 break
             }
         }
 
-        console.log(i)
-
-        const graph = this.gateGrid.graph
         if (i != gType.sizeIn) {
-            return graph.inputs[gate.id || 0][i]
+            new CircuitControllerQueryResult(
+                graph.inputs[gate.id || 0][i],
+                "Input"
+            ) 
         }
 
-        return gate
+        const outputOffsets = this.gateGrid.getGateOutputOffsets(gate)
+        i = 0
+        for (; i < gType.sizeOut; i++) {
+            const offset = outputOffsets[i]
+            const dX = offsetX - offset[0]
+            const dY = offsetY - offset[1]
+
+            const d = this.gridEuclidDistance(dX, dY)
+            if (d < connectionSelectRadius) {
+                break
+            }
+        }
+
+        if (i != gType.sizeOut) {
+            new CircuitControllerQueryResult(
+                graph.outputs[gate.id || 0][i],
+                "Output"
+            ) 
+        }
+
+        return new CircuitControllerQueryResult(
+            gate,
+            "Gate"
+        ) 
     }
 
+    /**
+     * get the svg transform of a gate
+     * if a 20x20 gate svg represents a 1x1 cell gate, the transform will be standard
+     * @param gate 
+     * @returns 
+     */
+    
     getGateSvgTransform(gate:Gate) {
         const gType = gate.type
         const position = this.gateGrid.indexToOffset(gate.x || 0, gate.y || 0)
@@ -177,39 +231,31 @@ export class CircuitController {
         return Math.sqrt(dX * dX + dY * dY)
     }
 
-    showConnectionPoints(id:number, connectionBuilder:(offsetX:number, offsetY:number) => string) {
+    showConnectionPoints(connectionBuilder:(offsetX:number, offsetY:number) => string) {
         const graph = this.gateGrid.graph
-        const gate = this.gateGrid.gates[id]
-        if (!gate) {
-            return ""
-        }
+        let result = ""
 
-        let result = 
-`<g
-    ${this.getGateSvgTransform(gate)}>\n`
-
-        graph.iterConnectionsOnGate(id, (g, t, j, c) => {
-            const gT = g.type
+        graph.iterConnections((g, t, j, _c) => {
+        const inputOffsets = this.gateGrid.getGateInputOffsets(g)
+        const outputOffsets = this.gateGrid.getGateOutputOffsets(g)
             switch (t) {
                 case "input":
-                    const inputOffset = this.gateGrid.indexToOffset(
-                        gT.inputOffsets[j][0], gT.inputOffsets[j][1]
-                    )
                     result += connectionBuilder(
-                        inputOffset[1],
-                        inputOffset[1])
+                        inputOffsets[j][0],
+                        inputOffsets[j][1])
+                    break
                 case "output":
-                    const outputOffset = this.gateGrid.indexToOffset(
-                        gT.outputOffsets[j][0], gT.outputOffsets[j][1]
-                    )
                     result += connectionBuilder(
-                        outputOffset[0],
-                        outputOffset[1])
+                        outputOffsets[j][0],
+                        outputOffsets[j][1])
+                    break
             }
         })
 
-        result += "\n</g>"
-
         return result
+    }
+
+    indexToOffset(x:number, y:number) {
+        return this.gateGrid.indexToOffset(x,y)
     }
 }

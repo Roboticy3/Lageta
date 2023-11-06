@@ -117,6 +117,20 @@ export class GateGrid {
         return result
     }
 
+    getGateOutputOffsets(gate:Gate) {
+        const gType = gate.type
+        let result = new Array<[number, number]>(gType.sizeOut)
+        for (let i = 0; i < gType.sizeOut; i++) {
+            const gridOffset = gType.outputOffsets[i]
+            result[i] = [
+                ((gate.x || 0) + gridOffset[0]) * this.cellOffset, 
+                ((gate.y || 0) + gridOffset[1]) * this.cellOffset
+            ]
+        }
+
+        return result
+    }
+
     removeGate(id:number, clear:boolean=false) {
         const gate = this.gates[id]
         if (gate === undefined) {

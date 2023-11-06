@@ -1,16 +1,15 @@
 <script context="module">
 
-   export const svgSize = 20
-
    /**
+    * make an svg for a gate, the default size is 20x20
     * @param {String} contents
     */
-   export const buildSvg = (contents) => {
+   export const buildSvg = (contents, offsetX=20, offsetY=20) => {
       return (
 `
 <svg 
    width="100%"
-   viewBox="0 0 ${svgSize} ${svgSize}"
+   viewBox="0 0 ${offsetX} ${offsetY}"
    stroke="black" stroke-width=".5pt" fill="none"
    xmlns="http://www.w3.org/2000/svg">
    ${contents}

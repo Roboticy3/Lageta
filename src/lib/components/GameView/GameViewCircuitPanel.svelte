@@ -3,10 +3,8 @@
     import { onMount } from 'svelte';
 
     import { getGateSvgContents, ConnectionSvg } from '../GateSvgs.svelte';
-    import { GateGrid } from '$lib/circuit_types/GateGrid';
 
     import { CircuitController } from '$lib/circuit_types/CircuitController';
-    import { GateGraph } from '$lib/circuit_types/GateGraph';
 
     /**
      * @type {SVGElement} circuit
@@ -53,26 +51,35 @@
     /**
      * @type {Array<String>}
      */
-    let svgContents = []
-    let gateGraph = new GateGraph()
-    let gateGrid = new GateGrid(gateGraph)
-    let gridController = new CircuitController(gateGrid)
+    let svgGates = []
+    let gridController = new CircuitController()
 
     /**
      * @param {DragEvent} e
      */
     function onDragStart(e) {
 
-        let [x, y] = gateGrid.offsetToIndex(e.offsetX, e.offsetY)
-        const gate = gateGrid.get(x, y)
-        const dataTransfer = e.dataTransfer
+        const result = gridController.query(e.offsetX, e.offsetY)
+        const object = result.object
 
-        if (gate === undefined) {
-            preventDefault(e)
-            console.log("gate not found at ", x, y, "!")
+        if (object instanceof Gate) {
+            dragStartGate(e, object)
             return
         }
+
+        preventDefault(e)
+
+        return
+    }
+
+    /**
+     * @param {DragEvent} e
+     * @param {Gate} gate
+     */
+    function dragStartGate(e, gate) {
+        const dataTransfer = e.dataTransfer
         const gType = gate.type
+        const [x, y] = [gate.x || 0, gate.y || 0]
 
         if (dataTransfer === null) {
             console.log("datatransfer not found!")
@@ -90,17 +97,14 @@
         dataTransfer.setData('ShelfButtonId', target_id)
         dataTransfer.setData('GateName', gType.name)
 
-        const gateOffset = gateGrid.indexToOffset(gate.x || 0, gate.y || 0)
+        const gateOffset = gridController.indexToOffset(gate.x || 0, gate.y || 0)
         const localOffset = [
             e.offsetX - gateOffset[0],
             e.offsetY - gateOffset[1]
         ]
         dataTransfer.setData('offset', `${localOffset[0]}|${localOffset[1]}`)
 
-        const gateId = gateGrid.indexToId(x, y)
-        if (gateId !== undefined) {
-            dataTransfer.setData('SourceGate', `${gType.name}-${gateId}`)
-        }        
+        dataTransfer.setData('SourceGate', `${gType.name}-${gate.id}`)     
         
         dataTransfer.setDragImage(svg, localOffset[0], localOffset[1])
 
@@ -161,7 +165,7 @@
                 source, 
                 gateOffset[0],
                 gateOffset[1],
-                svgContents,
+                svgGates,
                 getGateSvgContents
             )
         }
@@ -172,13 +176,13 @@
                 gate2, 
                 gateOffset[0],
                 gateOffset[1],
-                svgContents,
+                svgGates,
                 getGateSvgContents
             )
         }
 
         
-        svgContents = svgContents
+        updateSvg()
     }
 
     /**
@@ -199,10 +203,10 @@
         const source = dataTransfer.getData('SourceGate')
 
         if (source != "" && !inCircuitPanel(e.pageX, e.pageY)) {
-            gridController.removeGate(source, svgContents);
+            gridController.removeGate(source, svgGates);
         }
 
-        svgContents = svgContents
+        updateSvg()
     }
 
     let svgConnections = ""
@@ -213,11 +217,6 @@
     function clickHandler(e) {
         const result = gridController.query(e.offsetX, e.offsetY)
         console.log(result)
-
-        svgConnections = gridController.showConnectionPoints(
-            0, ConnectionSvg
-        )
-        console.log(svgConnections)
     }
 
     /**
@@ -242,6 +241,11 @@
         return false
     }
 
+    function updateSvg() {
+        svgGates = svgGates
+        svgConnections = gridController.showConnectionPoints(ConnectionSvg)
+    }
+
 </script>
 
 <div 
@@ -256,7 +260,7 @@
         {#each gridController.gridCellsSvg() as svg}
         {@html svg}
         {/each}
-        {#each svgContents as svg}
+        {#each svgGates as svg}
         {@html svg}
         {/each}
         {@html svgConnections}
