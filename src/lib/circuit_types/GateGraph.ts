@@ -77,13 +77,13 @@ export class GateGraph {
         this.outputs[id] = []
     }
 
-    iterConnections(iter:(g:Gate, t:string, j:number, c:Connection) => undefined) {
+    iterConnections(iter:(g:Gate, t:string, j:number, c:Connection) => undefined, type:ConnectionType="") {
         for (let i = 0; i < this.gates.length; i++) {
-            this.iterConnectionsOnGate(i, iter)
+            this.iterConnectionsOnGate(i, iter, type)
         }
     }
 
-    iterConnectionsOnGate(id: number, iter:(g:Gate, t:string, j:number, c:Connection) => undefined) {
+    iterConnectionsOnGate(id: number, iter:(g:Gate, t:string, j:number, c:Connection) => undefined, type:ConnectionType="") {
         const gate = this.gates[id]
         if (gate === undefined) {
             return
@@ -91,15 +91,15 @@ export class GateGraph {
         const inputs = this.inputs[id]
         const outputs = this.outputs[id]
 
-        for (let j = 0; j < inputs.length; j++) {
+        if (type === "" || type === "Input") {for (let j = 0; j < inputs.length; j++) {
             const input = inputs[id]
-            iter(gate, "input", j, input)
-        }
+            iter(gate, "Input", j, input)
+        }}
 
-        for (let j = 0; j < outputs.length; j++) {
+        if (type === "" || type === "Output") {for (let j = 0; j < outputs.length; j++) {
             const output = outputs[id]
-            iter(gate, "output", j, output)
-        }
+            iter(gate, "Output", j, output)
+        }}
     }
 }
 
@@ -116,5 +116,7 @@ export class Connection {
         this.to = to
     }
 }
+
+export type ConnectionType = ""|"Input"|"Output"
 
 

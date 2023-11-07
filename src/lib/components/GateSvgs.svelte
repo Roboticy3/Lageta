@@ -22,7 +22,7 @@
      * @param {number} offsetY
      */
    export function ConnectionSvg(offsetX=1, offsetY=1) {
-      return `<path d="M ${offsetX + 1} ${offsetY - 1} l 2 1 l -2 1 Z" stroke-width=".25pt"/>\n`
+      return `<path d="M ${offsetX - 4} ${offsetY - 4} l 8 4 l -8 4 Z" stroke-width=".25pt"/>\n`
    }
 
    export const _svgs = new Map([

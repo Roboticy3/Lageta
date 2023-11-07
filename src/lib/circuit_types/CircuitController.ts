@@ -1,6 +1,6 @@
 import type { Gate } from "./Gate";
 import { GateGraph } from "./GateGraph"
-import type { Connection } from "./GateGraph";
+import type { Connection, ConnectionType } from "./GateGraph";
 import { GateGrid } from "./GateGrid";
 
 const connectionSelectRadius = 10
@@ -63,7 +63,7 @@ export class CircuitController {
         }
 
         if (i != gType.sizeIn) {
-            new CircuitControllerQueryResult(
+            return new CircuitControllerQueryResult(
                 graph.inputs[gate.id || 0][i],
                 "Input"
             ) 
@@ -83,7 +83,7 @@ export class CircuitController {
         }
 
         if (i != gType.sizeOut) {
-            new CircuitControllerQueryResult(
+            return new CircuitControllerQueryResult(
                 graph.outputs[gate.id || 0][i],
                 "Output"
             ) 
@@ -231,31 +231,41 @@ export class CircuitController {
         return Math.sqrt(dX * dX + dY * dY)
     }
 
-    showConnectionPoints(connectionBuilder:(offsetX:number, offsetY:number) => string) {
+    showConnectionPoints(connectionBuilder:(offsetX:number, offsetY:number) => string, type:ConnectionType="") {
         const graph = this.gateGrid.graph
         let result = ""
 
         graph.iterConnections((g, t, j, _c) => {
-        const inputOffsets = this.gateGrid.getGateInputOffsets(g)
-        const outputOffsets = this.gateGrid.getGateOutputOffsets(g)
+            const inputOffsets = this.gateGrid.getGateInputOffsets(g)
+            const outputOffsets = this.gateGrid.getGateOutputOffsets(g)
             switch (t) {
-                case "input":
+                case "Input":
                     result += connectionBuilder(
                         inputOffsets[j][0],
                         inputOffsets[j][1])
                     break
-                case "output":
+                case "Output":
                     result += connectionBuilder(
                         outputOffsets[j][0],
                         outputOffsets[j][1])
                     break
             }
-        })
-
+        }, type)
         return result
     }
 
     indexToOffset(x:number, y:number) {
         return this.gateGrid.indexToOffset(x,y)
+    }
+
+    flipConnectionType(t:ConnectionType) {
+        switch (t){
+            case "Input":
+                return "Output"
+            case "Output":
+                return "Input"
+            default:
+                return ""
+        }
     }
 }

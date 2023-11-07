@@ -20,7 +20,7 @@ export class GateType {
         this.name = name
         if (typeof inputs === "number") {
             this.sizeIn = inputs
-            this.inputOffsets = this.spreadVerticalConnections(0, inputs)
+            this.inputOffsets = this.spreadVerticalConnections(0.25, inputs)
         }
         else {
             this.sizeIn = inputs.length
@@ -29,7 +29,7 @@ export class GateType {
 
         if (typeof outputs === "number") {
             this.sizeOut = outputs
-            this.outputOffsets = this.spreadVerticalConnections(this.gridWidth, outputs)
+            this.outputOffsets = this.spreadVerticalConnections(this.gridWidth - 0.25, outputs)
         }
         else {
             this.sizeOut = outputs.length

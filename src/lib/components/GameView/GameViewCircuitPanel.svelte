@@ -5,6 +5,7 @@
     import { getGateSvgContents, ConnectionSvg } from '../GateSvgs.svelte';
 
     import { CircuitController } from '$lib/circuit_types/CircuitController';
+    import { Connection } from '$lib/circuit_types/GateGraph';
 
     /**
      * @type {SVGElement} circuit
@@ -61,9 +62,14 @@
 
         const result = gridController.query(e.offsetX, e.offsetY)
         const object = result.object
+        const tString = result.type
 
         if (object instanceof Gate) {
             dragStartGate(e, object)
+            return
+        }
+        else if (tString !== "" && tString !== "Gate") {
+            dragStartConnection(e, object, tString)
             return
         }
 
@@ -113,6 +119,25 @@
     }
 
     /**
+     * @param {DragEvent} e
+     * @param {Connection | undefined} connection
+     * @param {"Input" | "Output"} type
+     */
+    function dragStartConnection(e, connection, type) {
+        console.log(connection)
+
+        const dataTransfer = e.dataTransfer
+        if (dataTransfer === null) {
+            return
+        }
+
+        const toType = gridController.flipConnectionType(type)
+
+        svgConnections = gridController.showConnectionPoints(ConnectionSvg, toType)
+        console.log(svgConnections)
+    }
+
+    /**
      * Add evs for dragging related to the circuit
      */
     function addDragEventListeners() {
@@ -129,7 +154,7 @@
     }
 
     /**
-     * Event for dropping a gate in the circuit
+     * Event for dropping an object in the circuit
      * @param {DragEvent} e
      */
     function circuitDropEV(e) {
@@ -144,6 +169,7 @@
         const id = d.getData('ShelfButtonId')
         const name = d.getData('GateName')
         if (id === '' || name === '') {
+            updateSvg()
             return
         }
 
@@ -151,6 +177,7 @@
 
         const offsetString = d.getData('offset')
         if (offsetString === "") {
+            updateSvg()
             return
         }
         const offset = offsetString.split('|')
@@ -181,12 +208,12 @@
             )
         }
 
-        
         updateSvg()
     }
 
     /**
      * watch for drops outside of the panel to remove gates
+     * records drops inside the panel too but does nothing, leving it to circuitDropEV
      * @param {DragEvent} e
      */
     function windowDropEV(e) {
@@ -194,6 +221,7 @@
         window.removeEventListener("dragover", preventDefault)
         
         preventDefault(e)
+        updateSvg()
 
         const dataTransfer = e.dataTransfer
         if (!dataTransfer) {
@@ -205,8 +233,6 @@
         if (source != "" && !inCircuitPanel(e.pageX, e.pageY)) {
             gridController.removeGate(source, svgGates);
         }
-
-        updateSvg()
     }
 
     let svgConnections = ""
@@ -216,7 +242,7 @@
      */
     function clickHandler(e) {
         const result = gridController.query(e.offsetX, e.offsetY)
-        console.log(result)
+        //console.log(result)
     }
 
     /**
