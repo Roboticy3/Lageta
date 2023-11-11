@@ -29,6 +29,8 @@
         if (dataTransfer === null) {
             return
         }
+        dataTransfer.setData("type","Gate")
+
         dataTransfer.setData('ShelfButtonId', id)
         dataTransfer.setData('GateName', gateType.name)
         

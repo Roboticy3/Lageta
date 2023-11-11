@@ -6,15 +6,22 @@ import { GateGrid } from "./GateGrid";
 const connectionSelectRadius = 10
 
 export class CircuitControllerQueryResult {
-    object:Gate | Connection | undefined
+    gate:Gate | undefined
+
     type: "Gate" | "Input" | "Output" | ""
+    connectionIndex:number | undefined
 
     constructor(
-        object:Gate | Connection | undefined = undefined,
-        type:"Gate" | "Input" | "Output" | "" = ""
+        gate:Gate | undefined = undefined,
+        type:"Gate" | "Input" | "Output" | "" = "",
+        connectionIndex:number | undefined = undefined
     ) {
-        this.object = object
+        this.gate = gate
         this.type = type
+        if ((type === "Input" || type === "Output") && 
+            gate !== undefined && connectionIndex !== undefined) {
+                this.connectionIndex = connectionIndex
+        }
     }
 }
 
@@ -64,8 +71,9 @@ export class CircuitController {
 
         if (i != gType.sizeIn) {
             return new CircuitControllerQueryResult(
-                graph.inputs[gate.id || 0][i],
-                "Input"
+                gate,
+                "Input",
+                i
             ) 
         }
 
@@ -84,8 +92,9 @@ export class CircuitController {
 
         if (i != gType.sizeOut) {
             return new CircuitControllerQueryResult(
-                graph.outputs[gate.id || 0][i],
-                "Output"
+                gate,
+                "Output",
+                i
             ) 
         }
 
@@ -231,7 +240,7 @@ export class CircuitController {
         return Math.sqrt(dX * dX + dY * dY)
     }
 
-    showConnectionPoints(connectionBuilder:(offsetX:number, offsetY:number) => string, type:ConnectionType="") {
+    drawConnectionPoints(connectionBuilder:(offsetX:number, offsetY:number) => string, type:ConnectionType="") {
         const graph = this.gateGrid.graph
         let result = ""
 
@@ -267,5 +276,13 @@ export class CircuitController {
             default:
                 return ""
         }
+    }
+
+    drawWire(fromOffset:[number, number], toOffset:[number, number]) {
+        let result = 
+`
+<path d="M ${fromOffset[0]} ${fromOffset[1]} L ${toOffset[0]} ${toOffset[1]}" />
+`
+        return result
     }
 }

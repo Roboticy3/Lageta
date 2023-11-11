@@ -4,10 +4,15 @@
     * make an svg for a gate, the default size is 20x20
     * @param {String} contents
     */
-   export const buildSvg = (contents, offsetX=20, offsetY=20) => {
+   export const buildSvg = (contents, offsetX=20, offsetY=20, id="") => {
+      let idString = ""
+      if (id !== "") {
+         idString = `id=${id}`
+      }
       return (
 `
 <svg 
+   ${idString}
    width="100%"
    viewBox="0 0 ${offsetX} ${offsetY}"
    stroke="black" stroke-width=".5pt" fill="none"
