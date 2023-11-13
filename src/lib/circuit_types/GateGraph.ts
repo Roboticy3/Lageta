@@ -3,8 +3,8 @@ import type { Gate } from "./Gate";
 import type { GateGrid } from "./GateGrid";
 
 export class GateGraph {
-    inputs:Array<Array<Connection>> = []
-    outputs:Array<Array<Connection>> = []
+    inputs:Array<Array<Connection | undefined>> = []
+    outputs:Array<Array<Connection | undefined>> = []
     gates:Array<Gate | undefined> = []
 
     constructor(grid?:GateGrid) {
@@ -18,19 +18,7 @@ export class GateGraph {
         this.outputs = new Array(gateCount)
 
         for (let g = 0; g < gateCount; g++) {
-            let gate = this.getGate(g)
-            if (gate === undefined) {
-                continue
-            }
-            const gType = gate.type
-            this.inputs[g] = new Array<Connection>(gType.sizeIn)
-            this.outputs[g] = new Array<Connection>(gType.sizeOut)
-            for (let i = 0; i < gType.sizeIn; i++) {
-                this.inputs[g][i] = new Connection(gate, undefined)
-            }
-            for (let i = 0; i < gType.sizeOut; i++) {
-                this.outputs[g][i] = new Connection(gate, undefined)
-            }
+            this.resetConnectionsAt(g)    
         }
     }
 
@@ -38,31 +26,46 @@ export class GateGraph {
         return this.gates[i]
     }
 
-    addLink(from:number, output:number, to:number, input:number) {
-        let inGate = this.gates[from]
-        let toGate = this.gates[to]
-        let inConnection = this.inputs[from]
-        let outConnection = this.outputs[to]
-        
-        if (inGate === undefined || toGate === undefined ||
-            inConnection === undefined || outConnection === undefined)
+    addConnection(c:Connection) {
+        let inGate = this.gates[c.from]
+        let toGate = this.gates[c.to]
+        if (inGate === undefined || toGate === undefined)
         {
-            return undefined
+            return
         }
 
-        inConnection[output].to = to
-        outConnection[input].to = from
+        const inConnection = this.inputs[c.to][c.input]
+        const outConnection = this.outputs[c.from][c.output]
+        this.removeConnection(inConnection)
+        this.removeConnection(outConnection)
+
+        this.addConnectionNoChecks(c)
     }
 
-    addGate() {
-        const gate = this.gates[this.gates.length - 1]
+    private addConnectionNoChecks(c:Connection) {
+        this.outputs[c.from][c.output] = c
+        this.inputs[c.to][c.input] = c
+    }
+
+    removeConnection(c:Connection | undefined) {
+        if (typeof c === "undefined") {
+            return
+        }
+
+        this.outputs[c.from][c.output] = undefined
+        this.inputs[c.to][c.input] = undefined
+    }
+
+    resetConnectionsAt(id:number) {
+
+        let gate = this.getGate(id)
         if (gate === undefined) {
-            return undefined
+            return
         }
         const gType = gate.type
-
-        this.inputs.push(new Array<Connection>(gType.sizeIn))
-        this.outputs.push(new Array<Connection>(gType.sizeOut))
+        
+        this.inputs[id] = new Array<Connection | undefined>(gType.sizeIn)
+        this.outputs[id] = new Array<Connection | undefined>(gType.sizeOut)
     }
 
     disconnectGate(id:number) {
@@ -70,20 +73,20 @@ export class GateGraph {
         if (gate === undefined) {
             return undefined
         }
+        const gType = gate.type
 
         
-
         this.inputs[id] = []
         this.outputs[id] = []
     }
 
-    iterConnections(iter:(g:Gate, t:string, j:number, c:Connection) => undefined, type:ConnectionType="") {
+    iterConnections(iter:ConnectionReader, type:ConnectionType="") {
         for (let i = 0; i < this.gates.length; i++) {
             this.iterConnectionsOnGate(i, iter, type)
         }
     }
 
-    iterConnectionsOnGate(id: number, iter:(g:Gate, t:string, j:number, c:Connection) => undefined, type:ConnectionType="") {
+    iterConnectionsOnGate(id: number, iter:ConnectionReader, type:ConnectionType="") {
         const gate = this.gates[id]
         if (gate === undefined) {
             return
@@ -104,19 +107,27 @@ export class GateGraph {
 }
 
 export class Connection {
-    gate:Gate
-    to:number | undefined
+    from:number
+    output:number
+    to:number
+    input:number
 
     constructor(
-        gate:Gate,
-        to:number | undefined
+        from:number, 
+        output:number, 
+        to:number, 
+        input:number
     )
     {
-        this.gate = gate
+        this.from = from
+        this.output = output
         this.to = to
+        this.input = input
     }
 }
 
 export type ConnectionType = ""|"Input"|"Output"
+
+export type ConnectionReader = (g:Gate, t:string, j:number, c:Connection | undefined) => undefined
 
 

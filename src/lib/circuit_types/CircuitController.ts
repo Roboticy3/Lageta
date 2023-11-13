@@ -1,6 +1,5 @@
 import type { Gate } from "./Gate";
-import { GateGraph } from "./GateGraph"
-import type { Connection, ConnectionType } from "./GateGraph";
+import { GateGraph, Connection, type ConnectionType } from "./GateGraph"
 import { GateGrid } from "./GateGrid";
 
 const connectionSelectRadius = 10
@@ -25,6 +24,8 @@ export class CircuitControllerQueryResult {
     }
 }
 
+//using grid controller should avoid directly interfacing with things like gate indices and the grid and graph objects
+//view still interacts with gate objects from time to time, but other types should be wrapped here
 export class CircuitController {
     gateGrid:GateGrid
 
@@ -102,6 +103,12 @@ export class CircuitController {
             gate,
             "Gate"
         ) 
+    }
+
+    getGateFromSvgId(gateId:string) {
+        const id = this.svgIdToGateId(gateId)
+
+        return this.gateGrid.gates[id]
     }
 
     /**
@@ -214,7 +221,22 @@ export class CircuitController {
         console.log(this.gateGrid)
     }
 
-    svgIdToGateId(id:string) {
+    addConnection(
+        from:number,
+        output:number,
+        to:number,
+        input:number,
+        svgConnections:string[]
+    ) {
+
+        const graph = this.gateGrid.graph
+        const c = new Connection(from, output, to, input)
+        graph.addConnection(c)
+        
+        console.log(graph)
+    }
+
+    private svgIdToGateId(id:string) {
         const idParts = id.split("-")
         return Number(idParts[1])
     }
@@ -232,7 +254,6 @@ export class CircuitController {
             const vpos = j * grid.cellOffset
             svg[grid.sizeX + j] = `<path d="M 0 ${vpos} L ${offsetWidth} ${vpos}" stroke="${color}"/>`
         }
-
         return svg
     }
 
@@ -276,13 +297,5 @@ export class CircuitController {
             default:
                 return ""
         }
-    }
-
-    drawWire(fromOffset:[number, number], toOffset:[number, number]) {
-        let result = 
-`
-<path d="M ${fromOffset[0]} ${fromOffset[1]} L ${toOffset[0]} ${toOffset[1]}" />
-`
-        return result
     }
 }

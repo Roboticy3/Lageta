@@ -54,4 +54,17 @@
       return buildSvg(getGateSvgContents(name))
    }
 
+   /**
+    * 
+    * @param {[number, number]} fromOffset
+    * @param {[number, number]} toOffset
+    */
+   export function wireSvg(fromOffset, toOffset) {
+        let result = 
+`
+<path d="M ${fromOffset[0]} ${fromOffset[1]} L ${toOffset[0]} ${toOffset[1]}" />
+`
+        return result
+    }
+
 </script>

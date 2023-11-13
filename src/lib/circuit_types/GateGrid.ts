@@ -86,7 +86,7 @@ export class GateGrid {
         }
 
         this.addGateNoChecks(cell[0], cell[1], gate)
-        this.graph.addGate()
+        this.graph.resetConnectionsAt(gate.id || 0)
 
         return cell
     }

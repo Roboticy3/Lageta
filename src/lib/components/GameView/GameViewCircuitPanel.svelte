@@ -2,7 +2,7 @@
     import { GateType, Buf, Gate, all_gates, copyGate } from '$lib/circuit_types/Gate'
     import { onMount } from 'svelte';
 
-    import { getGateSvgContents, ConnectionSvg, buildSvg } from '../GateSvgs.svelte';
+    import { getGateSvgContents, ConnectionSvg, buildSvg, wireSvg } from '../GateSvgs.svelte';
 
     import { CircuitController } from '$lib/circuit_types/CircuitController';
     import { Connection } from '$lib/circuit_types/GateGraph';
@@ -32,12 +32,17 @@
      * @type {Array<String>}
      */
      let svgGates = []
-    let gridController = new CircuitController()
+    /**
+     * @type {Array<String>}
+     */
+     let svgWires = []
+    
+     let gridController = new CircuitController()
 
     //the svg string of the current connection, previews the connection being made
-    let activeSvgConnection=""
+    let activeSvgWire=""
     //the svg string of all the visible connection points
-    let svgConnections = ""
+    let svgConnectionPoints = ""
     
     let mountCircuit = () => {
         addDragEventListeners()
@@ -70,11 +75,20 @@
         if (gate === undefined) {
             return
         }
+        const gType = gate.type
         const tString = result.type
+
+        const d = e.dataTransfer
+        if (d === null) {
+            return
+        }
+
+        d.setData('SourceGate', `${gType.name}-${gate.id}`) 
+        d.setData('GateName', gType.name)
 
         switch (tString) {
             case "Gate":
-                dragStartGate(e, gate)
+                dragStartGate(e, d, gate)
                 break
             case "Input":
             case "Output":
@@ -91,40 +105,31 @@
 
     /**
      * @param {DragEvent} e
+     * @param {DataTransfer} d
      * @param {Gate} gate
      */
-    function dragStartGate(e, gate) {
-        const dataTransfer = e.dataTransfer
+    function dragStartGate(e, d, gate) {
         const gType = gate.type
         const [x, y] = [gate.x || 0, gate.y || 0]
 
-        if (dataTransfer === null) {
-            console.log("datatransfer not found!")
-            return
-        }
+        d.setData("type","Gate")
 
         const target_id = `gateshelf.${gType.name}`
         let svg = document.getElementById(target_id)
-
         if (!svg) {
             console.log("shelf button ", target_id, " not found!")
             return
         }
-        dataTransfer.setData("type","Gate")
-
-        dataTransfer.setData('ShelfButtonId', target_id)
-        dataTransfer.setData('GateName', gType.name)
+        d.setData('ShelfButtonId', target_id)
 
         const gateOffset = gridController.indexToOffset(gate.x || 0, gate.y || 0)
         const localOffset = [
             e.offsetX - gateOffset[0],
             e.offsetY - gateOffset[1]
         ]
-        dataTransfer.setData('offset', `${localOffset[0]}|${localOffset[1]}`)
-
-        dataTransfer.setData('SourceGate', `${gType.name}-${gate.id}`)     
+        d.setData('offset', `${localOffset[0]}|${localOffset[1]}`)
         
-        dataTransfer.setDragImage(svg, localOffset[0], localOffset[1])
+        d.setDragImage(svg, localOffset[0], localOffset[1])
 
         window.addEventListener("drop", windowDropEV)
         window.addEventListener("dragover", preventDefault)
@@ -153,9 +158,10 @@
         dataTransfer.setData('offset', `${e.offsetX}|${e.offsetY}`)
         
         dataTransfer.setData("type",type)
+        dataTransfer.setData("ConnectionIndex",connectionIndex.toString())
         dataTransfer.setDragImage(svg, 0, 0)
 
-        svgConnections = gridController.drawConnectionPoints(
+        svgConnectionPoints = gridController.drawConnectionPoints(
             ConnectionSvg, gridController.flipConnectionType(type)
         )
     }
@@ -213,9 +219,9 @@
             console.log("from offset not found!")
             return
         }
-        const fromS = fromData.split("|")
-        activeSvgConnection = gridController.drawWire(
-            [Number(fromS[0]), Number(fromS[1])], 
+        const fromS = fromData.split("|").map(Number)
+        activeSvgWire = wireSvg(
+            [fromS[0], fromS[1]], 
             [e.offsetX, e.offsetY]
         )
     }
@@ -264,10 +270,11 @@
         const dataTransfer = e.dataTransfer
         if (!dataTransfer) {
             updateSvg()
-            activeSvgConnection = ""
+            clearActiveSvgConnection()
             return
         }
 
+        
         const source = dataTransfer.getData('SourceGate')
 
         if (source != "" && !inCircuitPanel(e.pageX, e.pageY)) {
@@ -275,7 +282,7 @@
         }
 
         updateSvg()
-        activeSvgConnection = ""
+        clearActiveSvgConnection()
     }
 
     /**
@@ -338,17 +345,47 @@
         const target = gridController.query(e.offsetX, e.offsetY)
         const toType = target.type
 
-        switch ([fromType, toType]) {
-            case ["Input", "Output"]:
+        clearActiveSvgConnection()
+        updateSvg()
+
+        if (target.gate === undefined || target.connectionIndex === undefined) {
+            console.log("gate not found at ", e.offsetX, e.offsetY, "!")
+            return
+        }
+        const toId = target.gate.id || 0
+
+        const connectionIndex = Number(d.getData("ConnectionIndex"))
+        if (connectionIndex === null) {
+            console.log(connectionIndex, " not found!")
+            return
+        }
+        const gateId = Number(d.getData("SourceGate").split("-")[1])
+        if (Number.isNaN(gateId)) {
+            console.log("gate not found from id ", gateId, "!")
+            return
+        }
+
+        console.log(gateId)
+
+        if (toType === fromType) {
+            console.log("can't connect ", fromType, " with ", toType)
+            return
+        }
+
+        switch (toType) {
+            case "Output":
+                gridController.addConnection(
+                    toId, target.connectionIndex, gateId, connectionIndex, svgWires
+                )
                 break
-            case ["Input", "Output"]:
+            case "Input":
+                gridController.addConnection(
+                    gateId, connectionIndex, toId, target.connectionIndex, svgWires
+                )
                 break
             default:
                 break
         }
-
-        activeSvgConnection = ""
-        updateSvg()
     }
 
     /**
@@ -384,7 +421,11 @@
 
     function updateSvg() {
         svgGates = svgGates
-        svgConnections = gridController.drawConnectionPoints(ConnectionSvg)
+        svgConnectionPoints = gridController.drawConnectionPoints(ConnectionSvg)
+    }
+
+    function clearActiveSvgConnection() {
+        activeSvgWire = ""
     }
 
 </script>
@@ -398,14 +439,17 @@
     on:dragstart={onDragStart}
     on:mouseup={clickHandler}>
     <svg stroke="black" stroke-width=".5pt" fill="none" bind:this={circuit}>
+
         {#each gridController.gridCellsSvg() as svg}
         {@html svg}
         {/each}
+
         {#each svgGates as svg}
         {@html svg}
         {/each}
-        {@html svgConnections}
-        {@html activeSvgConnection}
+
+        {@html svgConnectionPoints}
+        {@html activeSvgWire}
     </svg>
 </div>
 
