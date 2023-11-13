@@ -22,7 +22,7 @@ export class GateGraph {
         }
     }
 
-    private getGate(i:number) {
+    getGate(i:number) {
         return this.gates[i]
     }
 
@@ -95,12 +95,12 @@ export class GateGraph {
         const outputs = this.outputs[id]
 
         if (type === "" || type === "Input") {for (let j = 0; j < inputs.length; j++) {
-            const input = inputs[id]
+            const input = inputs[j]
             iter(gate, "Input", j, input)
         }}
 
         if (type === "" || type === "Output") {for (let j = 0; j < outputs.length; j++) {
-            const output = outputs[id]
+            const output = outputs[j]
             iter(gate, "Output", j, output)
         }}
     }

@@ -226,7 +226,6 @@ export class CircuitController {
         output:number,
         to:number,
         input:number,
-        svgConnections:string[]
     ) {
 
         const graph = this.gateGrid.graph
@@ -281,6 +280,26 @@ export class CircuitController {
                     break
             }
         }, type)
+        return result
+    }
+
+    drawWires(wireBuilder:(fromOffset:[number, number], toOffset:[number, number]) => string) {
+        const graph = this.gateGrid.graph
+        let result = new Array<string>()
+        graph.iterConnections((g, _t, j, c) => {
+            if (c === undefined) {
+                return
+            }
+            const toOffset = this.gateGrid.getGateInputOffsets(g)[j]
+            const fromGate = graph.getGate(c.from)
+            if (fromGate === undefined) {
+                return
+            }
+            const fromOffset = this.gateGrid.getGateOutputOffsets(fromGate)[c.output]
+            
+            result.push(wireBuilder(fromOffset, toOffset))
+        }, "Input")
+
         return result
     }
 

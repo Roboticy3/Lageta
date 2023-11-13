@@ -31,7 +31,7 @@
     /**
      * @type {Array<String>}
      */
-     let svgGates = []
+    let svgGates = []
     /**
      * @type {Array<String>}
      */
@@ -73,6 +73,7 @@
         const result = gridController.query(e.offsetX, e.offsetY)
         const gate = result.gate
         if (gate === undefined) {
+            preventDefault(e)
             return
         }
         const gType = gate.type
@@ -80,6 +81,7 @@
 
         const d = e.dataTransfer
         if (d === null) {
+            preventDefault(e)
             return
         }
 
@@ -89,7 +91,7 @@
         switch (tString) {
             case "Gate":
                 dragStartGate(e, d, gate)
-                break
+                return
             case "Input":
             case "Output":
                 if (result.connectionIndex === undefined) {
@@ -97,8 +99,10 @@
                     return
                 }
                 dragStartConnection(e, result.connectionIndex, tString)
-                break
+                return
         }
+
+        preventDefault(e)
 
         return
     }
@@ -345,11 +349,9 @@
         const target = gridController.query(e.offsetX, e.offsetY)
         const toType = target.type
 
-        clearActiveSvgConnection()
-        updateSvg()
-
         if (target.gate === undefined || target.connectionIndex === undefined) {
             console.log("gate not found at ", e.offsetX, e.offsetY, "!")
+            updateSvg()
             return
         }
         const toId = target.gate.id || 0
@@ -357,11 +359,13 @@
         const connectionIndex = Number(d.getData("ConnectionIndex"))
         if (connectionIndex === null) {
             console.log(connectionIndex, " not found!")
+            updateSvg()
             return
         }
         const gateId = Number(d.getData("SourceGate").split("-")[1])
         if (Number.isNaN(gateId)) {
             console.log("gate not found from id ", gateId, "!")
+            updateSvg()
             return
         }
 
@@ -369,23 +373,26 @@
 
         if (toType === fromType) {
             console.log("can't connect ", fromType, " with ", toType)
+            updateSvg()
             return
         }
 
         switch (toType) {
             case "Output":
                 gridController.addConnection(
-                    toId, target.connectionIndex, gateId, connectionIndex, svgWires
+                    toId, target.connectionIndex, gateId, connectionIndex
                 )
                 break
             case "Input":
                 gridController.addConnection(
-                    gateId, connectionIndex, toId, target.connectionIndex, svgWires
+                    gateId, connectionIndex, toId, target.connectionIndex
                 )
                 break
             default:
                 break
         }
+
+        updateSvg()
     }
 
     /**
@@ -422,6 +429,8 @@
     function updateSvg() {
         svgGates = svgGates
         svgConnectionPoints = gridController.drawConnectionPoints(ConnectionSvg)
+        svgWires = gridController.drawWires(wireSvg)
+        clearActiveSvgConnection()
     }
 
     function clearActiveSvgConnection() {
@@ -446,6 +455,10 @@
 
         {#each svgGates as svg}
         {@html svg}
+        {/each}
+
+        {#each svgWires as wire}
+        {@html wire}
         {/each}
 
         {@html svgConnectionPoints}
