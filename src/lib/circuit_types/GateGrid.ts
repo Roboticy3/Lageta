@@ -107,11 +107,7 @@ export class GateGrid {
         const gType = gate.type
         let result = new Array<[number, number]>(gType.sizeIn)
         for (let i = 0; i < gType.sizeIn; i++) {
-            const gridOffset = gType.inputOffsets[i]
-            result[i] = [
-                ((gate.x || 0) + gridOffset[0]) * this.cellOffset, 
-                ((gate.y || 0) + gridOffset[1]) * this.cellOffset
-            ]
+            result[i] = this.getGateInputOffset(gate, i)
         }
 
         return result
@@ -121,15 +117,29 @@ export class GateGrid {
         const gType = gate.type
         let result = new Array<[number, number]>(gType.sizeOut)
         for (let i = 0; i < gType.sizeOut; i++) {
-            const gridOffset = gType.outputOffsets[i]
-            result[i] = [
-                ((gate.x || 0) + gridOffset[0]) * this.cellOffset, 
-                ((gate.y || 0) + gridOffset[1]) * this.cellOffset
-            ]
+            result[i] = this.getGateOutputOffset(gate, i)
         }
 
         return result
     }
+
+    getGateInputOffset(gate:Gate, input:number): [number, number] {
+        const gridOffset = gate.type.inputOffsets[input]
+        return [
+            ((gate.x || 0) + gridOffset[0]) * this.cellOffset, 
+            ((gate.y || 0) + gridOffset[1]) * this.cellOffset
+        ]
+    }
+
+    getGateOutputOffset(gate:Gate, output:number): [number, number] {
+        const gridOffset = gate.type.outputOffsets[output]
+        return [
+            ((gate.x || 0) + gridOffset[0]) * this.cellOffset, 
+            ((gate.y || 0) + gridOffset[1]) * this.cellOffset
+        ]
+    }
+
+
 
     removeGate(id:number, clear:boolean=false) {
         const gate = this.gates[id]

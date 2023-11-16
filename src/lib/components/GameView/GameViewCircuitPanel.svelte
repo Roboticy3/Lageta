@@ -76,7 +76,7 @@
             preventDefault(e)
             return
         }
-        const gType = gate.type
+
         const tString = result.type
 
         const d = e.dataTransfer
@@ -85,8 +85,7 @@
             return
         }
 
-        d.setData('SourceGate', `${gType.name}-${gate.id}`) 
-        d.setData('GateName', gType.name)
+        giveGateData(gate, d)
 
         switch (tString) {
             case "Gate":
@@ -98,13 +97,24 @@
                     console.log("no index found for query result ", result)
                     return
                 }
-                dragStartConnection(e, result.connectionIndex, tString)
+                dragStartConnection(e, gate, tString, result.connectionIndex)
                 return
         }
 
         preventDefault(e)
 
         return
+    }
+
+    /**
+     * 
+     * @param {Gate} gate
+     * @param {DataTransfer} d
+     */
+    function giveGateData(gate, d) {
+        const gType = gate.type
+        d.setData('SourceGate', `${gType.name}-${gate.id}`) 
+        d.setData('GateName', gType.name)
     }
 
     /**
@@ -141,29 +151,48 @@
 
     /**
      * @param {DragEvent} e
+     * @param {Gate} gate
      * @param {number} connectionIndex
      * @param {"Input" | "Output"} type
      */
-    function dragStartConnection(e, connectionIndex, type) {
+    function dragStartConnection(e, gate, type, connectionIndex) {
 
-        const dataTransfer = e.dataTransfer
-        if (dataTransfer === null) {
+        const d = e.dataTransfer
+        if (d === null) {
             return
         }
 
         const toType = gridController.flipConnectionType(type)
+
+        const offset = gridController.getConnectionPoint(gate, type, connectionIndex)
+        d.setData('offset', `${offset[0]}|${offset[1]}`) 
         
+        if (type === "Input") {
+            const c = gridController.getConnectedTo(
+                gate.id || 0, connectionIndex
+            )
+            console.log(c)
+            if (c !== undefined) {
+                const newGate = gridController.getGate(c[0])
+                if (newGate !== undefined) {
+                    giveGateData(newGate, d)
+                    dragStartConnection(e, newGate, "Output", c[1])
+                    gridController.removeConnection(newGate.id || 0, "Output", c[1])
+                    updateSvg()
+                    return
+                }
+            }
+        }
+
         var parser = new DOMParser();
         const svg = parser.parseFromString(ConnectionSvg(), "image/svg+xml").children[0];
         if (svg === undefined) {
             return
         }
-
-        dataTransfer.setData('offset', `${e.offsetX}|${e.offsetY}`)
         
-        dataTransfer.setData("type",type)
-        dataTransfer.setData("ConnectionIndex",connectionIndex.toString())
-        dataTransfer.setDragImage(svg, 0, 0)
+        d.setData("type",type)
+        d.setData("ConnectionIndex",connectionIndex.toString())
+        d.setDragImage(svg, 0, 0)
 
         svgConnectionPoints = gridController.drawConnectionPoints(
             ConnectionSvg, gridController.flipConnectionType(type)
@@ -349,12 +378,12 @@
         const target = gridController.query(e.offsetX, e.offsetY)
         const toType = target.type
 
-        if (target.gate === undefined || target.connectionIndex === undefined) {
-            console.log("gate not found at ", e.offsetX, e.offsetY, "!")
+        const gateId = Number(d.getData("SourceGate").split("-")[1])
+        if (Number.isNaN(gateId)) {
+            console.log("gate not found from id ", gateId, "!")
             updateSvg()
             return
         }
-        const toId = target.gate.id || 0
 
         const connectionIndex = Number(d.getData("ConnectionIndex"))
         if (connectionIndex === null) {
@@ -362,12 +391,13 @@
             updateSvg()
             return
         }
-        const gateId = Number(d.getData("SourceGate").split("-")[1])
-        if (Number.isNaN(gateId)) {
-            console.log("gate not found from id ", gateId, "!")
+
+        if (target.gate === undefined || target.connectionIndex === undefined) {
+            
             updateSvg()
             return
         }
+        const toId = target.gate.id || 0
 
         console.log(gateId)
 

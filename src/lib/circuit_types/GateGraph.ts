@@ -26,34 +26,102 @@ export class GateGraph {
         return this.gates[i]
     }
 
-    addConnection(c:Connection) {
-        let inGate = this.gates[c.from]
-        let toGate = this.gates[c.to]
-        if (inGate === undefined || toGate === undefined)
+    private setOutput(a:[number, number], c:Connection | undefined) {
+        this.outputs[a[0]][a[1]] = c
+    }
+
+    private getOutput(a:[number, number]) {
+        return this.outputs[a[0]][a[1]]
+    }
+
+    private setInput(a:[number, number], c:Connection | undefined) {
+        this.inputs[a[0]][a[1]] = c
+    }
+
+    private getInput(a:[number, number]) {
+        return this.inputs[a[0]][a[1]]
+    }
+
+    verifyConnection(c:Connection) {
+        let outGate = this.gates[c.from[0]]
+        if (outGate === undefined)
         {
+            return false
+        }
+        const to = c.to
+        for (let i = 0; i < to.length; i++) {
+            if (to[i][0] === undefined) {
+                return false
+            }
+        }
+
+        return true
+    }
+
+    mergeConnection(a:Connection, b:Connection, overrideFrom=false) {
+        if (overrideFrom) {
+            const af = a.from
+            const bf = b.from
+            this.inputs[af[0]][af[1]] = undefined
+            a.from = bf
+            this.inputs[bf[0]][bf[1]] = undefined
+        }
+
+        const ato = a.to
+        const bto = b.to
+        for (let i = 0; i < bto.length; i++) {
+            const to = bto[i]
+            const indexOf = ato.indexOf(to)
+            if (indexOf === -1) {
+                ato.push(to)
+                this.inputs
+            }
+        }
+    }
+
+    addConnection(c:Connection) {
+        if (!this.verifyConnection(c)) {
             return
         }
 
-        const inConnection = this.inputs[c.to][c.input]
-        const outConnection = this.outputs[c.from][c.output]
-        this.removeConnection(inConnection)
-        this.removeConnection(outConnection)
+        const outConnection = this.outputs[c.from[0]][c.from[1]]
+        if (outConnection !== undefined) {
+            this.mergeConnection(outConnection, c)
+            return
+        }
+
+        const to = c.to
+        const inputs = this.inputs
+        for (let i = 0; i < to.length; i++) {
+            const c = this.getInput(to[i])
+            if (c === undefined) {
+                continue
+            }
+            this.removeConnection(c)
+        }
 
         this.addConnectionNoChecks(c)
     }
 
     private addConnectionNoChecks(c:Connection) {
-        this.outputs[c.from][c.output] = c
-        this.inputs[c.to][c.input] = c
+        const from = c.from
+        this.setOutput(from, c)
+        
+        const to = c.to
+        for (let i = 0; i < to.length; i++) {
+            this.setInput(to[i], c)
+        }
     }
 
-    removeConnection(c:Connection | undefined) {
-        if (typeof c === "undefined") {
-            return
-        }
+    removeConnection(c:Connection) {
+        const from = c.from
+        this.setOutput(from, undefined)
 
-        this.outputs[c.from][c.output] = undefined
-        this.inputs[c.to][c.input] = undefined
+        const to = c.to
+        for (let i = 0; i < to.length; i++) {
+            const toi = to[i]
+            this.setInput(toi, undefined)
+        }
     }
 
     resetConnectionsAt(id:number) {
@@ -80,37 +148,61 @@ export class GateGraph {
         this.outputs[id] = []
     }
 
-    iterConnections(iter:ConnectionReader, type:ConnectionType="") {
+    iterConnections(iter:ConnectionReader) {
         for (let i = 0; i < this.gates.length; i++) {
-            this.iterConnectionsOnGate(i, iter, type)
+            const gate = this.gates[i]
+            if (gate === undefined) {
+                continue
+            }
+
+            const outputs = this.outputs[i]
+            for (let j = 0; j < outputs.length; j++) {
+                const c = outputs[j]
+                if (c === undefined) {
+                    continue
+                }
+
+                const to = c.to
+                for (let k = 0; k < to.length; k++) {
+                    const tok = to[k]
+                    const toGate = this.gates[tok[0]]
+                    if (toGate === undefined) {
+                        console.log("there should be a gate here!", tok[0])
+                        continue
+                    }
+                    const input = tok[1]
+
+                    iter (gate, j, toGate, input, c)
+                }
+            }
         }
     }
 
-    iterConnectionsOnGate(id: number, iter:ConnectionReader, type:ConnectionType="") {
-        const gate = this.gates[id]
-        if (gate === undefined) {
-            return
+    iterConnectionPoints(iter:ConnectionPointReader, type:ConnectionType) {
+        const gates = this.gates
+        for (let i = 0; i < gates.length; i++) {
+            const gate = gates[i]
+            if (gate === undefined) {
+                return
+            }
+            const gType = gate.type
+            const inputs = this.inputs
+            const outputs = this.outputs
+
+            if (type === "" || type === "Input") {for (let j = 0; j < gType.sizeIn; j++) {
+                iter(gate, "Input", j)
+            }}
+            if (type === "" || type === "Output") {for (let j = 0; j < gType.sizeOut; j++) {
+                iter(gate, "Output", j)
+            }}
         }
-        const inputs = this.inputs[id]
-        const outputs = this.outputs[id]
-
-        if (type === "" || type === "Input") {for (let j = 0; j < inputs.length; j++) {
-            const input = inputs[j]
-            iter(gate, "Input", j, input)
-        }}
-
-        if (type === "" || type === "Output") {for (let j = 0; j < outputs.length; j++) {
-            const output = outputs[j]
-            iter(gate, "Output", j, output)
-        }}
     }
 }
 
 export class Connection {
-    from:number
-    output:number
-    to:number
-    input:number
+    from:[number, number]
+
+    to:Array<[number, number]>
 
     constructor(
         from:number, 
@@ -119,15 +211,13 @@ export class Connection {
         input:number
     )
     {
-        this.from = from
-        this.output = output
-        this.to = to
-        this.input = input
+        this.from = [from, output]
+        this.to = [[to, input]]
     }
 }
 
 export type ConnectionType = ""|"Input"|"Output"
 
-export type ConnectionReader = (g:Gate, t:string, j:number, c:Connection | undefined) => undefined
+export type ConnectionReader = (from:Gate, output:number, to:Gate, input:number, c:Connection) => undefined
 
-
+export type ConnectionPointReader = (gate:Gate, type:ConnectionType, point:number) => undefined

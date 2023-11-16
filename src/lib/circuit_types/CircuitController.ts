@@ -1,3 +1,4 @@
+import { ConnectionSvg, wireSvg } from "$lib/components/GateSvgs.svelte";
 import type { Gate } from "./Gate";
 import { GateGraph, Connection, type ConnectionType } from "./GateGraph"
 import { GateGrid } from "./GateGrid";
@@ -221,6 +222,10 @@ export class CircuitController {
         console.log(this.gateGrid)
     }
 
+    getGate(gateId:number) {
+        return this.gateGrid.gates[gateId]
+    }
+
     addConnection(
         from:number,
         output:number,
@@ -235,6 +240,57 @@ export class CircuitController {
         console.log(graph)
     }
 
+    removeConnection(
+        gateId:number, 
+        type:ConnectionType, 
+        index:number
+    ) {
+        const graph = this.gateGrid.graph
+
+        let c:Connection | undefined
+        switch (type) {
+            case "Input":
+                c = graph.inputs[gateId][index]
+                break
+            case "Output":
+                c = graph.outputs[gateId][index]
+                break
+        }
+
+        if (c === undefined) {
+            return
+        }
+
+
+        graph.removeConnection(c)
+    }
+
+    getConnectedTo(
+        gateId:number,
+        index:number
+    ) {
+        const graph = this.gateGrid.graph
+        
+        const c = graph.inputs[gateId][index]
+        console.log(c)
+
+        return c?.from
+    }
+
+    getConnectionPoint(
+        gate:Gate,
+        type:ConnectionType,
+        index:number,
+    ) {
+        switch (type) {
+            default:
+            case "Input":
+                return this.gateGrid.getGateInputOffset(gate, index)
+            case "Output":
+                return this.gateGrid.getGateOutputOffset(gate, index)
+        }
+    }
+
     private svgIdToGateId(id:string) {
         const idParts = id.split("-")
         return Number(idParts[1])
@@ -247,11 +303,11 @@ export class CircuitController {
         const offsetWidth = grid.cellOffset * grid.sizeX
         for (let i = 0; i < grid.sizeX; i++) {
             const hpos = i * grid.cellOffset
-            svg[i] = `<path d="M ${hpos} 0 L ${hpos} ${offsetHeight}" stroke="${color}"/>`
+            svg[i] = `<path d="M ${hpos} 0 L ${hpos} ${offsetHeight}" stroke="${color}" stroke-width=".25pt"/>`
         }
         for (let j = 0; j < grid.sizeY; j++) {
             const vpos = j * grid.cellOffset
-            svg[grid.sizeX + j] = `<path d="M 0 ${vpos} L ${offsetWidth} ${vpos}" stroke="${color}"/>`
+            svg[grid.sizeX + j] = `<path d="M 0 ${vpos} L ${offsetWidth} ${vpos}" stroke="${color}" stroke-width=".25pt"/>`
         }
         return svg
     }
@@ -264,7 +320,7 @@ export class CircuitController {
         const graph = this.gateGrid.graph
         let result = ""
 
-        graph.iterConnections((g, t, j, _c) => {
+        graph.iterConnectionPoints((g, t, j) => {
             const inputOffsets = this.gateGrid.getGateInputOffsets(g)
             const outputOffsets = this.gateGrid.getGateOutputOffsets(g)
             switch (t) {
@@ -280,25 +336,19 @@ export class CircuitController {
                     break
             }
         }, type)
+        
         return result
     }
 
     drawWires(wireBuilder:(fromOffset:[number, number], toOffset:[number, number]) => string) {
         const graph = this.gateGrid.graph
         let result = new Array<string>()
-        graph.iterConnections((g, _t, j, c) => {
-            if (c === undefined) {
-                return
-            }
-            const toOffset = this.gateGrid.getGateInputOffsets(g)[j]
-            const fromGate = graph.getGate(c.from)
-            if (fromGate === undefined) {
-                return
-            }
-            const fromOffset = this.gateGrid.getGateOutputOffsets(fromGate)[c.output]
-            
-            result.push(wireBuilder(fromOffset, toOffset))
-        }, "Input")
+        
+        graph.iterConnections((f, o, t, i, _c) => {
+            const fOffsets = this.gateGrid.getGateOutputOffsets(f)
+            const tOffsets = this.gateGrid.getGateInputOffsets(t)
+            result.push(wireSvg(fOffsets[o], tOffsets[i]))
+        })
 
         return result
     }
