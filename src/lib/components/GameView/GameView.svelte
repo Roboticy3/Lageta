@@ -43,7 +43,6 @@
      * @param {string | undefined} s
      */
     function onSubmitSave(s) {
-        console.log(s)
         return circuitStore.save(s)
     }
 

@@ -66,7 +66,7 @@
     }}>
     <form class="dialog-form"
         bind:this={form}>
-        <input type="text" name="name" required class="dialog-text"/>
+        <input type="text" name="name" autocomplete="off" required class="dialog-text"/>
         <input type="submit" value={name} class="dialog-submit"/>
         <button class="dialog-quit" 
             on:click={() => {
