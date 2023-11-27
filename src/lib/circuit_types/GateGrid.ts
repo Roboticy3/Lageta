@@ -22,7 +22,7 @@ export class GateGrid {
         ]
     }
 
-    cellOffset = 25
+    cellOffset = 30
 
     offsetToIndex(offsetX:number, offsetY:number) {
         const x = Math.floor(offsetX / this.cellOffset)

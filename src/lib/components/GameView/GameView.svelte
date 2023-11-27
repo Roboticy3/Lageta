@@ -8,6 +8,10 @@
 
     import GameViewShelfButton from "./GameViewShelfButton.svelte";
     import GameViewCircuitPanel from './GameViewCircuitPanel.svelte';
+    import TextFormPopup from './TextFormPopup.svelte';
+
+    import { mainController } from '$lib/circuit_types/CircuitController';
+    import { CircuitStore } from '$lib/circuit_types/CircuitStore';
 
     export let directions = "";
 
@@ -17,7 +21,38 @@
         new GateType("And", 2),
         new GateType("Or", 2),
     ]
-    
+
+    /**
+     * @type {CircuitStore}
+     */
+    let circuitStore
+    onMount(() => {
+        if (mainController === undefined) {
+            console.log("there should be a controller here!")
+            return
+        }
+        circuitStore = new CircuitStore(mainController, "")
+    })
+
+    /**
+     * @type {TextFormPopup}
+     */
+    let dialog
+
+    /**
+     * @param {string | undefined} s
+     */
+    function onSubmitSave(s) {
+        console.log(s)
+        return circuitStore.save(s)
+    }
+
+    /**
+     * @param {string | undefined} s
+     */
+    function onSubmitLoad(s) {
+        return circuitStore.load(s)
+    }
 </script>
 
 <div class="game-view" id="game-view">
@@ -37,8 +72,22 @@
             <button>
                 play
             </button>
+            <button on:click={() => {dialog.show("Save", onSubmitSave)}}>
+                save
+            </button>
+            <button on:click={() => {dialog.show("Load", onSubmitLoad)}}>
+                load
+            </button>
         </div>
     </div>
+
+    <TextFormPopup submitFunction={(s) => {
+        return false
+    }} name={"Save"} bind:this={dialog}>
+    <div>
+        
+    </div>
+    </TextFormPopup>
 
 </div>
     

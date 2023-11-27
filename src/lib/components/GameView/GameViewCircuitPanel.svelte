@@ -171,13 +171,12 @@
             const c = gridController.getConnectedTo(
                 gate.id || 0, connectionIndex
             )
-            console.log(c)
             if (c !== undefined) {
                 const newGate = gridController.getGate(c[0])
                 if (newGate !== undefined) {
                     giveGateData(newGate, d)
                     dragStartConnection(e, newGate, "Output", c[1])
-                    gridController.removeConnection(newGate.id || 0, "Output", c[1])
+                    gridController.removeConnection(gate.id || 0, "Input", connectionIndex)
                     updateSvg()
                     return
                 }
@@ -198,7 +197,7 @@
             ConnectionSvg, gridController.flipConnectionType(type)
         )
     }
-
+    
     /**
      * Add evs for dragging related to the circuit
      */
@@ -214,6 +213,8 @@
         circuit.addEventListener("dragleave", preventDefault)
 
         circuit.addEventListener("drop", circuitDropEV)
+
+
     }
 
     /**

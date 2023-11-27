@@ -43,14 +43,15 @@ export class GateGraph {
     }
 
     verifyConnection(c:Connection) {
-        let outGate = this.gates[c.from[0]]
-        if (outGate === undefined)
+        const outGate = this.gates[c.from[0]]
+        if (outGate === undefined || c.from[1] > outGate.type.sizeOut )
         {
             return false
         }
         const to = c.to
         for (let i = 0; i < to.length; i++) {
-            if (to[i][0] === undefined) {
+            const toGate = this.gates[to[i][0]]
+            if (toGate === undefined || to[i][1] > toGate.type.sizeIn) {
                 return false
             }
         }
@@ -74,7 +75,7 @@ export class GateGraph {
             const indexOf = ato.indexOf(to)
             if (indexOf === -1) {
                 ato.push(to)
-                this.inputs
+                this.setInput(to, a)
             }
         }
     }
@@ -93,11 +94,7 @@ export class GateGraph {
         const to = c.to
         const inputs = this.inputs
         for (let i = 0; i < to.length; i++) {
-            const c = this.getInput(to[i])
-            if (c === undefined) {
-                continue
-            }
-            this.removeConnection(c)
+            this.removeInput(to[i])
         }
 
         this.addConnectionNoChecks(c)
@@ -113,14 +110,25 @@ export class GateGraph {
         }
     }
 
-    removeConnection(c:Connection) {
-        const from = c.from
-        this.setOutput(from, undefined)
+    removeInput(a:[number, number]) {
+        const c = this.getInput(a)
+        if (c === undefined) {
+            return
+        }
+        const to = c.to
+        const i = to.indexOf(a)
+        to.splice(i, 1)
+        this.setInput(a, undefined)
 
+        if (to.length === 0) {
+            this.setOutput(c.from, undefined)
+        }
+    }
+
+    removeOutput(c:Connection) {
         const to = c.to
         for (let i = 0; i < to.length; i++) {
-            const toi = to[i]
-            this.setInput(toi, undefined)
+            this.removeInput(to[i])
         }
     }
 
@@ -136,16 +144,24 @@ export class GateGraph {
         this.outputs[id] = new Array<Connection | undefined>(gType.sizeOut)
     }
 
-    disconnectGate(id:number) {
-        const gate = this.gates[id]
-        if (gate === undefined) {
-            return undefined
-        }
-        const gType = gate.type
+    disconnectGate(gateId:number) {
+        const inputs = this.inputs[gateId]
+        const outputs = this.outputs[gateId]
 
-        
-        this.inputs[id] = []
-        this.outputs[id] = []
+        for (let i = 0; i < outputs.length; i++) {
+            const c = outputs[i]
+            if (c === undefined) {
+                continue
+            }
+            this.removeOutput(c)
+        }
+
+        for (let i = 0; i < inputs.length; i++) {
+            this.removeInput([gateId, i])
+        }
+
+        this.inputs[gateId] = []
+        this.outputs[gateId] =[]
     }
 
     iterConnections(iter:ConnectionReader) {
@@ -183,7 +199,7 @@ export class GateGraph {
         for (let i = 0; i < gates.length; i++) {
             const gate = gates[i]
             if (gate === undefined) {
-                return
+                continue
             }
             const gType = gate.type
             const inputs = this.inputs

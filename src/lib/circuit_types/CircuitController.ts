@@ -42,6 +42,8 @@ export class CircuitController {
             let gateGrid = new GateGrid(graph)
             this.gateGrid = gateGrid
         }
+
+        this.makeMainController()
     }
 
     query(
@@ -247,22 +249,21 @@ export class CircuitController {
     ) {
         const graph = this.gateGrid.graph
 
-        let c:Connection | undefined
+        
         switch (type) {
             case "Input":
-                c = graph.inputs[gateId][index]
+                graph.removeInput([gateId, index])
                 break
             case "Output":
-                c = graph.outputs[gateId][index]
+                const c = graph.outputs[gateId][index]
+                if (c === undefined) {
+                    break
+                }
+                graph.removeOutput(c)
                 break
         }
 
-        if (c === undefined) {
-            return
-        }
-
-
-        graph.removeConnection(c)
+        console.log(graph)
     }
 
     getConnectedTo(
@@ -310,6 +311,10 @@ export class CircuitController {
             svg[grid.sizeX + j] = `<path d="M 0 ${vpos} L ${offsetWidth} ${vpos}" stroke="${color}" stroke-width=".25pt"/>`
         }
         return svg
+    }
+
+    setGridCellOffset(offset:number) {
+        this.gateGrid.cellOffset = offset
     }
 
     gridEuclidDistance(dX:number, dY:number) {
@@ -367,4 +372,10 @@ export class CircuitController {
                 return ""
         }
     }
+
+    makeMainController() {
+        mainController = this
+    }
 }
+
+export var mainController:CircuitController | undefined = undefined
