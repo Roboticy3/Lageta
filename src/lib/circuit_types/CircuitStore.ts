@@ -79,6 +79,7 @@ class OrganizedCircuit {
     constructor(
         from:GateGrid | string
     ) {
+        
         if (from instanceof GateGrid) {
             this.fromGrid(from)
         }
@@ -90,7 +91,9 @@ class OrganizedCircuit {
     fromGrid(grid:GateGrid) {
         let types = new Map<string, GateType>()
 
-        this.gates = Array<SerializableGate | null>(grid.gates.length)
+        this.gates = new Array<SerializableGate>(0)
+        let indexMap = new Map<number, number>()
+
         this.offset = [Infinity, Infinity]
         this.size = [0, 0]
         
@@ -99,13 +102,17 @@ class OrganizedCircuit {
             if (!types.has(gType.name)) {
                 types.set(gType.name, gType)
             }
-            this.gates[g.id || 0] = new SerializableGate(g, gType.name)
+
+            indexMap.set(g.id || 0, this.gates.length)
+            g.id = this.gates.length
+            this.gates.push(new SerializableGate(g, gType.name))
 
             this.offset[0] = Math.min(this.offset[0], g.x || 0)
             this.offset[1] = Math.min(this.offset[1], g.y || 0)
             this.size[0] = Math.max(this.size[0], (g.x || 0) + gType.gridWidth)
             this.size[1] = Math.max(this.size[1], (g.y || 0) + gType.gridHeight)
         })
+        console.log(this.gates)
         this.size[0] -= this.offset[0]
         this.size[1] -= this.offset[1]
 
@@ -113,6 +120,15 @@ class OrganizedCircuit {
         let connections = new Set<Connection>()
         graph.iterConnections((_g, _o, _t, _i, c) => {
             connections.add(c)
+            c.from[0] = indexMap.get(c.from[0]) || 0
+            c.from[1] = indexMap.get(c.from[1]) || 0
+            
+            const to = c.to
+            for (let i = 0; i < to.length; i++) {
+                const toi = to[i]
+                toi[0] = indexMap.get(toi[0]) || 0
+                toi[1] = indexMap.get(toi[1]) || 0
+            }
         })
 
         this.gateTypes = [...types.values()]
@@ -123,7 +139,7 @@ class OrganizedCircuit {
         const ob = JSON.parse(string)
         try {
             this.gateTypes = ob.gateTypes as Array<GateType>
-            this.gates = ob.gates as Array<SerializableGate | null>
+            this.gates = ob.gates as Array<SerializableGate>
             this.connections = ob.connections as Array<Connection>
             this.size = ob.size as [number, number]
             this.offset = ob.offset as [number, number]
