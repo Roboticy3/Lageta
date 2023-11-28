@@ -152,20 +152,25 @@ export class CircuitController {
             console.log("failed add!")
             return
         }
+        
+        svgContents.push(this.addGateSvg(gate, getGateSvgContents))
+        
+        console.log(this.gateGrid.graph)
+    }
 
+    addGateSvg(gate:Gate, getGateSvgContents: (name:string) => string) {
+        const gType = gate.type
         const newSvg = (
 `
 <g 
-    id="${gType.name}-${gateId}" 
+    id="${gType.name}-${gate.id || 0}" 
     ${this.getGateSvgTransform(gate)}>
     ${getGateSvgContents(gType.name)}
 </g>
 `
         )
         
-        svgContents.push(newSvg)
-        
-        console.log(this.gateGrid.graph)
+        return newSvg
     }
 
     moveGate(

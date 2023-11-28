@@ -6,9 +6,13 @@ export class GateGrid {
 
     graph:GateGraph
 
-    constructor(graph:GateGraph) {
+    constructor(graph:GateGraph, sizeX:number | undefined = undefined, sizeY:number | undefined = undefined) {
         this.graph = graph
         this.gates = graph.gates
+
+        this.sizeX = sizeX || this.sizeX
+        this.sizeY = sizeY || this.sizeY
+        this.grid = new Array<number | undefined>(this.sizeX * this.sizeY)
     }
 
     sizeX = 40
@@ -34,9 +38,8 @@ export class GateGrid {
         return [this.cellOffset * x, this.cellOffset * y]
     }
 
-    grid = new Array<number | undefined>(this.sizeX * this.sizeY)
+    grid:Array<number | undefined>
     gates = new Array<Gate | undefined>()
-    gateLoad = 0
 
     gateCount = 0
 
@@ -89,6 +92,13 @@ export class GateGrid {
         this.graph.resetConnectionsAt(gate.id || 0)
 
         return cell
+    }
+
+    addGateExisting(g:Gate) {
+        const id = g.id || 0
+        const gType = g.type
+        this.gates[id] = g
+        this.setIndexToRange(id, g.x || 0, g.y || 0, gType.gridWidth, gType.gridHeight)
     }
 
     //get a gate's position from a sample index
@@ -190,6 +200,16 @@ export class GateGrid {
         return toCell
     }
 
+    iterGates(iter:(g:Gate) => void) {
+        for (let i = 0; i < this.gates.length; i++) {
+            const g = this.gates[i]
+            if (g === undefined) {
+                continue
+            }
+            iter(g)
+        }
+    }
+
     //simple add gate assuming there is space at the specified coordinates
     //does not center the gate, but places its top-left at the given coordinates
     private addGateNoChecks(x:number, y:number, gate:Gate) {
@@ -213,4 +233,6 @@ export class GateGrid {
             }
         }
     }
+
+
 }

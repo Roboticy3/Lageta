@@ -11,6 +11,10 @@ export class GateGraph {
         if (grid === undefined) {
             return
         }
+        this.fromGrid(grid)
+    }
+
+    fromGrid(grid:GateGrid) {     
         this.gates = grid.gates
 
         let gateCount = grid.gates.length
@@ -26,19 +30,19 @@ export class GateGraph {
         return this.gates[i]
     }
 
-    private setOutput(a:[number, number], c:Connection | undefined) {
+    setOutput(a:[number, number], c:Connection | undefined) {
         this.outputs[a[0]][a[1]] = c
     }
 
-    private getOutput(a:[number, number]) {
+    getOutput(a:[number, number]) {
         return this.outputs[a[0]][a[1]]
     }
 
-    private setInput(a:[number, number], c:Connection | undefined) {
+    setInput(a:[number, number], c:Connection | undefined) {
         this.inputs[a[0]][a[1]] = c
     }
 
-    private getInput(a:[number, number]) {
+    getInput(a:[number, number]) {
         return this.inputs[a[0]][a[1]]
     }
 
@@ -135,13 +139,16 @@ export class GateGraph {
     resetConnectionsAt(id:number) {
 
         let gate = this.getGate(id)
-        if (gate === undefined) {
-            return
+        let sizeIn = 0
+        let sizeOut = 0
+        if (gate !== undefined) {
+            const gType = gate.type
+            sizeIn = gType.sizeIn
+            sizeOut = gType.sizeOut
         }
-        const gType = gate.type
         
-        this.inputs[id] = new Array<Connection | undefined>(gType.sizeIn)
-        this.outputs[id] = new Array<Connection | undefined>(gType.sizeOut)
+        this.inputs[id] = new Array<Connection | undefined>(sizeIn)
+        this.outputs[id] = new Array<Connection | undefined>(sizeOut)
     }
 
     disconnectGate(gateId:number) {

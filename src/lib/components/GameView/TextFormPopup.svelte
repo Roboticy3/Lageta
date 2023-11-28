@@ -1,4 +1,6 @@
 <script>
+    //currently it bugs me that clicking outside of the form doesn't close it
+    //ofc svelte docs have some crazy alien solution to this, but this is good enough for now
     export let name = ""
 
     /**
