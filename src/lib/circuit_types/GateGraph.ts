@@ -120,7 +120,15 @@ export class GateGraph {
             return
         }
         const to = c.to
-        const i = to.indexOf(a)
+        let i = 0
+        for (; i < to.length; i++) {
+            if (to[i][0] === a[0] && to[i][1] === a[1])  {
+                break
+            }
+        }
+        if (i === to.length) {
+            return
+        }
         to.splice(i, 1)
         this.setInput(a, undefined)
 

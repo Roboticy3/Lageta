@@ -70,6 +70,8 @@
      */
     function onDragStart(e) {
 
+        
+
         const result = gridController.query(e.offsetX, e.offsetY)
         const gate = result.gate
         if (gate === undefined) {
@@ -168,14 +170,14 @@
         d.setData('offset', `${offset[0]}|${offset[1]}`) 
         
         if (type === "Input") {
-            const c = gridController.getConnectedTo(
+            const from = gridController.getConnectedTo(
                 gate.id || 0, connectionIndex
             )
-            if (c !== undefined) {
-                const newGate = gridController.getGate(c[0])
+            if (from !== undefined) {
+                const newGate = gridController.getGate(from[0])
                 if (newGate !== undefined) {
                     giveGateData(newGate, d)
-                    dragStartConnection(e, newGate, "Output", c[1])
+                    dragStartConnection(e, newGate, "Output", from[1])
                     gridController.removeConnection(gate.id || 0, "Input", connectionIndex)
                     updateSvg()
                     return
@@ -400,8 +402,6 @@
         }
         const toId = target.gate.id || 0
 
-        console.log(gateId)
-
         if (toType === fromType) {
             console.log("can't connect ", fromType, " with ", toType)
             updateSvg()
@@ -477,7 +477,7 @@
     role="application"
     bind:this={circuitContainer}
     on:dragstart={onDragStart}
-    on:mouseup={clickHandler}>
+    on:click={clickHandler}>
     <svg stroke="black" stroke-width=".5pt" fill="none" bind:this={circuit}>
 
         {#each gridController.gridCellsSvg() as svg}

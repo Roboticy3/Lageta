@@ -253,7 +253,6 @@ export class CircuitController {
         index:number
     ) {
         const graph = this.gateGrid.graph
-
         
         switch (type) {
             case "Input":
