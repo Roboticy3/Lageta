@@ -138,9 +138,7 @@ export class CircuitController {
     addGate(
         gate:Gate, 
         offsetX:number, 
-        offsetY:number, 
-        svgContents:Array<string>, 
-        getGateSvgContents: (name:string) => string
+        offsetY:number
     ) {
         console.log("adding gate: ", gate)
         const gType = gate.type
@@ -152,33 +150,14 @@ export class CircuitController {
             console.log("failed add!")
             return
         }
-        
-        svgContents.push(this.addGateSvg(gate, getGateSvgContents))
-        
-        console.log(this.gateGrid.graph)
-    }
 
-    addGateSvg(gate:Gate, getGateSvgContents: (name:string) => string) {
-        const gType = gate.type
-        const newSvg = (
-`
-<g 
-    id="${gType.name}-${gate.id || 0}" 
-    ${this.getGateSvgTransform(gate)}>
-    ${getGateSvgContents(gType.name)}
-</g>
-`
-        )
-        
-        return newSvg
+        console.log(this.gateGrid.graph)
     }
 
     moveGate(
         gateId:string, 
         offsetX:number, 
-        offsetY:number, 
-        svgContents:Array<string>, 
-        getGateSvgContents: (name:string) => string
+        offsetY:number
     ) {
         console.log("moving gate: ", gateId)
 
@@ -197,17 +176,6 @@ export class CircuitController {
             console.log("failed move!")
             return
         }
-        const newSvg = (
-`
-<g 
-    id="${gateId}" 
-    ${this.getGateSvgTransform(gate)}>
-    ${getGateSvgContents(gType.name)}
-</g>
-`
-        )
-        
-        svgContents[id] = newSvg
 
         console.log(this.gateGrid)
     }
@@ -323,6 +291,24 @@ export class CircuitController {
 
     gridEuclidDistance(dX:number, dY:number) {
         return Math.sqrt(dX * dX + dY * dY)
+    }
+
+    drawGates(getGateSvgContents:(name:string) => string) {
+        var result = Array<string>()
+        this.gateGrid.iterGates((g) => {
+        result.push
+    (
+`
+<g 
+    id="${g.id || 0}" 
+    ${this.getGateSvgTransform(g)}>
+    ${getGateSvgContents(g.type.name)}
+</g>
+`
+    )
+        })
+
+        return result
     }
 
     drawConnectionPoints(connectionBuilder:(offsetX:number, offsetY:number) => string, type:ConnectionType="") {

@@ -203,7 +203,9 @@ export class GateGraph {
                     }
                     const input = tok[1]
 
-                    iter (gate, j, toGate, input, c)
+                    if (iter (gate, j, toGate, input, c)) {
+                        break
+                    }
                 }
             }
         }
@@ -221,10 +223,14 @@ export class GateGraph {
             const outputs = this.outputs
 
             if (type === "" || type === "Input") {for (let j = 0; j < gType.sizeIn; j++) {
-                iter(gate, "Input", j)
+                if (iter(gate, "Input", j)) {
+                    break
+                }
             }}
             if (type === "" || type === "Output") {for (let j = 0; j < gType.sizeOut; j++) {
-                iter(gate, "Output", j)
+                if (iter(gate, "Output", j)) {
+                    break
+                }
             }}
         }
     }
@@ -249,6 +255,6 @@ export class Connection {
 
 export type ConnectionType = ""|"Input"|"Output"
 
-export type ConnectionReader = (from:Gate, output:number, to:Gate, input:number, c:Connection) => undefined
+export type ConnectionReader = (from:Gate, output:number, to:Gate, input:number, c:Connection) => any
 
-export type ConnectionPointReader = (gate:Gate, type:ConnectionType, point:number) => undefined
+export type ConnectionPointReader = (gate:Gate, type:ConnectionType, point:number) => any

@@ -26,6 +26,12 @@
      * @type {CircuitStore}
      */
     let circuitStore
+
+    /**
+     * @type {GameViewCircuitPanel}
+    */
+   let circuitPanel
+
     onMount(() => {
         if (mainController === undefined) {
             console.log("there should be a controller here!")
@@ -43,15 +49,37 @@
      * @param {string | undefined} s
      */
     function onSubmitSave(s) {
-        return circuitStore.save(s)
+        const result = circuitStore.save(s)
+        localStorageKeys = getLocalStorageKeys()
+        return result
     }
 
     /**
      * @param {string | undefined} s
      */
     function onSubmitLoad(s) {
-        return circuitStore.load(s)
+        const result = circuitStore.load(s)
+        circuitPanel.updateSvg()
+        return result
     }
+
+    /**
+     * @param {string | undefined} s
+     */
+    function onSubmitRemove(s) {
+        const result = circuitStore.remove(s)
+        localStorageKeys = getLocalStorageKeys()
+        return result
+    }
+
+    function getLocalStorageKeys() {
+        var keys = new Array(localStorage.length)
+        for (let i = 0; i < keys.length; i++) {
+            keys[i] = localStorage.key(i)
+        }
+        return keys
+    }
+    var localStorageKeys = getLocalStorageKeys()
 </script>
 
 <div class="game-view" id="game-view">
@@ -61,7 +89,7 @@
         <GameViewShelfButton gateType={type}/>
         {/each}
     </div>
-    <GameViewCircuitPanel />
+    <GameViewCircuitPanel bind:this={circuitPanel}/>
     <div class="directions">
         {@html directions}
     </div>
@@ -77,6 +105,9 @@
             <button on:click={() => {dialog.show("Load", onSubmitLoad)}}>
                 load
             </button>
+            <button on:click={() => {dialog.show("Remove", onSubmitRemove)}}>
+                remove
+            </button>
         </div>
     </div>
 
@@ -84,7 +115,7 @@
         return false
     }} name={"Save"} bind:this={dialog}>
     <div>
-        
+        {JSON.stringify(getLocalStorageKeys())}
     </div>
     </TextFormPopup>
 

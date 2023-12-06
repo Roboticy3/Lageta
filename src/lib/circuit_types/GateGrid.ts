@@ -18,14 +18,6 @@ export class GateGrid {
     sizeX = 40
     sizeY = 40
 
-    clampIndex(gate:Gate, x:number, y:number) {
-        const gType = gate.type
-        return [
-            Math.max(Math.min(x, this.sizeX - gType.gridWidth), 0),
-            Math.max(Math.min(y, this.sizeY - gType.gridHeight), 0)
-        ]
-    }
-
     cellOffset = 30
 
     offsetToIndex(offsetX:number, offsetY:number) {
@@ -106,7 +98,7 @@ export class GateGrid {
         //x -= Math.floor(gate.gridHeight * .5)
         //y -= Math.floor(gate.gridWidth * .5)
 
-        const clamp = this.clampIndex(gate, x, y)
+        const clamp = this.clampGate(gate, x, y)
         x = clamp[0]
         y = clamp[1]
 
@@ -200,13 +192,26 @@ export class GateGrid {
         return toCell
     }
 
-    iterGates(iter:(g:Gate) => void) {
+    iterGates(iter:(g:Gate) => any) {
         for (let i = 0; i < this.gates.length; i++) {
             const g = this.gates[i]
             if (g === undefined) {
                 continue
             }
-            iter(g)
+            if (iter(g)) {
+                break
+            }
+        }
+    }
+
+    private iterRange(x:number, y:number, sizeX:number, sizeY:number, iter:(index:number) => any) {
+        for (let i = 0; i < sizeY; i++) {
+            for (let j = 0; j < sizeX; j++) {
+                const index = x + j + (y + i) * this.sizeX
+                if (iter(index)) {
+                    break
+                }
+            }
         }
     }
 
@@ -226,13 +231,71 @@ export class GateGrid {
     }
 
     private setIndexToRange(id:number | undefined, x:number, y:number, sizeX:number, sizeY:number) {
-        for (let i = 0; i < sizeY; i++) {
-            for (let j = 0; j < sizeX; j++) {
-                const index = x + j + (y + i) * this.sizeX
-                this.grid[index] = id
-            }
-        }
+        this.iterRange(x, y, sizeX, sizeY, (index) => {
+            this.grid[index] = id
+        })
     }
 
+    private clampRect(x:number, y:number, x2:number, y2:number) {
+        return [
+            Math.max(Math.min(x, this.sizeX - x2), 0),
+            Math.max(Math.min(y, this.sizeY - y2), 0)
+        ]
+    }
 
+    private clampGate(gate:Gate, x:number, y:number) {
+        const gType = gate.type
+        return this.clampRect(x, y, gType.gridWidth, gType.gridHeight)
+    }
+
+    addGrid(grid:GateGrid, x:number, y:number) {
+        //check size
+        if (this.sizeX < grid.sizeX || this.sizeY < grid.sizeY) {    
+            console.log("grid does not fit!")
+            return 1
+        }
+
+        //adjust to fit
+        const x2 = x + grid.sizeX
+        const y2 = y + grid.sizeY
+
+        const [newX, newY] = this.clampRect(x, y, x2, y2)
+
+        //check collisions with original circuit
+        var found:Gate | undefined
+        grid.iterGates((g) => {
+            const gType = g.type
+            const gridPos = [(g.x || 0) + x, (g.y || 0) + y]
+            
+            console.log(gridPos)
+            const collision = this.getInRange(
+                gridPos[0],      gridPos[1],
+                gType.gridWidth, gType.gridWidth
+            )
+            
+            if (collision !== undefined) {
+                found = g
+                return 2
+            }
+
+            //if the gate passes the collision, update it's data to prepare it for addition
+            g.x = gridPos[0]
+            g.y = gridPos[1]
+            g.id = (g.id || 0) + this.gates.length
+        })
+
+        if (found !== undefined) {
+            console.log("new grid collides with original at ", found)
+            return 2
+        }
+
+        let newGates = this.gates.concat(grid.gates)
+        this.gates = newGates
+
+        grid.iterGates((g) => {
+            this.addGateExisting(g)
+        })
+
+        return 0
+    }
 }

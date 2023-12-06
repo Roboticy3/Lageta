@@ -2,7 +2,7 @@
     import { GateType, Buf, Gate, all_gates, copyGate } from '$lib/circuit_types/Gate'
     import { onMount } from 'svelte';
 
-    import { getGateSvgContents, ConnectionSvg, buildSvg, wireSvg } from '../GateSvgs.svelte';
+    import { getGateSvgContents, ConnectionSvg, buildSvg, wireSvg, getGateSvg } from '../GateSvgs.svelte';
 
     import { CircuitController } from '$lib/circuit_types/CircuitController';
     import { Connection } from '$lib/circuit_types/GateGraph';
@@ -43,6 +43,17 @@
     let activeSvgWire=""
     //the svg string of all the visible connection points
     let svgConnectionPoints = ""
+
+    export function updateSvg() {
+        svgGates = gridController.drawGates(getGateSvgContents)
+        svgConnectionPoints = gridController.drawConnectionPoints(ConnectionSvg)
+        svgWires = gridController.drawWires(wireSvg)
+        clearActiveSvgConnection()
+    }
+
+    function clearActiveSvgConnection() {
+        activeSvgWire = ""
+    }
     
     let mountCircuit = () => {
         addDragEventListeners()
@@ -351,9 +362,7 @@
             gridController.moveGate(
                 source, 
                 gateOffset[0],
-                gateOffset[1],
-                svgGates,
-                getGateSvgContents
+                gateOffset[1]
             )
         }
         else {
@@ -362,9 +371,7 @@
             gridController.addGate(
                 gate2, 
                 gateOffset[0],
-                gateOffset[1],
-                svgGates,
-                getGateSvgContents
+                gateOffset[1]
             )
         }
 
@@ -457,17 +464,6 @@
         return false
     }
 
-    function updateSvg() {
-        svgGates = svgGates
-        svgConnectionPoints = gridController.drawConnectionPoints(ConnectionSvg)
-        svgWires = gridController.drawWires(wireSvg)
-        clearActiveSvgConnection()
-    }
-
-    function clearActiveSvgConnection() {
-        activeSvgWire = ""
-    }
-
 </script>
 
 <div 
@@ -479,6 +475,9 @@
     on:dragstart={onDragStart}
     on:click={clickHandler}>
     <svg stroke="black" stroke-width=".5pt" fill="none" bind:this={circuit}>
+        {#each svgWires as wire}
+            {@html wire}
+        {/each}
 
         {#each gridController.gridCellsSvg() as svg}
         {@html svg}
@@ -486,10 +485,6 @@
 
         {#each svgGates as svg}
         {@html svg}
-        {/each}
-
-        {#each svgWires as wire}
-        {@html wire}
         {/each}
 
         {@html svgConnectionPoints}

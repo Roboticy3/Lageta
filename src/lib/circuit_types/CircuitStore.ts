@@ -35,7 +35,7 @@ export class CircuitStore {
         return true
     }
 
-    load(name:string | undefined) {
+    load(name:string | undefined, x=0, y=0) {
         if (name !== undefined) {
             this.name = name
         }
@@ -51,25 +51,31 @@ export class CircuitStore {
         }
 
         const organizedCircuit = new OrganizedCircuit(existing)
-        const grid = organizedCircuit.unpack()
-        if (grid === undefined) {
+        const newGrid = organizedCircuit.unpack()
+        if (newGrid === undefined) {
             return false
         }
-        this.grid = grid
 
-        console.log(grid)
+        console.log(newGrid)
+        const result = this.grid.addGrid(newGrid, x, y)
+        console.log(this.grid)
 
-        return true
+        return result === 0
     }
 
-    loadSvg(grid:GateGrid) {
-        
+    remove(s:string | undefined) {
+        const has = localStorage.getItem(s || "")
+        if (has !== null) {
+            localStorage.removeItem(s || "")
+            return true
+        }
+        return false
     }
 }
 
 class OrganizedCircuit {
     gateTypes:Array<GateType> = []
-    gates:Array<SerializableGate | null> = []
+    gates:Array<SerializableGate> = []
     connections:Array<Connection> = []
     //the size of the circuit in grid squares
     size:[number, number] = [0, 0]
@@ -112,7 +118,7 @@ class OrganizedCircuit {
             this.size[0] = Math.max(this.size[0], (g.x || 0) + gType.gridWidth)
             this.size[1] = Math.max(this.size[1], (g.y || 0) + gType.gridHeight)
         })
-        console.log(this.gates)
+        
         this.size[0] -= this.offset[0]
         this.size[1] -= this.offset[1]
 
