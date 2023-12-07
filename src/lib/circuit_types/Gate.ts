@@ -36,7 +36,6 @@ export class GateType {
             this.outputOffsets = outputs
         }
 
-        console.log(this.inputOffsets, this.outputOffsets)
     }   
 
     gridHeight:number = 2;

@@ -296,6 +296,11 @@ export class GateGrid {
             this.addGateExisting(g)
         })
 
+        this.graph.concatGraph(grid.graph)
+
+        this.graph.gates = newGates
+        
+
         return 0
     }
 }

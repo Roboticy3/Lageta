@@ -63,23 +63,17 @@ export class GateGraph {
         return true
     }
 
-    mergeConnection(a:Connection, b:Connection, overrideFrom=false) {
-        if (overrideFrom) {
-            const af = a.from
-            const bf = b.from
-            this.inputs[af[0]][af[1]] = undefined
-            a.from = bf
-            this.inputs[bf[0]][bf[1]] = undefined
-        }
-
+    
+    mergeConnection(a:Connection, b:Connection) {
         const ato = a.to
         const bto = b.to
         for (let i = 0; i < bto.length; i++) {
-            const to = bto[i]
-            const indexOf = ato.indexOf(to)
+            const toi = bto[i]
+            const indexOf = this.findInput(a, toi)
             if (indexOf === -1) {
-                ato.push(to)
-                this.setInput(to, a)
+                ato.push(toi)
+                this.removeInput(toi)
+                this.setInput(toi, a)
             }
         }
     }
@@ -96,7 +90,6 @@ export class GateGraph {
         }
 
         const to = c.to
-        const inputs = this.inputs
         for (let i = 0; i < to.length; i++) {
             this.removeInput(to[i])
         }
@@ -119,22 +112,20 @@ export class GateGraph {
         if (c === undefined) {
             return
         }
+        console.log(c)
         const to = c.to
-        let i = 0
-        for (; i < to.length; i++) {
-            if (to[i][0] === a[0] && to[i][1] === a[1])  {
-                break
-            }
-        }
-        if (i === to.length) {
+        const i = this.findInput(c, a)
+        if (i === -1) {
             return
         }
-        to.splice(i, 1)
+        const result = to.splice(i, 1)[0]
         this.setInput(a, undefined)
 
         if (to.length === 0) {
             this.setOutput(c.from, undefined)
         }
+
+        return result
     }
 
     removeOutput(c:Connection) {
@@ -233,6 +224,32 @@ export class GateGraph {
                 }
             }}
         }
+    }
+
+    //add a new graph onto the end of this one
+    //after calling this function, the gates array needs to be updated separately since it shares a reference with a grid
+    concatGraph(graph:GateGraph) {
+        graph.iterConnections((_f, _o, _t, _i, c) => {
+            c.from[0] += this.gates.length
+            const to = c.to
+            for (let i = 0; i < to.length; i++) {
+                to[i][0] += this.gates.length
+            }
+        })
+
+        this.inputs = this.inputs.concat(graph.inputs)
+        this.outputs = this.outputs.concat(graph.outputs)
+    }
+
+    private findInput(c:Connection, input:[number, number]) {
+        const to = c.to
+        let i = to.length - 1
+        for (; i > -1; i--) {
+            if (to[i][0] === input[0] && to[i][1] === input[1])  {
+                break
+            }
+        }
+        return i
     }
 }
 
