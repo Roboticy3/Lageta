@@ -59,26 +59,17 @@ export class Gate {
         this.type = type
     }
 
-    x?:number = undefined;
-    y?:number = undefined;
+    x:number = 0;
+    y:number = 0;
     givePos(x:number, y:number) {
 
         this.x = x
         this.y = y
     }
-    clearPos() {
-        this.x = undefined
-        this.y = undefined
-    }
-    id?:number = undefined
+    id:number = 0
     giveId(id:number) {
         this.id = id
     }
-    clearId() {
-        this.id = undefined
-    }
-
-    
 }
 
 

@@ -1,5 +1,5 @@
 import { ConnectionSvg, wireSvg } from "$lib/components/GateSvgs.svelte";
-import type { Gate } from "./Gate";
+import { copyGate, type Gate, type GateType } from "./Gate";
 import { GateGraph, Connection, type ConnectionType } from "./GateGraph"
 import { GateGrid } from "./GateGrid";
 
@@ -136,12 +136,12 @@ export class CircuitController {
     }
 
     addGate(
-        gate:Gate, 
+        gType:GateType, 
         offsetX:number, 
         offsetY:number
     ) {
+        const gate = copyGate(gType)
         console.log("adding gate: ", gate)
-        const gType = gate.type
 
         const gateId = this.gateGrid.gates.length
         let [x, y] = this.gateGrid.offsetToIndex(offsetX, offsetY)

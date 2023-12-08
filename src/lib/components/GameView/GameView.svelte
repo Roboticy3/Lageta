@@ -50,7 +50,7 @@
      */
     function onSubmitSave(s) {
         const result = circuitStore.save(s)
-        localStorageKeys = getLocalStorageKeys()
+        updateLocalStorageKeys()
         return result
     }
 
@@ -68,7 +68,7 @@
      */
     function onSubmitRemove(s) {
         const result = circuitStore.remove(s)
-        localStorageKeys = getLocalStorageKeys()
+        updateLocalStorageKeys()
         return result
     }
 
@@ -79,7 +79,15 @@
         }
         return keys
     }
-    var localStorageKeys = getLocalStorageKeys()
+    /**
+     * @type {string}
+     */
+    var localStorageKeys
+    function updateLocalStorageKeys() {
+        localStorageKeys = JSON.stringify(getLocalStorageKeys())
+        return localStorageKeys
+    }
+    updateLocalStorageKeys()
 </script>
 
 <div class="game-view" id="game-view">
@@ -115,7 +123,7 @@
         return false
     }} name={"Save"} bind:this={dialog}>
     <div>
-        {JSON.stringify(getLocalStorageKeys())}
+        {localStorageKeys}
     </div>
     </TextFormPopup>
 

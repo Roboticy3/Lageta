@@ -367,9 +367,8 @@
         }
         else {
             const offset = offsetString.split('|')
-            const gate2 = copyGate(gType)
             gridController.addGate(
-                gate2, 
+                gType, 
                 gateOffset[0],
                 gateOffset[1]
             )
