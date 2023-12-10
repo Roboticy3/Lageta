@@ -156,8 +156,6 @@ export class GateGrid {
 
         if (clear) {
             this.gates[id] = undefined
-            gate.clearId()
-            gate.clearPos()
 
             this.graph.disconnectGate(id)
         }

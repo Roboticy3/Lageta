@@ -2,6 +2,7 @@ import { ConnectionSvg, wireSvg } from "$lib/components/GateSvgs.svelte";
 import { copyGate, type Gate, type GateType } from "./Gate";
 import { GateGraph, Connection, type ConnectionType } from "./GateGraph"
 import { GateGrid } from "./GateGrid";
+import { identity, transform, type Matrix, type Transform, applyToPoint, inverse, toSVG, fromObject, translate} from "transformation-matrix";
 
 const connectionSelectRadius = 10
 
@@ -30,6 +31,8 @@ export class CircuitControllerQueryResult {
 export class CircuitController {
     gateGrid:GateGrid
 
+    private transformMatrix:Matrix
+
     constructor(
         gateGrid:GateGrid | undefined = undefined
     )
@@ -43,6 +46,12 @@ export class CircuitController {
             this.gateGrid = gateGrid
         }
 
+        this.transformMatrix = fromObject({
+            a:1.0, b:0.0,
+            c:0.0, d:1.0,
+            e:100.0, f:0.0
+        })
+
         this.makeMainController()
     }
 
@@ -51,7 +60,9 @@ export class CircuitController {
         offsetY:number
     )
     {
-        const [x, y] = this.gateGrid.offsetToIndex(offsetX, offsetY)
+        const [localX, localY] = this.unprojectOffset(offsetX, offsetY)
+        const [x, y] = this.gateGrid.offsetToIndex(localX, localY)
+        console.log(localX, localY, offsetX, offsetY)
         const gate = this.gateGrid.get(x, y)
         const graph = this.gateGrid.graph
 
@@ -64,8 +75,8 @@ export class CircuitController {
         let i = 0;
         for (; i < gType.sizeIn; i++) {
             const offset = inputOffsets[i]
-            const dX = offsetX - offset[0]
-            const dY = offsetY - offset[1]
+            const dX = localX - offset[0]
+            const dY = localY - offset[1]
 
             const d = this.gridEuclidDistance(dX, dY)
             if (d < connectionSelectRadius) {
@@ -85,8 +96,8 @@ export class CircuitController {
         i = 0
         for (; i < gType.sizeOut; i++) {
             const offset = outputOffsets[i]
-            const dX = offsetX - offset[0]
-            const dY = offsetY - offset[1]
+            const dX = localX - offset[0]
+            const dY = localY - offset[1]
 
             const d = this.gridEuclidDistance(dX, dY)
             if (d < connectionSelectRadius) {
@@ -106,6 +117,20 @@ export class CircuitController {
             gate,
             "Gate"
         ) 
+    }
+
+    projectOffset(offsetX:number, offsetY:number) {
+        const p:[number, number] = [offsetX, offsetY]
+        return applyToPoint(this.transformMatrix, p)
+    }
+
+    unprojectOffset(localX:number, localY:number) {
+        const p:[number, number] = [localX, localY]
+        return applyToPoint(inverse(this.transformMatrix), p)
+    }
+
+    getMatrixSvg() {
+        return toSVG(this.transformMatrix)
     }
 
     getGateFromSvgId(gateId:string) {
@@ -144,7 +169,10 @@ export class CircuitController {
         console.log("adding gate: ", gate)
 
         const gateId = this.gateGrid.gates.length
-        let [x, y] = this.gateGrid.offsetToIndex(offsetX, offsetY)
+
+        const [localX, localY] = this.unprojectOffset(offsetX, offsetY)
+        console.log(localX, localY, offsetX, offsetY)
+        let [x, y] = this.gateGrid.offsetToIndex(localX, localY)
         const result = this.gateGrid.addGate(x, y, gate)
         if (result === undefined) {
             console.log("failed add!")
@@ -169,7 +197,9 @@ export class CircuitController {
         }
         const gType = gate.type
 
-        let [x, y] = this.gateGrid.offsetToIndex(offsetX, offsetY)
+        const [localX, localY] = this.unprojectOffset(offsetX, offsetY)
+        console.log(offsetX, offsetY, localX, localY)
+        let [x, y] = this.gateGrid.offsetToIndex(localX, localY)
 
         const result = this.gateGrid.moveGate(id, x, y)
         if (result === undefined) {
@@ -311,7 +341,7 @@ export class CircuitController {
         return result
     }
 
-    drawConnectionPoints(connectionBuilder:(offsetX:number, offsetY:number) => string, type:ConnectionType="") {
+    drawConnectionPoints(connectionBuilder:(localX:number, localY:number) => string, type:ConnectionType="") {
         const graph = this.gateGrid.graph
         let result = ""
 
@@ -322,12 +352,14 @@ export class CircuitController {
                 case "Input":
                     result += connectionBuilder(
                         inputOffsets[j][0],
-                        inputOffsets[j][1])
+                        inputOffsets[j][1]
+                    )
                     break
                 case "Output":
                     result += connectionBuilder(
                         outputOffsets[j][0],
-                        outputOffsets[j][1])
+                        outputOffsets[j][1]
+                    )
                     break
             }
         }, type)
@@ -342,7 +374,7 @@ export class CircuitController {
         graph.iterConnections((f, o, t, i, _c) => {
             const fOffsets = this.gateGrid.getGateOutputOffsets(f)
             const tOffsets = this.gateGrid.getGateInputOffsets(t)
-            result.push(wireSvg(fOffsets[o], tOffsets[i]))
+            result.push(wireBuilder(fOffsets[o], tOffsets[i]))
         })
 
         return result

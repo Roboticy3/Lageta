@@ -58,14 +58,16 @@
     on:submit={(e) => {
         var formData = new FormData(form)
         const value = formData.get("name")
+        dialog.close()
         if (value instanceof File || value === null) {
             return
         }
         if (submitFunction(value)) {
-            dialog.close()
             visible = false
         }
-    }}>
+        else {
+        dialog.show()
+        }}}>
     <form class="dialog-form"
         bind:this={form}>
         <input type="text" name="name" autocomplete="off" required class="dialog-text"/>

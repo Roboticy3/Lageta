@@ -25,9 +25,6 @@
         e.preventDefault()
     }
 
-    let left = 0;
-    let top = 0;
-
     /**
      * @type {Array<String>}
      */
@@ -68,7 +65,7 @@
 
         let offsetX = circuitContainer.offsetWidth;
         let offsetY = circuitContainer.offsetHeight;
-        circuit.setAttribute('viewBox', `${left} ${top} ${offsetX - left} ${offsetY - top}`)
+        circuit.setAttribute('viewBox', `0 0 ${offsetX} ${offsetY}`)
         circuit.setAttribute('width', `${offsetX}`)
     }
 
@@ -81,14 +78,14 @@
      */
     function onDragStart(e) {
 
-        
-
         const result = gridController.query(e.offsetX, e.offsetY)
         const gate = result.gate
         if (gate === undefined) {
             preventDefault(e)
             return
         }
+
+        console.log(result)
 
         const tString = result.type
 
@@ -150,13 +147,14 @@
         d.setData('ShelfButtonId', target_id)
 
         const gateOffset = gridController.indexToOffset(gate.x || 0, gate.y || 0)
-        const localOffset = [
-            e.offsetX - gateOffset[0],
-            e.offsetY - gateOffset[1]
+        const localOffset = gridController.projectOffset(e.offsetX, e.offsetY)
+        const offset = [
+            localOffset[0] - gateOffset[0],
+            localOffset[1] - gateOffset[1]
         ]
-        d.setData('offset', `${localOffset[0]}|${localOffset[1]}`)
+        d.setData('offset', `${offset[0]}|${offset[1]}`)
         
-        d.setDragImage(svg, localOffset[0], localOffset[1])
+        d.setDragImage(svg, offset[0], offset[1])
 
         window.addEventListener("drop", windowDropEV)
         window.addEventListener("dragover", preventDefault)
@@ -351,26 +349,21 @@
             updateSvg()
             return
         }
-        const offset = offsetString.split('|')
-        const gateOffset = [
-            left + e.offsetX - Number(offset[0]) * .5,
-            top + e.offsetY - Number(offset[1]) * .5
-        ]
+        const offset = offsetString.split('|').map(Number)
 
         const source = d.getData('SourceGate')
         if (source !== "") {
             gridController.moveGate(
                 source, 
-                gateOffset[0],
-                gateOffset[1]
+                offset[0],
+                offset[1]
             )
         }
         else {
-            const offset = offsetString.split('|')
             gridController.addGate(
                 gType, 
-                gateOffset[0],
-                gateOffset[1]
+                offset[0],
+                offset[1]
             )
         }
 
@@ -473,7 +466,12 @@
     bind:this={circuitContainer}
     on:dragstart={onDragStart}
     on:click={clickHandler}>
-    <svg stroke="black" stroke-width=".5pt" fill="none" bind:this={circuit}>
+    <svg 
+        stroke="black" 
+        stroke-width=".5pt" 
+        fill="none" 
+        transform={gridController.getMatrixSvg()}
+        bind:this={circuit}>
         {#each svgWires as wire}
             {@html wire}
         {/each}
