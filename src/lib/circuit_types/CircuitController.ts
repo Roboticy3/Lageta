@@ -2,7 +2,7 @@ import { ConnectionSvg, wireSvg } from "$lib/components/GateSvgs.svelte";
 import { copyGate, type Gate, type GateType } from "./Gate";
 import { GateGraph, Connection, type ConnectionType } from "./GateGraph"
 import { GateGrid } from "./GateGrid";
-import { identity, transform, type Matrix, type Transform, applyToPoint, inverse, toSVG, fromObject, translate} from "transformation-matrix";
+import { identity, transform, type Matrix, type Transform, applyToPoint, inverse, toSVG, fromObject, translate, rotateDEG, rotate, scale} from "transformation-matrix";
 
 const connectionSelectRadius = 10
 
@@ -46,25 +46,20 @@ export class CircuitController {
             this.gateGrid = gateGrid
         }
 
-        this.transformMatrix = fromObject({
-            a:1.0, b:0.0,
-            c:0.0, d:1.0,
-            e:100.0, f:0.0
-        })
+        this.transformMatrix = transform(translate(100, 100))
 
         this.makeMainController()
     }
 
     query(
         offsetX:number,
-        offsetY:number
+        offsetY:number,
     )
     {
         const [localX, localY] = this.unprojectOffset(offsetX, offsetY)
+        console.log(offsetX, offsetY, "-> ", localX, localY)
         const [x, y] = this.gateGrid.offsetToIndex(localX, localY)
-        console.log(localX, localY, offsetX, offsetY)
         const gate = this.gateGrid.get(x, y)
-        const graph = this.gateGrid.graph
 
         if (gate === undefined) {
             return new CircuitControllerQueryResult() 

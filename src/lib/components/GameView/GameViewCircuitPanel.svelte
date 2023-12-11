@@ -80,12 +80,11 @@
 
         const result = gridController.query(e.offsetX, e.offsetY)
         const gate = result.gate
+        console.log(result, e.offsetX, e.offsetY)
         if (gate === undefined) {
             preventDefault(e)
             return
         }
-
-        console.log(result)
 
         const tString = result.type
 
@@ -154,7 +153,7 @@
         ]
         d.setData('offset', `${offset[0]}|${offset[1]}`)
         
-        d.setDragImage(svg, offset[0], offset[1])
+        d.setDragImage(svg, 0, 0)
 
         window.addEventListener("drop", windowDropEV)
         window.addEventListener("dragover", preventDefault)
@@ -213,17 +212,17 @@
      * Add evs for dragging related to the circuit
      */
     function addDragEventListeners() {
-        if (circuit == null) {
+        if (circuitContainer == null) {
             console.log(" not found!!")
             return
         }
 
-        circuit.addEventListener("dragover", circuitDragEV)
+        circuitContainer.addEventListener("dragover", circuitDragEV)
 
-        circuit.addEventListener("dragenter", preventDefault)
-        circuit.addEventListener("dragleave", preventDefault)
+        circuitContainer.addEventListener("dragenter", preventDefault)
+        circuitContainer.addEventListener("dragleave", preventDefault)
 
-        circuit.addEventListener("drop", circuitDropEV)
+        circuitContainer.addEventListener("drop", circuitDropEV)
 
 
     }
@@ -349,21 +348,21 @@
             updateSvg()
             return
         }
-        const offset = offsetString.split('|').map(Number)
+        let offset = offsetString.split('|').map(Number)
 
         const source = d.getData('SourceGate')
         if (source !== "") {
             gridController.moveGate(
                 source, 
-                offset[0],
-                offset[1]
+                e.offsetX,
+                e.offsetY
             )
         }
         else {
             gridController.addGate(
                 gType, 
-                offset[0],
-                offset[1]
+                e.offsetX,
+                e.offsetY
             )
         }
 
@@ -466,12 +465,15 @@
     bind:this={circuitContainer}
     on:dragstart={onDragStart}
     on:click={clickHandler}>
+
     <svg 
         stroke="black" 
         stroke-width=".5pt" 
         fill="none" 
         transform={gridController.getMatrixSvg()}
-        bind:this={circuit}>
+        bind:this={circuit}
+        style="pointer-events: none;">
+
         {#each svgWires as wire}
             {@html wire}
         {/each}
