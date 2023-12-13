@@ -11,12 +11,29 @@ export class CircuitStore {
     private grid:GateGrid
     private name:string
 
+    private circuitStorage:Array<{k:string, v:OrganizedCircuit}>
+    private storageKey = "CircuitStorage"
+
     constructor(
         circuitController:CircuitController,
         circuitName:string
     ) {
         this.grid = circuitController.gateGrid
         this.name = circuitName
+
+        let result:unknown
+        try {
+            result = JSON.parse(localStorage.getItem(this.storageKey) || "")
+            this.circuitStorage = Object.assign(new Array<{k:string, v:OrganizedCircuit}>(), result)
+        } catch(e) {
+            console.log("failed to load circuitStorage, creating new one")
+            this.circuitStorage = new Array<{k:string, v:OrganizedCircuit}>()
+            this.commit()
+        }
+    }
+
+    private commit() {
+        localStorage.setItem(this.storageKey, JSON.stringify(this.circuitStorage))
     }
 
     save(name:string | undefined) {
@@ -30,7 +47,9 @@ export class CircuitStore {
         }
 
         const organizedCircuit = new OrganizedCircuit(this.grid)
-        localStorage.setItem(this.name, JSON.stringify(organizedCircuit))
+        this.setKey(this.name, organizedCircuit)
+        console.log(this.circuitStorage)
+        this.commit()
 
         return true
     }
@@ -40,18 +59,19 @@ export class CircuitStore {
             this.name = name
         }
 
-        const existing = localStorage.getItem(this.name)
-        if (existing === null) {
+        let existing = this.getKey(this.name)
+        if (existing === undefined) {
             console.log(this.name, " not found in storage")
             return false
         }
+
+        existing = new OrganizedCircuit(existing)
 
         if (name !== undefined) {
             this.name = name
         }
 
-        const organizedCircuit = new OrganizedCircuit(existing)
-        const newGrid = organizedCircuit.unpack()
+        const newGrid = existing.unpack()
         if (newGrid === undefined) {
             return false
         }
@@ -64,12 +84,57 @@ export class CircuitStore {
     }
 
     remove(s:string | undefined) {
-        const has = localStorage.getItem(s || "")
+        const has = this.getKey(s || "")
         if (has !== null) {
-            localStorage.removeItem(s || "")
+            this.removeKey(s || "")
+            this.commit()
             return true
         }
         return false
+    }
+
+    private getKey(k:string) {
+        for (let i = 0; i < this.circuitStorage.length; i++) {
+            const pair = this.circuitStorage[i]
+            if (pair.k == k) {
+                const ret = pair.v
+                return ret
+            }
+        }
+        return undefined
+    }
+
+    private setKey(k:string, v:OrganizedCircuit) {
+        for (let i = 0; i < this.circuitStorage.length; i++) {
+            const pair = this.circuitStorage[i]
+            if (pair.k == k) {
+                const ret = pair.v
+                pair.v = v
+                return ret
+            }
+        }
+
+        this.circuitStorage.push({k, v})
+    }
+
+    private removeKey(k:string) {
+        for (let i = 0; i < this.circuitStorage.length; i++) {
+            const pair = this.circuitStorage[i]
+            if (pair.k == k) {
+                const ret = pair.v
+                this.circuitStorage = this.circuitStorage.splice(i, 1)
+                return ret
+            }
+        }
+        return undefined
+    }
+
+    keys() {
+        let keys = new Array<string>(this.circuitStorage.length)
+        for (let i = 0; i < keys.length; i++) {
+            keys[i] = this.circuitStorage[i].k
+        }
+        return keys
     }
 }
 
@@ -83,14 +148,17 @@ class OrganizedCircuit {
     offset:[number, number] = [0, 0]
 
     constructor(
-        from:GateGrid | string
+        from:any
     ) {
         
         if (from instanceof GateGrid) {
             this.fromGrid(from)
         }
-        else {
+        else if (typeof(from) === "string") {
             this.fromString(from)
+        }
+        else {
+            this.fromObject(from)
         }
     }
 
@@ -143,6 +211,10 @@ class OrganizedCircuit {
 
     fromString(string:string) {
         const ob = JSON.parse(string)
+        this.fromObject(ob) 
+    }
+
+    fromObject(ob:any){
         try {
             this.gateTypes = ob.gateTypes as Array<GateType>
             this.gates = ob.gates as Array<SerializableGate>
@@ -151,7 +223,7 @@ class OrganizedCircuit {
             this.offset = ob.offset as [number, number]
         } catch (e) {
             console.log("failed to load", ob, "into as a circuit!")
-        }  
+        } 
     }
 
     unpack() {

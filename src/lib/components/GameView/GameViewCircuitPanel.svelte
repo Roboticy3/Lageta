@@ -264,9 +264,10 @@
             return
         }
         const fromS = fromData.split("|").map(Number)
+        const localOffset = gridController.unprojectOffset(e.offsetX, e.offsetY)
         activeSvgWire = wireSvg(
             [fromS[0], fromS[1]], 
-            [e.offsetX, e.offsetY]
+            localOffset
         )
     }
 
@@ -470,24 +471,25 @@
         stroke="black" 
         stroke-width=".5pt" 
         fill="none" 
-        transform={gridController.getMatrixSvg()}
         bind:this={circuit}
         style="pointer-events: none;">
+        <g transform={gridController.getMatrixSvg()}>
 
-        {#each svgWires as wire}
-            {@html wire}
-        {/each}
+            {#each svgWires as wire}
+                {@html wire}
+            {/each}
 
-        {#each gridController.gridCellsSvg() as svg}
-        {@html svg}
-        {/each}
+            {#each gridController.gridCellsSvg() as svg}
+            {@html svg}
+            {/each}
 
-        {#each svgGates as svg}
-        {@html svg}
-        {/each}
+            {#each svgGates as svg}
+            {@html svg}
+            {/each}
 
-        {@html svgConnectionPoints}
-        {@html activeSvgWire}
+            {@html svgConnectionPoints}
+            {@html activeSvgWire}
+        </g>
     </svg>
 </div>
 

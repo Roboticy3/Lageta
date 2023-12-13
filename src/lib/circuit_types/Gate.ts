@@ -15,6 +15,7 @@ export class GateType {
         name:string = "Buf",
         inputs:number | Array<[number, number]> = 1,
         outputs:number | Array<[number, number]> = 1,
+        register=true
     )
     {
         this.name = name
@@ -34,6 +35,10 @@ export class GateType {
         else {
             this.sizeOut = outputs.length
             this.outputOffsets = outputs
+        }
+
+        if (register) {
+            registerGateType(this)
         }
 
     }   
@@ -77,6 +82,12 @@ export const registerGateType = (gateType:GateType) => {
     if (!all_gates.has(gateType.name)) {
         all_gates.set(gateType.name, gateType)
     }
+    all_gates = all_gates
+}
+
+export const registerGateTypeJson = (gateType:string) => {
+    const gType = JSON.parse(gateType) as GateType
+    registerGateType(gType)
 }
 
 export const copyGate = (type:GateType) => {
@@ -90,3 +101,5 @@ export const Buf = new GateType (
     1,
     1
 )
+
+console.log(all_gates)

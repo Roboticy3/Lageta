@@ -52,7 +52,7 @@
 
 </script>
 
-<dialog style="height: 25%;"
+<dialog style="height: 50%;"
     bind:this={dialog}
     on:close={() => (visible = false)}
     on:submit={(e) => {

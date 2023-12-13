@@ -4,7 +4,7 @@
     import { onMount } from 'svelte';
 
     import Two from 'two.js';
-    import { Gate, GateType, Buf } from "$lib/circuit_types/Gate";
+    import { Gate, GateType, Buf, all_gates } from "$lib/circuit_types/Gate";
 
     import GameViewShelfButton from "./GameViewShelfButton.svelte";
     import GameViewCircuitPanel from './GameViewCircuitPanel.svelte';
@@ -14,13 +14,6 @@
     import { CircuitStore } from '$lib/circuit_types/CircuitStore';
 
     export let directions = "";
-
-    let gateTypes = [
-        Buf,
-        new GateType("Not"),
-        new GateType("And", 2),
-        new GateType("Or", 2),
-    ]
 
     /**
      * @type {CircuitStore}
@@ -38,6 +31,7 @@
             return
         }
         circuitStore = new CircuitStore(mainController, "")
+        updateLocalStorageKeys()
     })
 
     /**
@@ -72,20 +66,13 @@
         return result
     }
 
-    function getLocalStorageKeys() {
-        var keys = new Array(localStorage.length)
-        for (let i = 0; i < keys.length; i++) {
-            keys[i] = localStorage.key(i)
-        }
-        return keys
-    }
     /**
-     * @type {string}
+     * @type {string[]}
      */
-    var localStorageKeys
+    var circuitStorageKeys
     function updateLocalStorageKeys() {
-        localStorageKeys = JSON.stringify(getLocalStorageKeys())
-        return localStorageKeys
+        circuitStorageKeys = circuitStore?.keys() || []
+        return circuitStorageKeys
     }
     updateLocalStorageKeys()
 </script>
@@ -93,7 +80,7 @@
 <div class="game-view" id="game-view">
 
     <div class="shelf">
-        {#each gateTypes as type}
+        {#each all_gates.values() as type}
         <GameViewShelfButton gateType={type}/>
         {/each}
     </div>
@@ -122,8 +109,10 @@
     <TextFormPopup submitFunction={(s) => {
         return false
     }} name={"Save"} bind:this={dialog}>
-    <div>
-        {localStorageKeys}
+    <div class="circuit-list">
+        {#each circuitStorageKeys as key} 
+        <p>{key} </p>
+        {/each}
     </div>
     </TextFormPopup>
 
@@ -192,6 +181,13 @@
         align-items: center;
         align-self: center;
         background-color: yellow;
+    }
+
+    .circuit-list {
+        height: 75%;
+        overflow-x: hidden;
+        overflow-y: auto;
+        text-align: center;
     }
 
 </style>
