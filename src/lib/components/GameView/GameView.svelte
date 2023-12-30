@@ -4,21 +4,35 @@
     import { onMount } from 'svelte';
 
     import Two from 'two.js';
-    import { Gate, GateType, Buf, all_gates } from "$lib/circuit_types/Gate";
+    // @ts-ignore
+    import { GateType } from "$lib/circuit_types/Gate";
 
     import GameViewShelfButton from "./GameViewShelfButton.svelte";
     import GameViewCircuitPanel from './GameViewCircuitPanel.svelte';
     import TextFormPopup from './TextFormPopup.svelte';
 
     import { mainController } from '$lib/circuit_types/CircuitController';
-    import { CircuitStore } from '$lib/circuit_types/CircuitStore';
+    
+    import { CircuitStore } from '$lib/progress_types/CircuitStore';
+    import { ProgressStore } from '$lib/progress_types/ProgressStore';
+    
+    //@ts-ignore
+    import { GameViewParameters } from '$lib/menu_types/GameViewParameters';
 
-    export let directions = "";
+    /**
+     * @type {GameViewParameters}
+     */
+    export let params
 
     /**
      * @type {CircuitStore}
      */
     let circuitStore
+
+    /**
+     * @type {ProgressStore}
+    */
+    let progressStore
 
     /**
      * @type {GameViewCircuitPanel}
@@ -30,8 +44,12 @@
             console.log("there should be a controller here!")
             return
         }
+
         circuitStore = new CircuitStore(mainController, "")
         updateLocalStorageKeys()
+
+        progressStore = new ProgressStore()
+        updateUnlockedGates()
     })
 
     /**
@@ -69,24 +87,34 @@
     /**
      * @type {string[]}
      */
-    var circuitStorageKeys
+    var circuitStorageKeys = []
     function updateLocalStorageKeys() {
         circuitStorageKeys = circuitStore?.keys() || []
         return circuitStorageKeys
     }
     updateLocalStorageKeys()
+
+    /**
+     * @type {Array<GateType>}
+    */
+    var unlockedGates = []
+    function updateUnlockedGates() {
+        unlockedGates = progressStore?.gates() || []
+        return unlockedGates
+    }
+    
 </script>
 
 <div class="game-view" id="game-view">
 
     <div class="shelf">
-        {#each all_gates.values() as type}
+        {#each unlockedGates as type}
         <GameViewShelfButton gateType={type}/>
         {/each}
     </div>
     <GameViewCircuitPanel bind:this={circuitPanel}/>
     <div class="directions">
-        {@html directions}
+        {@html params.directions}
     </div>
 
     <div class="control-panel">

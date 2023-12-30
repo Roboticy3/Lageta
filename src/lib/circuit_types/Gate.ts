@@ -102,4 +102,33 @@ export const Buf = new GateType (
     1
 )
 
-console.log(all_gates)
+export const Not = new GateType (
+    "Not",
+    1,
+    1
+)
+
+export const And = new GateType (
+    "And",
+    2,
+    1
+)
+
+export const Or = new GateType (
+    "Or",
+    2,
+    1
+)
+
+export const immovable = {
+    Input:new GateType (
+        "Input",
+        0,
+        1
+    ),
+    Output:new GateType (
+        "Output",
+        1,
+        0
+    )
+}

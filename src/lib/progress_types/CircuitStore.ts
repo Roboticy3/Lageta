@@ -1,11 +1,28 @@
-import type { CircuitController } from "./CircuitController";
-import { Buf, Gate, type GateType } from "./Gate";
-import { Connection, GateGraph } from "./GateGraph";
-import { GateGrid } from "./GateGrid";
+import type { CircuitController } from "../circuit_types/CircuitController";
+import { Buf, Gate, type GateType } from "../circuit_types/Gate";
+import { Connection, GateGraph } from "../circuit_types/GateGraph";
+import { GateGrid } from "../circuit_types/GateGrid";
 
 //controller for saving and loading circuits
 //apparently svelte store is supposed to help me with this. 
 //local storage isn't the best, but JSON parsing is, and both are less heavy then whatever svelte has cooking up so we're using that
+
+//storage format:
+/*
+    [ 
+      0:
+        k:circuitName
+        v:organizedCircuit
+        
+      1:
+        k:circuitName
+        v:organizedCircuit
+
+        .
+        .
+        .
+    ]
+*/
 export class CircuitStore {
 
     private grid:GateGrid
@@ -16,24 +33,32 @@ export class CircuitStore {
 
     constructor(
         circuitController:CircuitController,
-        circuitName:string
+        circuitName:string,
+        storageKey:string | undefined = undefined
     ) {
         this.grid = circuitController.gateGrid
         this.name = circuitName
 
+        this.circuitStorage = this.initializeStorage()
+
+        this.storageKey = storageKey || this.storageKey
+    }
+
+    private initializeStorage() {
         let result:unknown
         try {
             result = JSON.parse(localStorage.getItem(this.storageKey) || "")
-            this.circuitStorage = Object.assign(new Array<{k:string, v:OrganizedCircuit}>(), result)
+            return Object.assign(new Array<{k:string, v:OrganizedCircuit}>(), result)
         } catch(e) {
             console.log("failed to load circuitStorage, creating new one")
-            this.circuitStorage = new Array<{k:string, v:OrganizedCircuit}>()
-            this.commit()
+            const newCircuit = new Array<{k:string, v:OrganizedCircuit}>()
+            this.commit(newCircuit)
+            return newCircuit
         }
     }
 
-    private commit() {
-        localStorage.setItem(this.storageKey, JSON.stringify(this.circuitStorage))
+    private commit(storage = this.circuitStorage) {
+        localStorage.setItem(this.storageKey, JSON.stringify(storage))
     }
 
     save(name:string | undefined) {

@@ -2,6 +2,8 @@
 
 <script>
     import GameView from '$lib/components/GameView/GameView.svelte'
+    import { Freeplay } from '$lib/menu_types/Level';
+
 </script>
 
-<GameView directions="Have fun!"/>
+<GameView params={Freeplay.unpack()}/>

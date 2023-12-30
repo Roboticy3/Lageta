@@ -12,8 +12,19 @@
 </script>
 
 <h1>Welcome to {name}!</h1>
-<a href='/freeplay'>freeplay</a>
+<ul class="menu">
+    <a href='/freeplay'>freeplay</a>
+    <a href='/campaign'>campaign</a>
+</ul>
+
 
 <button on:click={increment}>
     {count}
 </button>
+
+<style>
+    .menu {
+        display: flex;
+        flex-direction: column;
+    }
+</style>
