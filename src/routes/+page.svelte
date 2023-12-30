@@ -13,7 +13,7 @@
 
 <h1>Welcome to {name}!</h1>
 <ul class="menu">
-    <a href='/freeplay'>freeplay</a>
+    <a href='/level'>freeplay</a>
     <a href='/campaign'>campaign</a>
 </ul>
 

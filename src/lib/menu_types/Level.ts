@@ -7,7 +7,7 @@ export class Level {
     private params:GameViewParameters
 
     constructor(
-        params:GameViewParameters,
+        params:GameViewParameters = new GameViewParameters("Have Fun!"),
         name:string = "Freeplay",
         x:number = 1,
         y:number = 1

@@ -2,6 +2,7 @@ import type { CircuitController } from "../circuit_types/CircuitController";
 import { Buf, Gate, type GateType } from "../circuit_types/Gate";
 import { Connection, GateGraph } from "../circuit_types/GateGraph";
 import { GateGrid } from "../circuit_types/GateGrid";
+import { parseStorage } from "./ParseStorage";
 
 //controller for saving and loading circuits
 //apparently svelte store is supposed to help me with this. 
@@ -39,22 +40,13 @@ export class CircuitStore {
         this.grid = circuitController.gateGrid
         this.name = circuitName
 
-        this.circuitStorage = this.initializeStorage()
-
         this.storageKey = storageKey || this.storageKey
-    }
 
-    private initializeStorage() {
-        let result:unknown
-        try {
-            result = JSON.parse(localStorage.getItem(this.storageKey) || "")
-            return Object.assign(new Array<{k:string, v:OrganizedCircuit}>(), result)
-        } catch(e) {
-            console.log("failed to load circuitStorage, creating new one")
-            const newCircuit = new Array<{k:string, v:OrganizedCircuit}>()
-            this.commit(newCircuit)
-            return newCircuit
-        }
+        this.circuitStorage = parseStorage(
+            localStorage, this.storageKey,
+            () => {return new Array<{k:string, v:OrganizedCircuit}>()}
+        )
+        this.commit()
     }
 
     private commit(storage = this.circuitStorage) {
@@ -110,9 +102,10 @@ export class CircuitStore {
 
     remove(s:string | undefined) {
         const has = this.getKey(s || "")
-        if (has !== null) {
+        if (has !== undefined) {
             this.removeKey(s || "")
             this.commit()
+            console.log("bruh")
             return true
         }
         return false

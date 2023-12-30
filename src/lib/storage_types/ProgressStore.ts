@@ -2,6 +2,7 @@ import type { CircuitController } from "$lib/circuit_types/CircuitController"
 import { Not, type GateType, Buf, And, Or } from "$lib/circuit_types/Gate"
 import type { GateGrid } from "$lib/circuit_types/GateGrid"
 import { Freeplay, W1S1, type Level, W1S2 } from "$lib/menu_types/Level"
+import { parseStorage } from "./ParseStorage"
 
 //storage format
 /*
@@ -34,23 +35,13 @@ export class ProgressStore {
     constructor(
         storageKey:string | undefined = undefined
     ) {
-        this.progressStorage = this.initializeStorage()
-        console.log(this.progressStorage)
 
         this.storageKey = storageKey || this.storageKey
-    }
-
-    private initializeStorage() {
-        let result:unknown
-        try {
-            result = JSON.parse(localStorage.getItem(this.storageKey) || "")
-            return Object.assign(new ProgressStorageObject(), result)
-        } catch(e) {
-            console.log("failed to load circuitStorage, creating new one")
-            const newCircuit = new ProgressStorageObject()
-            this.commit(newCircuit)
-            return newCircuit
-        }
+        this.progressStorage = parseStorage(
+            localStorage, this.storageKey,
+            () => {return new ProgressStorageObject()}
+        )
+        this.commit()
     }
 
     private commit(storage = this.progressStorage) {

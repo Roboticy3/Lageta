@@ -13,8 +13,8 @@
 
     import { mainController } from '$lib/circuit_types/CircuitController';
     
-    import { CircuitStore } from '$lib/progress_types/CircuitStore';
-    import { ProgressStore } from '$lib/progress_types/ProgressStore';
+    import { CircuitStore } from '$lib/storage_types/CircuitStorage';
+    import { ProgressStore } from '$lib/storage_types/ProgressStore';
     
     //@ts-ignore
     import { GameViewParameters } from '$lib/menu_types/GameViewParameters';
@@ -79,6 +79,7 @@
      * @param {string | undefined} s
      */
     function onSubmitRemove(s) {
+        console.log(s)
         const result = circuitStore.remove(s)
         updateLocalStorageKeys()
         return result
