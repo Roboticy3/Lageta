@@ -3,10 +3,10 @@
     //@ts-ignore
     import { Level } from "$lib/menu_types/Level";
     import { LevelStorage } from "$lib/storage_types/LevelStorage";
-    import { ProgressStore } from "$lib/storage_types/ProgressStore";
+    import { ProgressStorage } from "$lib/storage_types/ProgressStore";
     import { onMount } from "svelte";
 
-    let progress = new ProgressStore()
+    let progress = new ProgressStorage()
     let levelSelect = new LevelStorage()
     let levelSet = progress.levels()
     console.log(levelSet)

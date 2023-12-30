@@ -56,9 +56,13 @@
     bind:this={dialog}
     on:close={() => (visible = false)}
     on:submit={(e) => {
-        var formData = new FormData(form)
+        const formData = new FormData(form)
         const value = formData.get("name")
+        console.log(...formData.values())
         dialog.close()
+        if (value === "") {
+            return
+        }
         if (value instanceof File || value === null) {
             return
         }
@@ -66,17 +70,15 @@
             visible = false
         }
         else {
-        dialog.show()
+            dialog.show()
         }}}>
     <form class="dialog-form"
         bind:this={form}>
         <input type="text" name="name" autocomplete="off" required class="dialog-text"/>
         <input type="submit" value={name} class="dialog-submit"/>
-        <button class="dialog-quit" 
-            on:click={() => {
-                dialog.close()
-                visible = false
-            }}>
+        <button class="dialog-quit" type="reset" formnovalidate
+            on:click={hide}
+        >
             Nevermind!
         </button>
     </form>

@@ -65,7 +65,6 @@ export class CircuitStore {
 
         const organizedCircuit = new OrganizedCircuit(this.grid)
         this.setKey(this.name, organizedCircuit)
-        console.log(this.circuitStorage)
         this.commit()
 
         return true
@@ -95,7 +94,6 @@ export class CircuitStore {
 
         console.log(newGrid)
         const result = this.grid.addGrid(newGrid, x, y)
-        console.log(this.grid)
 
         return result === 0
     }
@@ -105,7 +103,6 @@ export class CircuitStore {
         if (has !== undefined) {
             this.removeKey(s || "")
             this.commit()
-            console.log("bruh")
             return true
         }
         return false

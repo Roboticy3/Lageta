@@ -27,10 +27,10 @@ import { parseStorage } from "./ParseStorage"
         ]
     }
 */
-export class ProgressStore {
+export class ProgressStorage {
 
     private progressStorage:ProgressStorageObject
-    private storageKey = "ProgressStore"
+    private storageKey = "ProgressStorage"
 
     constructor(
         storageKey:string | undefined = undefined

@@ -14,7 +14,7 @@
     import { mainController } from '$lib/circuit_types/CircuitController';
     
     import { CircuitStore } from '$lib/storage_types/CircuitStorage';
-    import { ProgressStore } from '$lib/storage_types/ProgressStore';
+    import { ProgressStorage } from '$lib/storage_types/ProgressStore';
     
     //@ts-ignore
     import { GameViewParameters } from '$lib/menu_types/GameViewParameters';
@@ -30,7 +30,7 @@
     let circuitStore
 
     /**
-     * @type {ProgressStore}
+     * @type {ProgressStorage}
     */
     let progressStore
 
@@ -48,7 +48,7 @@
         circuitStore = new CircuitStore(mainController, "")
         updateLocalStorageKeys()
 
-        progressStore = new ProgressStore()
+        progressStore = new ProgressStorage()
         updateUnlockedGates()
     })
 
