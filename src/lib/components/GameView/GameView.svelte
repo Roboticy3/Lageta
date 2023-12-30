@@ -113,7 +113,7 @@
         <GameViewShelfButton gateType={type}/>
         {/each}
     </div>
-    <GameViewCircuitPanel bind:this={circuitPanel}/>
+    <GameViewCircuitPanel bind:this={circuitPanel} params={params}/>
     <div class="directions">
         {@html params.directions}
     </div>

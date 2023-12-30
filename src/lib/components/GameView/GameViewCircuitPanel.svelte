@@ -6,6 +6,14 @@
 
     import { CircuitController } from '$lib/circuit_types/CircuitController';
     import { Connection } from '$lib/circuit_types/GateGraph';
+    
+    //@ts-ignore
+    import { GameViewParameters } from '$lib/menu_types/GameViewParameters';
+
+    /**
+     * @type {GameViewParameters}
+    */
+    export let params
 
     /**
      * @type {SVGElement} circuit
@@ -32,9 +40,9 @@
     /**
      * @type {Array<String>}
      */
-     let svgWires = []
+    let svgWires = []
     
-     let gridController = new CircuitController()
+    let gridController = new CircuitController(params.grid)
 
     //the svg string of the current connection, previews the connection being made
     let activeSvgWire=""

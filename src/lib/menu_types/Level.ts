@@ -1,3 +1,4 @@
+import type { GateGrid } from "$lib/circuit_types/GateGrid"
 import { GameViewParameters } from "./GameViewParameters"
 
 export class Level {
@@ -10,11 +11,14 @@ export class Level {
         params:GameViewParameters = new GameViewParameters("Have Fun!"),
         name:string = "Freeplay",
         x:number = 1,
-        y:number = 1
+        y:number = 1,
+        grid:GateGrid | undefined = undefined
     ) {
         this.x = x
         this.y = y
         this.name = name
+
+        params.grid = grid
         this.params = params
     }
 

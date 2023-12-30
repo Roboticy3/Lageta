@@ -11,13 +11,20 @@ export class GateType {
     inputOffsets:Array<[number, number]>
     outputOffsets:Array<[number, number]>
 
+    gridHeight:number;
+    gridWidth:number;
+
     constructor(
         name:string = "Buf",
         inputs:number | Array<[number, number]> = 1,
         outputs:number | Array<[number, number]> = 1,
+        gridSize:[number, number] = [2, 2],
         register=true
     )
     {
+        this.gridWidth = gridSize[0]
+        this.gridHeight = gridSize[1]
+
         this.name = name
         if (typeof inputs === "number") {
             this.sizeIn = inputs
@@ -42,9 +49,6 @@ export class GateType {
         }
 
     }   
-
-    gridHeight:number = 2;
-    gridWidth:number = 2;
 
     private spreadVerticalConnections(gridX:number, size:number) {
         const step = this.gridHeight / (size + 1)
@@ -120,15 +124,16 @@ export const Or = new GateType (
     1
 )
 
-export const immovable = {
-    Input:new GateType (
-        "Input",
-        0,
-        1
-    ),
-    Output:new GateType (
-        "Output",
-        1,
-        0
-    )
-}
+export const Input = new GateType (
+    "Input",
+    0,
+    1,
+    [1,1]
+)
+
+export const Output = new GateType (
+    "Output",
+    1,
+    0,
+    [1,1]
+)

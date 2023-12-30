@@ -1,5 +1,5 @@
 import type { CircuitController } from "$lib/circuit_types/CircuitController"
-import { Not, type GateType, Buf, And, Or } from "$lib/circuit_types/Gate"
+import { Not, type GateType, Buf, And, Or, Input } from "$lib/circuit_types/Gate"
 import type { GateGrid } from "$lib/circuit_types/GateGrid"
 import { Freeplay, W1S1, type Level, W1S2 } from "$lib/menu_types/Level"
 import { parseStorage } from "./ParseStorage"
@@ -62,7 +62,8 @@ class ProgressStorageObject {
         Buf,
         Not,
         And,
-        Or
+        Or,
+        Input
     ]
     levels:Array<Level> = [
         Freeplay,
