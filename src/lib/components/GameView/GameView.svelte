@@ -3,9 +3,8 @@
 <script>
     import { onMount } from 'svelte';
 
-    import Two from 'two.js';
     // @ts-ignore
-    import { GateType } from "$lib/circuit_types/Gate";
+    import { GateType, all_gates } from "$lib/circuit_types/Gate";
 
     import GameViewShelfButton from "./GameViewShelfButton.svelte";
     import GameViewCircuitPanel from './GameViewCircuitPanel.svelte';
@@ -17,7 +16,8 @@
     import { ProgressStorage } from '$lib/storage_types/ProgressStore';
     
     //@ts-ignore
-    import { GameViewParameters } from '$lib/menu_types/GameViewParameters';
+    import { GameViewParameters } from '$lib/level_types/GameViewParameters';
+    import { all_levels } from '$lib/level_types/Level';
 
     /**
      * @type {GameViewParameters}
@@ -40,6 +40,7 @@
    let circuitPanel
 
     onMount(() => {
+
         if (mainController === undefined) {
             console.log("there should be a controller here!")
             return

@@ -1,9 +1,6 @@
-import type { CircuitController } from "$lib/circuit_types/CircuitController"
-import { Not, type GateType, Buf, And, Or, Input } from "$lib/circuit_types/Gate"
-import type { GateGrid } from "$lib/circuit_types/GateGrid"
-import { Freeplay, W1S1, type Level, W1S2 } from "$lib/menu_types/Level"
+import { And, Buf, Not, Or, all_gates } from "$lib/circuit_types/Gate"
+import { Freeplay, W1S1, W1S2, all_levels } from "$lib/level_types/Level"
 import { parseStorage } from "./ParseStorage"
-
 //storage format
 /*
     {
@@ -49,26 +46,31 @@ export class ProgressStorage {
     }
 
     gates() {
-        return this.progressStorage.gates
+        return this.progressStorage.gates.map(
+            (v, _i, _a) => {
+                return all_gates.get(v) || Buf
+            })
     }
 
     levels() {
-        return this.progressStorage.levels
+        return this.progressStorage.levels.map(
+            (v, _i, _a) => {
+                return all_levels.get(v) || Freeplay
+        })
     }
 }
 
 class ProgressStorageObject {
-    gates:Array<GateType> = [
-        Buf,
-        Not,
-        And,
-        Or,
-        Input
+    gates:Array<string> = [
+        "Buf",
+        "Not",
+        "And",
+        "Or"
     ]
-    levels:Array<Level> = [
-        Freeplay,
-        W1S1,
-        W1S2
+    levels:Array<string> = [
+        "Freeplay",
+        "1",
+        "2"
     ]
 
     push(p:ProgressStorageObject) {
@@ -76,3 +78,5 @@ class ProgressStorageObject {
         this.levels.push(...p.levels)
     }
 }
+
+console.log(new ProgressStorageObject())

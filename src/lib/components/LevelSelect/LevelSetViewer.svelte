@@ -1,15 +1,13 @@
 <script>
-    import { GameViewParameters } from "$lib/menu_types/GameViewParameters";
+    import { GameViewParameters } from "$lib/level_types/GameViewParameters";
     //@ts-ignore
-    import { Level } from "$lib/menu_types/Level";
-    import { LevelStorage } from "$lib/storage_types/LevelStorage";
+    import { Freeplay, Level, all_levels } from "$lib/level_types/Level";
     import { ProgressStorage } from "$lib/storage_types/ProgressStore";
     import { onMount } from "svelte";
 
     let progress = new ProgressStorage()
-    let levelSelect = new LevelStorage()
     let levelSet = progress.levels()
-    console.log(levelSet)
+    console.log(levelSet, all_levels)
     
     /**
      * @type {Level | null}
@@ -23,7 +21,7 @@
     onMount(() => {
         panel.hidden = true
     })
-    
+
 </script>
 
 <div class="level-set">
@@ -32,7 +30,6 @@
             style="grid-column:{level.x}; grid-row:{level.y};"
             on:click={(e) => {
                 selectedLevel = level
-                levelSelect.commit(selectedLevel)
                 panel.hidden = false
             }}>
 
@@ -42,7 +39,7 @@
     {/each}
     <div class="side-panel" bind:this={panel}>
         {selectedLevel?.name || ""}
-        <a href="/level">Play</a>
+        <a href="/level/{selectedLevel?.name || ""}">Play</a>
     </div>
 </div>
 

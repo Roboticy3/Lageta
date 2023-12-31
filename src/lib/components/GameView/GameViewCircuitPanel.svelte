@@ -5,10 +5,9 @@
     import { getGateSvgContents, ConnectionSvg, buildSvg, wireSvg, getGateSvg } from '../GateSvgs.svelte';
 
     import { CircuitController } from '$lib/circuit_types/CircuitController';
-    import { Connection } from '$lib/circuit_types/GateGraph';
     
     //@ts-ignore
-    import { GameViewParameters } from '$lib/menu_types/GameViewParameters';
+    import { GameViewParameters } from '$lib/level_types/GameViewParameters';
 
     /**
      * @type {GameViewParameters}
