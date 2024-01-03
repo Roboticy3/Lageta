@@ -140,6 +140,10 @@
      */
     function dragStartGate(e, d, gate) {
         const gType = gate.type
+        if (!gType.moveable) {
+            console.log("gate type ", gType, " is not moveable")
+            return
+        }
         const [x, y] = [gate.x || 0, gate.y || 0]
 
         d.setData("type","Gate")

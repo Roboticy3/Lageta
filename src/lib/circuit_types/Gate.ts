@@ -14,11 +14,14 @@ export class GateType {
     gridHeight:number;
     gridWidth:number;
 
+    moveable:boolean;
+
     constructor(
         name:string = "Buf",
         inputs:number | Array<[number, number]> = 1,
         outputs:number | Array<[number, number]> = 1,
         gridSize:[number, number] = [2, 2],
+        moveable=true,
         register=true
     )
     {
@@ -47,6 +50,8 @@ export class GateType {
         if (register) {
             registerGateType(this)
         }
+
+        this.moveable = moveable
 
     }   
 
@@ -128,12 +133,14 @@ export const Input = new GateType (
     "Input",
     0,
     1,
-    [1,1]
+    [1,1],
+    false
 )
 
 export const Output = new GateType (
     "Output",
     1,
     0,
-    [1,1]
+    [1,1],
+    false
 )

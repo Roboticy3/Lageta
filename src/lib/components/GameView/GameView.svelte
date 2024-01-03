@@ -50,6 +50,9 @@
         updateLocalStorageKeys()
 
         progressStore = new ProgressStorage()
+        if (params.allUnlocks) {
+            progressStore.cheat()
+        }
         updateUnlockedGates()
     })
 
@@ -104,6 +107,13 @@
         unlockedGates = progressStore?.gates() || []
         return unlockedGates
     }
+
+    const locationString = location.toString()
+    const urlReplaceLocation = locationString.lastIndexOf("/level")
+
+    window.addEventListener("popstate", function() {
+        location.replace(locationString.slice(0, urlReplaceLocation) + "/campaign");
+    })
     
 </script>
 

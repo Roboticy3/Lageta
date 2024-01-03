@@ -15,8 +15,8 @@ export class GateGrid {
         this.grid = new Array<number | undefined>(this.sizeX * this.sizeY)
     }
 
-    sizeX = 40
-    sizeY = 40
+    sizeX = 10
+    sizeY = 5
 
     cellOffset = 30
 

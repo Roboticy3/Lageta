@@ -28,6 +28,7 @@ export class ProgressStorage {
 
     private progressStorage:ProgressStorageObject
     private storageKey = "ProgressStorage"
+    private allUnlocks = false
 
     constructor(
         storageKey:string | undefined = undefined
@@ -42,7 +43,18 @@ export class ProgressStorage {
     }
 
     private commit(storage = this.progressStorage) {
+        //don't update the progress if we're hacking lol
+        if (this.allUnlocks) {
+            return
+        }
         localStorage.setItem(this.storageKey, JSON.stringify(storage))
+    }
+
+    cheat() {
+        this.allUnlocks = true
+        this.progressStorage.gates = [...all_gates.keys()] as string[]
+        this.progressStorage.levels = [...all_levels.keys()] as string[]
+        console.log(this.progressStorage)
     }
 
     gates() {
@@ -57,6 +69,10 @@ export class ProgressStorage {
             (v, _i, _a) => {
                 return all_levels.get(v) || Freeplay
         })
+    }
+
+    findLevel(levelName:string) {
+        return this.progressStorage.levels.indexOf(levelName)
     }
 }
 

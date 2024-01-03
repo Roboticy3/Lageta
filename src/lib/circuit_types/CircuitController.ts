@@ -1,4 +1,3 @@
-import { ConnectionSvg, wireSvg } from "$lib/components/GateSvgs.svelte";
 import { copyGate, type Gate, type GateType } from "./Gate";
 import { GateGraph, Connection, type ConnectionType } from "./GateGraph"
 import { GateGrid } from "./GateGrid";
@@ -51,18 +50,28 @@ export class CircuitController {
         this.makeMainController()
     }
 
+    private grabGate(gate:Gate | undefined):[Gate, GateType] | undefined {
+        if (gate === undefined) {
+            return undefined
+        }
+        const gType = gate.type
+        if (!gType.moveable) {
+            return undefined
+        }
+        return [gate, gType]
+    }
+
     query(
         offsetX:number,
         offsetY:number,
     )
     {
         const [localX, localY] = this.unprojectOffset(offsetX, offsetY)
-        console.log(offsetX, offsetY, "-> ", localX, localY)
+        
         const [x, y] = this.gateGrid.offsetToIndex(localX, localY)
         const gate = this.gateGrid.get(x, y)
-
         if (gate === undefined) {
-            return new CircuitControllerQueryResult() 
+            return new CircuitControllerQueryResult()
         }
         const gType = gate.type
 
@@ -186,11 +195,11 @@ export class CircuitController {
 
         const id = this.svgIdToGateId(gateId)
 
-        const gate = this.gateGrid.gates[id]
-        if (!gate) {
-            return
+        const grab = this.grabGate(this.gateGrid.gates[id])
+        if (grab === undefined) {
+            return new CircuitControllerQueryResult()
         }
-        const gType = gate.type
+        const [gate, gType] = grab
 
         const [localX, localY] = this.unprojectOffset(offsetX, offsetY)
         console.log(offsetX, offsetY, localX, localY)
@@ -240,7 +249,7 @@ export class CircuitController {
         console.log(graph)
     }
 
-    removeConnection(
+    removeConnection( 
         gateId:number, 
         type:ConnectionType, 
         index:number

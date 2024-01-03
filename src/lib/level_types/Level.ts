@@ -41,7 +41,7 @@ export class Level {
 }
 
 export const Freeplay = new Level (
-    new GameViewParameters("Have Fun!"),
+    new GameViewParameters("Have Fun!", undefined, true),
     "Freeplay",
     1,1
 )
