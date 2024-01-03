@@ -294,10 +294,11 @@ export type OrganizedCircuitContents = {
 }
 
 //gate with no type reference, since types are serialized separately
-class SerializableGate {
+export class SerializableGate {
     x:number
     y:number
     id:number
+    override:boolean[] | undefined
     type:string
     constructor(
         gate:Gate,
@@ -306,6 +307,7 @@ class SerializableGate {
         this.x = gate.x || 0
         this.y = gate.y || 0
         this.id = gate.id || 0
+        this.override = gate.override
         this.type = type
     }
 }

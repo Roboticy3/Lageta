@@ -16,12 +16,15 @@ export class GateType {
 
     moveable:boolean;
 
+    private f:(x:boolean[]) => boolean[]
+
     constructor(
         name:string = "Buf",
         inputs:number | Array<[number, number]> = 1,
         outputs:number | Array<[number, number]> = 1,
         gridSize:[number, number] = [2, 2],
         moveable=true,
+        f=(x:boolean[])=>{return x},
         register=true
     )
     {
@@ -53,6 +56,8 @@ export class GateType {
 
         this.moveable = moveable
 
+        this.f = f
+
     }   
 
     private spreadVerticalConnections(gridX:number, size:number) {
@@ -64,6 +69,20 @@ export class GateType {
         }
 
         return result
+    }
+
+    execute(x:boolean[] | undefined) {
+        if (x === undefined) {
+            return new Array<boolean>(this.sizeOut)
+        }
+        if (x.length === this.sizeIn) {
+            const y = this.f(x)
+            if (y.length === this.sizeOut) {
+                return y
+            }
+            return new Array<boolean>(this.sizeOut)
+        }
+        return new Array<boolean>(this.sizeOut)
     }
 }
 export class Gate {
@@ -83,6 +102,23 @@ export class Gate {
     id:number = 0
     giveId(id:number) {
         this.id = id
+    }
+
+    override:boolean[] | undefined
+
+    execute(x:boolean[] | undefined) {
+        return this.type.execute(this.override || x)
+    } 
+
+    reset() {
+        this.override = undefined
+    }
+
+    set(x:boolean[]) {
+        if (x.length === this.type.sizeIn) {
+            console.log("cannot set ", x, "\nthe input size is ", this.type.sizeIn, " but the given length is ", x.length)
+        }
+        this.override = x
     }
 }
 
