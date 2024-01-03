@@ -6,17 +6,27 @@ export class GateGrid {
 
     graph:GateGraph
 
-    constructor(graph:GateGraph, sizeX:number | undefined = undefined, sizeY:number | undefined = undefined) {
-        this.graph = graph
-        this.gates = graph.gates
-
+    constructor(
+        graph:GateGraph, 
+        sizeX:number | undefined = undefined, 
+        sizeY:number | undefined = undefined,
+        gates:Array<Gate> = []
+    ) {
         this.sizeX = sizeX || this.sizeX
         this.sizeY = sizeY || this.sizeY
         this.grid = new Array<number | undefined>(this.sizeX * this.sizeY)
+
+        for (let i = 0; i < gates.length; i++) {
+            const gate = gates[i]
+            this.addGate(gate.x || 0, gate.y || 0, gate)
+        }
+        graph.gates = this.gates
+
+        this.graph = graph
     }
 
-    sizeX = 10
-    sizeY = 5
+    sizeX = 20
+    sizeY = 20
 
     cellOffset = 30
 

@@ -8,9 +8,8 @@
 
     const levelName = $page.params.levelName
     const level = all_levels.get(levelName)
-
-    const progress = new ProgressStorage()
-    console.log(progress.findLevel(levelName))
+    console.log(level)
+    
 </script>
 
 {#if level !== undefined}

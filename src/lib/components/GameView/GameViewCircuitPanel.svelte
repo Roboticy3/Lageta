@@ -48,6 +48,7 @@
     //the svg string of all the visible connection points
     let svgConnectionPoints = ""
 
+    //update the svg, try to call whenever the grid changes
     export function updateSvg() {
         svgGates = gridController.drawGates(getGateSvgContents)
         svgConnectionPoints = gridController.drawConnectionPoints(ConnectionSvg)
@@ -62,6 +63,7 @@
     let mountCircuit = () => {
         addDragEventListeners()
         updateViewBox()
+        updateSvg()
     }
     onMount(mountCircuit)
 

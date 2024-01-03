@@ -1,8 +1,12 @@
 export function parseStorage<T extends {}>(
-    storage:Storage,
+    storage:Storage | undefined,
     key:string,
     generator:() => T
 ) {
+    if (storage === undefined) {
+        return generator()
+    }
+
     let result:unknown
     const string = storage.getItem(key)
     try {

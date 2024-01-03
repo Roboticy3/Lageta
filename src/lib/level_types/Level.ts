@@ -1,4 +1,8 @@
+import { CircuitController } from "$lib/circuit_types/CircuitController"
+import { Input, Output } from "$lib/circuit_types/Gate"
+import { GateGraph } from "$lib/circuit_types/GateGraph"
 import type { GateGrid } from "$lib/circuit_types/GateGrid"
+import type { OrganizedCircuitContents } from "$lib/storage_types/CircuitStorage"
 import { GameViewParameters } from "./GameViewParameters"
 
 export let all_levels = new Map<String, Level>()
@@ -15,14 +19,11 @@ export class Level {
         name:string = "Freeplay",
         x:number = 1,
         y:number = 1,
-        grid:GateGrid | undefined = undefined,
         register:boolean = true
     ) {
         this.x = x
         this.y = y
         this.name = name
-
-        params.grid = grid
         this.params = params
 
         if (register) {
@@ -48,7 +49,17 @@ export const Freeplay = new Level (
 
 export const W1S1 = new Level (
     new GameViewParameters(
-        "Click and drag from the shelf at the top to the grid to place gates. Then click and drag between the tiangular connection points to connect them."
+        "Click and drag from the shelf at the top to the grid to place gates. Then click and drag between the tiangular connection points to connect them.",
+        {
+            gateTypes:[Input, Output],
+            gates:[
+                {x:0, y:2, id:0, type:"Input"},
+                {x:9, y:2, id:1, type:"Output"}
+            ],
+            connections:[],
+            size:[10, 5],
+            offset:[0, 0]
+        } as OrganizedCircuitContents
     ),
     "1",
     3, 1

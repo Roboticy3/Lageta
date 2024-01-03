@@ -1,5 +1,6 @@
 import { CircuitController } from "$lib/circuit_types/CircuitController"
 import type { GateGrid } from "$lib/circuit_types/GateGrid"
+import { OrganizedCircuit, type OrganizedCircuitContents } from "$lib/storage_types/CircuitStorage"
 
 export class GameViewParameters {
     directions:string
@@ -8,12 +9,18 @@ export class GameViewParameters {
     
     constructor(
         directions:string = "",
-        gridController:CircuitController | undefined = undefined,
+        source:CircuitController | OrganizedCircuitContents | undefined = undefined,
         allUnlocks:boolean = false
     ) {
         this.directions = directions
-        this.grid = gridController?.gateGrid
+        if (source === undefined || source instanceof CircuitController) {
+            this.grid = source?.gateGrid
+        }
+        else {
+            this.grid = new OrganizedCircuit(source).unpack()
+        }
         this.allUnlocks = allUnlocks
+        console.log(this.grid)
     }
 
     initializeGrid() {

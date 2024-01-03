@@ -153,7 +153,7 @@ export class CircuitStore {
     }
 }
 
-class OrganizedCircuit {
+export class OrganizedCircuit {
     gateTypes:Array<GateType> = []
     gates:Array<SerializableGate> = []
     connections:Array<Connection> = []
@@ -163,7 +163,7 @@ class OrganizedCircuit {
     offset:[number, number] = [0, 0]
 
     constructor(
-        from:any
+        from:GateGrid | string | OrganizedCircuitContents
     ) {
         
         if (from instanceof GateGrid) {
@@ -229,16 +229,13 @@ class OrganizedCircuit {
         this.fromObject(ob) 
     }
 
-    fromObject(ob:any){
-        try {
-            this.gateTypes = ob.gateTypes as Array<GateType>
-            this.gates = ob.gates as Array<SerializableGate>
-            this.connections = ob.connections as Array<Connection>
-            this.size = ob.size as [number, number]
-            this.offset = ob.offset as [number, number]
-        } catch (e) {
-            console.log("failed to load", ob, "into as a circuit!")
-        } 
+    //there literally has to be a better way to do this but I have no idea how TypeScript works so oh well
+    fromObject(ob:OrganizedCircuitContents){
+        this.gateTypes = ob.gateTypes || this.gateTypes
+        this.gates = ob.gates || this.gates
+        this.connections = ob.connections || this.connections
+        this.size = ob.size || this.size
+        this.offset = ob.offset || this.offset
     }
 
     unpack() {
@@ -286,6 +283,14 @@ class OrganizedCircuit {
             iter(g)
         }
     }
+}
+
+export type OrganizedCircuitContents = {
+    gateTypes?:Array<GateType>
+    gates?:Array<SerializableGate>
+    connections?:Array<Connection>
+    size?:[number, number]
+    offset?:[number, number]
 }
 
 //gate with no type reference, since types are serialized separately
