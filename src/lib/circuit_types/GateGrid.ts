@@ -135,7 +135,10 @@ export class GateGrid {
         return result
     }
 
-    getGateInputOffset(gate:Gate, input:number): [number, number] {
+    getGateInputOffset(gate:Gate | undefined, input:number): [number, number] {
+        if (gate === undefined) {
+            return [0, 0]
+        }
         const gridOffset = gate.type.inputOffsets[input]
         return [
             ((gate.x || 0) + gridOffset[0]) * this.cellOffset, 
@@ -143,7 +146,10 @@ export class GateGrid {
         ]
     }
 
-    getGateOutputOffset(gate:Gate, output:number): [number, number] {
+    getGateOutputOffset(gate:Gate | undefined, output:number): [number, number] {
+        if (gate === undefined) {
+            return [0, 0]
+        }
         const gridOffset = gate.type.outputOffsets[output]
         return [
             ((gate.x || 0) + gridOffset[0]) * this.cellOffset, 

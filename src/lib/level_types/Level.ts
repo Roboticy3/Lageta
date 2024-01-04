@@ -1,5 +1,5 @@
 import { CircuitController } from "$lib/circuit_types/CircuitController"
-import { Buf, Input, Not, Output } from "$lib/circuit_types/Gate"
+import { Buf, Input, Not, Output, all_gates } from "$lib/circuit_types/Gate"
 import { GateGraph } from "$lib/circuit_types/GateGraph"
 import type { GateGrid } from "$lib/circuit_types/GateGrid"
 import type { OrganizedCircuitContents, SerializableGate } from "$lib/storage_types/CircuitStorage"
@@ -50,15 +50,13 @@ export const Freeplay = new Level (
 export const W1S1 = new Level (
     new GameViewParameters(
         `
-        Click and drag from the shelf at the top to the grid to place gates. 
-        Then click and drag between the triangular connection points to connect them.
-        Your goal is to invert the signal.
+        Click and drag between the triangular connection points to draw a wire.
         `,
         {
-            gateTypes:[Input, Output],
+            gateTypes:[Input(1), Output(1)],
             gates:[
-                {x:0, y:2, id:0, type:"Input"} as SerializableGate,
-                {x:9, y:2, id:1, type:"Output"} as SerializableGate
+                {x:0, y:2, id:0, type:"Input1"} as SerializableGate,
+                {x:9, y:2, id:1, type:"Output1"} as SerializableGate
             ],
             connections:[],
             size:[10, 5],

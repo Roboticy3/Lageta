@@ -82,6 +82,8 @@
         updateViewBox()
     })
 
+    //when the user clicks and drags on the circuit panel, they can either be dragging a connection or a gate
+    //each of these are handled by their own functions, dragStartGate and dragStartConnection
     /**
      * @param {DragEvent} e
      */
@@ -124,8 +126,8 @@
         return
     }
 
+    //burn the necessary data from a gate into dataTransfer
     /**
-     * 
      * @param {Gate} gate
      * @param {DataTransfer} d
      */
@@ -159,7 +161,7 @@
         d.setData('ShelfButtonId', target_id)
 
         const gateOffset = gridController.indexToOffset(gate.x || 0, gate.y || 0)
-        const localOffset = gridController.projectOffset(e.offsetX, e.offsetY)
+        const localOffset = gridController.unprojectOffset(e.offsetX, e.offsetY)
         const offset = [
             localOffset[0] - gateOffset[0],
             localOffset[1] - gateOffset[1]
@@ -187,7 +189,7 @@
 
         const toType = gridController.flipConnectionType(type)
 
-        const offset = gridController.getConnectionPoint(gate, type, connectionIndex)
+        const offset = gridController.getConnectionPoint({id:gate.id, type:type, index:connectionIndex})
         d.setData('offset', `${offset[0]}|${offset[1]}`) 
         
         if (type === "Input") {
@@ -199,7 +201,7 @@
                 if (newGate !== undefined) {
                     giveGateData(newGate, d)
                     dragStartConnection(e, newGate, "Output", from[1])
-                    gridController.removeConnection(gate.id || 0, "Input", connectionIndex)
+                    gridController.removeConnection({id:newGate.id || 0, type:"Input", index:connectionIndex})
                     updateSvg()
                     return
                 }

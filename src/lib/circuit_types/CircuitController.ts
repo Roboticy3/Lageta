@@ -5,8 +5,15 @@ import { identity, transform, type Matrix, type Transform, applyToPoint, inverse
 
 const connectionSelectRadius = 10
 
+//
+/**
+ * return type of CircuitController.query()
+ * @member gate readonly reference to a gate. This exposes the model class Gate to the view, but does not allow modification.
+ * @member type result can refer to either a Gate, Connection (Input or Output), or nothing, if the query didn't hit anything on it's grid.
+ * @member connectionIndex if type is Input or Output, connectionIndex will store a number telling where to find or put a connection later. 
+ */
 export class CircuitControllerQueryResult {
-    gate:Gate | undefined
+    readonly gate:Gate | undefined
 
     type: "Gate" | "Input" | "Output" | ""
     connectionIndex:number | undefined
@@ -25,15 +32,24 @@ export class CircuitControllerQueryResult {
     }
 }
 
-//using grid controller should avoid directly interfacing with things like gate indices and the grid and graph objects
-//view still interacts with gate objects from time to time, but other types should be wrapped here
+export type ConnectionIndex = {id:number, type:ConnectionType, index:number}
+
+/**
+ * Controller class for the "circuit," consisting of a GateGrid and GateGraph.
+ * The CircuitController provides the user interface with all the necessary components to display and interact with the circuit.
+ * The "circuit display" is an SVG string, handled by the view using functions from this class.
+ * Gates in the circuit display have id tags matching their index in the actual array used by gateGrid.
+ * @member gateGrid The grid of the circuit, reference to the graph is also held here.
+ * @member transformMatrix A 2D transformation matrix to allow for panning and zooming of the display of the circuit without breaking the functions that take pixel offsets as arguments.
+ */
 export class CircuitController {
     gateGrid:GateGrid
 
     private transformMatrix:Matrix
 
     constructor(
-        gateGrid:GateGrid | undefined = undefined
+        gateGrid:GateGrid | undefined = undefined,
+        makeMain:boolean = true
     )
     {
         if (gateGrid !== undefined) {
@@ -47,20 +63,104 @@ export class CircuitController {
 
         this.transformMatrix = transform(translate(0,0))
 
-        this.makeMainController()
+        if (makeMain) {
+            mainController = this
+        }
     }
 
-    private grabGate(gate:Gate | undefined):[Gate, GateType] | undefined {
-        if (gate === undefined) {
-            return undefined
-        }
-        const gType = gate.type
-        if (!gType.moveable) {
-            return undefined
-        }
-        return [gate, gType]
+    /**
+     * Take a pixel offset from the circuit's local space and project it to a pixel offset in the circuit html element.
+     * @param offsetX 
+     * @param offsetY 
+     * @returns 
+     */
+    projectOffset(offsetX:number, offsetY:number) {
+        const p:[number, number] = [offsetX, offsetY]
+        return applyToPoint(this.transformMatrix, p)
     }
 
+    /**
+     * Take a pixel offset from the circuit html element and unproject it to a pixel offset in the circuit's local space
+     * @param offsetX
+     * @param offsetY 
+     * @returns 
+     */
+    unprojectOffset(offsetX:number, offsetY:number) {
+        const p:[number, number] = [offsetX, offsetY]
+        return applyToPoint(inverse(this.transformMatrix), p)
+    }
+
+    /**
+     * Given an id from the circuit display, return a gate
+     * @param gateId 
+     * @returns 
+     */
+    getGateFromSvgId(gateId:string) {
+        const id = this.svgIdToGateId(gateId)
+
+        return this.gateGrid.gates[id]
+    }
+
+    /**
+     * Given a cell index in the grid, return an offset in the ciruit's local space
+     * @param x 
+     * @param y 
+     * @returns 
+     */
+    indexToOffset(x:number, y:number) {
+        return this.gateGrid.indexToOffset(x,y)
+    }
+
+    /**
+     * Given a ConnectionType, return it's opposite, or "" if it was empty to begin with.
+     * @param t 
+     * @returns 
+     */
+    flipConnectionType(t:ConnectionType) {
+        switch (t){
+            case "Input":
+                return "Output"
+            case "Output":
+                return "Input"
+            default:
+                return ""
+        }
+    }
+    
+    /**
+     * Get the length of a vector of pixel offsets in the circuit's local spae
+     * @param dX 
+     * @param dY 
+     * @returns 
+     */
+    gridEuclidDistance(dX:number, dY:number) {
+        return Math.sqrt(dX * dX + dY * dY)
+    }
+
+    /**
+     * return a gate from a specific id
+     * this function is bad because it gives a mutable reference to a Gate, a model class, to the view. Oh well!
+     * @param gateId 
+     * @returns 
+     */
+    getGate(gateId:number) {
+        return this.gateGrid.gates[gateId]
+    }
+
+    /**
+     * Change the grid cell offset to a new value
+     * @param offset 
+     */
+    setGridCellOffset(offset:number) {
+        this.gateGrid.cellOffset = offset
+    }
+
+    /**
+     * 
+     * @param offsetX 
+     * @param offsetY 
+     * @returns A CircuitControllerQueryResult that may contain a gate, as well as a connection.
+     */
     query(
         offsetX:number,
         offsetY:number,
@@ -123,47 +223,13 @@ export class CircuitController {
         ) 
     }
 
-    projectOffset(offsetX:number, offsetY:number) {
-        const p:[number, number] = [offsetX, offsetY]
-        return applyToPoint(this.transformMatrix, p)
-    }
-
-    unprojectOffset(localX:number, localY:number) {
-        const p:[number, number] = [localX, localY]
-        return applyToPoint(inverse(this.transformMatrix), p)
-    }
-
-    getMatrixSvg() {
-        return toSVG(this.transformMatrix)
-    }
-
-    getGateFromSvgId(gateId:string) {
-        const id = this.svgIdToGateId(gateId)
-
-        return this.gateGrid.gates[id]
-    }
-
     /**
-     * get the svg transform of a gate
-     * if a 20x20 gate svg represents a 1x1 cell gate, the transform will be standard
-     * @param gate 
+     * Attempt to add a gate of a given type to the grid at the given global offset
+     * @param gType 
+     * @param offsetX 
+     * @param offsetY 
      * @returns 
      */
-    
-    getGateSvgTransform(gate:Gate) {
-        const gType = gate.type
-        const position = this.gateGrid.indexToOffset(gate.x || 0, gate.y || 0)
-        const snappedX = position[0]
-        const snappedY = position[1]
-
-        const scale = [
-            gType.gridWidth * this.gateGrid.cellOffset / 20,
-            gType.gridHeight * this.gateGrid.cellOffset / 20
-        ]
-
-        return `transform="translate(${snappedX} ${snappedY}) scale(${scale[0]} ${scale[1]})"`
-    }
-
     addGate(
         gType:GateType, 
         offsetX:number, 
@@ -186,6 +252,13 @@ export class CircuitController {
         console.log(this.gateGrid.graph)
     }
 
+    /**
+     * Move the gate at the given id to the new global offset
+     * @param gateId 
+     * @param offsetX 
+     * @param offsetY 
+     * @returns 
+     */
     moveGate(
         gateId:string, 
         offsetX:number, 
@@ -195,11 +268,14 @@ export class CircuitController {
 
         const id = this.svgIdToGateId(gateId)
 
-        const grab = this.grabGate(this.gateGrid.gates[id])
-        if (grab === undefined) {
-            return new CircuitControllerQueryResult()
+        const gate = this.gateGrid.gates[id]
+        if (gate === undefined) {
+            return
         }
-        const [gate, gType] = grab
+        const gType = gate.type
+        if (!gType.moveable) {
+            return
+        }
 
         const [localX, localY] = this.unprojectOffset(offsetX, offsetY)
         console.log(offsetX, offsetY, localX, localY)
@@ -214,6 +290,11 @@ export class CircuitController {
         console.log(this.gateGrid)
     }
 
+    /**
+     * Remove a gate at the given id.
+     * @param gateId 
+     * @param svgContents 
+     */
     removeGate(
         gateId:string,
         svgContents:Array<string>
@@ -231,10 +312,13 @@ export class CircuitController {
         console.log(this.gateGrid)
     }
 
-    getGate(gateId:number) {
-        return this.gateGrid.gates[gateId]
-    }
-
+    /**
+     * Add a connection using two gate ids and two connection indices. Connections from->outputs[output] to to->inputs[input]
+     * @param from 
+     * @param output 
+     * @param to 
+     * @param input 
+     */
     addConnection(
         from:number,
         output:number,
@@ -249,19 +333,23 @@ export class CircuitController {
         console.log(graph)
     }
 
+    /**
+     * Remove a connection, requires an id, connection type and index. Does nothing if the type is ""
+     * @param gateId 
+     * @param type 
+     * @param index 
+     */
     removeConnection( 
-        gateId:number, 
-        type:ConnectionType, 
-        index:number
+        index:ConnectionIndex
     ) {
         const graph = this.gateGrid.graph
         
-        switch (type) {
+        switch (index.type) {
             case "Input":
-                graph.removeInput([gateId, index])
+                graph.removeInput([index.id, index.index])
                 break
             case "Output":
-                const c = graph.outputs[gateId][index]
+                const c = graph.outputs[index.id][index.index]
                 if (c === undefined) {
                     break
                 }
@@ -272,6 +360,12 @@ export class CircuitController {
         console.log(graph)
     }
 
+    /**
+     * Get the incoming connection from a given id and input index
+     * @param gateId 
+     * @param index 
+     * @returns 
+     */
     getConnectedTo(
         gateId:number,
         index:number
@@ -284,25 +378,40 @@ export class CircuitController {
         return c?.from
     }
 
+    /**
+     * Get the local offset of a connection point
+     * @param gate 
+     * @param type 
+     * @param index 
+     * @returns 
+     */
     getConnectionPoint(
-        gate:Gate,
-        type:ConnectionType,
-        index:number,
+        index:ConnectionIndex
     ) {
-        switch (type) {
+        switch (index.type) {
             default:
             case "Input":
-                return this.gateGrid.getGateInputOffset(gate, index)
+                return this.gateGrid.getGateInputOffset(this.getGate(index.id), index.index)
             case "Output":
-                return this.gateGrid.getGateOutputOffset(gate, index)
+                return this.gateGrid.getGateOutputOffset(this.getGate(index.id), index.index)
         }
     }
 
+    /**
+     * Convert and SVG id tag to a numeric id
+     * @param id 
+     * @returns 
+     */
     private svgIdToGateId(id:string) {
         const idParts = id.split("-")
         return Number(idParts[1])
     }
 
+    /**
+     * return a string array of SVG lines denoting the cells of the grid
+     * @param color 
+     * @returns 
+     */
     gridCellsSvg(color:String = "purple") {
         const grid = this.gateGrid
         let svg = new Array<String>(grid.sizeX + grid.sizeY)
@@ -319,14 +428,11 @@ export class CircuitController {
         return svg
     }
 
-    setGridCellOffset(offset:number) {
-        this.gateGrid.cellOffset = offset
-    }
-
-    gridEuclidDistance(dX:number, dY:number) {
-        return Math.sqrt(dX * dX + dY * dY)
-    }
-
+    /**
+     * Given a drawing function for gates, return an array of strings containing whem all in SVG form.
+     * @param getGateSvgContents 
+     * @returns 
+     */
     drawGates(getGateSvgContents:(name:string) => string) {
         var result = Array<string>()
         this.gateGrid.iterGates((g) => {
@@ -345,6 +451,12 @@ export class CircuitController {
         return result
     }
 
+    /**
+     * Given a function for drawing connection points, draw all connection points of the given type
+     * @param connectionBuilder 
+     * @param type If a blank ConnectionType is given, all the connections, Inputs and Outputs, will be drawn.
+     * @returns 
+     */
     drawConnectionPoints(connectionBuilder:(localX:number, localY:number) => string, type:ConnectionType="") {
         const graph = this.gateGrid.graph
         let result = ""
@@ -371,6 +483,11 @@ export class CircuitController {
         return result
     }
 
+    /**
+     * Given a function for drawing connection wires, draw all connection wires
+     * @param wireBuilder 
+     * @returns 
+     */
     drawWires(wireBuilder:(fromOffset:[number, number], toOffset:[number, number]) => string) {
         const graph = this.gateGrid.graph
         let result = new Array<string>()
@@ -384,24 +501,35 @@ export class CircuitController {
         return result
     }
 
-    indexToOffset(x:number, y:number) {
-        return this.gateGrid.indexToOffset(x,y)
+    /**
+     * @returns A string in svg format for the transformation matrix, needed to display the circuit with proper pan and zoom
+     */
+    getMatrixSvg() {
+        return toSVG(this.transformMatrix)
     }
 
-    flipConnectionType(t:ConnectionType) {
-        switch (t){
-            case "Input":
-                return "Output"
-            case "Output":
-                return "Input"
-            default:
-                return ""
-        }
-    }
+    /**
+     * get the svg transform of a gate
+     * if a 20x20 gate svg represents a 1x1 cell gate, the transform will be standard
+     * @param gate 
+     * @returns 
+     */
+    getGateSvgTransform(gate:Gate) {
+        const gType = gate.type
+        const position = this.gateGrid.indexToOffset(gate.x || 0, gate.y || 0)
+        const snappedX = position[0]
+        const snappedY = position[1]
 
-    makeMainController() {
-        mainController = this
+        const scale = [
+            gType.gridWidth * this.gateGrid.cellOffset / 20,
+            gType.gridHeight * this.gateGrid.cellOffset / 20
+        ]
+
+        return `transform="translate(${snappedX} ${snappedY}) scale(${scale[0]} ${scale[1]})"`
     }
 }
 
+/**
+ * Reference to whatever the current controller is of the circuit being displayed
+ */
 export var mainController:CircuitController | undefined = undefined

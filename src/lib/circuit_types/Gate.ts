@@ -86,7 +86,7 @@ export class GateType {
     }
 }
 export class Gate {
-    type:GateType
+    readonly type:GateType
 
     constructor(type:GateType) {
         this.type = type
@@ -165,18 +165,22 @@ export const Or = new GateType (
     1
 )
 
-export const Input = new GateType (
-    "Input",
-    0,
-    1,
-    [1,1],
-    false
-)
+export function Input(size:number) {
+    return new GateType (
+        `Input${size}`,
+        0,
+        size,
+        [1,size],
+        false
+    )
+}
 
-export const Output = new GateType (
-    "Output",
-    1,
-    0,
-    [1,1],
-    false
-)
+export function Output(size:number) {
+    return new GateType (
+        `Output${size}`,
+        size,
+        0,
+        [1,size],
+        false
+    )
+}
