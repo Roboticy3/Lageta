@@ -3,8 +3,12 @@ import type { GateGrid } from "./GateGrid";
 
 export const truthTableRowLimit = 6
 
+/**
+ * TruthTable representation of a GateType. Since GateTypes are meant to be static, the contents of a TruthTable are as well
+ * call setLabels to change the labels of the TruthTable from another script, otherwise TruthTable objects are externally immutable
+ */
 export class TruthTable {
-    private readonly source:TruthTableSource
+    private readonly source:GateType
 
     private block:string[] = [] //I'd rather this be a string but I can't replace individual characters for some reason
     //there is a real tutorial out there suggesting to write your own replace method that splits the string in two and adds it back together with the replacement
@@ -13,33 +17,60 @@ export class TruthTable {
     readonly colCount:number
     readonly rowCount:number
 
+    private trueString:string
+    private falseString:string
 
     constructor(
-        source:TruthTableSource
+        source:GateType,
+        columnLabels:string[] | undefined = undefined,
+        trueString:string = "True",
+        falseString:string = "False"
     ) {
         this.source = source
+
         this.colCount = this.source.sizeIn + this.source.sizeOut
         this.rowCount = Math.pow(2, this.source.sizeIn) + 1 //add an extra row at the top for labels
 
-        this.fill()
+        this.trueString = trueString
+        this.falseString = falseString
+
+        if (columnLabels !== undefined && columnLabels.length !== this.colCount) {
+            columnLabels = undefined
+        }
+
+        this.fill(columnLabels)
     }
 
-    private fill() {
+    /**
+     * function invoked by constructor to fill the TruthTable's block, assumes the other properties are already set properly
+     * @param columnLabels array of column labels, assumed to be the correct length
+     */
+    private fill(columnLabels:string[] | undefined) {
         if (this.source instanceof GateType) {
             if (this.source.sizeIn > truthTableRowLimit) {
                 throw RangeError("sizeIn is greater than 5, this truth table would have too many rows (max 2^5 = 32)")
             }
 
             this.block = new Array<string>(this.rowCount * this.colCount) //big array
-            this.block.fill('F')
+            this.block.fill(this.falseString)
 
             //fill the first row with the names of the columns
-            for (let j = 0; j < this.source.sizeIn; j++) {
-                this.block[j] = String(j)
+            if (columnLabels === undefined)
+            {
+                for (let j = 0; j < this.source.sizeIn; j++) {
+                    this.block[j] = "Input " + String(j + 1)
+                }
+                for (let j = 0; j < this.source.sizeOut; j++) {
+                    this.block[this.source.sizeIn + j] = "Output " + String(j + 1)
+                }
             }
-            for (let j = 0; j < this.source.sizeOut; j++) {
-                this.block[this.source.sizeIn + j] = this.source.name.substring(0, 1) + String(j)
+            //if column labels were supplied, use those instead
+            else {
+                for (let j = 0; j < this.colCount; j++) {
+                    this.block[j] = columnLabels[j]
+                }
             }
+            
 
             //fill the rest of the block
             this.fillInputs()
@@ -59,7 +90,7 @@ export class TruthTable {
             while (temp !== 0){
 
                 if (temp % 2 === 1) {
-                    this.block[i + j] = 'T'
+                    this.block[i + j] = this.trueString
                 }
 
                 temp = Math.floor(temp / 2)
@@ -75,11 +106,11 @@ export class TruthTable {
             
             const input = this.block
                 .slice(i, i + this.source.sizeIn)
-                .map(this.entryToBool)
+                .map((s:string) => {return this.entryToBool(s)})
             
             const output = this.source
                 .execute(input)
-                .map(this.boolToEntry)
+                .map((x:boolean) => {return this.boolToEntry(x)})
             
             for (let j = 0; j < this.source.sizeOut; j++) {
                 const index = i + this.colCount - this.source.sizeOut + j
@@ -90,16 +121,36 @@ export class TruthTable {
     }
 
     entryToBool(entry:string) {
-        return entry === "T"
+        return entry === this.trueString
     }
 
     boolToEntry(bool:boolean) {
-        return bool ? "T":"F"
+        return bool ? this.trueString:this.falseString
     }
 
     unpack() {
         return this.block
     }
-}
 
-export type TruthTableSource = GateType
+    getName() {
+        return this.source.name
+    }
+
+    setLabels(
+        columnLabels:string[] | undefined = undefined,
+        trueString:string = "True",
+        falseString:string = "False"
+    ) {
+        if (columnLabels !== undefined && columnLabels.length !== this.colCount) {
+            columnLabels = undefined
+        }
+
+        for (let i = this.colCount; i < this.block.length; i++) {
+            const cur = this.block[i]
+            this.block[i] = cur === this.trueString ? trueString : falseString
+        }
+
+        this.trueString = trueString
+        this.falseString = falseString
+    }
+}

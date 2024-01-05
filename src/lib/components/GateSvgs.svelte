@@ -51,13 +51,13 @@
          return result
       }
       const gType = all_gates.get(name)
-      const box = boxSvg((gType?.gridWidth || 2) * 10, (gType?.gridHeight || 2) * 10);
-      return box
+      const d = defaultSvg((gType?.gridWidth || 2) * 10, (gType?.gridHeight || 2) * 10, 2, name);
+      return d
    }
 
-   function boxSvg(width=2, height=2, margin=2) {
+   function defaultSvg(width=2, height=2, margin=2, name="Buf") {
       const [m, w, h] = [margin, width - margin, height - margin] 
-      return `<path d="M ${m} ${m} L ${w} ${m} L ${w} ${h} L ${m} ${h} Z"/>\n`
+      return `<text x="${m + m}" y="${h - m}" stroke="transparent" fill="black" style="font: ${h - m - m}px sans-serif;">${name}</text>`
    }
 
    /**

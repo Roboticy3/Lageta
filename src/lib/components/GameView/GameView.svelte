@@ -110,13 +110,6 @@
         return unlockedGates
     }
 
-    const locationString = location.toString()
-    const urlReplaceLocation = locationString.lastIndexOf("/level")
-
-    window.addEventListener("popstate", function() {
-        location.replace(locationString.slice(0, urlReplaceLocation) + "/campaign");
-    })
-    
 </script>
 
 <div class="game-view" id="game-view">

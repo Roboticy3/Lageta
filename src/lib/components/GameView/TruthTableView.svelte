@@ -14,7 +14,7 @@
 
 <div 
     class="truth-table" 
-    style="max-width:{5 * table.colCount}%;"
+    style="min-width:{5 * table.colCount}%;"
     >
     {#each table.unpack() as s, i}
     <div class="truth-table-square" 

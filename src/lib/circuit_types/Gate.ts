@@ -232,12 +232,12 @@ Mux(3)
 
 export function Input(size:number) {
     return getGateType (
-        {name:"Input" + String(size), inputs:0, outputs:size, gridSize:[1, size], moveable:false}
+        {name:"Input" + String(size), inputs:0, outputs:size, gridSize:[2, size], moveable:false}
     )
 }
 
 export function Output(size:number) {
     return getGateType (
-        {name:"Output" + String(size), inputs:size, outputs:0, gridSize:[1, size], moveable:false}
+        {name:"Output" + String(size), inputs:size, outputs:0, gridSize:[2, size], moveable:false}
     )
 }

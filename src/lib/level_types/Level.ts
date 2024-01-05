@@ -54,7 +54,7 @@ export const W1S1 = new Level (
             gateTypes:[Input(1), Output(1)],
             gates:[
                 {x:0, y:2, id:0, type:"Input1"} as SerializableGate,
-                {x:9, y:2, id:1, type:"Output1"} as SerializableGate
+                {x:8, y:2, id:1, type:"Output1"} as SerializableGate
             ],
             connections:[],
             size:[10, 5],

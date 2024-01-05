@@ -487,7 +487,7 @@
         stroke-width=".5pt" 
         fill="none" 
         bind:this={circuit}
-        style="pointer-events: none;">
+        class="circuit-svg">
         <g transform={gridController.getMatrixSvg()}>
 
             {#each svgWires as wire}
@@ -514,5 +514,10 @@
         grid-column: 1 / 2;
         background-color: white;  
         padding: 0%;
+    }
+
+    .circuit-svg {
+        pointer-events: none;
+        display: flex;
     }
 </style>

@@ -61,7 +61,7 @@ export class CircuitController {
             this.gateGrid = gateGrid
         }
 
-        this.transformMatrix = transform(translate(0,0))
+        this.transformMatrix = transform(translate(100, 100))
 
         if (makeMain) {
             mainController = this
