@@ -1,4 +1,6 @@
 <script context="module">
+    import { all_gates } from "$lib/circuit_types/Gate";
+
 
    /**
     * make an svg for a gate, the default size is 20x20
@@ -44,7 +46,18 @@
     * @returns {String}
     */
    export const getGateSvgContents = (name) => {
-      return _svgs.get(name) || "";
+      const result = _svgs.get(name)
+      if (result !== undefined) {
+         return result
+      }
+      const gType = all_gates.get(name)
+      const box = boxSvg((gType?.gridWidth || 2) * 10, (gType?.gridHeight || 2) * 10);
+      return box
+   }
+
+   function boxSvg(width=2, height=2, margin=2) {
+      const [m, w, h] = [margin, width - margin, height - margin] 
+      return `<path d="M ${m} ${m} L ${w} ${m} L ${w} ${h} L ${m} ${h} Z"/>\n`
    }
 
    /**

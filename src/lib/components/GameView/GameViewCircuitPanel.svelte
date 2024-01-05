@@ -1,5 +1,5 @@
 <script>
-    import { GateType, Buf, Gate, all_gates, copyGate } from '$lib/circuit_types/Gate'
+    import { GateType, Buf, Gate, all_gates} from '$lib/circuit_types/Gate'
     import { onMount } from 'svelte';
 
     import { getGateSvgContents, ConnectionSvg, buildSvg, wireSvg, getGateSvg } from '../GateSvgs.svelte';
@@ -357,7 +357,7 @@
             return
         }
 
-        let gType = all_gates.get(name) || new GateType()
+        let gType = all_gates.get(name) || Buf
 
         const offsetString = d.getData('offset')
         if (offsetString === "") {

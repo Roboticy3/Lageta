@@ -1,74 +1,68 @@
+import { TruthTable } from "./TruthTable";
 
 //every type of gate
 export let all_gates:Map<String, GateType> = new Map()
 
+/**
+ * A set of data used both by Gates and view.
+ * Every GateType created will be placed in all_gates with its name as the key, 
+ * only one of each unique GateType should exist at any given time, the only reason the class is exported is so other scripts can typescheck for it
+ */
 export class GateType {
-    name:string;
-
-    sizeIn:number
-    sizeOut:number
-    //the positions of the inputs normalized about a grid cell
-    inputOffsets:Array<[number, number]>
-    outputOffsets:Array<[number, number]>
-
-    gridHeight:number;
-    gridWidth:number;
-
-    moveable:boolean;
-
-    private f:(x:boolean[]) => boolean[]
-
+    name:string = "Buf"
+    sizeIn:number = 1
+    sizeOut:number = 1
+    inputOffsets:Array<[number, number]> = [[0.25, 1]]
+    outputOffsets:Array<[number, number]> = [[1.75, 1]]
+    gridWidth:number = 2
+    gridHeight:number = 2
+    moveable:boolean = true
+    private f:(x:boolean[]) => boolean[] = (x:boolean[])=>{return x}
+    private register:boolean = true
+    
     constructor(
-        name:string = "Buf",
-        inputs:number | Array<[number, number]> = 1,
-        outputs:number | Array<[number, number]> = 1,
-        gridSize:[number, number] = [2, 2],
-        moveable=true,
-        f=(x:boolean[])=>{return x},
-        register=true
+        params:GateTypeParameters
     )
     {
-        this.gridWidth = gridSize[0]
-        this.gridHeight = gridSize[1]
-
-        this.name = name
-        if (typeof inputs === "number") {
-            this.sizeIn = inputs
-            this.inputOffsets = this.spreadVerticalConnections(0.25, inputs)
-        }
-        else {
-            this.sizeIn = inputs.length
-            this.inputOffsets = inputs
+        if (params.gridSize) {
+            this.gridWidth = params.gridSize[0]
+            this.gridHeight = params.gridSize[1]
         }
 
-        if (typeof outputs === "number") {
-            this.sizeOut = outputs
-            this.outputOffsets = this.spreadVerticalConnections(this.gridWidth - 0.25, outputs)
-        }
-        else {
-            this.sizeOut = outputs.length
-            this.outputOffsets = outputs
+        if (params.name) {
+            this.name = params.name
         }
 
-        if (register) {
+        if (typeof params.inputs === "number") {
+            this.sizeIn = params.inputs
+            this.inputOffsets = this.spreadVerticalConnections(0.25, params.inputs)
+        }
+        else if (params.inputs instanceof Array) {
+            this.sizeIn = params.inputs.length
+            this.inputOffsets = params.inputs
+        }
+
+        if (typeof params.outputs === "number") {
+            this.sizeOut = params.outputs
+            this.outputOffsets = this.spreadVerticalConnections(this.gridWidth - 0.25, params.outputs)
+        }
+        else if (params.outputs instanceof Array) {
+            this.sizeOut = params.outputs.length
+            this.outputOffsets = params.outputs
+        }
+
+        if (params.register || true) {
             registerGateType(this)
         }
 
-        this.moveable = moveable
+        this.moveable = params.moveable || true
 
-        this.f = f
+        this.f = params.f || this.f
 
     }   
 
     private spreadVerticalConnections(gridX:number, size:number) {
-        const step = this.gridHeight / (size + 1)
-        let result = new Array<[number, number]>(size)
-
-        for (let i = 0; i < size; i++) {
-            result[i] = [gridX, step * (i + 1)]
-        }
-
-        return result
+        return spreadVerticalConnections(gridX, this.gridHeight, size)
     }
 
     execute(x:boolean[] | undefined) {
@@ -85,6 +79,62 @@ export class GateType {
         return new Array<boolean>(this.sizeOut)
     }
 }
+
+function spreadVerticalConnections(gridX:number, gridHeight:number, size:number) {
+    const step = gridHeight / (size + 1)
+    let result = new Array<[number, number]>(size)
+
+    for (let i = 0; i < size; i++) {
+        result[i] = [gridX, step * (i + 1)]
+    }
+
+    return result
+}
+
+function spreadHorizontalConnections(gridY:number, gridWidth:number, size:number) {
+    const step = gridWidth / (size + 1)
+    let result = new Array<[number, number]>(size)
+
+    for (let i = 0; i < size; i++) {
+        result[i] = [step * (i + 1), gridY]
+    }
+
+    return result
+}
+
+/**
+ * Set of optional arguments for constructing a GateType
+ */
+type GateTypeParameters = {
+    name?:string,
+    inputs?:number | Array<[number, number]>,
+    outputs?:number | Array<[number, number]>,
+    gridSize?:[number, number],
+    moveable?:boolean,
+    f?:(x:boolean[]) => boolean[],
+    register?:boolean
+}
+
+/**
+ * Get an existing GateType from the given parameters, or create a new one if necessary
+ * @param params 
+ * @returns 
+ */
+function getGateType(params:GateTypeParameters) {
+    if (params.name) {
+        const result = all_gates.get(params.name)
+        if (result) {
+            return result
+        }
+    }
+    return new GateType(params)
+}
+
+/**
+ * The actual Gate object, takes a readonly reference to a GateType.
+ * the coordinates and id used to be optional, so a Gate could exist outside of a GateGrid,
+ * however, this is no longer the case, and the result is manny leftover ```gate.id || 0``` statements and similar
+ */
 export class Gate {
     readonly type:GateType
 
@@ -123,64 +173,71 @@ export class Gate {
 }
 
 
-export const registerGateType = (gateType:GateType) => {
+const registerGateType = (gateType:GateType) => {
     if (!all_gates.has(gateType.name)) {
         all_gates.set(gateType.name, gateType)
     }
     all_gates = all_gates
 }
 
-export const registerGateTypeJson = (gateType:string) => {
+const registerGateTypeJson = (gateType:string) => {
     const gType = JSON.parse(gateType) as GateType
     registerGateType(gType)
 }
 
-export const copyGate = (type:GateType) => {
-    return new Gate(
-        type
+export const Buf = getGateType (
+    {name:"Buf", inputs:1, outputs:1}
+)
+
+export const Not = getGateType (
+    {name:"Not", inputs:1, outputs:1, f:(x:boolean[]) => {return  x.map((v) => {return !v})}}
+)
+
+export const And = getGateType (
+    {name:"And", inputs:2, outputs:1, f:(x:boolean[]) => {return [x[0] && x[1]]}}
+)
+
+export const Or = getGateType (
+    {name:"Or", inputs:2, outputs:1, f:(x:boolean[]) => {return [x[0] || x[1]]}}
+)
+
+export function Mux(selectionSize:number) {
+    const size = Math.pow(2, selectionSize)
+    const inputOffsets = spreadVerticalConnections(0.25, size, size)
+    inputOffsets.push(...spreadHorizontalConnections(size - 0.25, selectionSize, selectionSize))
+    return getGateType (
+        {
+            name:"Mux" + String(size), 
+            inputs:inputOffsets, outputs:1, 
+            gridSize:[selectionSize, size], 
+            f:(x:boolean[]) => {
+                let sum = 0
+                let pow = 0
+                for (let i = inputOffsets.length - selectionSize; i < inputOffsets.length; i++) {
+                    
+                    if (x[i]) sum += Math.pow(2, pow)
+
+                    pow++
+                }
+
+                return [x[sum]]
+            }
+        }
     )
 }
 
-export const Buf = new GateType (
-    "Buf",
-    1,
-    1
-)
-
-export const Not = new GateType (
-    "Not",
-    1,
-    1
-)
-
-export const And = new GateType (
-    "And",
-    2,
-    1
-)
-
-export const Or = new GateType (
-    "Or",
-    2,
-    1
-)
+Mux(1)
+Mux(2)
+Mux(3)
 
 export function Input(size:number) {
-    return new GateType (
-        `Input${size}`,
-        0,
-        size,
-        [1,size],
-        false
+    return getGateType (
+        {name:"Input" + String(size), inputs:0, outputs:size, gridSize:[1, size], moveable:false}
     )
 }
 
 export function Output(size:number) {
-    return new GateType (
-        `Output${size}`,
-        size,
-        0,
-        [1,size],
-        false
+    return getGateType (
+        {name:"Output" + String(size), inputs:size, outputs:0, gridSize:[1, size], moveable:false}
     )
 }

@@ -1,4 +1,4 @@
-import { copyGate, type Gate, type GateType } from "./Gate";
+import { Gate, type GateType } from "./Gate";
 import { GateGraph, Connection, type ConnectionType } from "./GateGraph"
 import { GateGrid } from "./GateGrid";
 import { identity, transform, type Matrix, type Transform, applyToPoint, inverse, toSVG, fromObject, translate, rotateDEG, rotate, scale} from "transformation-matrix";
@@ -154,6 +154,13 @@ export class CircuitController {
     setGridCellOffset(offset:number) {
         this.gateGrid.cellOffset = offset
     }
+    
+    /**
+     * @returns the number of gates in this controller's grid
+     */
+    getNumGates() {
+        return this.gateGrid.gates.length
+    }
 
     /**
      * 
@@ -235,7 +242,7 @@ export class CircuitController {
         offsetX:number, 
         offsetY:number
     ) {
-        const gate = copyGate(gType)
+        const gate = new Gate(gType)
         console.log("adding gate: ", gate)
 
         const gateId = this.gateGrid.gates.length
@@ -520,12 +527,9 @@ export class CircuitController {
         const snappedX = position[0]
         const snappedY = position[1]
 
-        const scale = [
-            gType.gridWidth * this.gateGrid.cellOffset / 20,
-            gType.gridHeight * this.gateGrid.cellOffset / 20
-        ]
+        const scale = this.gateGrid.cellOffset / 10
 
-        return `transform="translate(${snappedX} ${snappedY}) scale(${scale[0]} ${scale[1]})"`
+        return `transform="translate(${snappedX} ${snappedY}) scale(${scale} ${scale})"`
     }
 }
 

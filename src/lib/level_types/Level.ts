@@ -6,7 +6,6 @@ import type { OrganizedCircuitContents, SerializableGate } from "$lib/storage_ty
 import { CompleteCondition, GameViewParameters } from "./GameViewParameters"
 
 export let all_levels = new Map<String, Level>()
-console.log(...all_levels.keys())
 
 export class Level {
     x:number = 1
@@ -27,7 +26,6 @@ export class Level {
         this.params = params
 
         if (register) {
-            console.log(name, this)
             all_levels.set(name, this)
         }
     }
@@ -66,12 +64,4 @@ export const W1S1 = new Level (
     ),
     "1",
     3, 1
-)
-
-export const W1S2 = new Level (
-    new GameViewParameters(
-        "The output of a gate is inverted whenever the output is covered with a small circle. Use the Not gate to invert the input."
-    ),
-    "2",
-    4, 3
 )

@@ -16,8 +16,10 @@
     import { ProgressStorage } from '$lib/storage_types/ProgressStore';
     
     //@ts-ignore
-    import { GameViewParameters } from '$lib/level_types/GameViewParameters';
+    import { CompleteCondition, GameViewParameters } from '$lib/level_types/GameViewParameters';
     import { all_levels } from '$lib/level_types/Level';
+    import TruthTableView from './TruthTableView.svelte';
+    import { TruthTable } from '$lib/circuit_types/TruthTable';
 
     /**
      * @type {GameViewParameters}
@@ -127,6 +129,9 @@
     <GameViewCircuitPanel bind:this={circuitPanel} params={params}/>
     <div class="directions">
         {@html params.directions}
+        {#if params.completeCondition !== undefined}
+            <TruthTableView table={new TruthTable(params.completeCondition)}/>
+        {/if}
     </div>
 
     <div class="control-panel">

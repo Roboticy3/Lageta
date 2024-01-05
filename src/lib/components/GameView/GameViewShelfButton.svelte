@@ -1,11 +1,12 @@
 <script>
 
-    import { registerGateType, Buf } from "$lib/circuit_types/Gate";
+    import { Buf } from "$lib/circuit_types/Gate";
     import { onMount } from "svelte";
 
     import { getGateSvg } from "../GateSvgs.svelte";
 
     export let gateType = Buf
+    console.log(gateType)
 
     onMount(() => {
 
@@ -14,8 +15,6 @@
         if (elem == null) {
             return
         }
-
-        registerGateType(gateType)
     })
 
     let id = `gateshelf.${gateType.name}`
