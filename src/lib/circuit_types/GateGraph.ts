@@ -251,6 +251,45 @@ export class GateGraph {
         }
         return i
     }
+
+    /**
+     * find the input array for a given gate
+     * @param id 
+     */
+    resolveInputsAt(gate:Gate, depth:number=0): boolean[] {
+
+        if (gate.override) { //Inputs with set values will have overrides
+            return gate.override
+        }
+
+        const gType = gate.type
+
+        let result = new Array<boolean>(gType.sizeIn)
+
+        for (let i = 0; i < gType.sizeIn; i++) {
+            const c = this.inputs[gate.id][i]
+            if (c === undefined) {
+                result[i] = false
+                continue
+            }
+
+            const from = c.from
+            const newGate = this.gates[from[0]]
+            if (newGate === undefined) {
+                result[i] = false
+                continue
+            }
+
+            console.log("resolving connection ", newGate.type, from)
+            result[i] = newGate.execute(
+                this.resolveInputsAt(newGate, depth + 1)
+            )[from[1]]
+            console.log("output ", result[i])
+        }
+
+        return result
+    }
+
 }
 
 export class Connection {

@@ -43,7 +43,7 @@ export type ConnectionIndex = {id:number, type:ConnectionType, index:number}
  * @member transformMatrix A 2D transformation matrix to allow for panning and zooming of the display of the circuit without breaking the functions that take pixel offsets as arguments.
  */
 export class CircuitController {
-    gateGrid:GateGrid
+    readonly gateGrid:GateGrid
 
     private transformMatrix:Matrix
 

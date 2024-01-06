@@ -2,9 +2,21 @@ import type { Gate } from "./Gate"
 import { Buf } from "./Gate"
 import type { GateGraph } from "./GateGraph"
 
+/**
+ * Store a grid of gates, keeping track of their position
+ * This script exchanges memory efficiency for time efficiency by storing the whole grid as an array, making collision O(1) but memory O(width * height) at least
+ * Gates are intended to be stored in a grid, and since the grid stores them in the grid array, their position is sometimes referred to as their "Index"
+ */
 export class GateGrid {
 
     graph:GateGraph
+
+    sizeX = 20
+    sizeY = 20
+    cellOffset = 30
+
+    grid:Array<number | undefined>
+    gates = new Array<Gate | undefined>()
 
     constructor(
         graph:GateGraph, 
@@ -25,11 +37,6 @@ export class GateGrid {
         this.graph = graph
     }
 
-    sizeX = 20
-    sizeY = 20
-
-    cellOffset = 30
-
     offsetToIndex(offsetX:number, offsetY:number) {
         const x = Math.floor(offsetX / this.cellOffset)
         const y = Math.floor(offsetY / this.cellOffset)
@@ -39,11 +46,6 @@ export class GateGrid {
     indexToOffset(x:number, y:number) {
         return [this.cellOffset * x, this.cellOffset * y]
     }
-
-    grid:Array<number | undefined>
-    gates = new Array<Gate | undefined>()
-
-    gateCount = 0
 
     get(x:number, y:number) {
         const id = this.indexToId(x, y)
@@ -82,6 +84,8 @@ export class GateGrid {
         const cell = this.getGateIndex(gate, x, y)
 
         const [sizeX, sizeY] = [gType.gridWidth, gType.gridHeight]
+        
+        //check for collisions with existing gates
         const collision = this.getInRange(
             cell[0], cell[1], sizeX, sizeY
             )
@@ -90,20 +94,35 @@ export class GateGrid {
             return undefined
         }
 
+        //add the gate
         this.addGateNoChecks(cell[0], cell[1], gate)
         this.graph.resetConnectionsAt(gate.id || 0)
 
         return cell
     }
 
+    /**
+     * Intended to be used by OrganizedCircuit objects when unpacking their loaded gates
+     * If the gate is already instantiated, and you know the gate is in a valid position, this function may be faster than addGate
+     * @param g 
+     */
     addGateExisting(g:Gate) {
         const id = g.id || 0
         const gType = g.type
         this.gates[id] = g
         this.setIndexToRange(id, g.x || 0, g.y || 0, gType.gridWidth, gType.gridHeight)
+        this.addInputOutput(g)
     }
 
-    //get a gate's position from a sample index
+    
+
+    /**
+     * Get a gate's position from a sample index
+     * @param gate 
+     * @param x 
+     * @param y 
+     * @returns 
+     */
     getGateIndex(gate:Gate, x:number, y:number) {
         //x -= Math.floor(gate.gridHeight * .5)
         //y -= Math.floor(gate.gridWidth * .5)
@@ -157,9 +176,7 @@ export class GateGrid {
         ]
     }
 
-
-
-    removeGate(id:number, clear:boolean=false) {
+    removeGate(id:number, clear:boolean=true) {
         const gate = this.gates[id]
         if (gate === undefined) {
             return undefined
@@ -169,6 +186,7 @@ export class GateGrid {
         const gatePosY = gate.y || 0
 
         this.setIndexToRange(undefined, gatePosX, gatePosY, gType.gridWidth, gType.gridHeight)
+        this.removeInputOutput(gate)
 
         if (clear) {
             this.gates[id] = undefined
@@ -177,6 +195,26 @@ export class GateGrid {
         }
         
         return gate
+    }
+
+    private removeInputOutput(gate:Gate) {
+        const gType = gate.type
+        if (gType.sizeIn === 0) {
+            const i = this.inputs.indexOf(gate)
+            if (i === -1) {
+                console.log(gate, " should be in inputs list!")
+                return
+            }
+            this.inputs[i] = undefined
+        }
+        if (gType.sizeOut === 0) {
+            const i = this.outputs.indexOf(gate)
+            if (i === -1) {
+                console.log(gate, " should be in outputs list!")
+                return
+            }
+            this.outputs[i] = undefined
+        }
     }
 
     moveGate(id:number, toX:number, toY:number) {
@@ -198,11 +236,10 @@ export class GateGrid {
             return undefined
         }
 
-        this.removeGate(id)
-        
+        this.removeGate(id, false)
         this.setIndexToRange(id, toX, toY, sizeX, sizeY)
-
         gate.givePos(toX, toY)
+
         return toCell
     }
 
@@ -229,19 +266,32 @@ export class GateGrid {
         }
     }
 
-    //simple add gate assuming there is space at the specified coordinates
-    //does not center the gate, but places its top-left at the given coordinates
+    //simple add gate assuming this would not corrupt the grid
     private addGateNoChecks(x:number, y:number, gate:Gate) {
         
         const gType = gate.type
         const [sizeX, sizeY] = [gType.gridWidth, gType.gridHeight]
         const gateId = this.gates.length
 
+        //"draw" the gate to the grid, by putting it's id in all the squares it covers
         this.setIndexToRange(gateId, x, y, sizeX, sizeY)
+        //give the gate to inputs or outputs if necessary
+        this.addInputOutput(gate)
 
+        //push the gate to the gates array
         gate.giveId(gateId)
         gate.givePos(x, y)
         this.gates.push(gate)
+    }
+
+    inputs:Array<Gate | undefined> = []
+    outputs:Array<Gate | undefined> = []
+
+    private addInputOutput(gate:Gate) {
+        const gType = gate.type
+        const [input, output] = [gType.sizeIn === 0, gType.sizeOut === 0]
+        if (input) this.inputs.push(gate)
+        if (output) this.outputs.push(gate)
     }
 
     private setIndexToRange(id:number | undefined, x:number, y:number, sizeX:number, sizeY:number) {

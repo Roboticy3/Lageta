@@ -158,7 +158,7 @@ export class OrganizedCircuit {
     gates:Array<SerializableGate> = []
     connections:Array<Connection> = []
     //the size of the circuit in grid squares
-    size:[number, number] = [0, 0]
+    size:[number, number] = [15, 15]
     //the amount the gates have to be shifted by to land in the corner when loaded
     offset:[number, number] = [0, 0]
 

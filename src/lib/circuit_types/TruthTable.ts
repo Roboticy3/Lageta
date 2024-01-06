@@ -1,3 +1,4 @@
+import type { CircuitController } from "./CircuitController";
 import { Buf, GateType } from "./Gate";
 import type { GateGrid } from "./GateGrid";
 
@@ -120,22 +121,6 @@ export class TruthTable {
         }
     }
 
-    entryToBool(entry:string) {
-        return entry === this.trueString
-    }
-
-    boolToEntry(bool:boolean) {
-        return bool ? this.trueString:this.falseString
-    }
-
-    unpack() {
-        return this.block
-    }
-
-    getName() {
-        return this.source.name
-    }
-
     setLabels(
         columnLabels:string[] | undefined = undefined,
         trueString:string = "True",
@@ -152,5 +137,48 @@ export class TruthTable {
 
         this.trueString = trueString
         this.falseString = falseString
+    }
+
+    test(circuitController:CircuitController | undefined, id:number) {
+        if (circuitController === undefined) return false
+        const gate = circuitController.getGate(id)
+        if (gate === undefined) return false
+        const gType = gate.type
+        if (gType !== this.source) return false
+
+        for (let i = this.colCount - this.source.sizeOut; i < this.block.length; i += this.colCount) {
+            const cmp = new Array<boolean>(this.source.sizeOut)
+            for (let j = 0; j < this.source.sizeOut; j++) {
+                cmp[j] = this.block[i + j] === this.trueString
+            }
+
+            circuitController
+        }
+
+        return true
+    }
+
+    entryToBool(entry:string) {
+        return entry === this.trueString
+    }
+
+    boolToEntry(bool:boolean) {
+        return bool ? this.trueString:this.falseString
+    }
+
+    unpack() {
+        return this.block
+    }
+
+    getName() {
+        return this.source.name
+    }
+
+    getInSize() {
+        return this.source.sizeIn
+    }
+
+    getOutSize() {
+        return this.source.sizeOut
     }
 }

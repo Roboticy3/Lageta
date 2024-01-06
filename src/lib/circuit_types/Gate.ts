@@ -154,6 +154,7 @@ export class Gate {
         this.id = id
     }
 
+    //override the input array
     override:boolean[] | undefined
 
     execute(x:boolean[] | undefined) {
@@ -162,13 +163,6 @@ export class Gate {
 
     reset() {
         this.override = undefined
-    }
-
-    set(x:boolean[]) {
-        if (x.length === this.type.sizeIn) {
-            console.log("cannot set ", x, "\nthe input size is ", this.type.sizeIn, " but the given length is ", x.length)
-        }
-        this.override = x
     }
 }
 
@@ -225,10 +219,6 @@ export function Mux(selectionSize:number) {
         }
     )
 }
-
-Mux(1)
-Mux(2)
-Mux(3)
 
 export function Input(size:number) {
     return getGateType (

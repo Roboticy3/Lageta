@@ -3,6 +3,7 @@
 
     //@ts-ignore
     import { TruthTable } from "$lib/circuit_types/TruthTable";
+    import GameView from "./GameView.svelte";
 
     /**
      * @type {TruthTable}

@@ -14,10 +14,10 @@ export class Level {
     private params:GameViewParameters
 
     constructor(
-        params:GameViewParameters = new GameViewParameters("Have Fun!"),
-        name:string = "Freeplay",
-        x:number = 1,
-        y:number = 1,
+        params:GameViewParameters,
+        name:string,
+        x:number,
+        y:number,
         register:boolean = true
     ) {
         this.x = x
@@ -40,9 +40,21 @@ export class Level {
 }
 
 export const Freeplay = new Level (
-    new GameViewParameters("Have Fun!", undefined, undefined, true),
+    new GameViewParameters(
+        "Have Fun!",
+        {
+            gateTypes:[Input(10), Output(10)],
+            gates:[
+                {x:0,y:0,id:0,type:"Input10"} as SerializableGate,
+                {x:13,y:0,id:1,type:"Output10"} as SerializableGate
+            ],
+            size:[15,10] 
+        },
+        undefined,
+        false
+        ),
     "Freeplay",
-    1,1
+    1,1,
 )
 
 export const W1S1 = new Level (
@@ -56,9 +68,7 @@ export const W1S1 = new Level (
                 {x:0, y:2, id:0, type:"Input1"} as SerializableGate,
                 {x:8, y:2, id:1, type:"Output1"} as SerializableGate
             ],
-            connections:[],
-            size:[10, 5],
-            offset:[0, 0]
+            size:[10, 5]
         } as OrganizedCircuitContents,
         Not
     ),

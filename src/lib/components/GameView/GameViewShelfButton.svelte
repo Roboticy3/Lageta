@@ -6,7 +6,6 @@
     import { getGateSvg } from "../GateSvgs.svelte";
 
     export let gateType = Buf
-    console.log(gateType)
 
     onMount(() => {
 

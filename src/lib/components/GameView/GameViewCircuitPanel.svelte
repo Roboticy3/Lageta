@@ -64,6 +64,9 @@
         addDragEventListeners()
         updateViewBox()
         updateSvg()
+
+        console.log(gridController.gateGrid.inputs)
+        console.log(gridController.gateGrid.outputs)
     }
     onMount(mountCircuit)
 
@@ -390,6 +393,8 @@
      * @param {DragEvent} e
      * @param {DataTransfer} d
      * @param {"Input" | "Output"} fromType
+     * 
+     * @todo dropping a connection on nothing should delete it, currently does not
      */
     function circuitDropConnection(e, d, fromType) {
         const target = gridController.query(e.offsetX, e.offsetY)
