@@ -1,5 +1,6 @@
 <script context="module">
-    import { all_gates } from "$lib/circuit_types/Gate";
+   //@ts-ignore
+   import { Gate, GateType, all_gates } from "$lib/circuit_types/Gate";
 
 
    /**
@@ -28,8 +29,16 @@
      * @param {number} offsetX
      * @param {number} offsetY
      */
-   export function ConnectionSvg(offsetX=1, offsetY=1) {
-      return `<path d="M ${offsetX - 4} ${offsetY - 4} l 8 4 l -8 4 Z" stroke-width=".25pt"/>\n`
+   export function ConnectionSvg(offsetX=1, offsetY=1, color="") {
+      let result = `<path d="M ${offsetX - 4} ${offsetY - 4} l 8 4 l -8 4 Z" stroke-width=".25pt"`
+      if (color !== "") {
+         result += `fill="${color}" stroke="none" />\n`
+      }
+      else {
+         result += " />\n"
+      }
+
+      return result
    }
 
    export const _svgs = new Map([
@@ -42,28 +51,42 @@
 
    /**
     * 
-    * @param {String} name
+    * @param {Gate} gate
     * @returns {String}
     */
-   export const getGateSvgContents = (name) => {
-      const result = _svgs.get(name)
+   export const getGateSvgContents = (gate) => {
+      const gType = gate.type
+      return getGateTypeSvgContents(gType)
+   }
+
+   /**
+    * @param {GateType} gType
+    */
+   export const getGateTypeSvgContents = (gType) => {
+      let result = _svgs.get(gType.name)
       if (result !== undefined) {
          return result
       }
-      const gType = all_gates.get(name)
-      const d = defaultSvg((gType?.gridWidth || 2) * 10, (gType?.gridHeight || 2) * 10, 4, name);
-      return d
-   }
+      result = defaultSvg((gType?.gridWidth || 2) * 10, (gType?.gridHeight || 2) * 10, 4, gType.name);
+      return result
+   } 
 
    function defaultSvg(width=2, height=2, font=4, name="Buf") {
       return `<text x="${font}" y="${height / 2 + font / 2}" stroke="transparent" fill="black" style="font: ${font}px sans-serif;">${name}</text>`
    }
 
    /**
-    * @param {String} name
+    * @param {Gate} gate
     */
-   export const getGateSvg = (name) => {
-      return buildSvg(getGateSvgContents(name))
+   export const getGateSvg = (gate) => {
+      return buildSvg(getGateSvgContents(gate))
+   }
+
+   /**
+    * @param {GateType} gType
+    */
+   export const getGateTypeSvg = (gType) => {
+      return buildSvg(getGateTypeSvgContents(gType))
    }
 
    /**

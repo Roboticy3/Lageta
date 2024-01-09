@@ -107,6 +107,13 @@ export class GateGraph {
         }
     }
 
+    private invalidateOverridesAt(c:Connection) {
+        const to = c.to
+        for (let i = 0; i < to.length; i++) {
+            const toi = to[i]
+        }
+    }
+
     removeInput(a:[number, number]) {
         const c = this.getInput(a)
         if (c === undefined) {
@@ -258,10 +265,8 @@ export class GateGraph {
      */
     resolveInputsAt(gate:Gate, depth:number=0): boolean[] {
 
-        if (gate.override) { //Inputs with set values will have overrides
-            return gate.override
-        }
-
+        console.log(gate)
+        
         const gType = gate.type
 
         let result = new Array<boolean>(gType.sizeIn)
@@ -269,6 +274,7 @@ export class GateGraph {
         //loop through each input and check for a valid connection
         for (let i = 0; i < gType.sizeIn; i++) {
             const c = this.inputs[gate.id][i]
+            console.log(c)
             if (c === undefined) {
                 result[i] = false
                 continue
@@ -285,11 +291,8 @@ export class GateGraph {
             
             //if the connection is valid, resolve the gate on the other end
             //if the gate's override field is filled, it will use that instead of override inputs
-            //executeLazy is used to avoid resolving inputs at a gate that already has it's override filled
-            result[i] = newGate.executeLazy(
-                this.resolveInputsAt
-                    .bind(
-                        this, //`this` has betrayed me before, MDN docs makes it seem like this should work
+            result[i] = newGate.execute(
+                this.resolveInputsAt(
                         newGate, 
                         depth + 1
                     )
@@ -304,14 +307,14 @@ export class GateGraph {
     }
 
     resetInputsAt(gate:Gate) {
-        gate.override = undefined
+        gate.reset()
     }
 
     resetInputs() {
         for (let i = 0; i < this.gates.length; i++) {
             const gate  = this.gates[i]
             if (gate !== undefined) {
-                gate.override = undefined
+                gate.reset()
             }
         }
     }

@@ -137,9 +137,12 @@ function getGateType(params:GateTypeParameters) {
  */
 export class Gate {
     readonly type:GateType
+    //override the input array
+    override:Array<boolean | undefined> = []
 
     constructor(type:GateType) {
         this.type = type
+        this.reset()
     }
 
     x:number = 0;
@@ -154,11 +157,14 @@ export class Gate {
         this.id = id
     }
 
-    //override the input array
-    override:boolean[] | undefined
-
-    execute(x:boolean[] | undefined, set=false) {
-        const result = this.type.execute(this.override || x)
+    execute(x:boolean[] = [], set=false) {
+        const result = this.type.execute(
+            this.override.map(
+                (v, i) => {
+                    return v || x.at(i) || false
+                }
+            )
+        )
         if (set) {
             this.override = result
         }
@@ -166,8 +172,18 @@ export class Gate {
     }
     
     //pass x as a function to avoid doing work if override is filled
-    executeLazy(x:() => boolean[] | undefined, set=false) {
-        const result = this.type.execute(this.override || x())
+    executeLazy(x:() => boolean[], set=false) {
+        let xResult:Array<boolean> = []
+        const result = this.type.execute(
+            this.override.map(
+                (v, i) => {
+                    if (v === undefined && xResult.length === 0) {
+                        xResult = x()
+                    }
+                    return v || xResult.at(i) || false
+                }
+            )
+        )
         if (set) {
             this.override = result
         }
@@ -175,7 +191,30 @@ export class Gate {
     }
 
     reset() {
-        this.override = undefined
+        this.override = new Array<boolean | undefined>(
+            this.type.sizeIn
+        ).fill(undefined)
+    }
+
+    getInput(index:number) {
+        if (this.override !== undefined) {
+            return this.override[index] || false
+        }
+        return false
+    }
+
+    getOutput(index:number) {
+        return this.execute(undefined)[index] || false
+    }
+
+    getInputs() {
+        return this.override || new Array<boolean>(
+            this.type.sizeIn
+        ).fill(false)
+    }
+
+    getOutputs() {
+        return this.execute(undefined)
     }
 }
 

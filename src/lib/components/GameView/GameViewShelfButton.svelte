@@ -3,7 +3,7 @@
     import { Buf } from "$lib/circuit_types/Gate";
     import { onMount } from "svelte";
 
-    import { getGateSvg } from "../GateSvgs.svelte";
+    import { getGateSvg, getGateTypeSvg } from "../GateSvgs.svelte";
 
     export let gateType = Buf
 
@@ -37,7 +37,7 @@
 </script>
 
 <div class="shelf-button" draggable="true" id={id} on:dragstart={onDragStart}>
-    {@html getGateSvg(gateType.name)}
+    {@html getGateTypeSvg(gateType)}
 </div>
 
 <style>

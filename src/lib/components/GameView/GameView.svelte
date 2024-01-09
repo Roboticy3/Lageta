@@ -10,7 +10,7 @@
     import GameViewCircuitPanel from './GameViewCircuitPanel.svelte';
     import TextFormPopup from './TextFormPopup.svelte';
 
-    import { mainController } from '$lib/circuit_types/CircuitController';
+    import { CircuitController, mainController } from '$lib/circuit_types/CircuitController';
     
     import { CircuitStore } from '$lib/storage_types/CircuitStorage';
     import { ProgressStorage } from '$lib/storage_types/ProgressStore';
@@ -110,6 +110,18 @@
         return unlockedGates
     }
 
+    /**
+     * test by resolving values of all of the outputs on the board
+     */
+    function onTest() {
+        const result = mainController?.resolve()
+        if (result === undefined) {
+            console.log("No CircuitController found")
+        }
+
+        
+    }
+
 </script>
 
 <div class="game-view" id="game-view">
@@ -129,8 +141,8 @@
 
     <div class="control-panel">
         <div class="simulator-player">
-            <button>
-                play
+            <button on:click={onTest}>
+                test
             </button>
             <button on:click={() => {dialog.show("Save", onSubmitSave)}}>
                 save

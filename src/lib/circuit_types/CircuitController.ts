@@ -456,7 +456,7 @@ export class CircuitController {
      * @param getGateSvgContents 
      * @returns 
      */
-    drawGates(getGateSvgContents:(name:string) => string) {
+    drawGates(getGateSvgContents:(gate:Gate) => string) {
         var result = Array<string>()
         this.gateGrid.iterGates((g) => {
         result.push
@@ -465,7 +465,7 @@ export class CircuitController {
 <g 
     id="${g.id || 0}" 
     ${this.getGateSvgTransform(g)}>
-    ${getGateSvgContents(g.type.name)}
+    ${getGateSvgContents(g)}
 </g>
 `
     )
@@ -480,7 +480,7 @@ export class CircuitController {
      * @param type If a blank ConnectionType is given, all the connections, Inputs and Outputs, will be drawn.
      * @returns 
      */
-    drawConnectionPoints(connectionBuilder:(localX:number, localY:number) => string, type:ConnectionType="") {
+    drawConnectionPoints(connectionBuilder:(localX:number, localY:number, color:string) => string, type:ConnectionType="") {
         const graph = this.gateGrid.graph
         let result = ""
 
@@ -491,13 +491,16 @@ export class CircuitController {
                 case "Input":
                     result += connectionBuilder(
                         inputOffsets[j][0],
-                        inputOffsets[j][1]
+                        inputOffsets[j][1],
+                        g.getInput(j) ? "red":""
                     )
+                    
                     break
                 case "Output":
                     result += connectionBuilder(
                         outputOffsets[j][0],
-                        outputOffsets[j][1]
+                        outputOffsets[j][1],
+                        g.getOutput(j) ? "red":""
                     )
                     break
             }
