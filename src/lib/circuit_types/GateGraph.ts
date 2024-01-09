@@ -288,7 +288,6 @@ export class GateGraph {
 
     resolveInputAt(gate:Gate, inputIndex:number, depth:number=0) {
         const c = this.inputs[gate.id][inputIndex]
-        console.log(c)
         if (c === undefined) {
             gate.override[inputIndex] = false
             return false
@@ -300,8 +299,6 @@ export class GateGraph {
             gate.override[inputIndex] = false
             return false
         }
-
-        console.log("resolving connection ", newGate.type, from)
         
         //if the connection is valid, resolve the gate on the other end
         //if the gate's override field is filled, it will use that instead of override inputs

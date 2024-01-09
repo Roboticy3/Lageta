@@ -204,7 +204,11 @@
                 if (newGate !== undefined) {
                     giveGateData(newGate, d)
                     dragStartConnection(e, newGate, "Output", from[1])
-                    gridController.removeConnection({id:newGate.id || 0, type:"Input", index:connectionIndex})
+                    gridController.removeConnection({
+                        id:gate.id, 
+                        type:"Input", 
+                        index:connectionIndex
+                    })
                     updateSvg()
                     return
                 }
@@ -414,12 +418,7 @@
             return
         }
 
-        if (target.gate === undefined || target.connectionIndex === undefined) {
-            
-            updateSvg()
-            return
-        }
-        const toId = target.gate.id || 0
+        const toId = target.gate?.id || 0
 
         if (toType === fromType) {
             console.log("can't connect ", fromType, " with ", toType)
@@ -430,12 +429,18 @@
         switch (toType) {
             case "Output":
                 gridController.addConnection(
-                    toId, target.connectionIndex, gateId, connectionIndex
+                    toId, 
+                    target?.connectionIndex || 0, 
+                    gateId, 
+                    connectionIndex
                 )
                 break
             case "Input":
                 gridController.addConnection(
-                    gateId, connectionIndex, toId, target.connectionIndex
+                    gateId, 
+                    connectionIndex, 
+                    toId, 
+                    target?.connectionIndex || 0
                 )
                 break
             default:
