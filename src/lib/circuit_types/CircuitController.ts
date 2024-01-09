@@ -414,7 +414,7 @@ export class CircuitController {
             const override = this
                 .gateGrid
                 .graph
-                .resolveInputsAt(output)
+                .resolveInputsTo(output)
             result.push(...override)
         }
         return result

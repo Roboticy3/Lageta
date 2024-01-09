@@ -32,6 +32,8 @@ export class GateGraph {
 
     setOutput(a:[number, number], c:Connection | undefined) {
         this.outputs[a[0]][a[1]] = c
+        let gate = this.gates[a[0]]
+
     }
 
     getOutput(a:[number, number]) {
@@ -40,19 +42,6 @@ export class GateGraph {
 
     setInput(a:[number, number], c:Connection | undefined) {
         this.inputs[a[0]][a[1]] = c
-        let gate = this.gates[a[0]]
-        if (gate === undefined) {
-            return
-        }
-
-        if (c === undefined) {
-            gate.override[a[1]] = undefined
-        }
-        else {
-            gate.override[a[1]] = this.resolveInputAt(
-                gate, a[1]
-            )
-        }
     }
 
     getInput(a:[number, number]) {
@@ -89,6 +78,11 @@ export class GateGraph {
                 this.setInput(toi, a)
             }
         }
+
+
+        const fromGate = this.gates[a.from[0]]
+        //@ts-ignore
+        this.resolveInputsFrom(fromGate)
     }
 
     addConnection(c:Connection) {
@@ -113,11 +107,18 @@ export class GateGraph {
     private addConnectionNoChecks(c:Connection) {
         const from = c.from
         this.setOutput(from, c)
+        let fromGate = this.gates[from[0]]
+        
+        //@ts-ignore
+        fromGate.override = this.resolveInputsTo(fromGate)
         
         const to = c.to
         for (let i = 0; i < to.length; i++) {
             this.setInput(to[i], c)
         }
+
+        //@ts-ignore
+        this.resolveInputsFrom(fromGate)
     }
 
     removeInput(a:[number, number]) {
@@ -136,6 +137,12 @@ export class GateGraph {
 
         if (to.length === 0) {
             this.setOutput(c.from, undefined)
+        }
+
+        let gate = this.gates[a[0]]
+        if (gate !== undefined) {
+            gate.override[a[1]] = undefined
+            this.resolveInputsFrom(gate)
         }
 
         return result
@@ -270,9 +277,7 @@ export class GateGraph {
      * recursively sorts through every gate connected to the given one
      * @param id 
      */
-    resolveInputsAt(gate:Gate, depth:number=0): boolean[] {
-
-        console.log(gate)
+    resolveInputsTo(gate:Gate, depth:number=0): boolean[] {
 
         const gType = gate.type
 
@@ -280,13 +285,13 @@ export class GateGraph {
 
         //loop through each input and check for a valid connection
         for (let i = 0; i < gType.sizeIn; i++) {
-            this.resolveInputAt(gate, i, depth)
+            result[i] = this.resolveInputTo(gate, i, depth)
         }
 
         return result
     }
 
-    resolveInputAt(gate:Gate, inputIndex:number, depth:number=0) {
+    resolveInputTo(gate:Gate, inputIndex:number, depth:number=0) {
         const c = this.inputs[gate.id][inputIndex]
         if (c === undefined) {
             gate.override[inputIndex] = false
@@ -303,7 +308,7 @@ export class GateGraph {
         //if the connection is valid, resolve the gate on the other end
         //if the gate's override field is filled, it will use that instead of override inputs
         const result = newGate.execute(
-            this.resolveInputsAt(
+            this.resolveInputsTo(
                     newGate, 
                     depth + 1
                 )
@@ -321,6 +326,30 @@ export class GateGraph {
             const gate  = this.gates[i]
             if (gate !== undefined) {
                 gate.reset()
+            }
+        }
+    }
+
+    resolveInputsFrom(gate:Gate, depth:number=0) {
+        const gType = gate.type
+
+        let outputs = gate.execute()
+
+        for (let i = 0; i < gType.sizeOut; i++) {
+            const c = this.outputs[gate.id][i]
+            if (c === undefined) {
+                continue
+            }
+            const to = c.to
+            for (let j = 0; j < to.length; j++) {
+                const toj = to[j]
+                const toGate = this.gates[toj[0]]
+                if (toGate === undefined) {
+                    continue
+                }
+                console.log(toGate)
+                toGate.override[toj[1]] = outputs[c.from[1]]
+                this.resolveInputsFrom(toGate, depth + 1)
             }
         }
     }
