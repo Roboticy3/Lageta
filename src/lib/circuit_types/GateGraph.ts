@@ -266,6 +266,7 @@ export class GateGraph {
 
         let result = new Array<boolean>(gType.sizeIn)
 
+        //loop through each input and check for a valid connection
         for (let i = 0; i < gType.sizeIn; i++) {
             const c = this.inputs[gate.id][i]
             if (c === undefined) {
@@ -281,15 +282,39 @@ export class GateGraph {
             }
 
             console.log("resolving connection ", newGate.type, from)
-            result[i] = newGate.execute(
-                this.resolveInputsAt(newGate, depth + 1)
+            
+            //if the connection is valid, resolve the gate on the other end
+            //if the gate's override field is filled, it will use that instead of override inputs
+            //executeLazy is used to avoid resolving inputs at a gate that already has it's override filled
+            result[i] = newGate.executeLazy(
+                this.resolveInputsAt
+                    .bind(
+                        this, //`this` has betrayed me before, MDN docs makes it seem like this should work
+                        newGate, 
+                        depth + 1
+                    )
             )[from[1]]
-            console.log("output ", result[i])
         }
+
+        //if the whole result is properly filled, set the override of this gate
+        //the combination of this and executeLazy means that computed result will be stored for later
+        gate.override = result
 
         return result
     }
 
+    resetInputsAt(gate:Gate) {
+        gate.override = undefined
+    }
+
+    resetInputs() {
+        for (let i = 0; i < this.gates.length; i++) {
+            const gate  = this.gates[i]
+            if (gate !== undefined) {
+                gate.override = undefined
+            }
+        }
+    }
 }
 
 export class Connection {

@@ -157,9 +157,22 @@ export class Gate {
     //override the input array
     override:boolean[] | undefined
 
-    execute(x:boolean[] | undefined) {
-        return this.type.execute(this.override || x)
-    } 
+    execute(x:boolean[] | undefined, set=false) {
+        const result = this.type.execute(this.override || x)
+        if (set) {
+            this.override = result
+        }
+        return result
+    }
+    
+    //pass x as a function to avoid doing work if override is filled
+    executeLazy(x:() => boolean[] | undefined, set=false) {
+        const result = this.type.execute(this.override || x())
+        if (set) {
+            this.override = result
+        }
+        return result
+    }
 
     reset() {
         this.override = undefined

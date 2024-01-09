@@ -375,11 +375,11 @@ export class CircuitController {
      */
     getConnectedTo(
         gateId:number,
-        index:number
+        inputIndex:number
     ) {
         const graph = this.gateGrid.graph
         
-        const c = graph.inputs[gateId][index]
+        const c = graph.inputs[gateId][inputIndex]
         console.log(c)
 
         return c?.from
@@ -402,6 +402,22 @@ export class CircuitController {
             case "Output":
                 return this.gateGrid.getGateOutputOffset(this.getGate(index.id), index.index)
         }
+    }
+
+    resolve() {
+        const outputs = this.gateGrid.outputs.values()
+        let result = new Array<boolean>()
+        for (const output of outputs) {
+            if (output === undefined) {
+                continue
+            }
+            const override = this
+                .gateGrid
+                .graph
+                .resolveInputsAt(output)
+            result.push(...override)
+        }
+        return result
     }
 
     /**
