@@ -40,6 +40,19 @@ export class GateGraph {
 
     setInput(a:[number, number], c:Connection | undefined) {
         this.inputs[a[0]][a[1]] = c
+        let gate = this.gates[a[0]]
+        if (gate === undefined) {
+            return
+        }
+
+        if (c === undefined) {
+            gate.override[a[1]] = undefined
+        }
+        else {
+            gate.override[a[1]] = this.resolveInputAt(
+                gate, a[1]
+            )
+        }
     }
 
     getInput(a:[number, number]) {
@@ -104,13 +117,6 @@ export class GateGraph {
         const to = c.to
         for (let i = 0; i < to.length; i++) {
             this.setInput(to[i], c)
-        }
-    }
-
-    private invalidateOverridesAt(c:Connection) {
-        const to = c.to
-        for (let i = 0; i < to.length; i++) {
-            const toi = to[i]
         }
     }
 
@@ -261,48 +267,51 @@ export class GateGraph {
 
     /**
      * find the input array for a given gate
+     * recursively sorts through every gate connected to the given one
      * @param id 
      */
     resolveInputsAt(gate:Gate, depth:number=0): boolean[] {
 
         console.log(gate)
-        
+
         const gType = gate.type
 
         let result = new Array<boolean>(gType.sizeIn)
 
         //loop through each input and check for a valid connection
         for (let i = 0; i < gType.sizeIn; i++) {
-            const c = this.inputs[gate.id][i]
-            console.log(c)
-            if (c === undefined) {
-                result[i] = false
-                continue
-            }
-
-            const from = c.from
-            const newGate = this.gates[from[0]]
-            if (newGate === undefined) {
-                result[i] = false
-                continue
-            }
-
-            console.log("resolving connection ", newGate.type, from)
-            
-            //if the connection is valid, resolve the gate on the other end
-            //if the gate's override field is filled, it will use that instead of override inputs
-            result[i] = newGate.execute(
-                this.resolveInputsAt(
-                        newGate, 
-                        depth + 1
-                    )
-            )[from[1]]
+            this.resolveInputAt(gate, i, depth)
         }
 
-        //if the whole result is properly filled, set the override of this gate
-        //the combination of this and executeLazy means that computed result will be stored for later
-        gate.override = result
+        return result
+    }
 
+    resolveInputAt(gate:Gate, inputIndex:number, depth:number=0) {
+        const c = this.inputs[gate.id][inputIndex]
+        console.log(c)
+        if (c === undefined) {
+            gate.override[inputIndex] = false
+            return false
+        }
+
+        const from = c.from
+        const newGate = this.gates[from[0]]
+        if (newGate === undefined) {
+            gate.override[inputIndex] = false
+            return false
+        }
+
+        console.log("resolving connection ", newGate.type, from)
+        
+        //if the connection is valid, resolve the gate on the other end
+        //if the gate's override field is filled, it will use that instead of override inputs
+        const result = newGate.execute(
+            this.resolveInputsAt(
+                    newGate, 
+                    depth + 1
+                )
+        )[from[1]]
+        gate.override[inputIndex] = result
         return result
     }
 

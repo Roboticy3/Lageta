@@ -118,8 +118,8 @@
         if (result === undefined) {
             console.log("No CircuitController found")
         }
+        circuitPanel.updateSvg()
 
-        
     }
 
 </script>

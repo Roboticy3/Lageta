@@ -298,7 +298,7 @@ export class SerializableGate {
     x:number
     y:number
     id:number
-    override:boolean[] | undefined
+    override:(boolean | undefined)[]
     type:string
     constructor(
         gate:Gate,
