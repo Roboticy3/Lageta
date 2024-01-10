@@ -96,7 +96,6 @@ export class GateGrid {
 
         //add the gate
         this.addGateNoChecks(cell[0], cell[1], gate)
-        this.graph.resetConnectionsAt(gate.id || 0)
 
         return cell
     }
@@ -282,6 +281,9 @@ export class GateGrid {
         gate.giveId(gateId)
         gate.givePos(x, y)
         this.gates.push(gate)
+
+        //update the graph
+        this.graph.resetConnectionsAt(gate.id || 0)
     }
 
     inputs:Array<Gate | undefined> = []

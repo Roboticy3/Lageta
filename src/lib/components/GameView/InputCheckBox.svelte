@@ -38,14 +38,26 @@
 
         const parentRect = checkbox?.parentElement?.getBoundingClientRect()
         if (parentRect !== undefined) {
-            margin[0] = parentRect.x - 5
-            margin[1] = parentRect.y - 5
+            margin[0] = parentRect.x
+            margin[1] = parentRect.y
         }
 
         offset = gridController.projectOffset(
-            localOffset[0] - gridController.getGridCellOffset(),
-            localOffset[1]
+            localOffset[0] - gridController.getGridCellOffset() - 5,
+            localOffset[1] - 5
         )
+
+        const position = getPosition()
+        if (parentRect === undefined || (
+            parentRect !== undefined && //type safety more like stink safety
+            (position[0] > parentRect.right || position[1] > parentRect.bottom)
+            )
+        ) {
+            checkbox.hidden = true
+        }
+        else {
+            checkbox.hidden = false
+        }
     }
     onMount(setOffset)
 
@@ -58,6 +70,13 @@
             return
         }
         gridController?.setInput(from, checkbox.checked)
+    }
+
+    function getPosition() {
+        return [
+            margin[0] + offset[0],
+            margin[1] + offset[1]
+        ]
     }
 
 </script>

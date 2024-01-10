@@ -1,5 +1,5 @@
 import type { CircuitController } from "../circuit_types/CircuitController";
-import { Buf, Gate, type GateType } from "../circuit_types/Gate";
+import { Buf, Flow, Gate, createGate, type GateType } from "../circuit_types/Gate";
 import { Connection, GateGraph } from "../circuit_types/GateGraph";
 import { GateGrid } from "../circuit_types/GateGrid";
 import { parseStorage } from "./ParseStorage";
@@ -252,10 +252,11 @@ export class OrganizedCircuit {
 
         const offset = this.offset
         this.iterGates((g) => {
-            const nG = new Gate(types.get(g.type) || Buf)
+            const nG = this.unpackGate(g, types)
+            console.log(nG, nG instanceof Flow)
             nG.givePos(g.x - offset[0], g.y - offset[1]) 
-            nG.giveId(g.id) 
             grid.addGateExisting(nG)
+            console.log(nG, nG instanceof Flow)
         })
 
         graph.fromGrid(grid)
@@ -282,6 +283,14 @@ export class OrganizedCircuit {
             }
             iter(g)
         }
+    }
+
+    unpackGate(g:SerializableGate, types:Map<string, GateType>) {
+        const type = types.get(g.type) || Buf
+        let nG = createGate(type)
+        nG.givePos(g.x, g.y) 
+        nG.giveId(g.id)
+        return nG
     }
 }
 

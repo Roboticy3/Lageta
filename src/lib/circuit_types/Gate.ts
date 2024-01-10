@@ -1,3 +1,4 @@
+import type { Connection } from "./GateGraph";
 import { TruthTable } from "./TruthTable";
 
 //every type of gate
@@ -17,7 +18,8 @@ export class GateType {
     gridWidth:number = 2
     gridHeight:number = 2
     moveable:boolean = true
-    private f:(x:boolean[]) => boolean[] = (x:boolean[])=>{return x}
+    variant:GateTypeVariant = "Gate"
+    private f:(x:(ConnectionValue)[]) => (ConnectionValue)[] = (x:(ConnectionValue)[])=>{return x}
     private register:boolean = true
     
     constructor(
@@ -55,9 +57,11 @@ export class GateType {
             registerGateType(this)
         }
 
-        this.moveable = params.moveable || true
+        if (params.variant) this.variant = params.variant
 
-        this.f = params.f || this.f
+        if (params.moveable) this.moveable = params.moveable
+
+        if (params.f) this.f = params.f
 
     }   
 
@@ -65,10 +69,7 @@ export class GateType {
         return spreadVerticalConnections(gridX, this.gridHeight, size)
     }
 
-    execute(x:boolean[] | undefined) {
-        if (x === undefined) {
-            return new Array<boolean>(this.sizeOut)
-        }
+    execute(x:(ConnectionValue)[]) {
         if (x.length === this.sizeIn) {
             const y = this.f(x)
             if (y.length === this.sizeOut) {
@@ -111,9 +112,11 @@ type GateTypeParameters = {
     outputs?:number | Array<[number, number]>,
     gridSize?:[number, number],
     moveable?:boolean,
-    f?:(x:boolean[]) => boolean[],
+    variant?:GateTypeVariant,
+    f?:(x:(ConnectionValue)[]) => (ConnectionValue)[],
     register?:boolean
 }
+type GateTypeVariant = "Gate" | "Flow"
 
 /**
  * Get an existing GateType from the given parameters, or create a new one if necessary
@@ -138,11 +141,10 @@ function getGateType(params:GateTypeParameters) {
 export class Gate {
     readonly type:GateType
     //override the input array
-    override:Array<boolean | undefined> = []
+    override:Array<ConnectionValue> = []
 
     constructor(type:GateType) {
         this.type = type
-        this.reset()
     }
 
     x:number = 0;
@@ -157,38 +159,19 @@ export class Gate {
         this.id = id
     }
 
-    execute(x:boolean[] = []) {
+    execute(x:(ConnectionValue)[] = []) {
         const result = this.type.execute(
             this.override.map(
                 (v, i) => {
-                    return v || x.at(i) || false
+                    return v || x.at(i)
                 }
             )
         )
-        return result
-    }
-    
-    //pass x as a function to avoid doing work if override is filled
-    executeLazy(x:() => boolean[], set=false) {
-        let xResult:Array<boolean> = []
-        const result = this.type.execute(
-            this.override.map(
-                (v, i) => {
-                    if (v === undefined && xResult.length === 0) {
-                        xResult = x()
-                    }
-                    return v || xResult.at(i) || false
-                }
-            )
-        )
-        if (set) {
-            this.override = result
-        }
         return result
     }
 
     reset() {
-        this.override = new Array<boolean | undefined>(
+        this.override = new Array<ConnectionValue>(
             this.type.sizeIn
         ).fill(undefined)
     }
@@ -215,6 +198,7 @@ export class Gate {
     }
 }
 
+export type ConnectionValue = boolean | undefined
 
 const registerGateType = (gateType:GateType) => {
     if (!all_gates.has(gateType.name)) {
@@ -233,15 +217,15 @@ export const Buf = getGateType (
 )
 
 export const Not = getGateType (
-    {name:"Not", inputs:1, outputs:1, f:(x:boolean[]) => {return  x.map((v) => {return !v})}}
+    {name:"Not", inputs:1, outputs:1, f:(x) => {return  x.map((v) => {return !v})}}
 )
 
 export const And = getGateType (
-    {name:"And", inputs:2, outputs:1, f:(x:boolean[]) => {return [x[0] && x[1]]}}
+    {name:"And", inputs:2, outputs:1, f:(x) => {return [x[0] && x[1]]}}
 )
 
 export const Or = getGateType (
-    {name:"Or", inputs:2, outputs:1, f:(x:boolean[]) => {return [x[0] || x[1]]}}
+    {name:"Or", inputs:2, outputs:1, f:(x) => {return [x[0] || x[1]]}}
 )
 
 export function Mux(selectionSize:number) {
@@ -253,7 +237,7 @@ export function Mux(selectionSize:number) {
             name:"Mux" + String(size), 
             inputs:inputOffsets, outputs:1, 
             gridSize:[selectionSize, size], 
-            f:(x:boolean[]) => {
+            f:(x) => {
                 let sum = 0
                 let pow = 0
                 for (let i = inputOffsets.length - selectionSize; i < inputOffsets.length; i++) {
@@ -269,12 +253,51 @@ export function Mux(selectionSize:number) {
     )
 }
 
+/**
+ * A special type of Gate with zero inputs, that treats it's override as it's output values
+ */
+export class Flow extends Gate {
+    constructor(type:GateType) {
+        super(type)
+        if (type.sizeIn !== 0) {
+            throw RangeError("Flow must have zero inputs!")
+        }
+    }
+
+    override execute(_x:ConnectionValue[] = []) {
+        return this.override
+    }
+
+    override reset() {
+        this.override = new Array<ConnectionValue>(
+            this.type.sizeOut
+        ).fill(false)
+    }
+}
+
+export function createGate(type:GateType) {
+    let g
+    switch (type.variant) {
+        case "Flow":
+            g = new Flow(type)
+            break
+        case "Gate":
+            g = new Gate(type)
+            break
+    }
+
+    g.reset()
+    console.log(JSON.stringify(g.override))
+    return g
+}
+
 export function Input(size:number) {
     return getGateType (
         {
             name:"Input" + String(size), 
             inputs:0, outputs:size, 
             gridSize:[2, size], 
+            variant:"Flow",
             moveable:false,
             f:(x) => {return x}
         }

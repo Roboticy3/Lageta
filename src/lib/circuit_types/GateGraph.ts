@@ -1,5 +1,5 @@
 
-import type { Gate } from "./Gate";
+import { Flow, type ConnectionValue, type Gate } from "./Gate";
 import type { GateGrid } from "./GateGrid";
 
 export class GateGraph {
@@ -271,20 +271,30 @@ export class GateGraph {
         return i
     }
 
+    setFlow(index:[number, number], val:boolean) {
+        const gate = this.gates[index[0]]
+        if (!(gate instanceof Flow)) {
+            return false
+        }
+        gate.override[index[1]] = val
+        console.log(JSON.stringify(gate.override))
+        return true
+    }
+
     /**
      * find the input array for a given gate
      * recursively sorts through every gate connected to the given one
      * @param id 
      */
-    resolveInputsTo(gate:Gate, depth:number=0): boolean[] {
+    resolveInputsTo(gate:Gate, depth:number=0) {
         console.log("solving all inputs of gate ", gate.id)
         const gType = gate.type
 
-        let result = new Array<boolean>(gType.sizeIn)
+        let result = gate.override
 
         //loop through each input and check for a valid connection
         for (let i = 0; i < gType.sizeIn; i++) {
-            result[i] = this.resolveInputTo(gate, i, depth)
+            this.resolveInputTo(gate, i, depth)
             console.log("found value ", result[i])
         }
 
@@ -301,29 +311,33 @@ export class GateGraph {
         const c = this.inputs[gate.id][inputIndex]
         if (c === undefined) {
             gate.override[inputIndex] = false
-            return false
+            return undefined
         }
 
         const from = c.from
         const newGate = this.gates[from[0]]
         if (newGate === undefined) {
             gate.override[inputIndex] = false
-            return false
+            return undefined
         }
+
+        console.log(newGate, newGate instanceof Flow)
         
-        //if the connection is valid, resolve the gate on the other end
-        //if the gate's override field is filled, it will use that instead of override inputs
-        const result = newGate.execute(
+        let result = newGate.execute(
             this.resolveInputsTo(
                     newGate, 
                     depth + 1
                 )
         )
+        
         gate.override[inputIndex] = result[from[1]]
         return result[from[1]]
     }
 
     resetInputsAt(gate:Gate) {
+        if (gate instanceof Flow) {
+            return
+        }
         gate.reset()
     }
 
@@ -331,7 +345,7 @@ export class GateGraph {
         for (let i = 0; i < this.gates.length; i++) {
             const gate  = this.gates[i]
             if (gate !== undefined) {
-                gate.reset()
+                this.resetInputsAt(gate)
             }
         }
     }

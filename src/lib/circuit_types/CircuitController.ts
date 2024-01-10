@@ -1,4 +1,4 @@
-import { Gate, type GateType } from "./Gate";
+import { Gate, type ConnectionValue, type GateType, createGate } from "./Gate";
 import { GateGraph, Connection, type ConnectionType } from "./GateGraph"
 import { GateGrid } from "./GateGrid";
 import { identity, transform, type Matrix, type Transform, applyToPoint, inverse, toSVG, fromObject, translate, rotateDEG, rotate, scale} from "transformation-matrix";
@@ -251,7 +251,7 @@ export class CircuitController {
         offsetX:number, 
         offsetY:number
     ) {
-        const gate = new Gate(gType)
+        const gate = createGate(gType)
         console.log("adding gate: ", gate)
 
         const gateId = this.gateGrid.gates.length
@@ -445,19 +445,13 @@ export class CircuitController {
     }
 
     setInput(index:[number, number], val:boolean) {
-        const gate = this.getGate(index[0])
-        if (gate === undefined) {
-            return
-        }
-
-        if (index[1] < gate.type.sizeOut) {
-            gate.override[index[1]] = val
-        }
+        this.gateGrid.graph.setFlow(index, val)
     }
 
     resolve() {
+        this.gateGrid.graph.resetInputs()
         const outputs = this.gateGrid.outputs.values()
-        let result = new Array<boolean>()
+        let result = new Array<ConnectionValue>()
         for (const output of outputs) {
             if (output === undefined) {
                 continue
