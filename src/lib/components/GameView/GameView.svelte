@@ -41,6 +41,9 @@
      * @type {GameViewCircuitPanel}
     */
     let circuitPanel
+    function getCircuitPanel() {
+        return circuitPanel
+    }
 
     /**
      * @type {HTMLDivElement}
@@ -116,18 +119,6 @@
         return unlockedGates
     }
 
-    /**
-     * test by resolving values of all of the outputs on the board
-     */
-    function onTest() {
-        const result = mainController?.resolve()
-        if (result === undefined) {
-            console.log("No CircuitController found")
-        }
-        circuitPanel.updateSvg()
-
-    }
-
 </script>
 
 <div class="game-view" id="game-view">
@@ -143,7 +134,8 @@
     >
         {#each mainController?.getInputIds() || [] as from}
             <InputCheckBox 
-                gridController={mainController || null} 
+                gridController={mainController || null}
+                circuitPanel={circuitPanel}
                 from={from}
             />
         {/each}     
@@ -157,9 +149,6 @@
 
     <div class="control-panel">
         <div class="simulator-player">
-            <button on:click={onTest}>
-                test
-            </button>
             <button on:click={() => {dialog.show("Save", onSubmitSave)}}>
                 save
             </button>

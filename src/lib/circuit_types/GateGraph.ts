@@ -81,8 +81,10 @@ export class GateGraph {
 
 
         const fromGate = this.gates[a.from[0]]
-        //@ts-ignore
-        this.resolveInputsFrom(fromGate)
+        if (fromGate === undefined) {
+            return
+        }
+        const result = this.resolveInputsFrom(fromGate)
     }
 
     addConnection(c:Connection) {
@@ -109,8 +111,12 @@ export class GateGraph {
         this.setOutput(from, c)
         let fromGate = this.gates[from[0]]
         
-        //@ts-ignore
-        fromGate.override = this.resolveInputsTo(fromGate)
+        if (fromGate === undefined) {
+            console.log("There should be a gate here! I called the function \"addConnectionNoChecks\" because there weren't supposed to be any checks! fucking hell.")
+            return
+        }
+        const result = this.resolveInputsTo(fromGate)
+        fromGate.override = result.result
         
         const to = c.to
         for (let i = 0; i < to.length; i++) {
@@ -277,61 +283,87 @@ export class GateGraph {
             return false
         }
         gate.override[index[1]] = val
-        console.log(JSON.stringify(gate.override))
+        this.resolveInputsFrom(gate)
         return true
     }
 
+    /**
+     * Keep a set of gates that resolveInputsTo and resolveInputsFrom have already seen
+     */
+    gatesResolved = new Set<Gate>()
     /**
      * find the input array for a given gate
      * recursively sorts through every gate connected to the given one
      * @param id 
      */
-    resolveInputsTo(gate:Gate, depth:number=0) {
-        console.log("solving all inputs of gate ", gate.id)
+    resolveInputsTo(gate:Gate, depth:number=0): CircuitResolutionResult {
+        if (this.gatesResolved.has(gate)) {
+            this.gatesResolved.clear()
+            return {
+                error:"Cycle",
+                result:[],
+                exitDepth:depth
+            }
+        }
+        this.gatesResolved.add(gate)
         const gType = gate.type
+        console.log(gate)
 
-        let result = gate.override
+        let result = {
+            error:"",
+            result:gate.override,
+            exitDepth:depth
+        } as CircuitResolutionResult
 
         //loop through each input and check for a valid connection
         for (let i = 0; i < gType.sizeIn; i++) {
-            this.resolveInputTo(gate, i, depth)
-            console.log("found value ", result[i])
+            const nextResult = this.resolveInputTo(gate, i, depth)
+            if (nextResult.error !== "") {
+                return nextResult
+            }
         }
 
-        console.log("done!")
+        if (depth === 0) this.gatesResolved.clear()
         return result
     }
 
-    resolveInputTo(gate:Gate, inputIndex:number, depth:number=0) {
-        console.log("solving input ", inputIndex, " of gate ", gate.id)
-        const prebaked = gate.override[inputIndex]
-        if (prebaked !== undefined) {
-            return prebaked
+    resolveInputTo(gate:Gate, inputIndex:number, depth:number=0): CircuitResolutionResult {
+        if (gate.override[inputIndex] !== undefined) {
+            return {
+                error:"",
+                result:gate.override,
+                exitDepth:depth
+            }
         }
         const c = this.inputs[gate.id][inputIndex]
         if (c === undefined) {
-            gate.override[inputIndex] = false
-            return undefined
+            gate.override[inputIndex] = undefined
+            return {
+                error:"",
+                result:gate.override,
+                exitDepth:depth
+            }
         }
 
         const from = c.from
         const newGate = this.gates[from[0]]
         if (newGate === undefined) {
-            gate.override[inputIndex] = false
-            return undefined
+            gate.override[inputIndex] = undefined
+            return {
+                error:"",
+                result:gate.override,
+                exitDepth:depth
+            }
         }
-
-        console.log(newGate, newGate instanceof Flow)
         
-        let result = newGate.execute(
-            this.resolveInputsTo(
-                    newGate, 
-                    depth + 1
-                )
+        const result = this.resolveInputsTo(
+            newGate, 
+            depth + 1
         )
+        const output = newGate.execute(result.result)
         
-        gate.override[inputIndex] = result[from[1]]
-        return result[from[1]]
+        gate.override[inputIndex] = output[from[1]]
+        return result
     }
 
     resetInputsAt(gate:Gate) {
@@ -350,8 +382,7 @@ export class GateGraph {
         }
     }
 
-    resolveInputsFrom(gate:Gate, depth:number=0) {
-        console.log("Solving forward from gate ", gate.id)
+    resolveInputsFrom(gate:Gate, depth:number=0): CircuitResolutionResult {
         const gType = gate.type
 
         let outputs = gate.execute()
@@ -362,7 +393,6 @@ export class GateGraph {
                 continue
             }
             const to = c.to
-            let curGate = undefined
             for (let j = 0; j < to.length; j++) {
                 const toj = to[j]
                 const toGate = this.gates[toj[0]]
@@ -370,8 +400,19 @@ export class GateGraph {
                     continue
                 }
                 toGate.override[toj[1]] = outputs[c.from[1]]
-                this.resolveInputsFrom(toGate, depth + 1)
+                const result = this.resolveInputsFrom(toGate, depth + 1)
+                if (result.error !== "") {
+                    return result
+                }
             }
+        }
+
+        if (depth === 0) this.gatesResolved.clear()
+
+        return {
+            error:"",
+            result:gate.override,
+            exitDepth:depth
         }
     }
 }
@@ -398,3 +439,5 @@ export type ConnectionType = ""|"Input"|"Output"
 export type ConnectionReader = (from:Gate, output:number, to:Gate, input:number, c:Connection) => any
 
 export type ConnectionPointReader = (gate:Gate, type:ConnectionType, point:number) => any
+
+export type CircuitResolutionResult = {error:""|"Cycle", result:Array<ConnectionValue>, exitDepth:number}

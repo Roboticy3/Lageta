@@ -69,15 +69,13 @@ export class GateType {
         return spreadVerticalConnections(gridX, this.gridHeight, size)
     }
 
-    execute(x:(ConnectionValue)[]) {
-        if (x.length === this.sizeIn) {
-            const y = this.f(x)
-            if (y.length === this.sizeOut) {
-                return y
-            }
-            return new Array<boolean>(this.sizeOut)
+    execute(override:ConnectionValue[], x:ConnectionValue[]) {
+        let newArray = new Array<ConnectionValue>(this.sizeIn)
+        for (let i = 0; i < this.sizeIn; i++) {
+            newArray[i] = override[i] || x[i]
         }
-        return new Array<boolean>(this.sizeOut)
+        console.log("executing ", this.name, " with input ", newArray)
+        return this.f(newArray)
     }
 }
 
@@ -160,13 +158,7 @@ export class Gate {
     }
 
     execute(x:(ConnectionValue)[] = []) {
-        const result = this.type.execute(
-            this.override.map(
-                (v, i) => {
-                    return v || x.at(i)
-                }
-            )
-        )
+        const result = this.type.execute(this.override, x)
         return result
     }
 
@@ -217,7 +209,7 @@ export const Buf = getGateType (
 )
 
 export const Not = getGateType (
-    {name:"Not", inputs:1, outputs:1, f:(x) => {return  x.map((v) => {return !v})}}
+    {name:"Not", inputs:1, outputs:1, f:(x) => {return [!(x[0])]}}
 )
 
 export const And = getGateType (
@@ -287,7 +279,6 @@ export function createGate(type:GateType) {
     }
 
     g.reset()
-    console.log(JSON.stringify(g.override))
     return g
 }
 

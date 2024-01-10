@@ -448,23 +448,6 @@ export class CircuitController {
         this.gateGrid.graph.setFlow(index, val)
     }
 
-    resolve() {
-        this.gateGrid.graph.resetInputs()
-        const outputs = this.gateGrid.outputs.values()
-        let result = new Array<ConnectionValue>()
-        for (const output of outputs) {
-            if (output === undefined) {
-                continue
-            }
-            const override = this
-                .gateGrid
-                .graph
-                .resolveInputsTo(output)
-            result.push(...override)
-        }
-        return result
-    }
-
     /**
      * Convert and SVG id tag to a numeric id
      * @param id 
