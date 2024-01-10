@@ -126,7 +126,6 @@ export class GateGraph {
         if (c === undefined) {
             return
         }
-        console.log(c)
         const to = c.to
         const i = this.findInput(c, a)
         if (i === -1) {
@@ -278,7 +277,7 @@ export class GateGraph {
      * @param id 
      */
     resolveInputsTo(gate:Gate, depth:number=0): boolean[] {
-
+        console.log("solving all inputs of gate ", gate.id)
         const gType = gate.type
 
         let result = new Array<boolean>(gType.sizeIn)
@@ -286,12 +285,19 @@ export class GateGraph {
         //loop through each input and check for a valid connection
         for (let i = 0; i < gType.sizeIn; i++) {
             result[i] = this.resolveInputTo(gate, i, depth)
+            console.log("found value ", result[i])
         }
 
+        console.log("done!")
         return result
     }
 
     resolveInputTo(gate:Gate, inputIndex:number, depth:number=0) {
+        console.log("solving input ", inputIndex, " of gate ", gate.id)
+        const prebaked = gate.override[inputIndex]
+        if (prebaked !== undefined) {
+            return prebaked
+        }
         const c = this.inputs[gate.id][inputIndex]
         if (c === undefined) {
             gate.override[inputIndex] = false
@@ -312,9 +318,9 @@ export class GateGraph {
                     newGate, 
                     depth + 1
                 )
-        )[from[1]]
-        gate.override[inputIndex] = result
-        return result
+        )
+        gate.override[inputIndex] = result[from[1]]
+        return result[from[1]]
     }
 
     resetInputsAt(gate:Gate) {
@@ -331,6 +337,7 @@ export class GateGraph {
     }
 
     resolveInputsFrom(gate:Gate, depth:number=0) {
+        console.log("Solving forward from gate ", gate.id)
         const gType = gate.type
 
         let outputs = gate.execute()
@@ -341,13 +348,13 @@ export class GateGraph {
                 continue
             }
             const to = c.to
+            let curGate = undefined
             for (let j = 0; j < to.length; j++) {
                 const toj = to[j]
                 const toGate = this.gates[toj[0]]
                 if (toGate === undefined) {
                     continue
                 }
-                console.log(toGate)
                 toGate.override[toj[1]] = outputs[c.from[1]]
                 this.resolveInputsFrom(toGate, depth + 1)
             }

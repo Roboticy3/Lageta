@@ -20,6 +20,7 @@
     import { all_levels } from '$lib/level_types/Level';
     import TruthTableView from './TruthTableView.svelte';
     import { TruthTable } from '$lib/circuit_types/TruthTable';
+    import InputCheckBox from './InputCheckBox.svelte';
 
     /**
      * @type {GameViewParameters}
@@ -39,7 +40,12 @@
     /**
      * @type {GameViewCircuitPanel}
     */
-   let circuitPanel
+    let circuitPanel
+
+    /**
+     * @type {HTMLDivElement}
+     */
+    let shelf
 
     onMount(() => {
 
@@ -126,12 +132,22 @@
 
 <div class="game-view" id="game-view">
 
-    <div class="shelf">
+    <div class="shelf" bind:this={shelf}>
         {#each unlockedGates as type}
         <GameViewShelfButton gateType={type}/>
         {/each}
     </div>
-    <GameViewCircuitPanel bind:this={circuitPanel} params={params}/>
+    <GameViewCircuitPanel 
+        bind:this={circuitPanel} 
+        params={params}
+    >
+        {#each mainController?.getInputIds() || [] as from}
+            <InputCheckBox 
+                gridController={mainController || null} 
+                from={from}
+            />
+        {/each}     
+    </GameViewCircuitPanel>
     <div class="directions">
         {@html params.directions}
         {#if params.completeCondition !== undefined}

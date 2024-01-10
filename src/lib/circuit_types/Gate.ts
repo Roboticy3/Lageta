@@ -157,7 +157,7 @@ export class Gate {
         this.id = id
     }
 
-    execute(x:boolean[] = [], set=false) {
+    execute(x:boolean[] = []) {
         const result = this.type.execute(
             this.override.map(
                 (v, i) => {
@@ -165,9 +165,6 @@ export class Gate {
                 }
             )
         )
-        if (set) {
-            this.override = result
-        }
         return result
     }
     
@@ -274,12 +271,22 @@ export function Mux(selectionSize:number) {
 
 export function Input(size:number) {
     return getGateType (
-        {name:"Input" + String(size), inputs:0, outputs:size, gridSize:[2, size], moveable:false}
+        {
+            name:"Input" + String(size), 
+            inputs:0, outputs:size, 
+            gridSize:[2, size], 
+            moveable:false,
+            f:(x) => {return x}
+        }
     )
 }
 
 export function Output(size:number) {
     return getGateType (
-        {name:"Output" + String(size), inputs:size, outputs:0, gridSize:[2, size], moveable:false}
+        {
+            name:"Output" + String(size), 
+            inputs:size, outputs:0, 
+            gridSize:[2, size], 
+            moveable:false}
     )
 }

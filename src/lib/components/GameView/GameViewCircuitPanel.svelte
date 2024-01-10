@@ -64,9 +64,6 @@
         addDragEventListeners()
         updateViewBox()
         updateSvg()
-
-        console.log(gridController.gateGrid.inputs)
-        console.log(gridController.gateGrid.outputs)
     }
     onMount(mountCircuit)
 
@@ -483,7 +480,7 @@
 
 </script>
 
-<div 
+<div
     draggable="true" 
     class="circuit-container" 
     id="circuitContainer" 
@@ -516,6 +513,8 @@
             {@html activeSvgWire}
         </g>
     </svg>
+
+    <slot />
 </div>
 
 <style>

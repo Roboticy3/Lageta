@@ -61,7 +61,8 @@ export class CircuitController {
             this.gateGrid = gateGrid
         }
 
-        this.transformMatrix = transform(translate(100, 100))
+        this.transformMatrix = transform(translate(100, 100
+            ))
 
         if (makeMain) {
             mainController = this
@@ -153,6 +154,14 @@ export class CircuitController {
      */
     setGridCellOffset(offset:number) {
         this.gateGrid.cellOffset = offset
+    }
+
+    /**
+     * Get the grid cell offset to a new value
+     * @param offset 
+     */
+    getGridCellOffset() {
+        return this.gateGrid.cellOffset
     }
     
     /**
@@ -401,6 +410,48 @@ export class CircuitController {
                 return this.gateGrid.getGateInputOffset(this.getGate(index.id), index.index)
             case "Output":
                 return this.gateGrid.getGateOutputOffset(this.getGate(index.id), index.index)
+        }
+    }
+
+    getInputIds() {
+        let result = new Array<[number, number]>()
+        for (let i of this.gateGrid.inputs.values()) {
+            if (i === undefined) {
+                continue
+            }
+            const gType = i.type
+            let chunk = new Array<[number, number]>(gType.sizeIn)
+            for (let j = 0; j < gType.sizeOut; j++) {
+                chunk[j] = [i.id, j]
+            }
+            result.push(...chunk)
+        }
+
+        return result
+    }
+
+    getInputs() {
+        let result = new Array<boolean>()
+        for (let i of this.gateGrid.inputs.values()) {
+            if (i === undefined) {
+                continue
+            }
+            console.log(i)
+            const chunk = i.override.map((v) => {return v === true})
+            result.push(...chunk)
+        }
+
+        return result
+    }
+
+    setInput(index:[number, number], val:boolean) {
+        const gate = this.getGate(index[0])
+        if (gate === undefined) {
+            return
+        }
+
+        if (index[1] < gate.type.sizeOut) {
+            gate.override[index[1]] = val
         }
     }
 
