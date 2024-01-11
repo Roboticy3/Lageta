@@ -32,8 +32,6 @@ export class GateGraph {
 
     setOutput(a:[number, number], c:Connection | undefined) {
         this.outputs[a[0]][a[1]] = c
-        let gate = this.gates[a[0]]
-
     }
 
     getOutput(a:[number, number]) {
@@ -65,66 +63,126 @@ export class GateGraph {
         return true
     }
 
-    
-    mergeConnection(a:Connection, b:Connection) {
+    /**
+     * Merge connection a with connection b, and replace connection a with connection b
+     * Updates the circuit. If there is an error, the merge is undone by storing a copy of a, removing b, and then adding the copy back into the circuit
+     * @param a 
+     * @param b 
+     * @returns 
+     */
+    mergeConnection(a:Connection, b:Connection):CircuitResolutionResult {
+        const fromGate = this.gates[a.from[0]]
+        if (fromGate === undefined) {
+            return Stupid
+        }
+
         const ato = a.to
         const bto = b.to
-        for (let i = 0; i < bto.length; i++) {
-            const toi = bto[i]
-            const indexOf = this.findInput(a, toi)
+        let temp = a.copy()
+        this.setOutput(a.from, b)
+        for (let i = 0; i < ato.length; i++) {
+            const toi = ato[i]
+            const indexOf = this.findInput(b, toi)
             if (indexOf === -1) {
-                ato.push(toi)
                 this.removeInput(toi)
-                this.setInput(toi, a)
+                this.setInput(toi, b)
+            }
+            else {
+                bto.push(toi)
+                this.setInput(toi, b)
             }
         }
 
+        this.resolveInputsFrom(fromGate)
 
-        const fromGate = this.gates[a.from[0]]
-        if (fromGate === undefined) {
-            return
+        return {
+            error:"",
+            result:[],
+            exitDepth:0
         }
-        const result = this.resolveInputsFrom(fromGate)
     }
 
-    addConnection(c:Connection) {
+    /**
+     * Add a connection to the circuit
+     * Updates the circuit. If there is an error, it's either handled in mergeConnection or the connection is simply removed
+     * @param c 
+     * @returns 
+     */
+    addConnection(c:Connection): CircuitResolutionResult {
+        //check that the connection points to valid gates
         if (!this.verifyConnection(c)) {
-            return
+            return Corrupted
         }
 
+        //check if a connection already exists at the output point
+        //if so, merge with the existing connection
         const outConnection = this.outputs[c.from[0]][c.from[1]]
         if (outConnection !== undefined) {
-            this.mergeConnection(outConnection, c)
-            return
+            return this.mergeConnection(outConnection, c)
         }
+
+        //otherwise, add the connection
+        const result = this.addConnectionNoChecks(c)
+        return result
+    }
+
+    private addConnectionNoChecks(c:Connection):CircuitResolutionResult {
 
         const to = c.to
         for (let i = 0; i < to.length; i++) {
             this.removeInput(to[i])
         }
 
-        this.addConnectionNoChecks(c)
-    }
-
-    private addConnectionNoChecks(c:Connection) {
         const from = c.from
         this.setOutput(from, c)
+
         let fromGate = this.gates[from[0]]
-        
         if (fromGate === undefined) {
-            console.log("There should be a gate here! I called the function \"addConnectionNoChecks\" because there weren't supposed to be any checks! fucking hell.")
-            return
+            return Stupid
         }
-        const result = this.resolveInputsTo(fromGate)
-        fromGate.override = result.result
-        
-        const to = c.to
+
+        this.resolveInputsTo(fromGate)
+        this.resolveInputsFrom(fromGate)
+
         for (let i = 0; i < to.length; i++) {
             this.setInput(to[i], c)
         }
 
-        //@ts-ignore
-        this.resolveInputsFrom(fromGate)
+        return {error:"", result:[], exitDepth:0}
+    }
+
+    private addConnectionPropogate(c:Connection) {
+        const from = c.from
+        let fromGate = this.gates[from[0]]
+        if (fromGate === undefined) {
+            return Stupid
+        }
+
+        //propagate the connection backwards
+        const result = this.resolveInputsTo(fromGate)
+        fromGate.override = result.result
+
+        if (result.error !== "") {
+            console.log("Shit! ",result)
+            return result
+        }
+
+        const output = fromGate.execute()
+        const to = c.to
+        for (let toi of to) {
+            let toGate = this.gates[toi[0]]
+            if (toGate === undefined) {
+                continue
+            }
+            toGate.override[toi[1]] = output[c.from[1]]
+            const result = this.resolveInputsFrom(toGate, -1)
+            if (result.error === "") {
+                return result
+            }
+        }
+
+        this.clearResolved()
+        return result
     }
 
     removeInput(a:[number, number]) {
@@ -148,6 +206,7 @@ export class GateGraph {
         if (gate !== undefined) {
             gate.override[a[1]] = undefined
             this.resolveInputsFrom(gate)
+            this.clearResolved()
         }
 
         return result
@@ -284,6 +343,7 @@ export class GateGraph {
         }
         gate.override[index[1]] = val
         this.resolveInputsFrom(gate)
+        this.clearResolved()
         return true
     }
 
@@ -291,23 +351,36 @@ export class GateGraph {
      * Keep a set of gates that resolveInputsTo and resolveInputsFrom have already seen
      */
     gatesResolved = new Set<Gate>()
+    private checkCycleStep(gate:Gate, depth:number) {
+        if (this.gatesResolved.has(gate)) {
+            this.gatesResolved.clear()
+            return true
+        }
+        else if (depth >= 0) {
+            this.gatesResolved.add(gate)
+        }
+        return false
+    }
+
+    private clearResolved() {
+        this.gatesResolved.clear()
+    }
+
     /**
      * find the input array for a given gate
      * recursively sorts through every gate connected to the given one
      * @param id 
      */
-    resolveInputsTo(gate:Gate, depth:number=0): CircuitResolutionResult {
-        if (this.gatesResolved.has(gate)) {
-            this.gatesResolved.clear()
+    private resolveInputsTo(gate:Gate, depth:number=0): CircuitResolutionResult {
+        console.log("resolving to ", gate)
+        if (this.checkCycleStep(gate, depth)) {
             return {
                 error:"Cycle",
                 result:[],
                 exitDepth:depth
             }
         }
-        this.gatesResolved.add(gate)
         const gType = gate.type
-        console.log(gate)
 
         let result = {
             error:"",
@@ -323,11 +396,10 @@ export class GateGraph {
             }
         }
 
-        if (depth === 0) this.gatesResolved.clear()
         return result
     }
 
-    resolveInputTo(gate:Gate, inputIndex:number, depth:number=0): CircuitResolutionResult {
+    private resolveInputTo(gate:Gate, inputIndex:number, depth:number=0): CircuitResolutionResult {
         if (gate.override[inputIndex] !== undefined) {
             return {
                 error:"",
@@ -382,7 +454,15 @@ export class GateGraph {
         }
     }
 
-    resolveInputsFrom(gate:Gate, depth:number=0): CircuitResolutionResult {
+    private resolveInputsFrom(gate:Gate, depth:number=0): CircuitResolutionResult {
+        console.log("resolving from ", gate)
+        if (this.checkCycleStep(gate, depth)) {
+            return {
+                error:"Cycle",
+                result:gate.override,
+                exitDepth:depth
+            }
+        }
         const gType = gate.type
 
         let outputs = gate.execute()
@@ -400,14 +480,12 @@ export class GateGraph {
                     continue
                 }
                 toGate.override[toj[1]] = outputs[c.from[1]]
-                const result = this.resolveInputsFrom(toGate, depth + 1)
+                const result = this.resolveInputsFrom(toGate, depth - 1)
                 if (result.error !== "") {
                     return result
                 }
             }
         }
-
-        if (depth === 0) this.gatesResolved.clear()
 
         return {
             error:"",
@@ -432,6 +510,18 @@ export class Connection {
         this.from = [from, output]
         this.to = [[to, input]]
     }
+
+    copy() {
+        let newC = new Connection(
+            this.from[0], this.from[1],
+            0, 0
+        )
+
+        newC.to = this.to.map((v, i) => {
+            return v
+        })
+        return newC
+    }
 }
 
 export type ConnectionType = ""|"Input"|"Output"
@@ -440,4 +530,22 @@ export type ConnectionReader = (from:Gate, output:number, to:Gate, input:number,
 
 export type ConnectionPointReader = (gate:Gate, type:ConnectionType, point:number) => any
 
-export type CircuitResolutionResult = {error:""|"Cycle", result:Array<ConnectionValue>, exitDepth:number}
+export type CircuitResolutionResult = {
+    error:""|"Cycle"|"Corrupted"|"Stupid", 
+    result:Array<ConnectionValue>, 
+    exitDepth:number
+}
+
+//if a gate is undefined at an index that was already checked by verifyConnection, it's Stupid.
+//I will not be writing a handler for these, they will cause bugs if they dislike me and know their place otherwise
+const Stupid:CircuitResolutionResult = {
+    error:"Stupid",
+    result:[],
+    exitDepth:0
+}
+
+const Corrupted:CircuitResolutionResult = {
+    error:"Corrupted",
+    result:[],
+    exitDepth:0
+}

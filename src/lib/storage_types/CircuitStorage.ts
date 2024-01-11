@@ -253,10 +253,8 @@ export class OrganizedCircuit {
         const offset = this.offset
         this.iterGates((g) => {
             const nG = this.unpackGate(g, types)
-            console.log(nG, nG instanceof Flow)
             nG.givePos(g.x - offset[0], g.y - offset[1]) 
             grid.addGateExisting(nG)
-            console.log(nG, nG instanceof Flow)
         })
 
         graph.fromGrid(grid)

@@ -30,6 +30,10 @@
     let offset = [0, 0]
     let margin = [0, 0]
     const setOffset = () => {
+        if (checkbox === null) {
+            return
+        }
+
         if (gridController === null || from === null) {
             checkbox.parentNode?.removeChild(checkbox)
             console.log("InputCheckBox needs a gridController and the index of the input!")

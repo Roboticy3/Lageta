@@ -344,9 +344,10 @@ export class CircuitController {
 
         const graph = this.gateGrid.graph
         const c = new Connection(from, output, to, input)
-        graph.addConnection(c)
+        const result = graph.addConnection(c)
         
-        console.log(graph)
+        console.log(result)
+        return result
     }
 
     /**

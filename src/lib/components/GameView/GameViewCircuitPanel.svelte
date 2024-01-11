@@ -423,9 +423,10 @@
             return
         }
 
+        let result
         switch (toType) {
             case "Output":
-                gridController.addConnection(
+                result = gridController.addConnection(
                     toId, 
                     target?.connectionIndex || 0, 
                     gateId, 
@@ -433,7 +434,7 @@
                 )
                 break
             case "Input":
-                gridController.addConnection(
+                result = gridController.addConnection(
                     gateId, 
                     connectionIndex, 
                     toId, 
