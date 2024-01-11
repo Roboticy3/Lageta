@@ -97,6 +97,9 @@ export class GateGraph {
         }
 
         const cycleCheck = this.addConnectionPropogate(c)
+        if (cycleCheck.error !== "") {
+            return cycleCheck
+        }
 
         //check if a connection already exists at the output point
         //if so, merge with the existing connection
@@ -151,7 +154,7 @@ export class GateGraph {
             cycleTarget.add(toGate)
         }
 
-        const backResult = this.resolveInputsTo(fromGate)
+        const backResult = this.resolveInputsTo(fromGate, cycleTarget)
         if (backResult.error !== "") {
             return backResult
         }
@@ -165,7 +168,7 @@ export class GateGraph {
             if (toGate === undefined) continue
 
             toGate.override[to[i][1]] = output
-            const forwardResultI = this.resolveInputsFrom(toGate)
+            const forwardResultI = this.resolveInputsFrom(toGate, cycleTarget)
             if (forwardResultI.error !== "") {
                 return forwardResultI
             }
