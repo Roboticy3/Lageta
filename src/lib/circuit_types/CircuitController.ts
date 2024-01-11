@@ -346,7 +346,7 @@ export class CircuitController {
         const c = new Connection(from, output, to, input)
         const result = graph.addConnection(c)
         
-        console.log(result)
+        console.log(result, graph)
         return result
     }
 

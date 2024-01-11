@@ -70,35 +70,17 @@ export class GateGraph {
      * @param b 
      * @returns 
      */
-    mergeConnection(a:Connection, b:Connection):CircuitResolutionResult {
-        const fromGate = this.gates[a.from[0]]
-        if (fromGate === undefined) {
-            return Stupid
-        }
-
+    mergeConnection(a:Connection, b:Connection) {
         const ato = a.to
         const bto = b.to
-        let temp = a.copy()
-        this.setOutput(a.from, b)
-        for (let i = 0; i < ato.length; i++) {
-            const toi = ato[i]
-            const indexOf = this.findInput(b, toi)
+        for (let i = 0; i < bto.length; i++) {
+            const toi = bto[i]
+            const indexOf = this.findInput(a, toi)
             if (indexOf === -1) {
+                ato.push(toi)
                 this.removeInput(toi)
-                this.setInput(toi, b)
+                this.setInput(toi, a)
             }
-            else {
-                bto.push(toi)
-                this.setInput(toi, b)
-            }
-        }
-
-        this.resolveInputsFrom(fromGate)
-
-        return {
-            error:"",
-            result:[],
-            exitDepth:0
         }
     }
 
@@ -114,11 +96,14 @@ export class GateGraph {
             return Corrupted
         }
 
+        const cycleCheck = this.addConnectionPropogate(c)
+
         //check if a connection already exists at the output point
         //if so, merge with the existing connection
         const outConnection = this.outputs[c.from[0]][c.from[1]]
         if (outConnection !== undefined) {
-            return this.mergeConnection(outConnection, c)
+            this.mergeConnection(outConnection, c)
+            return cycleCheck
         }
 
         //otherwise, add the connection
@@ -141,8 +126,8 @@ export class GateGraph {
             return Stupid
         }
 
-        this.resolveInputsTo(fromGate)
-        this.resolveInputsFrom(fromGate)
+        //this.resolveInputsTo(fromGate)
+        //this.resolveInputsFrom(fromGate)
 
         for (let i = 0; i < to.length; i++) {
             this.setInput(to[i], c)
@@ -151,38 +136,46 @@ export class GateGraph {
         return {error:"", result:[], exitDepth:0}
     }
 
-    private addConnectionPropogate(c:Connection) {
-        const from = c.from
-        let fromGate = this.gates[from[0]]
+    private addConnectionPropogate(c:Connection): CircuitResolutionResult {
+        let fromGate = this.gates[c.from[0]]
         if (fromGate === undefined) {
-            return Stupid
+            return Corrupted
         }
 
-        //propagate the connection backwards
-        const result = this.resolveInputsTo(fromGate)
-        fromGate.override = result.result
-
-        if (result.error !== "") {
-            console.log("Shit! ",result)
-            return result
-        }
-
-        const output = fromGate.execute()
+        let cycleTarget = new Set<Gate>()
         const to = c.to
-        for (let toi of to) {
-            let toGate = this.gates[toi[0]]
-            if (toGate === undefined) {
-                continue
-            }
-            toGate.override[toi[1]] = output[c.from[1]]
-            const result = this.resolveInputsFrom(toGate, -1)
-            if (result.error === "") {
-                return result
+        for (let i = 0; i < to.length; i++) {
+            let toGate = this.gates[to[i][0]]
+            if (toGate === undefined) continue
+
+            cycleTarget.add(toGate)
+        }
+
+        const backResult = this.resolveInputsTo(fromGate)
+        if (backResult.error !== "") {
+            return backResult
+        }
+        fromGate.override = backResult.result
+        const output = fromGate.execute()[c.from[1]]
+
+        cycleTarget = new Set<Gate>([fromGate])
+
+        for (let i = 0; i < to.length; i++) {
+            let toGate = this.gates[to[i][0]]
+            if (toGate === undefined) continue
+
+            toGate.override[to[i][1]] = output
+            const forwardResultI = this.resolveInputsFrom(toGate)
+            if (forwardResultI.error !== "") {
+                return forwardResultI
             }
         }
 
-        this.clearResolved()
-        return result
+        return {
+            error:"",
+            result:fromGate.override,
+            exitDepth:0
+        }
     }
 
     removeInput(a:[number, number]) {
@@ -206,7 +199,6 @@ export class GateGraph {
         if (gate !== undefined) {
             gate.override[a[1]] = undefined
             this.resolveInputsFrom(gate)
-            this.clearResolved()
         }
 
         return result
@@ -343,27 +335,7 @@ export class GateGraph {
         }
         gate.override[index[1]] = val
         this.resolveInputsFrom(gate)
-        this.clearResolved()
         return true
-    }
-
-    /**
-     * Keep a set of gates that resolveInputsTo and resolveInputsFrom have already seen
-     */
-    gatesResolved = new Set<Gate>()
-    private checkCycleStep(gate:Gate, depth:number) {
-        if (this.gatesResolved.has(gate)) {
-            this.gatesResolved.clear()
-            return true
-        }
-        else if (depth >= 0) {
-            this.gatesResolved.add(gate)
-        }
-        return false
-    }
-
-    private clearResolved() {
-        this.gatesResolved.clear()
     }
 
     /**
@@ -371,16 +343,21 @@ export class GateGraph {
      * recursively sorts through every gate connected to the given one
      * @param id 
      */
-    private resolveInputsTo(gate:Gate, depth:number=0): CircuitResolutionResult {
+    private resolveInputsTo(
+        gate:Gate, 
+        cycleCheck:Set<Gate> = new Set<Gate>(), 
+        depth:number=0
+    ): CircuitResolutionResult {
         console.log("resolving to ", gate)
-        if (this.checkCycleStep(gate, depth)) {
+        const gType = gate.type
+
+        if (cycleCheck.has(gate)) {
             return {
                 error:"Cycle",
                 result:[],
                 exitDepth:depth
             }
         }
-        const gType = gate.type
 
         let result = {
             error:"",
@@ -390,7 +367,7 @@ export class GateGraph {
 
         //loop through each input and check for a valid connection
         for (let i = 0; i < gType.sizeIn; i++) {
-            const nextResult = this.resolveInputTo(gate, i, depth)
+            const nextResult = this.resolveInputTo(gate, i, cycleCheck, depth)
             if (nextResult.error !== "") {
                 return nextResult
             }
@@ -399,7 +376,12 @@ export class GateGraph {
         return result
     }
 
-    private resolveInputTo(gate:Gate, inputIndex:number, depth:number=0): CircuitResolutionResult {
+    private resolveInputTo(
+        gate:Gate, 
+        inputIndex:number, 
+        cycleCheck:Set<Gate> = new Set<Gate>(),
+        depth:number=0
+    ): CircuitResolutionResult {
         if (gate.override[inputIndex] !== undefined) {
             return {
                 error:"",
@@ -429,7 +411,8 @@ export class GateGraph {
         }
         
         const result = this.resolveInputsTo(
-            newGate, 
+            newGate,
+            cycleCheck, 
             depth + 1
         )
         const output = newGate.execute(result.result)
@@ -454,16 +437,21 @@ export class GateGraph {
         }
     }
 
-    private resolveInputsFrom(gate:Gate, depth:number=0): CircuitResolutionResult {
+    private resolveInputsFrom(
+        gate:Gate, 
+        cycleCheck:Set<Gate> = new Set<Gate>(), 
+        depth:number=0
+    ): CircuitResolutionResult {
         console.log("resolving from ", gate)
-        if (this.checkCycleStep(gate, depth)) {
+        const gType = gate.type
+
+        if (cycleCheck.has(gate)) {
             return {
                 error:"Cycle",
-                result:gate.override,
+                result:[],
                 exitDepth:depth
             }
         }
-        const gType = gate.type
 
         let outputs = gate.execute()
 
@@ -480,7 +468,7 @@ export class GateGraph {
                     continue
                 }
                 toGate.override[toj[1]] = outputs[c.from[1]]
-                const result = this.resolveInputsFrom(toGate, depth - 1)
+                const result = this.resolveInputsFrom(toGate, cycleCheck, depth - 1)
                 if (result.error !== "") {
                     return result
                 }
