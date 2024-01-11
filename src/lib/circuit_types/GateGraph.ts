@@ -98,6 +98,21 @@ export class GateGraph {
 
         const cycleCheck = this.addConnectionPropogate(c)
         if (cycleCheck.error !== "") {
+            //if a cycleCheck fires, the branches of the connection may have given bad values
+            //reset by propagating forward from the branches
+            const to = c.to
+            for (let i = 0; i < to.length; i++) {
+                let toGate = this.gates[to[i][0]]
+                if (toGate === undefined) continue
+    
+                toGate.override[to[i][1]] = cycleCheck.result[i]
+
+                const forwardResultI = this.resolveInputsFrom(toGate)
+                if (forwardResultI.error !== "") {
+                    return forwardResultI
+                }
+            }
+    
             return cycleCheck
         }
 
@@ -129,9 +144,6 @@ export class GateGraph {
             return Stupid
         }
 
-        //this.resolveInputsTo(fromGate)
-        //this.resolveInputsFrom(fromGate)
-
         for (let i = 0; i < to.length; i++) {
             this.setInput(to[i], c)
         }
@@ -139,6 +151,14 @@ export class GateGraph {
         return {error:"", result:[], exitDepth:0}
     }
 
+    /**
+     * Compute the circuit and check for cycles, before a connection is actually added to the circuit
+     * Still effects the state of the circuit because the resolving functions update each gate's override inputs
+     * To mitigate this, the result on a Cycle error will contain a list of old inputs at the connection's branches
+     * That result is then handled by resolving from each branch 
+     * @param c 
+     * @returns 
+     */
     private addConnectionPropogate(c:Connection): CircuitResolutionResult {
         let fromGate = this.gates[c.from[0]]
         if (fromGate === undefined) {
@@ -163,11 +183,15 @@ export class GateGraph {
 
         cycleTarget = new Set<Gate>([fromGate])
 
+        //return the old connection values at each branch of the connection so they can be undone
+        let result = new Array<ConnectionValue>(to.length)
         for (let i = 0; i < to.length; i++) {
             let toGate = this.gates[to[i][0]]
             if (toGate === undefined) continue
 
-            toGate.override[to[i][1]] = output
+            const o = to[i][1]
+            result[i] = toGate.override[o]
+            toGate.override[o] = output
             const forwardResultI = this.resolveInputsFrom(toGate, cycleTarget)
             if (forwardResultI.error !== "") {
                 return forwardResultI
@@ -176,7 +200,7 @@ export class GateGraph {
 
         return {
             error:"",
-            result:fromGate.override,
+            result:result,
             exitDepth:0
         }
     }

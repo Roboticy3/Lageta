@@ -20,7 +20,6 @@ export class GateType {
     moveable:boolean = true
     variant:GateTypeVariant = "Gate"
     private f:(x:(ConnectionValue)[]) => (ConnectionValue)[] = (x:(ConnectionValue)[])=>{return x}
-    private register:boolean = true
     
     constructor(
         params:GateTypeParameters

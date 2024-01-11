@@ -1,19 +1,19 @@
 import { CircuitController } from "$lib/circuit_types/CircuitController"
-import type { GateType } from "$lib/circuit_types/Gate"
+import { createGate, type ConnectionValue, type GateType, Buf } from "$lib/circuit_types/Gate"
 import type { GateGrid } from "$lib/circuit_types/GateGrid"
 import { OrganizedCircuit, type OrganizedCircuitContents } from "$lib/storage_types/CircuitStorage"
 
 export class GameViewParameters {
     directions:string
     grid:GateGrid | undefined
-    completeCondition:GateType | undefined
+    completeCondition:CompleteConditionSource
     allUnlocks:boolean
     
     
     constructor(
         directions:string = "",
         source:CircuitController | OrganizedCircuitContents | undefined = undefined,
-        completeCondition:GateType | undefined = undefined,
+        completeCondition:CompleteConditionSource = undefined,
         allUnlocks:boolean = false
     ) {
         this.directions = directions
@@ -37,15 +37,16 @@ export class GameViewParameters {
 export class CompleteCondition {
     inputSize:number 
     outputSize:number
-    execute:(x:boolean[]) => boolean[]
+    execute:(x:ConnectionValue[]) => ConnectionValue[]
 
     constructor (
-        from:GateType | {sizeIn:number, sizeOut:number, execute:(x:boolean[]) => boolean[]}
+        from:CompleteConditionSource
     ) {
+        from = from || Buf
         this.inputSize = from.sizeIn
         this.outputSize = from.sizeOut
-        this.execute = from.execute
+        this.execute = createGate(from).execute
     }
-
-
 }
+
+type CompleteConditionSource = GateType | undefined

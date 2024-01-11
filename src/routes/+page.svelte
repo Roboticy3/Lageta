@@ -3,7 +3,6 @@
 <script>
     import { Freeplay } from "$lib/level_types/Level";
 
-
     let name = 'Lageta'
 
     let count = 0;
@@ -11,6 +10,8 @@
     function increment() {
         count += 1;
     }
+
+
 
 </script>
 
