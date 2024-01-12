@@ -1,7 +1,8 @@
 <script context="module">
    //@ts-ignore
    import { Gate, GateType, all_gates } from "$lib/circuit_types/Gate";
-
+    import { TestSignalSet } from "$lib/signal_types/Signal";
+    import { SignalSetController } from "$lib/signal_types/SignalSetController";
 
    /**
     * make an svg for a gate, the default size is 20x20

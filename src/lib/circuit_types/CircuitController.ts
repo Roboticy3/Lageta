@@ -1,4 +1,3 @@
-import { TestSignalSet } from "$lib/level_types/Signal";
 import { Gate, type ConnectionValue, type GateType, createGate } from "./Gate";
 import { GateGraph, Connection, type ConnectionType } from "./GateGraph"
 import { GateGrid } from "./GateGrid";
@@ -68,7 +67,6 @@ export class CircuitController {
         if (makeMain) {
             mainController = this
         }
-
     }
 
     /**

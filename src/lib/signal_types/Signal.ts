@@ -7,11 +7,11 @@ type SignalKeyFrame = {
 
 type Signal = Array<SignalKeyFrame>
 
-export class SignalSet{
-    block:Array<Signal>
-    length:number
-    inputs:number
-    outputs:number
+export class SignalSet implements Iterable<Array<boolean>>{
+    readonly block:Array<Signal>
+    readonly length:number
+    readonly inputs:number
+    readonly outputs:number
 
     constructor(
         block:Array<Signal>,
@@ -20,9 +20,9 @@ export class SignalSet{
     ) {
         this.block = block
         this.length = length
-        this.currentIndex = new Array<number>(
-            block.length
-        ).fill(-1)
+        const start = this.getInitial()
+        this.currentIndex = start[0]
+        this.currentValue = start[1]
 
         if (typeof solverOrInputChannels === "number") {
             this.inputs = solverOrInputChannels
@@ -44,19 +44,36 @@ export class SignalSet{
         }
     }
 
-    currentIndex:Array<number>
-    resetCurrentIndex() {
-        this.currentIndex = new Array<number>(
-            this.block.length
-        ).fill(-1)
+    private currentIndex:Array<number>
+    private currentValue:Array<boolean>
+    private currentFrame=0
+    private getInitial():[Array<number>,Array<boolean>] {
+        return [
+            new Array<number>(
+                this.block.length
+            ).fill(-1),
+            this.currentValue = new Array<boolean>(
+                this.block.length
+            ).fill(false)
+        ]
+    }
+    
+    reset() {
+        const start = this.getInitial()
+        this.currentIndex = start[0]
+        this.currentValue = start[1]
+        this.currentFrame = 0
     }
 
-    nextCurrentIndex(x=this.currentIndex) {
+    nextKeyFrame() {
+        let index = Array.from(this.currentIndex)
+        let value = Array.from(this.currentValue)
+
         let availableChannels = new Set<number>(
             (new Array(this.block.length)).keys()
         ) //set of channels that can contain the next frame
         
-        const xp = x.map((v, i) => {
+        const xp = index.map((v, i) => {
             //if a channel has finished, delete it from the available set
             if (v + 1 >= this.block[i].length) {
                 availableChannels.delete(i)
@@ -65,7 +82,13 @@ export class SignalSet{
         })
         //if no channels are left, return the "default" index of all -1's
         if (availableChannels.size === 0) {
-            return new Array<number>(this.block.length).fill(-1)
+            return {
+                done:true,
+                value:{
+                    value:value,
+                    frame:this.currentFrame
+                }
+            }
         }
 
         const channelCount = availableChannels.size
@@ -84,6 +107,8 @@ export class SignalSet{
                 currentKeyFrame = this.block[i][xp[i]]
             }
         }
+        //update the current frame
+        this.currentFrame = currentKeyFrame.frame
 
         //search the channels again for keyframes on the same frame as the nearest
         let nearestCount = 0
@@ -97,11 +122,66 @@ export class SignalSet{
 
         //replace the current index with the next index only with in the channels with the nearest keyframes
         for (let i = 0; i < nearestCount; i++) {
-            x[nearest[i]] = xp[nearest[i]]
+            const ni = nearest[i]
+            index[ni] = xp[ni]
+            value[ni] = this.block[ni][xp[ni]].value
         }
 
-        return x
+        this.currentIndex = index
+        this.currentValue = value
+
+        return {
+            done:false,
+            value:{
+                value:value,
+                frame:currentKeyFrame.frame
+            }
+        }
     }
+
+    nextFrame(): IteratorResult<Array<boolean>> {
+        const xp = this.currentIndex.map((v, i) => {
+            return v + 1
+        })
+        for (let i = 0; i < this.block.length; i++) {
+            const keyFrame = this.block[i][xp[i]]
+            if (keyFrame && keyFrame.frame <= this.currentFrame) {
+                this.currentIndex[i] = xp[i]
+                this.currentValue[i] = keyFrame.value
+            }
+        }
+        
+        this.currentFrame++
+
+        return {
+            done:this.currentFrame==this.length,
+            value:Array.from(this.currentValue)
+        }
+    }
+
+    [Symbol.iterator](): Iterator<Array<boolean>> {
+        this.reset()
+        const thisNext = this.nextFrame.bind(this)
+        return {
+            next:thisNext
+        }
+    }
+
+    points(): Iterable<SignalPointResult> {
+        this.reset()
+        const thisNext = this.nextKeyFrame.bind(this)
+        return {
+            [Symbol.iterator](): Iterator<SignalPointResult> {
+                return {
+                    next:thisNext
+                }
+            }
+        }
+    }
+}
+type SignalPointResult = {
+    value:Array<boolean>
+    frame:number
 }
 
 export const TestSignalSet = new SignalSet(
@@ -133,15 +213,3 @@ export const TestSignalSet = new SignalSet(
     17,
     5
 )
-
-console.log(TestSignalSet.currentIndex)
-console.log(TestSignalSet.nextCurrentIndex())
-console.log(TestSignalSet.nextCurrentIndex())
-console.log(TestSignalSet.nextCurrentIndex())
-console.log(TestSignalSet.nextCurrentIndex())
-console.log(TestSignalSet.nextCurrentIndex())
-console.log(TestSignalSet.nextCurrentIndex())
-console.log(TestSignalSet.nextCurrentIndex())
-console.log(TestSignalSet.nextCurrentIndex())
-console.log(TestSignalSet.nextCurrentIndex())
-console.log(TestSignalSet.nextCurrentIndex())

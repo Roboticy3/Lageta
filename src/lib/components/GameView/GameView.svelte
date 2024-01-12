@@ -21,6 +21,8 @@
     import TruthTableView from './TruthTableView.svelte';
     import { TruthTable } from '$lib/circuit_types/TruthTable';
     import InputCheckBox from './InputCheckBox.svelte';
+    import { SignalSetController } from '$lib/signal_types/SignalSetController';
+    import SignalViewer from './SignalViewer.svelte';
 
     /**
      * @type {GameViewParameters}
@@ -118,7 +120,6 @@
         unlockedGates = progressStore?.gates() || []
         return unlockedGates
     }
-
 </script>
 
 <div class="game-view" id="game-view">
@@ -145,6 +146,7 @@
         {#if params.completeCondition !== undefined}
             <TruthTableView table={new TruthTable(params.completeCondition)}/>
         {/if}
+        <SignalViewer></SignalViewer>
     </div>
 
     <div class="control-panel">
@@ -197,6 +199,7 @@
 
         width: 100%;
         height: 100%;
+        
     }
 
 /* the shelf is where the user picks elements, saves progress, and opens a menu to leave the level */
