@@ -1,5 +1,5 @@
 import type { CircuitController } from "./CircuitController";
-import { Buf, GateType } from "./Gate";
+import { Buf, GateType, type ConnectionValue } from "./Gate";
 import type { GateGrid } from "./GateGrid";
 
 export const truthTableRowLimit = 6
@@ -110,8 +110,8 @@ export class TruthTable {
                 .map((s:string) => {return this.entryToBool(s)})
             
             const output = this.source
-                .execute(input)
-                .map((x:boolean) => {return this.boolToEntry(x)})
+                .execute([], input)
+                .map((x:ConnectionValue) => {return this.boolToEntry(x || false)})
             
             for (let j = 0; j < this.source.sizeOut; j++) {
                 const index = i + this.colCount - this.source.sizeOut + j

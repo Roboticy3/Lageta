@@ -1,12 +1,14 @@
-import { TestSignalSet, type SignalSet } from "./Signal";
+import type { CircuitController } from "$lib/circuit_types/CircuitController";
+import { TestSignalSet, type SignalSet, type Signal } from "./Signal";
 
 export class SignalSetController {
-    private signalSet:SignalSet
+    private signalSet:SignalSet<boolean>
     private height=20
     private frameWidth = 3
+    private frameTime = 250
 
     constructor(
-        signalSet:SignalSet=TestSignalSet
+        signalSet:SignalSet<boolean>=TestSignalSet
     ) {
         this.signalSet = signalSet
     }
@@ -76,5 +78,45 @@ export class SignalSetController {
         }
 
         return 1 - 0
+    }
+
+    toSignal() {
+        return this.signalSet.toSignal()
+    }
+
+    private currentFrame = 0
+    private currentValue:boolean[] = []
+    private nextSignal = 0
+    private signal:Signal<boolean[]> = []
+    private scrubIntervalId:number | undefined = undefined
+    scrub() {
+        this.currentFrame = 0
+        this.currentValue
+
+        this.nextSignal = 0
+        this.signal = this.toSignal()
+
+        this.scrubIntervalId = setInterval(this.scrubStep.bind(this), 250)
+        setTimeout(
+            () => {
+                clearInterval(this.scrubIntervalId) 
+            }, 
+            this.frameCount() * this.frameTime * 2
+        )
+    }
+
+    private scrubStep() {
+        const keyFrame = this.signal[this.nextSignal]
+        const update = this.currentFrame >= keyFrame.frame
+        console.log(this.currentFrame, update, keyFrame.frame)
+        if (update) {
+            //this.send(keyFrame.value, circuitController)
+            this.nextSignal++
+        }
+        this.currentFrame++
+
+        if (this.currentFrame >= this.frameCount()) {
+            clearInterval(this.scrubIntervalId)
+        }
     }
 }

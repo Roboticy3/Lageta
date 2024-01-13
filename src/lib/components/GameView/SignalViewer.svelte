@@ -11,7 +11,6 @@
      * @type {HTMLDivElement}
      */
     let container
-    let containerAspect = 1
 
     function fixSvgHeader() {
         width = signalSetController
@@ -20,6 +19,10 @@
             .getDesiredHeight()
 
         const aspect = width / height
+
+        if (container === null) {
+            return
+        }
         const containerAspect = container.offsetWidth / container.offsetHeight
 
         if (aspect > containerAspect) {
@@ -35,18 +38,20 @@
 
 </script>
 
+
 <div 
     class="signal-shelf-container"
     bind:this={container}>
     <svg 
         viewBox="-2 -2 {width} {height}"
-        height="90%"
+        width="50%"
         class="signal-shelf">
         {#each channelSvgs.paths as svg}
             {@html svg}
         {/each}
     </svg>
 </div>
+    
 
 <style>
     .signal-shelf-container {

@@ -1,21 +1,24 @@
 import type { ConnectionValue, GateType } from "$lib/circuit_types/Gate"
 
-type SignalKeyFrame = {
+type SignalKeyFrame<T> = {
     frame:number,
-    value:boolean
+    value:T
 }
 
-type Signal = Array<SignalKeyFrame>
+export type Signal<T> = Array<SignalKeyFrame<T>>
 
-export class SignalSet implements Iterable<Array<boolean>>{
-    readonly block:Array<Signal>
+export class SignalSet<T> implements Iterable<Array<T>>{
+    readonly block:Array<Signal<T>>
     readonly length:number
     readonly inputs:number
     readonly outputs:number
 
+    readonly defaultValue:T
+
     constructor(
-        block:Array<Signal>,
+        block:Array<Signal<T>>,
         length:number,
+        defaultValue:T,
         solverOrInputChannels:GateType | number = 1
     ) {
         this.block = block
@@ -23,6 +26,8 @@ export class SignalSet implements Iterable<Array<boolean>>{
         const start = this.getInitial()
         this.currentIndex = start[0]
         this.currentValue = start[1]
+
+        this.defaultValue = defaultValue
 
         if (typeof solverOrInputChannels === "number") {
             this.inputs = solverOrInputChannels
@@ -34,7 +39,7 @@ export class SignalSet implements Iterable<Array<boolean>>{
         this.outputs = solver.sizeOut
 
         let extendedBlock = new Array(solver.sizeOut)
-            .fill(new Array<SignalKeyFrame>())
+            .fill(new Array<SignalKeyFrame<T>>())
         
         let last = new Array<ConnectionValue>(solver.sizeOut)
         for (let i = 0; i < length; i++) {
@@ -45,17 +50,25 @@ export class SignalSet implements Iterable<Array<boolean>>{
     }
 
     private currentIndex:Array<number>
-    private currentValue:Array<boolean>
+    private currentValue:Array<T>
     private currentFrame=0
-    private getInitial():[Array<number>,Array<boolean>] {
+    private getInitial():[Array<number>,Array<T>] {
         return [
-            new Array<number>(
-                this.block.length
-            ).fill(-1),
-            this.currentValue = new Array<boolean>(
-                this.block.length
-            ).fill(false)
+            this.getInitialIndex(),
+            this.getInitialValue()
         ]
+    }
+
+    private getInitialIndex() {
+        return new Array<number>(
+            this.block.length
+        ).fill(-1)
+    }
+
+    getInitialValue() {
+        return this.currentValue = new Array<T>(
+            this.block.length
+        ).fill(this.defaultValue)
     }
     
     reset() {
@@ -97,8 +110,8 @@ export class SignalSet implements Iterable<Array<boolean>>{
         let nearest = new Array<number>(channelCount)
         let currentKeyFrame = {
             frame:this.length,
-            value:false
-        } as SignalKeyFrame
+            value:this.defaultValue
+        } as SignalKeyFrame<T>
         for (let i of availableChannels) {
             const candidate = this.block[i][xp[i]]
             //if the keyframe comes before the current nearest, replace the current nearest
@@ -139,7 +152,7 @@ export class SignalSet implements Iterable<Array<boolean>>{
         }
     }
 
-    nextFrame(): IteratorResult<Array<boolean>> {
+    nextFrame(): IteratorResult<Array<T>> {
         const xp = this.currentIndex.map((v, i) => {
             return v + 1
         })
@@ -159,7 +172,7 @@ export class SignalSet implements Iterable<Array<boolean>>{
         }
     }
 
-    [Symbol.iterator](): Iterator<Array<boolean>> {
+    [Symbol.iterator](): Iterator<Array<T>> {
         this.reset()
         const thisNext = this.nextFrame.bind(this)
         return {
@@ -167,20 +180,28 @@ export class SignalSet implements Iterable<Array<boolean>>{
         }
     }
 
-    points(): Iterable<SignalPointResult> {
+    points(): Iterable<SignalPointResult<T>> {
         this.reset()
         const thisNext = this.nextKeyFrame.bind(this)
         return {
-            [Symbol.iterator](): Iterator<SignalPointResult> {
+            [Symbol.iterator](): Iterator<SignalPointResult<T>> {
                 return {
                     next:thisNext
                 }
             }
         }
     }
+
+    toSignal(): Signal<Array<T>> {
+        let signal:Signal<Array<T>> = []
+        for (let point of this.points()) {
+            signal.push(point)
+        }
+        return signal
+    }
 }
-type SignalPointResult = {
-    value:Array<boolean>
+type SignalPointResult<T> = {
+    value:Array<T>
     frame:number
 }
 
@@ -211,5 +232,6 @@ export const TestSignalSet = new SignalSet(
         ]
     ],
     17,
+    false,
     5
 )
