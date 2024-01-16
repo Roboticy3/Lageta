@@ -1,6 +1,6 @@
 import type { ConnectionValue, GateType } from "$lib/circuit_types/Gate"
 
-type SignalKeyFrame<T> = {
+export type SignalKeyFrame<T> = {
     frame:number,
     value:T
 }

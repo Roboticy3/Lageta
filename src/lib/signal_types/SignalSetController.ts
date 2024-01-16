@@ -1,16 +1,19 @@
 import type { CircuitController } from "$lib/circuit_types/CircuitController";
-import { TestSignalSet, type SignalSet, type Signal } from "./Signal";
+import { TestSignalSet, type SignalSet, type Signal, type SignalKeyFrame } from "./Signal";
 
 export class SignalSetController {
-    private signalSet:SignalSet<boolean>
+    private readonly signalSet:SignalSet<boolean>
     private height=20
     private frameWidth = 3
-    private frameTime = 250
+    frameTime = 250
+
+    private readonly signal:Signal<boolean[]>
 
     constructor(
         signalSet:SignalSet<boolean>=TestSignalSet
     ) {
         this.signalSet = signalSet
+        this.signal = this.toSignal()
     }
 
     drawChannels(pathParams:string=`stroke-width="1px" stroke="black" fill="none"`) {
@@ -59,6 +62,10 @@ export class SignalSetController {
         return (this.height + 2) * this.channelCount()
     }
 
+    getFrameWidth() {
+        return this.frameWidth
+    }
+
     channelCount() {
         return this.signalSet.block.length
     }
@@ -84,39 +91,75 @@ export class SignalSetController {
         return this.signalSet.toSignal()
     }
 
+    private currentKeyFrame:SignalKeyFrame<boolean[]> = {
+        value:[],
+        frame:0
+    }
     private currentFrame = 0
-    private currentValue:boolean[] = []
     private nextSignal = 0
-    private signal:Signal<boolean[]> = []
     private scrubIntervalId:number | undefined = undefined
-    scrub() {
-        this.currentFrame = 0
-        this.currentValue
+    private scrubbing = false
+    scrub(iter:SignalFrameReader | undefined = undefined, reset:boolean = true) {
+        if (reset || this.currentFrame >= this.signalSet.length) this.resetScrub()
 
-        this.nextSignal = 0
-        this.signal = this.toSignal()
-
-        this.scrubIntervalId = setInterval(this.scrubStep.bind(this), 250)
-        setTimeout(
-            () => {
-                clearInterval(this.scrubIntervalId) 
-            }, 
-            this.frameCount() * this.frameTime * 2
+        this.scrubIntervalId = setInterval(
+            this.scrubStep.bind(this, iter), this.frameTime
         )
+        this.scrubbing = true
     }
 
-    private scrubStep() {
-        const keyFrame = this.signal[this.nextSignal]
-        const update = this.currentFrame >= keyFrame.frame
-        console.log(this.currentFrame, update, keyFrame.frame)
+    private resetScrub() {
+        this.currentKeyFrame = {
+            value:this.signalSet.getInitialValue(),
+            frame:0
+        }
+        this.currentFrame = 0
+
+        this.nextSignal = 0
+
+        if (this.scrubIntervalId) clearInterval(this.scrubIntervalId)
+        this.scrubIntervalId = undefined
+        this.scrubbing = false
+    }
+
+    private scrubStep(iter:SignalFrameReader | undefined = undefined) {
+        const nextKeyFrame = this.signal[this.nextSignal]
+        const nextFrame = nextKeyFrame.frame
+        const update = this.currentFrame >= nextFrame
         if (update) {
             //this.send(keyFrame.value, circuitController)
             this.nextSignal++
+            this.currentKeyFrame = nextKeyFrame
         }
         this.currentFrame++
 
-        if (this.currentFrame >= this.frameCount()) {
+        const done = this.currentFrame >= this.frameCount() || !this.scrubbing
+        const result = iter?.call(iter, this.currentKeyFrame.value, this.currentFrame, done) || false
+
+        if (done || result) {
             clearInterval(this.scrubIntervalId)
+            this.scrubbing = false
         }
     }
+
+    abortScrub() {
+        this.scrubbing = false
+    }
+
+    scrubTo(frame:number, reset:boolean = true) {
+        if (reset || this.currentFrame >= this.signalSet.length) this.resetScrub()
+        this.currentFrame = frame
+
+        for (let keyFrame of this.signal) {
+            this.nextSignal++
+            if (keyFrame.frame > frame) {
+                break
+            }
+            this.currentKeyFrame = keyFrame
+        }
+
+        return this.currentKeyFrame
+    }
 }
+
+export type SignalFrameReader = (currentValue:boolean[], currentFrame:number, done:boolean) => boolean | void
