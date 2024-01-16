@@ -146,7 +146,7 @@
         {#if params.completeCondition !== undefined}
             <TruthTableView table={new TruthTable(params.completeCondition)}/>
         {/if}
-        <SignalViewer></SignalViewer>
+        <SignalViewer gridController={mainController || null} updateSvg={circuitPanel?.updateSvg || null}></SignalViewer>
     </div>
 
     <div class="control-panel">

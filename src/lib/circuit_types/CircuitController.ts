@@ -449,6 +449,14 @@ export class CircuitController {
         this.gateGrid.graph.setFlow(index, val)
     }
 
+    setInputs(val:boolean[]) {
+        const inputs = this.gateGrid.inputs.map((g) => {
+            return g?.id
+        })
+        const graph = this.gateGrid.graph
+        graph.setFlows(val, inputs)
+    }
+
     /**
      * Convert and SVG id tag to a numeric id
      * @param id 

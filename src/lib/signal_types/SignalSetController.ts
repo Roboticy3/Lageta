@@ -125,6 +125,7 @@ export class SignalSetController {
     private scrubStep(iter:SignalFrameReader | undefined = undefined) {
         const nextKeyFrame = this.signal[this.nextSignal]
         const nextFrame = nextKeyFrame.frame
+
         const update = this.currentFrame >= nextFrame
         if (update) {
             //this.send(keyFrame.value, circuitController)
@@ -134,7 +135,11 @@ export class SignalSetController {
         this.currentFrame++
 
         const done = this.currentFrame >= this.frameCount() || !this.scrubbing
-        const result = iter?.call(iter, this.currentKeyFrame.value, this.currentFrame, done) || false
+        const result = iter?.call(iter, 
+            this.currentKeyFrame.value, 
+            this.currentFrame, 
+            update,
+            done) || false
 
         if (done || result) {
             clearInterval(this.scrubIntervalId)
@@ -162,4 +167,4 @@ export class SignalSetController {
     }
 }
 
-export type SignalFrameReader = (currentValue:boolean[], currentFrame:number, done:boolean) => boolean | void
+export type SignalFrameReader = (currentValue:boolean[], currentFrame:number, update:boolean, done:boolean) => boolean | void

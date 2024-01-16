@@ -365,6 +365,26 @@ export class GateGraph {
         return true
     }
 
+    setFlows(val:boolean[], ids:(number | undefined)[]) {
+        const gates = ids.map((i) => {
+            if (i === undefined) return undefined
+            return this.gates[i]
+        })
+
+        let consumed = 0
+        for (let i = 0; i < gates.length; i++) {
+            let gate = gates[i]
+            if (!(gate instanceof Flow)) {
+                continue
+            }
+
+            gate.override = val.slice(consumed, consumed + gate.type.sizeOut)
+            consumed += gate.type.sizeOut
+
+            this.resolveInputsFrom(gate)
+        }
+    }
+
     /**
      * find the input array for a given gate
      * recursively sorts through every gate connected to the given one

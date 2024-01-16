@@ -1,10 +1,22 @@
 <script>
+    //@ts-ignore
+    import { CircuitController } from "$lib/circuit_types/CircuitController";
     import { SignalSetController } from "$lib/signal_types/SignalSetController";
     import { onMount } from "svelte";
 
     export let signalSetController = (new SignalSetController())
     let channelSvgs = signalSetController.drawChannels()
     signalSetController.frameTime = 100
+
+    /**
+     * @type {CircuitController | null}
+    */
+    export let gridController
+
+    /**
+     * @type {(() => void) | null}
+     */
+    export let updateSvg
 
     let [width, height] = [0, 0]
 
@@ -64,9 +76,13 @@
         switch (button) {
             case "▶":
                 button = "⏸"
-                signalSetController.scrub((currentValue, currentFrame, done) => {
+                signalSetController.scrub((currentValue, currentFrame, update, done) => {
                     playFrame = currentFrame
                     fixPlayBar()
+                    if (update) {
+                        gridController?.setInputs(currentValue)
+                        updateSvg?.call(updateSvg)
+                    }
                     if (done) button = "▶"
                 }, false)
                 break;
