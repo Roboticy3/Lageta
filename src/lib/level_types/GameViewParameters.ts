@@ -1,6 +1,7 @@
 import { CircuitController } from "$lib/circuit_types/CircuitController"
 import { createGate, type ConnectionValue, type GateType, Buf } from "$lib/circuit_types/Gate"
 import type { GateGrid } from "$lib/circuit_types/GateGrid"
+import { SignalSet } from "$lib/signal_types/Signal"
 import { OrganizedCircuit, type OrganizedCircuitContents } from "$lib/storage_types/CircuitStorage"
 
 export class GameViewParameters {
@@ -37,16 +38,20 @@ export class GameViewParameters {
 export class CompleteCondition {
     inputSize:number 
     outputSize:number
-    execute:(x:ConnectionValue[]) => ConnectionValue[]
 
     constructor (
         from:CompleteConditionSource
     ) {
-        from = from || Buf
-        this.inputSize = from.sizeIn
-        this.outputSize = from.sizeOut
-        this.execute = createGate(from).execute
+        if (from instanceof SignalSet) {
+            this.inputSize = from.inputs
+            this.outputSize = from.outputs
+        }
+        else {
+            from = from || Buf
+            this.inputSize = from.sizeIn
+            this.outputSize = from.sizeOut
+        }
     }
 }
 
-type CompleteConditionSource = GateType | undefined
+type CompleteConditionSource = GateType | SignalSet | undefined

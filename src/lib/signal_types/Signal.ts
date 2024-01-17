@@ -1,4 +1,4 @@
-import type { ConnectionValue, GateType } from "$lib/circuit_types/Gate"
+import { createGate, type ConnectionValue, type GateType } from "$lib/circuit_types/Gate"
 
 export type SignalKeyFrame<T> = {
     frame:number,
@@ -17,18 +17,18 @@ export function bookend<T>(s:Signal<T>) {
     return s
 }
 
-export class SignalSet<T> implements Iterable<Array<T>>{
-    readonly block:Array<Signal<T>>
+export class SignalSet implements Iterable<Array<boolean>>{
+    readonly block:Array<Signal<boolean>>
     readonly length:number
     readonly inputs:number
     readonly outputs:number
 
-    readonly defaultValue:T
+    readonly defaultValue:boolean
 
     constructor(
-        block:Array<Signal<T>>,
+        block:Array<Signal<boolean>>,
         length:number,
-        defaultValue:T,
+        defaultValue:boolean = false,
         solverOrInputChannels:GateType | number = 1
     ) {
         this.block = block
@@ -45,24 +45,37 @@ export class SignalSet<T> implements Iterable<Array<T>>{
             return
         }
         const solver = solverOrInputChannels
+        const gate = createGate(solver)
         this.inputs = solver.sizeIn
         this.outputs = solver.sizeOut
 
-        let extendedBlock = new Array(solver.sizeOut)
-            .fill(new Array<SignalKeyFrame<T>>())
+        let extendedBlock = gate.execute(this.getInitialValue()).map((v) => {
+            return [{
+                value:v || false,
+                frame:0
+            }] as Signal<boolean>
+        })
         
-        let last = new Array<ConnectionValue>(solver.sizeOut)
-        for (let i = 0; i < length; i++) {
+        for (let point of this.points()) {
             //run a function to add output keyframes based on the solver
             //these keyframes will go into the extended block, which will then get pushed onto the main block
             //I can see how this should work when I write it on paper, but I have no idea how to express it as code
+            const output = gate.execute(point.value)
+            for (let i = 0; i < output.length; i++) {
+                extendedBlock[i].push({
+                    value:output[i] || false,
+                    frame:point.frame
+                })
+            }
         }
+        
+        this.block.push(...extendedBlock)
     }
 
     private currentIndex:Array<number>
-    private currentValue:Array<T>
+    private currentValue:Array<boolean>
     private currentFrame=0
-    private getInitial():[Array<number>,Array<T>] {
+    private getInitial():[Array<number>,Array<boolean>] {
         return [
             this.getInitialIndex(),
             this.getInitialValue()
@@ -71,13 +84,13 @@ export class SignalSet<T> implements Iterable<Array<T>>{
 
     private getInitialIndex() {
         return new Array<number>(
-            this.inputs
+            this.block.length
         ).fill(-1)
     }
 
     getInitialValue() {
-        return this.currentValue = new Array<T>(
-            this.inputs
+        return this.currentValue = new Array<boolean>(
+            this.block.length
         ).fill(this.defaultValue)
     }
     
@@ -86,7 +99,7 @@ export class SignalSet<T> implements Iterable<Array<T>>{
         this.currentIndex = start[0]
         this.currentValue = start[1]
         this.currentFrame = 0
-        console.log(this.currentIndex, this.currentValue, this.inputs)
+        console.log(this.currentIndex, this.currentValue, this.block.length)
     }
 
     nextKeyFrame() {
@@ -94,7 +107,7 @@ export class SignalSet<T> implements Iterable<Array<T>>{
         let value = Array.from(this.currentValue)
 
         let availableChannels = new Set<number>(
-            (new Array(this.inputs)).keys()
+            (new Array(this.block.length)).keys()
         ) //set of channels that can contain the next frame
         
         const xp = index.map((v, i) => {
@@ -122,7 +135,7 @@ export class SignalSet<T> implements Iterable<Array<T>>{
         let currentKeyFrame = {
             frame:this.length,
             value:this.defaultValue
-        } as SignalKeyFrame<T>
+        } as SignalKeyFrame<boolean>
         for (let i of availableChannels) {
             const candidate = this.block[i][xp[i]]
             //if the keyframe comes before the current nearest, replace the current nearest
@@ -163,11 +176,11 @@ export class SignalSet<T> implements Iterable<Array<T>>{
         }
     }
 
-    nextFrame(): IteratorResult<Array<T>> {
+    nextFrame(): IteratorResult<Array<boolean>> {
         const xp = this.currentIndex.map((v, i) => {
             return v + 1
         })
-        for (let i = 0; i < this.inputs; i++) {
+        for (let i = 0; i < this.block.length; i++) {
             const keyFrame = this.block[i][xp[i]]
             if (keyFrame && keyFrame.frame <= this.currentFrame) {
                 this.currentIndex[i] = xp[i]
@@ -183,7 +196,7 @@ export class SignalSet<T> implements Iterable<Array<T>>{
         }
     }
 
-    [Symbol.iterator](): Iterator<Array<T>> {
+    [Symbol.iterator](): Iterator<Array<boolean>> {
         this.reset()
         const thisNext = this.nextFrame.bind(this)
         return {
@@ -191,11 +204,11 @@ export class SignalSet<T> implements Iterable<Array<T>>{
         }
     }
 
-    points(): Iterable<SignalPointResult<T>> {
+    points(): Iterable<SignalPointResult<boolean>> {
         this.reset()
         const thisNext = this.nextKeyFrame.bind(this)
         return {
-            [Symbol.iterator](): Iterator<SignalPointResult<T>> {
+            [Symbol.iterator](): Iterator<SignalPointResult<boolean>> {
                 return {
                     next:thisNext
                 }
@@ -203,8 +216,8 @@ export class SignalSet<T> implements Iterable<Array<T>>{
         }
     }
 
-    toSignal(): Signal<Array<T>> {
-        let signal:Signal<Array<T>> = []
+    toSignal(): Signal<Array<boolean>> {
+        let signal:Signal<Array<boolean>> = []
         for (let point of this.points()) {
             console.log(point)
             signal.push(point)

@@ -77,6 +77,7 @@
         switch (button) {
             case "▶":
                 button = "⏸"
+                gridController?.setInputs(signalSetController.getCurrentValue())
                 signalSetController.scrub((currentValue, currentFrame, update, done) => {
                     playFrame = currentFrame
                     fixPlayBar()

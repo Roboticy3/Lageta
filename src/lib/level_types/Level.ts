@@ -2,6 +2,7 @@ import { CircuitController } from "$lib/circuit_types/CircuitController"
 import { Buf, Input, Not, Output, all_gates } from "$lib/circuit_types/Gate"
 import { GateGraph } from "$lib/circuit_types/GateGraph"
 import type { GateGrid } from "$lib/circuit_types/GateGrid"
+import { SignalSet } from "$lib/signal_types/Signal"
 import type { OrganizedCircuitContents, SerializableGate } from "$lib/storage_types/CircuitStorage"
 import { CompleteCondition, GameViewParameters } from "./GameViewParameters"
 
@@ -70,7 +71,119 @@ export const W1S1 = new Level (
             ],
             size:[10, 5]
         } as OrganizedCircuitContents,
-        Not
+        new SignalSet(
+            [
+                [
+                    {
+                        frame:10,
+                        value:true
+                    },
+                    {
+                        frame:20,
+                        value:false
+                    },
+                    {
+                        frame:30,
+                        value:true
+                    },
+                    {
+                        frame:40,
+                        value:false
+                    },
+                    {
+                        frame:45,
+                        value:true
+                    },
+                    {
+                        frame:50,
+                        value:false
+                    },
+                    {
+                        frame:55,
+                        value:true
+                    },
+                    {
+                        frame:60,
+                        value:false
+                    },
+                    {
+                        frame:65,
+                        value:true
+                    },
+                    {
+                        frame:70,
+                        value:false
+                    },
+                    {
+                        frame:73,
+                        value:true
+                    },
+                    {
+                        frame:76,
+                        value:false
+                    },
+                    {
+                        frame:79,
+                        value:true
+                    },
+                    {
+                        frame:82,
+                        value:false
+                    },
+                    {
+                        frame:85,
+                        value:true
+                    },
+                    {
+                        frame:88,
+                        value:false
+                    },
+                    {
+                        frame:91,
+                        value:true
+                    },
+                    {
+                        frame:92,
+                        value:false
+                    },
+                    {
+                        frame:93,
+                        value:true
+                    },
+                    {
+                        frame:94,
+                        value:false
+                    },
+                    {
+                        frame:95,
+                        value:true
+                    },
+                    {
+                        frame:96,
+                        value:false
+                    },
+                    {
+                        frame:97,
+                        value:true
+                    },
+                    {
+                        frame:98,
+                        value:false
+                    },
+                    {
+                        frame:99,
+                        value:true
+                    },
+                    {
+                        frame:100,
+                        value:false
+                    }
+                ]
+            ],
+            100,
+            false,
+            Not
+        )
     ),
     "1",
     3, 1

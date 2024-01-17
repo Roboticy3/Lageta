@@ -1,16 +1,16 @@
 import type { CircuitController } from "$lib/circuit_types/CircuitController";
 import { TestSignalSet, SignalSet, type Signal, type SignalKeyFrame, bookend } from "./Signal";
 
-export class SignalSetController<T extends boolean | number | string> {
-    private readonly signalSet:SignalSet<T>
+export class SignalSetController {
+    private readonly signalSet:SignalSet
     private height=20
     private frameWidth = 3
     frameTime = 250
 
-    private readonly signal:Signal<T[]>
+    private readonly signal:Signal<boolean[]>
 
     constructor(
-        signalSet:SignalSet<T>
+        signalSet:SignalSet
     ) {
         this.signalSet = signalSet
         this.signal = this.toSignal()
@@ -22,7 +22,7 @@ export class SignalSetController<T extends boolean | number | string> {
         let paths = new Array<string>(
             channelCount
         ).fill("")
-        let lastValues = new Array<T>(
+        let lastValues = new Array<boolean>(
             channelCount
         ).fill(this.signalSet.defaultValue)
 
@@ -74,7 +74,7 @@ export class SignalSetController<T extends boolean | number | string> {
         return this.signalSet.length
     }
 
-    toSigStrengthRev(x:T) {
+    toSigStrengthRev(x:boolean) {
         switch (typeof x) {
             case "boolean":
                 return x ? 0:1
@@ -87,7 +87,7 @@ export class SignalSetController<T extends boolean | number | string> {
         return 1 - 0
     }
 
-    toHeightRev(x:T) {
+    toHeightRev(x:boolean) {
         return this.toSigStrengthRev(x) * this.height
     }
 
@@ -95,7 +95,7 @@ export class SignalSetController<T extends boolean | number | string> {
         return bookend(this.signalSet.toSignal())
     }
 
-    private currentKeyFrame:SignalKeyFrame<T[]> = {
+    private currentKeyFrame:SignalKeyFrame<boolean[]> = {
         value:[],
         frame:0
     }
@@ -103,7 +103,7 @@ export class SignalSetController<T extends boolean | number | string> {
     private nextSignal = 0
     private scrubIntervalId:number | undefined = undefined
     private scrubbing = false
-    scrub(iter:SignalFrameReader<T> | undefined = undefined, reset:boolean = true) {
+    scrub(iter:SignalFrameReader<boolean> | undefined = undefined, reset:boolean = true) {
         if (reset || this.currentFrame >= this.signalSet.length) this.resetScrub()
 
         this.scrubIntervalId = setInterval(
@@ -126,8 +126,8 @@ export class SignalSetController<T extends boolean | number | string> {
         this.scrubbing = false
     }
 
-    private scrubStep(iter:SignalFrameReader<T> | undefined = undefined) {
-        const nextKeyFrame:SignalKeyFrame<T[]> | undefined = this.signal[this.nextSignal]
+    private scrubStep(iter:SignalFrameReader<boolean> | undefined = undefined) {
+        const nextKeyFrame:SignalKeyFrame<boolean[]> | undefined = this.signal[this.nextSignal]
         const nextFrame = nextKeyFrame.frame
 
         const update = this.currentFrame >= nextFrame
@@ -167,6 +167,13 @@ export class SignalSetController<T extends boolean | number | string> {
         }
 
         return this.currentKeyFrame
+    }
+
+    getCurrentValue() {
+        if (this.currentKeyFrame.value.length === 0) {
+            return this.signalSet.getInitialValue()
+        }
+        return Array.from(this.currentKeyFrame.value)
     }
 }
 

@@ -23,6 +23,7 @@
     import InputCheckBox from './InputCheckBox.svelte';
     import { SignalSetController } from '$lib/signal_types/SignalSetController';
     import SignalViewer from './SignalViewer.svelte';
+    import { SignalSet } from '$lib/signal_types/Signal';
 
     /**
      * @type {GameViewParameters}
@@ -143,10 +144,17 @@
     </GameViewCircuitPanel>
     <div class="directions">
         {@html params.directions}
-        {#if params.completeCondition !== undefined}
+        {#if params.completeCondition instanceof GateType}
             <TruthTableView table={new TruthTable(params.completeCondition)}/>
         {/if}
-        <SignalViewer gridController={mainController || null} updateSvg={circuitPanel?.updateSvg || null}></SignalViewer>
+        {#if params.completeCondition instanceof SignalSet}
+            <SignalViewer 
+                signalSetController={
+                    new SignalSetController(params.completeCondition)
+                } 
+                gridController={mainController || null} 
+                updateSvg={circuitPanel?.updateSvg || null}></SignalViewer>
+        {/if}
     </div>
 
     <div class="control-panel">
