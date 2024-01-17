@@ -1,10 +1,11 @@
 <script>
     //@ts-ignore
     import { CircuitController } from "$lib/circuit_types/CircuitController";
+    import { TestSignalSet } from "$lib/signal_types/Signal";
     import { SignalSetController } from "$lib/signal_types/SignalSetController";
     import { onMount } from "svelte";
 
-    export let signalSetController = (new SignalSetController())
+    export let signalSetController = (new SignalSetController(TestSignalSet))
     let channelSvgs = signalSetController.drawChannels()
     signalSetController.frameTime = 100
 
@@ -94,6 +95,13 @@
         
     }
 
+    /**
+     * @param {MouseEvent} e
+     */
+    function onClickSvg(e) {
+        console.log(e)
+    }
+
 </script>
 
 
@@ -101,6 +109,7 @@
     class="signal-shelf-container"
     bind:this={container}>
     <svg 
+        on:click={onClickSvg}
         viewBox="{offset - 4} -10 {width + 4} {height}"
         width="100%"
         class="signal-shelf">

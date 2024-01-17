@@ -7,6 +7,16 @@ export type SignalKeyFrame<T> = {
 
 export type Signal<T> = Array<SignalKeyFrame<T>>
 
+export function bookend<T>(s:Signal<T>) {
+    const last = s[s.length - 1]
+    const bookend = {
+        frame:2147483647,
+        value:last.value
+    }
+    s.push(bookend)
+    return s
+}
+
 export class SignalSet<T> implements Iterable<Array<T>>{
     readonly block:Array<Signal<T>>
     readonly length:number
@@ -61,13 +71,13 @@ export class SignalSet<T> implements Iterable<Array<T>>{
 
     private getInitialIndex() {
         return new Array<number>(
-            this.block.length
+            this.inputs
         ).fill(-1)
     }
 
     getInitialValue() {
         return this.currentValue = new Array<T>(
-            this.block.length
+            this.inputs
         ).fill(this.defaultValue)
     }
     
@@ -76,6 +86,7 @@ export class SignalSet<T> implements Iterable<Array<T>>{
         this.currentIndex = start[0]
         this.currentValue = start[1]
         this.currentFrame = 0
+        console.log(this.currentIndex, this.currentValue, this.inputs)
     }
 
     nextKeyFrame() {
@@ -83,7 +94,7 @@ export class SignalSet<T> implements Iterable<Array<T>>{
         let value = Array.from(this.currentValue)
 
         let availableChannels = new Set<number>(
-            (new Array(this.block.length)).keys()
+            (new Array(this.inputs)).keys()
         ) //set of channels that can contain the next frame
         
         const xp = index.map((v, i) => {
@@ -156,7 +167,7 @@ export class SignalSet<T> implements Iterable<Array<T>>{
         const xp = this.currentIndex.map((v, i) => {
             return v + 1
         })
-        for (let i = 0; i < this.block.length; i++) {
+        for (let i = 0; i < this.inputs; i++) {
             const keyFrame = this.block[i][xp[i]]
             if (keyFrame && keyFrame.frame <= this.currentFrame) {
                 this.currentIndex[i] = xp[i]
@@ -195,6 +206,7 @@ export class SignalSet<T> implements Iterable<Array<T>>{
     toSignal(): Signal<Array<T>> {
         let signal:Signal<Array<T>> = []
         for (let point of this.points()) {
+            console.log(point)
             signal.push(point)
         }
         return signal

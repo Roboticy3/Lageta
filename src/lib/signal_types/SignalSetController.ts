@@ -1,16 +1,16 @@
 import type { CircuitController } from "$lib/circuit_types/CircuitController";
-import { TestSignalSet, type SignalSet, type Signal, type SignalKeyFrame } from "./Signal";
+import { TestSignalSet, SignalSet, type Signal, type SignalKeyFrame, bookend } from "./Signal";
 
-export class SignalSetController {
-    private readonly signalSet:SignalSet<boolean>
+export class SignalSetController<T extends boolean | number | string> {
+    private readonly signalSet:SignalSet<T>
     private height=20
     private frameWidth = 3
     frameTime = 250
 
-    private readonly signal:Signal<boolean[]>
+    private readonly signal:Signal<T[]>
 
     constructor(
-        signalSet:SignalSet<boolean>=TestSignalSet
+        signalSet:SignalSet<T>
     ) {
         this.signalSet = signalSet
         this.signal = this.toSignal()
@@ -22,9 +22,9 @@ export class SignalSetController {
         let paths = new Array<string>(
             channelCount
         ).fill("")
-        let lastValues = new Array<boolean>(
+        let lastValues = new Array<T>(
             channelCount
-        ).fill(false)
+        ).fill(this.signalSet.defaultValue)
 
         for (let i = 0; i < points.length; i++) {
             const p = points[i]
@@ -33,19 +33,19 @@ export class SignalSetController {
                 paths[j] += `L ${
                     p.frame * this.frameWidth
                 } ${
-                    (this.toSigStrengthRev(lastValues[j]) * this.height) + baseHeight
+                    (this.toHeightRev(lastValues[j])) + baseHeight
                 } L ${
                     p.frame * this.frameWidth
                 } ${
-                    (this.toSigStrengthRev(p.value[j]) * this.height) + baseHeight
-                }`
+                    (this.toHeightRev(p.value[j])) + baseHeight
+                } `
                 lastValues[j] = p.value[j]
             }
         }
 
         for (let j = 0; j < paths.length; j++) {
             const baseHeight = (this.height + 2) * j
-            paths[j] = `<path ${pathParams} d="M 0 ${baseHeight + this.height} ${paths[j]}" />`
+            paths[j] = `<path ${pathParams} d="M 0 ${baseHeight + this.height} ${paths[j]} L ${this.getDesiredWidth()} ${baseHeight + this.toHeightRev(points[points.length - 1].value[j])}" />`
         }
 
         return {
@@ -74,7 +74,7 @@ export class SignalSetController {
         return this.signalSet.length
     }
 
-    toSigStrengthRev<T>(x:T) {
+    toSigStrengthRev(x:T) {
         switch (typeof x) {
             case "boolean":
                 return x ? 0:1
@@ -87,11 +87,15 @@ export class SignalSetController {
         return 1 - 0
     }
 
-    toSignal() {
-        return this.signalSet.toSignal()
+    toHeightRev(x:T) {
+        return this.toSigStrengthRev(x) * this.height
     }
 
-    private currentKeyFrame:SignalKeyFrame<boolean[]> = {
+    toSignal() {
+        return bookend(this.signalSet.toSignal())
+    }
+
+    private currentKeyFrame:SignalKeyFrame<T[]> = {
         value:[],
         frame:0
     }
@@ -99,7 +103,7 @@ export class SignalSetController {
     private nextSignal = 0
     private scrubIntervalId:number | undefined = undefined
     private scrubbing = false
-    scrub(iter:SignalFrameReader | undefined = undefined, reset:boolean = true) {
+    scrub(iter:SignalFrameReader<T> | undefined = undefined, reset:boolean = true) {
         if (reset || this.currentFrame >= this.signalSet.length) this.resetScrub()
 
         this.scrubIntervalId = setInterval(
@@ -122,13 +126,12 @@ export class SignalSetController {
         this.scrubbing = false
     }
 
-    private scrubStep(iter:SignalFrameReader | undefined = undefined) {
-        const nextKeyFrame = this.signal[this.nextSignal]
+    private scrubStep(iter:SignalFrameReader<T> | undefined = undefined) {
+        const nextKeyFrame:SignalKeyFrame<T[]> | undefined = this.signal[this.nextSignal]
         const nextFrame = nextKeyFrame.frame
 
         const update = this.currentFrame >= nextFrame
         if (update) {
-            //this.send(keyFrame.value, circuitController)
             this.nextSignal++
             this.currentKeyFrame = nextKeyFrame
         }
@@ -167,4 +170,4 @@ export class SignalSetController {
     }
 }
 
-export type SignalFrameReader = (currentValue:boolean[], currentFrame:number, update:boolean, done:boolean) => boolean | void
+export type SignalFrameReader<T> = (currentValue:T[], currentFrame:number, update:boolean, done:boolean) => boolean | void

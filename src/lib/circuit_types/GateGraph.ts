@@ -489,7 +489,7 @@ export class GateGraph {
         cycleCheck:Set<Gate> = new Set<Gate>(), 
         depth:number=0
     ): CircuitResolutionResult {
-        console.log("resolving from ", gate)
+        console.log("resolving from ", gate, JSON.stringify(gate.override))
         const gType = gate.type
 
         if (cycleCheck.has(gate)) {
