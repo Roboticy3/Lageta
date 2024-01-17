@@ -29,16 +29,7 @@ export class SignalSetController {
         for (let i = 0; i < points.length; i++) {
             const p = points[i]
             for (let j = 0; j < paths.length; j++) {
-                const baseHeight = (this.height + 2) * j
-                paths[j] += `L ${
-                    p.frame * this.frameWidth
-                } ${
-                    (this.toHeightRev(lastValues[j])) + baseHeight
-                } L ${
-                    p.frame * this.frameWidth
-                } ${
-                    (this.toHeightRev(p.value[j])) + baseHeight
-                } `
+                paths[j] += this.getPathElementsFrom(p, lastValues, j)
                 lastValues[j] = p.value[j]
             }
         }
@@ -52,6 +43,19 @@ export class SignalSetController {
             paths:paths,
             header:`-2 -2 ${this.getDesiredWidth()} ${this.getDesiredHeight()}`
         }
+    }
+
+    private getPathElementsFrom(p:SignalKeyFrame<boolean[]>, lastValues:boolean[], channel:number) {
+        const baseHeight = (this.height + 2) * channel
+        return `L ${
+            p.frame * this.frameWidth
+        } ${
+            (this.toHeightRev(lastValues[channel])) + baseHeight
+        } L ${
+            p.frame * this.frameWidth
+        } ${
+            (this.toHeightRev(p.value[channel])) + baseHeight
+        } `
     }
 
     getDesiredWidth() {
@@ -112,7 +116,7 @@ export class SignalSetController {
         this.scrubbing = true
     }
 
-    private resetScrub() {
+    resetScrub() {
         this.currentKeyFrame = {
             value:this.signalSet.getInitialValue(),
             frame:0
@@ -174,6 +178,10 @@ export class SignalSetController {
             return this.signalSet.getInitialValue()
         }
         return Array.from(this.currentKeyFrame.value)
+    }
+
+    isScrubbing() {
+        return this.scrubbing
     }
 }
 

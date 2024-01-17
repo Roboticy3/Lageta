@@ -47,6 +47,8 @@ export class CircuitController {
 
     private transformMatrix:Matrix
 
+    playing:boolean = false //set externally
+
     constructor(
         gateGrid:GateGrid | undefined = undefined,
         makeMain:boolean = true
@@ -455,6 +457,19 @@ export class CircuitController {
         })
         const graph = this.gateGrid.graph
         graph.setFlows(val, inputs)
+    }
+
+    getOutputs() {
+        let result:boolean[] = []
+        for (let g of this.gateGrid.outputs) {
+            if (g === undefined) {
+                continue
+            }
+            result.push(...g.override.map((v) => {
+                return v || false
+            }))
+        }
+        return result
     }
 
     /**

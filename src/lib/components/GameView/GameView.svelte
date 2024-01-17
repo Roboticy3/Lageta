@@ -133,19 +133,23 @@
     <GameViewCircuitPanel 
         bind:this={circuitPanel} 
         params={params}
-    >
+    >   
+    <!--
         {#each mainController?.getInputIds() || [] as from}
             <InputCheckBox 
                 gridController={mainController || null}
                 circuitPanel={circuitPanel}
                 from={from}
             />
-        {/each}     
+        {/each}  
+    -->   
     </GameViewCircuitPanel>
     <div class="directions">
         {@html params.directions}
         {#if params.completeCondition instanceof GateType}
-            <TruthTableView table={new TruthTable(params.completeCondition)}/>
+            <TruthTableView 
+                table={new TruthTable(params.completeCondition)}
+            />
         {/if}
         {#if params.completeCondition instanceof SignalSet}
             <SignalViewer 
@@ -153,7 +157,8 @@
                     new SignalSetController(params.completeCondition)
                 } 
                 gridController={mainController || null} 
-                updateSvg={circuitPanel?.updateSvg || null}></SignalViewer>
+                updateSvg={circuitPanel?.updateSvg || null}
+             />
         {/if}
     </div>
 

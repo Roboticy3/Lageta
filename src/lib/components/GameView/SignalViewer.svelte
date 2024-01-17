@@ -68,39 +68,64 @@
     window.addEventListener('resize', fixSvg)
 
     /**
+     * @param {MouseEvent} e
+     */
+     function onClickSvg(e) {
+        console.log(e)
+    }
+
+    /**
      * @type {"▶" | "⏸"}
      */
     let button = "▶"
 
-    function onPressPlay() {
+    function onClickPlay() {
+        if (gridController === null) {
+            console.log("There should be a controller here!")
+            return
+        }
+        let g = gridController
+        const s = signalSetController
+
         console.log(button)
         switch (button) {
             case "▶":
                 button = "⏸"
-                gridController?.setInputs(signalSetController.getCurrentValue())
-                signalSetController.scrub((currentValue, currentFrame, update, done) => {
+                g.setInputs(s.getCurrentValue())
+                if (updateSvg) updateSvg()
+                s.scrub((currentValue, currentFrame, update, done) => {
                     playFrame = currentFrame
                     fixPlayBar()
                     if (update) {
-                        gridController?.setInputs(currentValue)
+                        g.setInputs(currentValue)
+                        console.log(g.getOutputs())
                         updateSvg?.call(updateSvg)
                     }
                     if (done) button = "▶"
                 }, false)
+                g.playing = true
                 break;
             case "⏸":
                 signalSetController.abortScrub()
+                g.playing = false
                 button = "▶"
                 break;
-        }
-        
+        }    
     }
 
-    /**
-     * @param {MouseEvent} e
-     */
-    function onClickSvg(e) {
-        console.log(e)
+    function onClickRestart() {
+        button = "⏸"
+        onClickPlay()
+        signalSetController.resetScrub()
+        playFrame = 0
+        playTranslateX = 0
+        fixPlayBar()
+        if (gridController) {
+            console.log(signalSetController.getCurrentValue())
+            gridController.setInputs(signalSetController.getCurrentValue())
+            gridController.playing = false
+            if (updateSvg) updateSvg()
+        }
     }
 
 </script>
@@ -122,15 +147,16 @@
         {/each}
     </svg>
 
-    <button on:click={onPressPlay}>{button}</button>
+    <button on:click={onClickPlay}>{button}</button>
+    <button on:click={onClickRestart}>Restart</button>
 </div>
     
 
 <style>
     .signal-shelf-container {
         display:flex;
-        width:50%;
-        height:50%;
+        width:100%;
+        height:25%;
         background-color: white;
         flex-direction: column;
     }
