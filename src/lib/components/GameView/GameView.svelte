@@ -133,16 +133,16 @@
     <GameViewCircuitPanel 
         bind:this={circuitPanel} 
         params={params}
-    >   
-    <!--
-        {#each mainController?.getInputIds() || [] as from}
+    > 
+    {#if mainController}  
+        {#each mainController.getInputIds() as from}
             <InputCheckBox 
-                gridController={mainController || null}
+                gridController={mainController}
                 circuitPanel={circuitPanel}
                 from={from}
             />
         {/each}  
-    -->   
+    {/if}
     </GameViewCircuitPanel>
     <div class="directions">
         {@html params.directions}

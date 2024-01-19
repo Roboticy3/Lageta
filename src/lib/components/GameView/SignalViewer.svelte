@@ -7,17 +7,19 @@
 
     export let signalSetController = (new SignalSetController(TestSignalSet))
     let channelSvgs = signalSetController.drawChannels()
-    signalSetController.frameTime = 100
+    signalSetController.createPlayer(100)
 
     /**
      * @type {CircuitController | null}
     */
     export let gridController
+    if (gridController) signalSetController.sendPlayerToController(gridController)
 
     /**
      * @type {(() => void) | null}
      */
     export let updateSvg
+    console.log(updateSvg)
 
     let [width, height] = [0, 0]
 
@@ -87,13 +89,17 @@
         let g = gridController
         const s = signalSetController
 
-        console.log(button)
+        if (!s.isPlayerActive()) {
+            console.log("Player has not been created!")
+            return
+        }
+
         switch (button) {
             case "▶":
                 button = "⏸"
-                g.setInputs(s.getCurrentValue())
+                g.setInputs(s.getPlayerValue() || [])
                 if (updateSvg) updateSvg()
-                s.scrub((currentValue, currentFrame, update, done) => {
+                s.startPlayer((currentValue, currentFrame, update, done) => {
                     playFrame = currentFrame
                     fixPlayBar()
                     if (update) {
@@ -103,11 +109,10 @@
                     }
                     if (done) button = "▶"
                 }, false)
-                g.playing = true
                 break;
             case "⏸":
-                signalSetController.abortScrub()
-                g.playing = false
+                signalSetController.pausePlayer()
+                if (updateSvg) updateSvg()
                 button = "▶"
                 break;
         }    
@@ -116,16 +121,16 @@
     function onClickRestart() {
         button = "⏸"
         onClickPlay()
-        signalSetController.resetScrub()
+        signalSetController.resetPlayer()
         playFrame = 0
         playTranslateX = 0
         fixPlayBar()
         if (gridController) {
-            console.log(signalSetController.getCurrentValue())
-            gridController.setInputs(signalSetController.getCurrentValue())
-            gridController.playing = false
+            console.log(signalSetController.getPlayerValue())
+            gridController.setInputs(signalSetController.getPlayerValue() || [])
             if (updateSvg) updateSvg()
         }
+         
     }
 
 </script>

@@ -260,3 +260,108 @@ export const TestSignalSet = new SignalSet(
     false,
     5
 )
+
+export class SignalPlayer {
+
+    readonly length
+    readonly initialValue
+    readonly frameTime
+    readonly signal
+
+    constructor(
+        signalSet:SignalSet,
+        frameTime:number
+    ) {
+        this.length = signalSet.length
+        this.initialValue = signalSet.getInitialValue()
+        this.frameTime = frameTime
+        this.signal = bookend(signalSet.toSignal())
+    }
+
+    private currentKeyFrame:SignalKeyFrame<boolean[]> = {
+        value:[],
+        frame:0
+    }
+    private currentFrame = 0
+    private nextSignal = 0
+    private scrubIntervalId:number | undefined = undefined
+    private scrubbing = false
+    scrub(iter:SignalFrameReader<boolean> | undefined = undefined, reset:boolean = true) {
+        if (reset || this.currentFrame >= this.length) this.resetScrub()
+        this.scrubbing = true
+
+        this.scrubIntervalId = setInterval(
+            this.scrubStep.bind(this, iter), this.frameTime
+        )
+    }
+
+    resetScrub() {
+        this.currentKeyFrame = {
+            value:this.initialValue,
+            frame:0
+        }
+        this.currentFrame = 0
+
+        this.nextSignal = 0
+
+        if (this.scrubIntervalId) clearInterval(this.scrubIntervalId)
+        this.scrubIntervalId = undefined
+        this.scrubbing = false
+    }
+
+    private scrubStep(iter:SignalFrameReader<boolean> | undefined = undefined) {
+        const nextKeyFrame:SignalKeyFrame<boolean[]> | undefined = this.signal[this.nextSignal]
+        const nextFrame = nextKeyFrame.frame
+
+        const update = this.currentFrame >= nextFrame
+        if (update) {
+            this.nextSignal++
+            this.currentKeyFrame = nextKeyFrame
+        }
+        this.currentFrame++
+
+        const done = this.currentFrame >= this.length || !this.scrubbing
+        const result = iter?.call(iter, 
+            this.currentKeyFrame.value, 
+            this.currentFrame, 
+            update,
+            done) || false
+
+        if (done || result) {
+            clearInterval(this.scrubIntervalId)
+            this.scrubbing = false
+        }
+    }
+
+    abortScrub() {
+        this.scrubbing = false
+    }
+
+    scrubTo(frame:number, reset:boolean = true) {
+        if (reset || this.currentFrame >= this.length) this.resetScrub()
+        this.currentFrame = frame
+
+        for (let keyFrame of this.signal) {
+            this.nextSignal++
+            if (keyFrame.frame > frame) {
+                break
+            }
+            this.currentKeyFrame = keyFrame
+        }
+
+        return this.currentKeyFrame
+    }
+
+    getCurrentValue() {
+        if (this.currentKeyFrame.value.length === 0) {
+            return this.initialValue
+        }
+        return Array.from(this.currentKeyFrame.value)
+    }
+
+    isScrubbing() {
+        return this.scrubbing
+    }
+}
+
+export type SignalFrameReader<T> = (currentValue:T[], currentFrame:number, update:boolean, done:boolean) => boolean | void

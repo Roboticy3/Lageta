@@ -1,5 +1,5 @@
 import type { CircuitController } from "$lib/circuit_types/CircuitController";
-import { TestSignalSet, SignalSet, type Signal, type SignalKeyFrame, bookend } from "./Signal";
+import { TestSignalSet, SignalSet, type Signal, type SignalKeyFrame, bookend, SignalPlayer, type SignalFrameReader } from "./Signal";
 
 export class SignalSetController {
     private readonly signalSet:SignalSet
@@ -7,13 +7,10 @@ export class SignalSetController {
     private frameWidth = 3
     frameTime = 250
 
-    private readonly signal:Signal<boolean[]>
-
     constructor(
         signalSet:SignalSet
     ) {
         this.signalSet = signalSet
-        this.signal = this.toSignal()
     }
 
     drawChannels(pathParams:string=`stroke-width="1px" stroke="black" fill="none"`) {
@@ -99,90 +96,40 @@ export class SignalSetController {
         return bookend(this.signalSet.toSignal())
     }
 
-    private currentKeyFrame:SignalKeyFrame<boolean[]> = {
-        value:[],
-        frame:0
-    }
-    private currentFrame = 0
-    private nextSignal = 0
-    private scrubIntervalId:number | undefined = undefined
-    private scrubbing = false
-    scrub(iter:SignalFrameReader<boolean> | undefined = undefined, reset:boolean = true) {
-        if (reset || this.currentFrame >= this.signalSet.length) this.resetScrub()
-
-        this.scrubIntervalId = setInterval(
-            this.scrubStep.bind(this, iter), this.frameTime
+    private player:SignalPlayer | undefined = undefined
+    createPlayer(frameTime=250) {
+        this.player = new SignalPlayer(
+            this.signalSet,
+            frameTime
         )
-        this.scrubbing = true
     }
 
-    resetScrub() {
-        this.currentKeyFrame = {
-            value:this.signalSet.getInitialValue(),
-            frame:0
-        }
-        this.currentFrame = 0
-
-        this.nextSignal = 0
-
-        if (this.scrubIntervalId) clearInterval(this.scrubIntervalId)
-        this.scrubIntervalId = undefined
-        this.scrubbing = false
+    startPlayer(iter: SignalFrameReader<boolean> | undefined, reset:boolean) {
+        if (this.player) this.player.scrub(iter, reset)
     }
 
-    private scrubStep(iter:SignalFrameReader<boolean> | undefined = undefined) {
-        const nextKeyFrame:SignalKeyFrame<boolean[]> | undefined = this.signal[this.nextSignal]
-        const nextFrame = nextKeyFrame.frame
-
-        const update = this.currentFrame >= nextFrame
-        if (update) {
-            this.nextSignal++
-            this.currentKeyFrame = nextKeyFrame
-        }
-        this.currentFrame++
-
-        const done = this.currentFrame >= this.frameCount() || !this.scrubbing
-        const result = iter?.call(iter, 
-            this.currentKeyFrame.value, 
-            this.currentFrame, 
-            update,
-            done) || false
-
-        if (done || result) {
-            clearInterval(this.scrubIntervalId)
-            this.scrubbing = false
-        }
+    pausePlayer() {
+        if (this.player) this.player.abortScrub()
     }
 
-    abortScrub() {
-        this.scrubbing = false
+    getPlayerValue() {
+        if (this.player) return this.player.getCurrentValue()
     }
 
-    scrubTo(frame:number, reset:boolean = true) {
-        if (reset || this.currentFrame >= this.signalSet.length) this.resetScrub()
-        this.currentFrame = frame
-
-        for (let keyFrame of this.signal) {
-            this.nextSignal++
-            if (keyFrame.frame > frame) {
-                break
-            }
-            this.currentKeyFrame = keyFrame
-        }
-
-        return this.currentKeyFrame
+    isPlayerActive() {
+        return this.player !== undefined
     }
 
-    getCurrentValue() {
-        if (this.currentKeyFrame.value.length === 0) {
-            return this.signalSet.getInitialValue()
-        }
-        return Array.from(this.currentKeyFrame.value)
+    resetPlayer() {
+        if (this.player) this.player.resetScrub()
     }
 
-    isScrubbing() {
-        return this.scrubbing
+    sendPlayerToController(circuitController:CircuitController | SignalSetController) {
+        if (this.player) circuitController.setPlayer(this.player)
+    }
+
+    setPlayer(player:SignalPlayer) {
+        this.player = player
     }
 }
 
-export type SignalFrameReader<T> = (currentValue:T[], currentFrame:number, update:boolean, done:boolean) => boolean | void

@@ -1,3 +1,4 @@
+import type { SignalPlayer } from "$lib/signal_types/Signal";
 import { Gate, type ConnectionValue, type GateType, createGate } from "./Gate";
 import { GateGraph, Connection, type ConnectionType } from "./GateGraph"
 import { GateGrid } from "./GateGrid";
@@ -46,8 +47,6 @@ export class CircuitController {
     readonly gateGrid:GateGrid
 
     private transformMatrix:Matrix
-
-    playing:boolean = false //set externally
 
     constructor(
         gateGrid:GateGrid | undefined = undefined,
@@ -601,6 +600,15 @@ export class CircuitController {
         const scale = this.gateGrid.cellOffset / 10
 
         return `transform="translate(${snappedX} ${snappedY}) scale(${scale} ${scale})"`
+    }
+
+    private player:SignalPlayer | undefined = undefined
+    setPlayer(player:SignalPlayer) {
+        this.player = player
+    }
+
+    isPlaying() {
+        return this.player?.isScrubbing() || false
     }
 }
 

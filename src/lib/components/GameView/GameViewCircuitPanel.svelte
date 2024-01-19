@@ -48,12 +48,15 @@
     //the svg string of all the visible connection points
     let svgConnectionPoints = ""
 
+    let showSlot = true
+
     //update the svg, try to call whenever the grid changes
     export function updateSvg() {
         svgGates = gridController.drawGates(getGateSvgContents)
         svgConnectionPoints = gridController.drawConnectionPoints(ConnectionSvg)
         svgWires = gridController.drawWires(wireSvg)
         clearActiveSvgConnection()
+        showSlot = !gridController.isPlaying()
     }
 
     function clearActiveSvgConnection() {
@@ -515,7 +518,9 @@
         </g>
     </svg>
 
-    <slot />
+    {#if showSlot}
+        <slot />
+    {/if}
 </div>
 
 <style>
