@@ -13,8 +13,10 @@ export class SignalSetController {
         this.signalSet = signalSet
     }
 
-    drawChannels(pathParams:string=`stroke-width="1px" stroke="black" fill="none"`) {
-        let points = new Array(...this.signalSet.points())
+    drawChannels(
+        points=new Array(...this.signalSet.points()),
+        pathParams:string=`stroke-width="1px" stroke="black" fill="none"`
+    ) {
         const channelCount = this.channelCount()
         let paths = new Array<string>(
             channelCount
@@ -41,6 +43,7 @@ export class SignalSetController {
             header:`-2 -2 ${this.getDesiredWidth()} ${this.getDesiredHeight()}`
         }
     }
+    
 
     private getPathElementsFrom(p:SignalKeyFrame<boolean[]>, lastValues:boolean[], channel:number) {
         const baseHeight = (this.height + 2) * channel
@@ -122,6 +125,7 @@ export class SignalSetController {
 
     resetPlayer() {
         if (this.player) this.player.resetScrub()
+        this.circuitIsValid = true
     }
 
     sendPlayerToController(circuitController:CircuitController | SignalSetController) {
@@ -130,6 +134,43 @@ export class SignalSetController {
 
     setPlayer(player:SignalPlayer) {
         this.player = player
+    }
+
+    private circuitIsValid = true
+    validateControllerWith(circuitController:CircuitController, value:boolean[]=this.getPlayerValue() || []) {
+        const inputs = value.slice(0, this.signalSet.inputs)
+        circuitController.setInputs(inputs)
+
+        const outputsStart = value.length - this.signalSet.outputs
+        const outputs = value.slice(-this.signalSet.outputs, value.length)
+        const result = circuitController.getOutputs()
+        
+        if (this.circuitIsValid) {for (let i = 0; i < value.length - outputsStart; i++) {
+            if (outputs[i] !== result[i]) {
+                this.circuitIsValid = false
+                break
+            }
+        }}
+
+        console.log(this.circuitIsValid)
+
+        return result
+    }
+    
+    validatedWithController() {
+        return this.circuitIsValid
+    }
+
+    forceValidate() {
+        this.circuitIsValid = true
+    }
+
+    getInputSize() {
+        return this.signalSet.inputs
+    }
+
+    getOutputSize() {
+        return this.signalSet.outputs
     }
 }
 

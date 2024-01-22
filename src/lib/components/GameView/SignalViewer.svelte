@@ -99,16 +99,7 @@
                 button = "⏸"
                 g.setInputs(s.getPlayerValue() || [])
                 if (updateSvg) updateSvg()
-                s.startPlayer((currentValue, currentFrame, update, done) => {
-                    playFrame = currentFrame
-                    fixPlayBar()
-                    if (update) {
-                        g.setInputs(currentValue)
-                        console.log(g.getOutputs())
-                        updateSvg?.call(updateSvg)
-                    }
-                    if (done) button = "▶"
-                }, false)
+                s.startPlayer(scrubStep.bind(scrubStep, g), false)
                 break;
             case "⏸":
                 signalSetController.pausePlayer()
@@ -117,6 +108,36 @@
                 break;
         }    
     }
+
+    /**
+     * @param {CircuitController} g
+     * @param {boolean[]} currentValue
+     * @param {number} currentFrame
+     * @param {boolean} update
+     * @param {boolean} done
+     */
+    function scrubStep(g, currentValue, currentFrame, update, done) {
+        playFrame = currentFrame
+        fixPlayBar()
+        if (update) {
+            const result = signalSetController.validateControllerWith(g, currentValue)
+            updateSvg?.call(updateSvg)
+        }
+        if (done) {
+            button = "▶"
+            if (playFrame === signalSetController.frameCount()) {
+                if (signalSetController.validatedWithController()) {
+                    g.complete()
+                }
+                onClickRestart()
+            }
+        }
+    }
+
+    /**
+     * @type {Array<string>}
+     */
+    let observedOutputSvg = new Array(signalSetController.getOutputSize())
 
     function onClickRestart() {
         button = "⏸"
@@ -127,10 +148,9 @@
         fixPlayBar()
         if (gridController) {
             console.log(signalSetController.getPlayerValue())
-            gridController.setInputs(signalSetController.getPlayerValue() || [])
+            signalSetController.forceValidate()
             if (updateSvg) updateSvg()
-        }
-         
+        } 
     }
 
 </script>

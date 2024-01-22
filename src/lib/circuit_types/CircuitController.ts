@@ -1,4 +1,5 @@
 import type { SignalPlayer } from "$lib/signal_types/Signal";
+import type { SignalSetController } from "$lib/signal_types/SignalSetController";
 import { Gate, type ConnectionValue, type GateType, createGate } from "./Gate";
 import { GateGraph, Connection, type ConnectionType } from "./GateGraph"
 import { GateGrid } from "./GateGrid";
@@ -45,11 +46,13 @@ export type ConnectionIndex = {id:number, type:ConnectionType, index:number}
  */
 export class CircuitController {
     readonly gateGrid:GateGrid
+    onComplete:() => void
 
     private transformMatrix:Matrix
 
     constructor(
         gateGrid:GateGrid | undefined = undefined,
+        onComplete:() => void = () => {},
         makeMain:boolean = true
     )
     {
@@ -68,6 +71,8 @@ export class CircuitController {
         if (makeMain) {
             mainController = this
         }
+
+        this.onComplete = onComplete
     }
 
     /**
@@ -602,6 +607,7 @@ export class CircuitController {
         return `transform="translate(${snappedX} ${snappedY}) scale(${scale} ${scale})"`
     }
 
+    //reference the player giving the signal in a SignalViewer
     private player:SignalPlayer | undefined = undefined
     setPlayer(player:SignalPlayer) {
         this.player = player
@@ -610,6 +616,12 @@ export class CircuitController {
     isPlaying() {
         return this.player?.isScrubbing() || false
     }
+
+    //tell the view that the level has been beaten
+    complete() {
+        this.onComplete()
+    }
+
 }
 
 /**

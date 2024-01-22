@@ -9,16 +9,16 @@ import { CompleteCondition, GameViewParameters } from "./GameViewParameters"
 export let all_levels = new Map<String, Level>()
 
 export class Level {
-    x:number = 1
-    y:number = 1
-    name:string = "Freeplay"
+    readonly x:number
+    readonly y:number
+    readonly name:string
     private params:GameViewParameters
 
     constructor(
         params:GameViewParameters,
-        name:string,
-        x:number,
-        y:number,
+        name:string = "Freeplay",
+        x:number = 0,
+        y:number = 0,
         register:boolean = true
     ) {
         this.x = x
@@ -52,7 +52,8 @@ export const Freeplay = new Level (
             size:[15,10] 
         },
         undefined,
-        false
+        [],
+        true
         ),
     "Freeplay",
     1,1,
@@ -183,7 +184,10 @@ export const W1S1 = new Level (
             100,
             false,
             Not
-        )
+        ),
+        [
+            "2", "3"
+        ]
     ),
     "1",
     3, 1

@@ -5,27 +5,29 @@ import { SignalSet } from "$lib/signal_types/Signal"
 import { OrganizedCircuit, type OrganizedCircuitContents } from "$lib/storage_types/CircuitStorage"
 
 export class GameViewParameters {
-    directions:string
-    grid:GateGrid | undefined
-    completeCondition:CompleteConditionSource
-    allUnlocks:boolean
-    
+    readonly directions:string
+    readonly grid:GateGrid | undefined
+    readonly completeCondition:CompleteConditionSource
+    readonly completeRewards:string[]
+    readonly allUnlocks:boolean
     
     constructor(
         directions:string = "",
-        source:CircuitController | OrganizedCircuitContents | undefined = undefined,
+        grid:GridSource = undefined,
         completeCondition:CompleteConditionSource = undefined,
+        completeRewards:string[] = [],
         allUnlocks:boolean = false
     ) {
         this.directions = directions
-        if (source === undefined || source instanceof CircuitController) {
-            this.grid = source?.gateGrid
+        if (grid === undefined || grid instanceof CircuitController) {
+            this.grid = grid?.gateGrid
         }
         else {
-            this.grid = new OrganizedCircuit(source).unpack()
+            this.grid = new OrganizedCircuit(grid).unpack()
         }
 
         this.completeCondition = completeCondition
+        this.completeRewards = completeRewards
         this.allUnlocks = allUnlocks
         console.log(this.grid)
     }
@@ -54,4 +56,5 @@ export class CompleteCondition {
     }
 }
 
+type GridSource = CircuitController | OrganizedCircuitContents | undefined
 type CompleteConditionSource = GateType | SignalSet | undefined

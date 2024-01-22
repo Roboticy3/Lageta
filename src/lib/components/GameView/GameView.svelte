@@ -60,6 +60,8 @@
             return
         }
 
+        mainController.onComplete = onComplete
+
         circuitStore = new CircuitStore(mainController, "")
         updateLocalStorageKeys()
 
@@ -69,6 +71,10 @@
         }
         updateUnlockedGates()
     })
+
+    function onComplete() {
+        console.log("yay!")
+    }
 
     /**
      * @type {TextFormPopup}

@@ -288,6 +288,7 @@ export class SignalPlayer {
     private scrubbing = false
     scrub(iter:SignalFrameReader<boolean> | undefined = undefined, reset:boolean = true) {
         if (reset || this.currentFrame >= this.length) this.resetScrub()
+        
         this.scrubbing = true
 
         this.scrubIntervalId = setInterval(
@@ -321,8 +322,9 @@ export class SignalPlayer {
         this.currentFrame++
 
         const done = this.currentFrame >= this.length || !this.scrubbing
+        const val = this.currentKeyFrame.value
         const result = iter?.call(iter, 
-            this.currentKeyFrame.value, 
+            val,
             this.currentFrame, 
             update,
             done) || false
@@ -363,5 +365,6 @@ export class SignalPlayer {
         return this.scrubbing
     }
 }
+
 
 export type SignalFrameReader<T> = (currentValue:T[], currentFrame:number, update:boolean, done:boolean) => boolean | void
