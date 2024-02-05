@@ -1,5 +1,5 @@
 import type { CircuitController } from "$lib/circuit_types/CircuitController";
-import { TestSignalSet, SignalSet, type Signal, type SignalKeyFrame, bookend, SignalPlayer, type SignalFrameReader } from "./Signal";
+import { TestSignalSet, SignalSet, type Signal, type SignalKeyFrame, bookend, SignalPlayer, type SignalFrameReader, type SignalPointResult } from "./Signal";
 
 export class SignalSetController {
     private readonly signalSet:SignalSet
@@ -14,10 +14,20 @@ export class SignalSetController {
     }
 
     drawChannels(
-        points=new Array(...this.signalSet.points()),
+        points:SignalPointResult<boolean>[] | undefined = undefined,
+        channelSet:number[] | undefined = undefined,
         pathParams:string=`stroke-width="1px" stroke="black" fill="none"`
     ) {
-        const channelCount = this.channelCount()
+
+        const channelCount = channelSet?.length || this.channelCount()
+        if (channelSet === undefined) {
+            channelSet = Array<number>(channelCount).map((_, i) => {return i})
+        }
+
+        if (points === undefined) {
+            points = new Array(...this.signalSet.points())
+        }
+
         let paths = new Array<string>(
             channelCount
         ).fill("")
@@ -28,8 +38,9 @@ export class SignalSetController {
         for (let i = 0; i < points.length; i++) {
             const p = points[i]
             for (let j = 0; j < paths.length; j++) {
-                paths[j] += this.getPathElementsFrom(p, lastValues, j)
-                lastValues[j] = p.value[j]
+                paths[j] += this.getPathElementsFrom(p, channelSet[j], lastValues, j)
+                console.log(i, p.value[channelSet[j]])
+                lastValues[j] = p.value[channelSet[j]]
             }
         }
 
@@ -45,12 +56,12 @@ export class SignalSetController {
     }
     
 
-    private getPathElementsFrom(p:SignalKeyFrame<boolean[]>, lastValues:boolean[], channel:number) {
+    private getPathElementsFrom(p:SignalKeyFrame<boolean[]>, channel:number, lastValues:boolean[], lastChannel=channel) {
         const baseHeight = (this.height + 2) * channel
         return `L ${
             p.frame * this.frameWidth
         } ${
-            (this.toHeightRev(lastValues[channel])) + baseHeight
+            (this.toHeightRev(lastValues[lastChannel])) + baseHeight
         } L ${
             p.frame * this.frameWidth
         } ${

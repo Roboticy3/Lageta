@@ -219,13 +219,12 @@ export class SignalSet implements Iterable<Array<boolean>>{
     toSignal(): Signal<Array<boolean>> {
         let signal:Signal<Array<boolean>> = []
         for (let point of this.points()) {
-            console.log(point)
             signal.push(point)
         }
         return signal
     }
 }
-type SignalPointResult<T> = {
+export type SignalPointResult<T> = {
     value:Array<T>
     frame:number
 }

@@ -38,6 +38,7 @@
         if (container === null) {
             return
         }
+        
         const containerAspect = container.offsetWidth / container.offsetHeight
 
         if (aspect > containerAspect) {
@@ -181,7 +182,8 @@
     .signal-shelf-container {
         display:flex;
         width:100%;
-        height:25%;
+        height:30%;
+        min-height:100px;
         background-color: white;
         flex-direction: column;
     }
