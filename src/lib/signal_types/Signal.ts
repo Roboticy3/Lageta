@@ -19,7 +19,7 @@ export function bookend<T>(s:Signal<T>) {
 
 export class SignalSet implements Iterable<Array<boolean>>{
     readonly block:Array<Signal<boolean>>
-    readonly length:number
+    length:number
     readonly inputs:number
     readonly outputs:number
 

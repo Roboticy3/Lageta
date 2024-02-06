@@ -110,7 +110,17 @@
         }    
     }
 
-    let outputSignalSetController = new SignalSetController()
+    let outputSignalSetController = new SignalSetController(
+        signalSetController.getOutputSize()
+    )
+    let outputSvgs = outputSignalSetController.drawChannels()
+
+    function resetOutputSvgs() {
+        outputSignalSetController = new SignalSetController(
+            signalSetController.getOutputSize()
+        )
+        outputSvgs = outputSignalSetController.drawChannels()
+    }
 
     /**
      * @param {CircuitController} g
@@ -124,9 +134,16 @@
         fixPlayBar()
         if (update) {
             const result = signalSetController.validateControllerWith(g, currentValue)
+            
             console.log(result)
+            outputSignalSetController.push(result, currentFrame - 1)
+
             updateSvg?.call(updateSvg)
         }
+        outputSvgs = outputSignalSetController.drawChannels(
+           currentFrame,
+            `stroke-width="1px" stroke="red" fill="none"`
+        )
         if (done) {
             button = "▶"
             if (playFrame === signalSetController.frameCount()) {
@@ -142,6 +159,7 @@
         button = "⏸"
         onClickPlay()
         signalSetController.resetPlayer()
+        resetOutputSvgs()
         playFrame = 0
         playTranslateX = 0
         fixPlayBar()
@@ -169,6 +187,17 @@
         {#each channelSvgs as svg}
             {@html svg}
         {/each}
+        <g transform="translate(0, {
+            signalSetController
+            .getDesiredChannelHeight(
+                signalSetController
+                .getInputSize()
+            )
+        })" >
+            {#each outputSvgs as svg}
+            {@html svg}
+            {/each}
+        </g>
     </svg>
 
     <button on:click={onClickPlay}>{button}</button>

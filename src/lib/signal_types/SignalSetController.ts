@@ -8,9 +8,17 @@ export class SignalSetController {
     frameTime = 250
 
     constructor(
-        signalSet:SignalSet=new SignalSet()
+        from:SignalSet | number
     ) {
-        this.signalSet = signalSet
+        if (from instanceof SignalSet) {
+            this.signalSet = from
+        }
+        else {
+            this.signalSet = new SignalSet(
+                Array<Signal<boolean>>(from).fill([]),
+                0
+            )
+        }
     }
 
     drawChannels(to=this.signalSet.length, pathParams=`stroke-width="1px" stroke="black" fill="none"`): Array<string> {
@@ -21,6 +29,11 @@ export class SignalSetController {
 
     drawChannel(channel:number, to:number, pathParams:string) {
         const signal = this.signalSet.block[channel]
+
+        if (signal.length === 0) {
+            return ""
+        }
+
         let keyFrame = signal[0]
         let lastFrame = {
             value:this.signalSet.defaultValue,
@@ -35,7 +48,6 @@ export class SignalSetController {
             keyFrame = signal[i]
             i++
         }
-        console.log(channel, i, keyFrame, lastFrame)
 
         path += this.getPathElementsFrom(
             keyFrame, lastFrame.value, channel
@@ -173,6 +185,23 @@ export class SignalSetController {
 
     getDefaultInputs() {
         return Array<boolean>(this.getInputSize()).fill(this.signalSet.defaultValue)
+    }
+
+    getLength() {
+        return this.signalSet.length
+    }
+
+    push(values:boolean[], frame:number) {
+        if (this.signalSet.length < frame) {
+            this.signalSet.length = frame
+        }
+
+        for (let i = 0; i < values.length; i++) {
+            this.signalSet.block[i].push({
+                value:values[i],
+                frame:frame
+            })
+        }
     }
 }
 
