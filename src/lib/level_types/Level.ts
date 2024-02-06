@@ -181,7 +181,7 @@ export const W1S1 = new Level (
                     }
                 ]
             ],
-            100,
+            101,
             false,
             Not
         ),

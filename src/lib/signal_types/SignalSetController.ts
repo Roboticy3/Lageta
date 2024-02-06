@@ -13,59 +13,53 @@ export class SignalSetController {
         this.signalSet = signalSet
     }
 
-    drawChannels(
-        points:SignalPointResult<boolean>[] | undefined = undefined,
-        channelSet:number[] | undefined = undefined,
-        pathParams:string=`stroke-width="1px" stroke="black" fill="none"`
-    ) {
-
-        const channelCount = channelSet?.length || this.channelCount()
-        if (channelSet === undefined) {
-            channelSet = Array<number>(channelCount).map((_, i) => {return i})
-        }
-
-        if (points === undefined) {
-            points = new Array(...this.signalSet.points())
-        }
-
-        let paths = new Array<string>(
-            channelCount
-        ).fill("")
-        let lastValues = new Array<boolean>(
-            channelCount
-        ).fill(this.signalSet.defaultValue)
-
-        for (let i = 0; i < points.length; i++) {
-            const p = points[i]
-            for (let j = 0; j < paths.length; j++) {
-                paths[j] += this.getPathElementsFrom(p, channelSet[j], lastValues, j)
-                console.log(i, p.value[channelSet[j]])
-                lastValues[j] = p.value[channelSet[j]]
-            }
-        }
-
-        for (let j = 0; j < paths.length; j++) {
-            const baseHeight = (this.height + 2) * j
-            paths[j] = `<path ${pathParams} d="M 0 ${baseHeight + this.height} ${paths[j]} L ${this.getDesiredWidth()} ${baseHeight + this.toHeightRev(points[points.length - 1].value[j])}" />`
-        }
-
-        return {
-            paths:paths,
-            header:`-2 -2 ${this.getDesiredWidth()} ${this.getDesiredHeight()}`
-        }
+    drawChannels(to=this.signalSet.length, pathParams=`stroke-width="1px" stroke="black" fill="none"`): Array<string> {
+        return Array<string>(this.channelCount()).fill("").map((_, i) => {
+            return this.drawChannel(i, to, pathParams)
+        })
     }
-    
 
-    private getPathElementsFrom(p:SignalKeyFrame<boolean[]>, channel:number, lastValues:boolean[], lastChannel=channel) {
+    drawChannel(channel:number, to:number, pathParams:string) {
+        const signal = this.signalSet.block[channel]
+        let keyFrame = signal[0]
+        let lastFrame = {
+            value:this.signalSet.defaultValue,
+            frame:0
+        }
+        let path = ""
+
+        let i = 1
+        while (i < signal.length && keyFrame.frame < to) {
+            path += this.getPathElementsFrom(keyFrame, lastFrame.value, channel)
+            lastFrame = keyFrame
+            keyFrame = signal[i]
+            i++
+        }
+        console.log(channel, i, keyFrame, lastFrame)
+
+        path += this.getPathElementsFrom(
+            keyFrame, lastFrame.value, channel
+        )
+    
+        const baseHeight = this.getDesiredChannelHeight(channel)
+        path = `<path ${pathParams} d="
+            M 0 ${baseHeight + this.toHeightRev(this.signalSet.defaultValue)}
+            ${path}
+            L ${this.getDesiredFrameWidth(to)} ${baseHeight + this.toHeightRev(keyFrame.value)}
+        "/>`
+        return path
+    }
+
+    private getPathElementsFrom(p:SignalKeyFrame<boolean>, lastValue:boolean, channel:number) {
         const baseHeight = (this.height + 2) * channel
         return `L ${
             p.frame * this.frameWidth
         } ${
-            (this.toHeightRev(lastValues[lastChannel])) + baseHeight
+            (this.toHeightRev(lastValue)) + baseHeight
         } L ${
             p.frame * this.frameWidth
         } ${
-            (this.toHeightRev(p.value[channel])) + baseHeight
+            (this.toHeightRev(p.value)) + baseHeight
         } `
     }
 
@@ -73,12 +67,16 @@ export class SignalSetController {
         return this.frameCount() * this.frameWidth + 2
     }
 
+    getDesiredFrameWidth(frame:number=1) {
+        return this.frameWidth * frame
+    }
+
     getDesiredHeight() {
         return (this.height + 2) * this.channelCount()
     }
 
-    getFrameWidth() {
-        return this.frameWidth
+    getDesiredChannelHeight(channel:number) {
+        return (this.height + 2) * channel
     }
 
     channelCount() {
@@ -90,16 +88,7 @@ export class SignalSetController {
     }
 
     toSigStrengthRev(x:boolean) {
-        switch (typeof x) {
-            case "boolean":
-                return x ? 0:1
-            case "number":
-                return 1 - x
-            case "string":
-                return 1 - Number(x)
-        }
-
-        return 1 - 0
+        return x ? 0:1
     }
 
     toHeightRev(x:boolean) {

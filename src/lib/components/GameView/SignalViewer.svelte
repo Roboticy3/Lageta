@@ -50,7 +50,7 @@
     let playFrame = 0
     let playTranslateX = 0
     function fixPlayBar() {
-        playTranslateX = playFrame * signalSetController.getFrameWidth()
+        playTranslateX = playFrame * signalSetController.getDesiredFrameWidth()
         playBar = `<path d="M -4 -8 L 4 -8 L 0 0 L 0 ${height} L 0 0 Z" \
             stroke="salmon" stroke-width="2px" fill="salmon" />`
         fixOffset()
@@ -130,7 +130,7 @@
                 if (signalSetController.validatedWithController()) {
                     g.complete()
                 }
-                onClickRestart()
+                //onClickRestart()
             }
         }
     }
@@ -168,7 +168,7 @@
         <g transform="translate({playTranslateX} 0)" >
             {@html playBar}
         </g>
-        {#each channelSvgs.paths as svg}
+        {#each channelSvgs as svg}
             {@html svg}
         {/each}
     </svg>
@@ -182,8 +182,7 @@
     .signal-shelf-container {
         display:flex;
         width:100%;
-        height:30%;
-        min-height:100px;
+        height:50%;
         background-color: white;
         flex-direction: column;
     }
