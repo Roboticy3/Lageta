@@ -8,7 +8,7 @@ export class SignalSetController {
     frameTime = 250
 
     constructor(
-        signalSet:SignalSet
+        signalSet:SignalSet=new SignalSet()
     ) {
         this.signalSet = signalSet
     }

@@ -26,10 +26,10 @@ export class SignalSet implements Iterable<Array<boolean>>{
     readonly defaultValue:boolean
 
     constructor(
-        block:Array<Signal<boolean>>,
-        length:number,
+        block:Array<Signal<boolean>> = [],
+        length:number = 0,
         defaultValue:boolean = false,
-        solverOrInputChannels:GateType | number = 1
+        solverOrInputChannels:GateType | number = 0
     ) {
         this.block = block
         this.length = length

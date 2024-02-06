@@ -110,6 +110,8 @@
         }    
     }
 
+    let outputSignalSetController = new SignalSetController()
+
     /**
      * @param {CircuitController} g
      * @param {boolean[]} currentValue
@@ -135,11 +137,6 @@
             }
         }
     }
-
-    /**
-     * @type {Array<string>}
-     */
-    let observedOutputSvg = new Array(signalSetController.getOutputSize())
 
     function onClickRestart() {
         button = "⏸"
