@@ -152,8 +152,6 @@ export class SignalSetController {
             }
         }}
 
-        console.log(this.circuitIsValid)
-
         return result
     }
     
@@ -171,6 +169,10 @@ export class SignalSetController {
 
     getOutputSize() {
         return this.signalSet.outputs
+    }
+
+    getDefaultInputs() {
+        return Array<boolean>(this.getInputSize()).fill(this.signalSet.defaultValue)
     }
 }
 

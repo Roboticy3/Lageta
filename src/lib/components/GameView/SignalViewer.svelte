@@ -122,6 +122,7 @@
         fixPlayBar()
         if (update) {
             const result = signalSetController.validateControllerWith(g, currentValue)
+            console.log(result)
             updateSvg?.call(updateSvg)
         }
         if (done) {
@@ -148,8 +149,8 @@
         playTranslateX = 0
         fixPlayBar()
         if (gridController) {
-            console.log(signalSetController.getPlayerValue())
             signalSetController.forceValidate()
+            gridController.setInputs(signalSetController.getDefaultInputs())
             if (updateSvg) updateSvg()
         } 
     }
