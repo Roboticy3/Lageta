@@ -9,6 +9,7 @@
     import GameViewShelfButton from "./GameViewShelfButton.svelte";
     import GameViewCircuitPanel from './GameViewCircuitPanel.svelte';
     import TextFormPopup from './TextFormPopup.svelte';
+    import CompletionPopup from './CompletionPopup.svelte';
 
     import { CircuitController, mainController } from '$lib/circuit_types/CircuitController';
     
@@ -72,10 +73,18 @@
         updateUnlockedGates()
     })
 
+    /**
+     * @type {CompletionPopup}
+     */
+    let completionPopup
+
     function onComplete() {
+        console.log("bruh")
         const rewards = params.completeRewards
         progressStore.addGate(params.name)
-        rewards.map((v) => {progressStore.addLevel(v)})
+        rewards.map(progressStore.addLevel.bind(progressStore))
+        
+        completionPopup.show()
     }
 
     /**
@@ -193,6 +202,8 @@
         {/each}
     </div>
     </TextFormPopup>
+
+    <CompletionPopup bind:this={completionPopup} unlocks={params.completeRewards} />
 
 </div>
     

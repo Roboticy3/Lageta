@@ -97,10 +97,13 @@
 
         switch (button) {
             case "▶":
+                if (playFrame === signalSetController.frameCount()) {
+                    onClickRestart()
+                }
+                console.log(JSON.stringify(outputSignalSetController))
                 button = "⏸"
-                g.setInputs(s.getPlayerValue() || [])
-                if (updateSvg) updateSvg()
                 s.startPlayer(scrubStep.bind(scrubStep, g), false)
+                g.setInputs(s.getPlayerValue() || [])
                 break;
             case "⏸":
                 signalSetController.pausePlayer()
@@ -150,7 +153,6 @@
                 if (signalSetController.validatedWithController()) {
                     g.complete()
                 }
-                //onClickRestart()
             }
         }
     }

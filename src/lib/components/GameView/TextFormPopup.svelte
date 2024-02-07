@@ -52,7 +52,7 @@
 
 </script>
 
-<dialog style="height: 50%;"
+<dialog
     bind:this={dialog}
     on:close={() => (visible = false)}
     on:submit={(e) => {
@@ -87,6 +87,23 @@
 </dialog>
 
 <style>
+    dialog {
+        height: 50%;
+        top: 20%;
+        animation-name: dialog;
+        animation-duration: 1s;
+        overflow-y: hidden;
+    }
+
+    @keyframes dialog {
+        0% {
+            top: 50%;
+        }
+        100% {
+            top: 20%;
+        }
+    }
+
     .dialog-form {
         display:grid;
         grid-template-columns: 20%, 60%, 20%;
