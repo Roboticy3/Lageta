@@ -201,6 +201,7 @@
             )
             if (from !== undefined) {
                 const newGate = gridController.getGate(from[0])
+                d.setData("ConnectionValue",String(newGate?.getOutput(from[1])))
                 if (newGate !== undefined) {
                     giveGateData(newGate, d)
                     dragStartConnection(e, newGate, "Output", from[1])
@@ -215,15 +216,21 @@
             }
         }
 
+        //literally just removes the drag image
+        //I wanted to add a little connection dot, but overriding the stupid default drag image became more important
         var parser = new DOMParser();
         const svg = parser.parseFromString(ConnectionSvg(), "image/svg+xml").children[0];
         if (svg === undefined) {
             return
         }
+        d.setDragImage(svg, 0, 0)
         
         d.setData("type",type)
         d.setData("ConnectionIndex",connectionIndex.toString())
-        d.setDragImage(svg, 0, 0)
+
+        if (type === "Output") {
+            d.setData("ConnectionValue", String(gate.getOutput(connectionIndex)))
+        }
 
         svgConnectionPoints = gridController.drawConnectionPoints(
             ConnectionSvg, gridController.flipConnectionType(type)
@@ -281,6 +288,9 @@
      */
     function circuitDragConnection(e, d) {
         const fromData = d.getData("offset")
+
+        const connectionValue = d.getData("ConnectionValue")
+        const params = connectionValue === "true" ? `stroke="red"`:""
         if (fromData === "") {
             console.log("from offset not found!")
             return
@@ -289,7 +299,8 @@
         const localOffset = gridController.unprojectOffset(e.offsetX, e.offsetY)
         activeSvgWire = wireSvg(
             [fromS[0], fromS[1]], 
-            localOffset
+            localOffset,
+            params
         )
     }
 

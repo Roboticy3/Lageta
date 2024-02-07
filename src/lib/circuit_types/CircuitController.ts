@@ -570,14 +570,16 @@ export class CircuitController {
      * @param wireBuilder 
      * @returns 
      */
-    drawWires(wireBuilder:(fromOffset:[number, number], toOffset:[number, number]) => string) {
+    drawWires(wireBuilder:(fromOffset:[number, number], toOffset:[number, number], pathParams:string) => string) {
         const graph = this.gateGrid.graph
         let result = new Array<string>()
         
         graph.iterConnections((f, o, t, i, _c) => {
             const fOffsets = this.gateGrid.getGateOutputOffsets(f)
+            const fValue = f.getOutputs()[o]
             const tOffsets = this.gateGrid.getGateInputOffsets(t)
-            result.push(wireBuilder(fOffsets[o], tOffsets[i]))
+            const params = fValue ? `stroke="red"`:""
+            result.push(wireBuilder(fOffsets[o], tOffsets[i], params))
         })
 
         return result

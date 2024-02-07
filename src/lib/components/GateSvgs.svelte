@@ -90,11 +90,12 @@
     * 
     * @param {[number, number]} fromOffset
     * @param {[number, number]} toOffset
+    * @param {string} pathParams
     */
-   export function wireSvg(fromOffset, toOffset) {
+   export function wireSvg(fromOffset, toOffset, pathParams="") {
         let result = 
 `
-<path d="M ${fromOffset[0]} ${fromOffset[1]} L ${toOffset[0]} ${toOffset[1]}" />
+<path d="M ${fromOffset[0]} ${fromOffset[1]} L ${toOffset[0]} ${toOffset[1]}" ${pathParams} />
 `
         return result
     }

@@ -189,9 +189,9 @@ export class GateGraph {
             let toGate = this.gates[to[i][0]]
             if (toGate === undefined) continue
 
-            const o = to[i][1]
-            result[i] = toGate.override[o]
-            toGate.override[o] = output
+            const input = to[i][1]
+            result[i] = toGate.override[input]
+            toGate.override[input] = output
             const forwardResultI = this.resolveInputsFrom(toGate, cycleTarget)
             if (forwardResultI.error !== "") {
                 return forwardResultI
