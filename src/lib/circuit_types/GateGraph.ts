@@ -78,7 +78,7 @@ export class GateGraph {
             const indexOf = this.findInput(a, toi)
             if (indexOf === -1) {
                 ato.push(toi)
-                this.removeInput(toi)
+                this.removeInput(toi, false)
                 this.setInput(toi, a)
             }
         }
@@ -133,7 +133,7 @@ export class GateGraph {
 
         const to = c.to
         for (let i = 0; i < to.length; i++) {
-            this.removeInput(to[i])
+            this.removeInput(to[i], false)
         }
 
         const from = c.from
@@ -205,7 +205,7 @@ export class GateGraph {
         }
     }
 
-    removeInput(a:[number, number]) {
+    removeInput(a:[number, number], recompute=true) {
         const c = this.getInput(a)
         if (c === undefined) {
             return
@@ -223,7 +223,7 @@ export class GateGraph {
         }
 
         let gate = this.gates[a[0]]
-        if (gate !== undefined) {
+        if (gate !== undefined && recompute) {
             gate.override[a[1]] = undefined
             this.resolveInputsFrom(gate)
         }
