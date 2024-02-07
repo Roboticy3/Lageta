@@ -69,7 +69,7 @@ export const W1S1 = new Level (
         Click and drag between the triangular connection points to draw a wire.
         `,
         {
-            gateTypes:[Input(1), Output(1)],
+            gateTypes:[Input(1, {outputLabels: ["Input"]}), Output(1, {inputLabels: ["Output"]})],
             gates:[
                 {x:0, y:2, id:0, type:"Input1"} as SerializableGate,
                 {x:8, y:2, id:1, type:"Output1"} as SerializableGate

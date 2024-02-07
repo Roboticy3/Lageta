@@ -11,16 +11,16 @@ export let all_gates:Map<String, GateType> = new Map()
  */
 export class GateType {
     name:string = "Buf"
-    sizeIn:number = 1
-    sizeOut:number = 1
-    inputOffsets:Array<[number, number]> = [[0.25, 1]]
-    outputOffsets:Array<[number, number]> = [[1.75, 1]]
-    inputLabels:string[] = []
-    outputLabels:string[] = Array(this.sizeOut).fill("").map((_, i) => {return String(i)})
-    gridWidth:number = 2
-    gridHeight:number = 2
-    moveable:boolean = true
-    variant:GateTypeVariant = "Gate"
+    readonly sizeIn:number = 1
+    readonly sizeOut:number = 1
+    readonly inputOffsets:Array<[number, number]> = [[0.25, 1]]
+    readonly outputOffsets:Array<[number, number]> = [[1.75, 1]]
+    readonly inputLabels:string[] = []
+    readonly outputLabels:string[] = []
+    readonly gridWidth:number = 2
+    readonly gridHeight:number = 2
+    readonly moveable:boolean = true
+    readonly variant:GateTypeVariant = "Gate"
     private f:(x:(ConnectionValue)[]) => (ConnectionValue)[] = (x:(ConnectionValue)[])=>{return x}
     
     constructor(
@@ -54,10 +54,11 @@ export class GateType {
             this.outputOffsets = params.outputs
         }
 
+        console.log(JSON.stringify(params))
         this.inputLabels = params.inputLabels || 
-            Array(this.sizeIn).fill("").map((_, i) => {return String(i)})
+            Array(this.sizeIn).fill("")
         this.outputLabels = params.outputLabels ||
-            Array(this.sizeOut).fill("").map((_, i) => {return String(i)})
+            Array(this.sizeOut).fill("")
 
         if (params.register || true) {
             registerGateType(this)

@@ -536,7 +536,7 @@ export class CircuitController {
      * @param type If a blank ConnectionType is given, all the connections, Inputs and Outputs, will be drawn.
      * @returns 
      */
-    drawConnectionPoints(connectionBuilder:(localX:number, localY:number, color:string) => string, type:ConnectionType="") {
+    drawConnectionPoints(connectionBuilder:(localX:number, localY:number, pathParams?:string, label?:string, textParams?:string) => string, type:ConnectionType="") {
         const graph = this.gateGrid.graph
         let result = ""
 
@@ -548,7 +548,8 @@ export class CircuitController {
                     result += connectionBuilder(
                         inputOffsets[j][0],
                         inputOffsets[j][1],
-                        g.getInput(j) ? "red":""
+                        `stroke-width=.25px ` + (g.getInput(j) ? `fill="red" stroke="none" `:""),
+                        g.type.inputLabels[j]
                     )
                     
                     break
@@ -556,7 +557,8 @@ export class CircuitController {
                     result += connectionBuilder(
                         outputOffsets[j][0],
                         outputOffsets[j][1],
-                        g.getOutput(j) ? "red":""
+                        `stroke-width=.25px ` + (g.getOutput(j) ? `fill="red" stroke="none" `:""),
+                        g.type.outputLabels[j]
                     )
                     break
             }

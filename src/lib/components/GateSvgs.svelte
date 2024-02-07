@@ -30,15 +30,16 @@
      * @param {number} offsetX
      * @param {number} offsetY
      */
-   export function ConnectionSvg(offsetX=1, offsetY=1, color="") {
-      let result = `<path d="M ${offsetX - 4} ${offsetY - 4} l 8 4 l -8 4 Z" stroke-width=".25pt"`
-      if (color !== "") {
-         result += `fill="${color}" stroke="none" />\n`
-      }
-      else {
-         result += " />\n"
-      }
-
+   export function ConnectionSvg(
+      offsetX=1, 
+      offsetY=1, 
+      pathParams="stroke-width=.25px", 
+      label="", 
+      textParams=`stroke="none" fill="black" font-size="15px" font-family="system-ui"`
+   ) {
+      let result = `
+<path d="M ${offsetX - 4} ${offsetY - 4} l 8 4 l -8 4 Z" ${pathParams}/>
+<text x=${offsetX + 6} y=${offsetY + 6} ${textParams}>${label}</text>`
       return result
    }
 
