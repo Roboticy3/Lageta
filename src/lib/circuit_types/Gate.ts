@@ -15,6 +15,8 @@ export class GateType {
     sizeOut:number = 1
     inputOffsets:Array<[number, number]> = [[0.25, 1]]
     outputOffsets:Array<[number, number]> = [[1.75, 1]]
+    inputLabels:string[] = []
+    outputLabels:string[] = Array(this.sizeOut).fill("").map((_, i) => {return String(i)})
     gridWidth:number = 2
     gridHeight:number = 2
     moveable:boolean = true
@@ -51,6 +53,11 @@ export class GateType {
             this.sizeOut = params.outputs.length
             this.outputOffsets = params.outputs
         }
+
+        this.inputLabels = params.inputLabels || 
+            Array(this.sizeIn).fill("").map((_, i) => {return String(i)})
+        this.outputLabels = params.outputLabels ||
+            Array(this.sizeOut).fill("").map((_, i) => {return String(i)})
 
         if (params.register || true) {
             registerGateType(this)
@@ -108,12 +115,25 @@ type GateTypeParameters = {
     inputs?:number | Array<[number, number]>,
     outputs?:number | Array<[number, number]>,
     gridSize?:[number, number],
+    inputLabels?:string[],
+    outputLabels?:string[],
     moveable?:boolean,
     variant?:GateTypeVariant,
     f?:(x:(ConnectionValue)[]) => (ConnectionValue)[],
     register?:boolean
 }
 type GateTypeVariant = "Gate" | "Flow"
+
+/**
+ * Return a combination of two GateTypeParameters objects
+ * @param a The first set of params
+ * @param b The second set of params, overrides values of the first if there are overlaps
+ * @returns 
+ */
+function combineGateTypeParameters(a:GateTypeParameters, b:GateTypeParameters) {
+    const result = {...b, ...a} //blasphemy, sodomy, and possibly embezzlement were involved in the development of TypeScript
+    return result as GateTypeParameters
+}
 
 /**
  * Get an existing GateType from the given parameters, or create a new one if necessary
@@ -281,25 +301,30 @@ export function createGate(type:GateType) {
     return g
 }
 
-export function Input(size:number) {
-    return getGateType (
-        {
-            name:"Input" + String(size), 
-            inputs:0, outputs:size, 
-            gridSize:[2, size], 
-            variant:"Flow",
-            moveable:false,
-            f:(x) => {return x}
-        }
-    )
+export function Input(size:number, otherParams:GateTypeParameters | undefined = undefined) {
+    let params:GateTypeParameters = {
+        name:"Input" + String(size), 
+        inputs:0, outputs:size, 
+        gridSize:[2, size], 
+        variant:"Flow",
+        moveable:false,
+        f:(x) => {return x}
+    }
+    if (otherParams) {
+        params = combineGateTypeParameters(params, otherParams)
+    }
+    return getGateType (params)
 }
 
-export function Output(size:number) {
-    return getGateType (
-        {
-            name:"Output" + String(size), 
-            inputs:size, outputs:0, 
-            gridSize:[2, size], 
-            moveable:false}
-    )
+export function Output(size:number, otherParams:GateTypeParameters | undefined = undefined) {
+    let params:GateTypeParameters = {
+        name:"Output" + String(size), 
+        inputs:size, outputs:0, 
+        gridSize:[2, size], 
+        moveable:false
+    }
+    if (otherParams) {
+        params = combineGateTypeParameters(params, otherParams)
+    }
+    return getGateType (params)
 }

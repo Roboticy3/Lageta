@@ -46,7 +46,9 @@ export const Freeplay = new Level (
         "Freeplay",
         "Have Fun!",
         {
-            gateTypes:[Input(10), Output(10)],
+            gateTypes:[
+                Input(10),
+                Output(10)],
             gates:[
                 {x:0,y:0,id:0,type:"Input10"} as SerializableGate,
                 {x:13,y:0,id:1,type:"Output10"} as SerializableGate
