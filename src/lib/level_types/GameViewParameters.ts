@@ -5,6 +5,7 @@ import { SignalSet } from "$lib/signal_types/Signal"
 import { OrganizedCircuit, type OrganizedCircuitContents } from "$lib/storage_types/CircuitStorage"
 
 export class GameViewParameters {
+    readonly name:string
     readonly directions:string
     readonly grid:GateGrid | undefined
     readonly completeCondition:CompleteConditionSource
@@ -12,12 +13,15 @@ export class GameViewParameters {
     readonly allUnlocks:boolean
     
     constructor(
+        name:string = "",
         directions:string = "",
         grid:GridSource = undefined,
         completeCondition:CompleteConditionSource = undefined,
         completeRewards:string[] = [],
         allUnlocks:boolean = false
     ) {
+        this.name = name
+
         this.directions = directions
         if (grid === undefined || grid instanceof CircuitController) {
             this.grid = grid?.gateGrid

@@ -11,23 +11,20 @@ export let all_levels = new Map<String, Level>()
 export class Level {
     readonly x:number
     readonly y:number
-    readonly name:string
     private params:GameViewParameters
 
     constructor(
         params:GameViewParameters,
-        name:string = "Freeplay",
         x:number = 0,
         y:number = 0,
         register:boolean = true
     ) {
         this.x = x
         this.y = y
-        this.name = name
         this.params = params
 
         if (register) {
-            all_levels.set(name, this)
+            all_levels.set(params.name, this)
         }
     }
 
@@ -38,10 +35,15 @@ export class Level {
     description() {
         return this.params.directions
     }
+
+    name() {
+        return this.params.name
+    }
 }
 
 export const Freeplay = new Level (
     new GameViewParameters(
+        "Freeplay",
         "Have Fun!",
         {
             gateTypes:[Input(10), Output(10)],
@@ -55,12 +57,12 @@ export const Freeplay = new Level (
         [],
         true
         ),
-    "Freeplay",
     1,1,
 )
 
 export const W1S1 = new Level (
     new GameViewParameters(
+        "Not",
         `
         Click and drag between the triangular connection points to draw a wire.
         `,
@@ -186,9 +188,8 @@ export const W1S1 = new Level (
             Not
         ),
         [
-            "2", "3"
+            "Or"
         ]
     ),
-    "1",
     3, 1
 )

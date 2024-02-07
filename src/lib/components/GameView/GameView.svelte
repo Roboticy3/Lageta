@@ -73,7 +73,9 @@
     })
 
     function onComplete() {
-        console.log("yay!")
+        const rewards = params.completeRewards
+        progressStore.addGate(params.name)
+        rewards.map((v) => {progressStore.addLevel(v)})
     }
 
     /**

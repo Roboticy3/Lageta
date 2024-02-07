@@ -33,13 +33,13 @@
                 panel.hidden = false
             }}>
 
-            {level.name}
+            {level.name()}
 
         </button>
     {/each}
     <div class="side-panel" bind:this={panel}>
-        {selectedLevel?.name || ""}
-        <a href="/level/{selectedLevel?.name || ""}">Play</a>
+        {selectedLevel?.name() || ""}
+        <a href="/level/{selectedLevel?.name() || ""}">Play</a>
     </div>
 </div>
 

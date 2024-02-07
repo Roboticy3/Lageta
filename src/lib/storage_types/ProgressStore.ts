@@ -71,8 +71,30 @@ export class ProgressStorage {
         })
     }
 
+    findGate(gateName:string) {
+        return this.progressStorage.gates.indexOf(gateName)
+    }
+
+    addGate(item:string) {
+        console.log(item)
+        const gateType = all_gates.get(item)
+        if (gateType !== undefined && this.findLevel(item) === -1) {
+            this.progressStorage.gates.push(item)
+        }
+        this.commit()
+    }
+
     findLevel(levelName:string) {
         return this.progressStorage.levels.indexOf(levelName)
+    }
+
+    addLevel(item:string) {
+        console.log(item)
+        const level = all_levels.get(item)
+        if (level !== undefined && this.findLevel(item) === -1) {
+            this.progressStorage.levels.push(item)
+        }
+        this.commit()
     }
 }
 
@@ -85,8 +107,10 @@ class ProgressStorageObject {
     ]
     levels:Array<string> = [
         "Freeplay",
-        "1",
-        "2"
+        "Not",
+        "And",
+        "Nand",
+        "Or"
     ]
 
     push(p:ProgressStorageObject) {
