@@ -1,5 +1,5 @@
 import { CircuitController } from "$lib/circuit_types/CircuitController"
-import { Buf, Input, Not, Output, all_gates } from "$lib/circuit_types/Gate"
+import { And, Buf, Input, Not, Or, Output, all_gates } from "$lib/circuit_types/Gate"
 import { GateGraph } from "$lib/circuit_types/GateGraph"
 import type { GateGrid } from "$lib/circuit_types/GateGrid"
 import { SignalSet } from "$lib/signal_types/Signal"
@@ -66,7 +66,7 @@ export const W1S1 = new Level (
     new GameViewParameters(
         "Not",
         `
-        Click and drag between the triangular connection points to draw a wire.
+        A Not gate "inverts" the input. On becomes Off, and vice-versa. Click and drag between the triangular connection points to draw a wire.
         `,
         {
             gateTypes:[Input(1, {outputLabels: ["Input"]}), Output(1, {inputLabels: ["Output"]})],
@@ -194,4 +194,202 @@ export const W1S1 = new Level (
         ]
     ),
     3, 1
+)
+
+const In2Out1 = {
+    gateTypes:[
+        Input(2,
+            {outputLabels:["Input 1","Input 2"], gridSize:[2,3]}
+        ),
+        Output(1,
+            {inputLabels:["Output"]}
+        )
+    ],
+    gates:[
+        {x:0,y:1,type:"Input2",id:0} as SerializableGate,
+        {x:8,y:2,type:"Output1",id:1} as SerializableGate
+    ],
+    size:[10,5]
+} as OrganizedCircuitContents
+
+export const W1S2 = new Level(
+    new GameViewParameters(
+        "And",
+        "An And gate has two inputs, and only turns On when both are enabled.",
+        In2Out1,
+        new SignalSet(
+            [
+                [
+                    {
+                        frame:10,
+                        value:true
+                    },
+                    {
+                        frame:20,
+                        value:false
+                    },
+                    {
+                        frame:30,
+                        value:true
+                    },
+                    {
+                        frame:40,
+                        value:false
+                    },
+                    {
+                        frame:50,
+                        value:true
+                    },
+                    {
+                        frame:60,
+                        value:false
+                    },
+                    {
+                        frame:70,
+                        value:true
+                    },
+                    {
+                        frame:80,
+                        value:false
+                    },
+                    {
+                        frame:90,
+                        value:true
+                    }
+                ],
+                [
+                    {
+                        frame:50,
+                        value:true
+                    }
+                ]
+            ],
+            100,
+            false,
+            And
+        ),
+        [
+            "Or"
+        ]
+    ),
+    2, 4
+)
+
+export const W1S3 = new Level (
+    new GameViewParameters(
+        "Or",
+        "An Or gate is On when either of its inputs are On",
+        In2Out1,
+        new SignalSet(
+            [
+                [
+                    {
+                        frame:10,
+                        value:true
+                    },
+                    {
+                        frame:12,
+                        value:false
+                    },
+                    {
+                        frame:24,
+                        value:true
+                    },
+                    {
+                        frame:26,
+                        value:false
+                    },
+                    {
+                        frame:38,
+                        value:true
+                    },
+                    {
+                        frame:40,
+                        value:false
+                    },
+                    {
+                        frame:45,
+                        value:true
+                    },
+                    {
+                        frame:47,
+                        value:false
+                    },
+                    {
+                        frame:52,
+                        value:true
+                    },
+                    {
+                        frame:54,
+                        value:false
+                    },
+                    {
+                        frame:59,
+                        value:true
+                    },
+                    {
+                        frame:61,
+                        value:false
+                    }
+                ],
+                [
+                    {
+                        frame:17,
+                        value:true
+                    },
+                    {
+                        frame:19,
+                        value:false
+                    },
+                    {
+                        frame:31,
+                        value:true
+                    },
+                    {
+                        frame:33,
+                        value:false
+                    },
+                    {
+                        frame:38,
+                        value:true
+                    },
+                    {
+                        frame:40,
+                        value:false
+                    },
+                    {
+                        frame:45,
+                        value:true
+                    },
+                    {
+                        frame:47,
+                        value:false
+                    },
+                    {
+                        frame:52,
+                        value:true
+                    },
+                    {
+                        frame:54,
+                        value:false
+                    },
+                    {
+                        frame:59,
+                        value:true
+                    },
+                    {
+                        frame:61,
+                        value:false
+                    }
+                ]
+            ],
+            70,
+            false,
+            Or
+        ),
+        [
+            
+        ]
+    ),
+    4, 2
 )

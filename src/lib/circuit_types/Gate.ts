@@ -54,7 +54,6 @@ export class GateType {
             this.outputOffsets = params.outputs
         }
 
-        console.log(JSON.stringify(params))
         this.inputLabels = params.inputLabels || 
             Array(this.sizeIn).fill("")
         this.outputLabels = params.outputLabels ||
@@ -240,6 +239,10 @@ export const Or = getGateType (
     {name:"Or", inputs:2, outputs:1, f:(x) => {return [x[0] || x[1]]}}
 )
 
+export const Nand = getGateType (
+    {name:"Nand", inputs:2, outputs:1, f:(x) => {return [!(x[0] && x[1])]}}
+)
+
 export function Mux(selectionSize:number) {
     const size = Math.pow(2, selectionSize)
     const inputOffsets = spreadVerticalConnections(0.25, size, size)
@@ -312,7 +315,8 @@ export function Input(size:number, otherParams:GateTypeParameters | undefined = 
         f:(x) => {return x}
     }
     if (otherParams) {
-        params = combineGateTypeParameters(params, otherParams)
+        console.log(params, otherParams);
+        params = combineGateTypeParameters(otherParams, params)
     }
     return getGateType (params)
 }

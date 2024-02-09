@@ -100,17 +100,14 @@ export class ProgressStorage {
 
 class ProgressStorageObject {
     gates:Array<string> = [
-        "Buf",
         "Not",
         "And",
-        "Or"
+        "Nand"
     ]
     levels:Array<string> = [
         "Freeplay",
         "Not",
-        "And",
-        "Nand",
-        "Or"
+        "And"
     ]
 
     push(p:ProgressStorageObject) {

@@ -48,6 +48,8 @@
         display: grid;
         grid-template-columns: repeat(9, 10%);
         grid-template-rows: repeat(7, 10%);
+        min-width:100%;
+        min-height:100%;
     }
     .side-panel {
         grid-column: 8 / 9;
