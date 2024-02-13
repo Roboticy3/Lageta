@@ -1,20 +1,29 @@
 
 <script>
     //@ts-ignore
+    import { CircuitController } from "$lib/circuit_types/CircuitController";
+
+    //@ts-ignore
     import { CircuitDragDropController } from "$lib/circuit_types/CircuitDragDropController";
+    //@ts-ignore
     import { GateType } from "$lib/circuit_types/Gate";
     import { getGateTypeSvgContents, getGateTypeSvg } from "../GateSvgs.svelte";
 
     let contents = ""
 
-    let circuitDragDropController = new CircuitDragDropController()
+    /**
+     * @type {CircuitController}
+     */
+    export let circuitController
+
+    let circuitDragDropController = new CircuitDragDropController(circuitController)
 
     /**
      * @param {MouseEvent} e
      * @param {GateType} type
      * @param {HTMLElement | null} element
      */
-    export function dragGate(e, type, element=null) {
+    export function dragGateType(e, type, element=null) {
         circuitDragDropController.dragStart(type, element) 
         resolveContents()
         document.addEventListener("mousemove", onMouseMove)
@@ -22,8 +31,8 @@
     }
 
     function resolveContents() {
-        const item = circuitDragDropController.getItem()
-        if (item instanceof GateType) {
+        const item = circuitDragDropController.getGateType()
+        if (item !== undefined) {
             contents = getGateTypeSvg(item)
         }
     }
@@ -44,7 +53,8 @@
      * @param {MouseEvent} e
      */
     export function dropGate(e) {
-        const item = circuitDragDropController.getItem()
+        
+
 
         circuitDragDropController.dragEnd()
     }

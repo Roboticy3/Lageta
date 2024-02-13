@@ -150,7 +150,7 @@
 
 <div class="game-view" id="game-view">
 
-    <CircuitDraggable bind:this={circuitDraggable}/>
+    <CircuitDraggable circuitController={circuitController} bind:this={circuitDraggable}/>
 
     <div class="shelf" bind:this={shelf}>
         {#each unlockedGates as type}

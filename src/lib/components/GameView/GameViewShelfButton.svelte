@@ -39,8 +39,7 @@
      * @param {MouseEvent} e
      */
     export let onMouseDown = (e) => {
-        console.log(element)
-        circuitDraggable.dragGate(e, gateType, element)
+        circuitDraggable.dragGateType(e, gateType, element)
     }
 
 </script>
