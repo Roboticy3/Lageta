@@ -25,6 +25,7 @@
     import { SignalSetController } from '$lib/signal_types/SignalSetController';
     import SignalViewer from './SignalViewer.svelte';
     import { SignalSet } from '$lib/signal_types/Signal';
+    import CircuitDraggable from './CircuitDraggable.svelte';
 
     /**
      * @type {GameViewParameters}
@@ -40,6 +41,13 @@
      * @type {ProgressStorage}
     */
     let progressStore
+
+    let circuitController = new CircuitController(params.grid)
+    
+    /**
+     * @type {CircuitDraggable}
+     */
+    let circuitDraggable
 
     /**
      * @type {GameViewCircuitPanel}
@@ -142,14 +150,17 @@
 
 <div class="game-view" id="game-view">
 
+    <CircuitDraggable bind:this={circuitDraggable}/>
+
     <div class="shelf" bind:this={shelf}>
         {#each unlockedGates as type}
-        <GameViewShelfButton gateType={type}/>
+        <GameViewShelfButton circuitDraggable={circuitDraggable} gateType={type}/>
         {/each}
     </div>
     <GameViewCircuitPanel 
         bind:this={circuitPanel} 
         params={params}
+        gridController={circuitController}
     > 
     {#if mainController}  
         {#each mainController.getInputIds() as from}

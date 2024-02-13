@@ -4,6 +4,7 @@
 
     import { getGateSvgContents, ConnectionSvg, buildSvg, wireSvg, getGateSvg } from '../GateSvgs.svelte';
 
+    //@ts-ignore
     import { CircuitController } from '$lib/circuit_types/CircuitController';
     
     //@ts-ignore
@@ -13,6 +14,11 @@
      * @type {GameViewParameters}
     */
     export let params
+
+    /**
+     * @type {CircuitController}
+     */
+    export let gridController
 
     /**
      * @type {SVGElement} circuit
@@ -41,8 +47,6 @@
      */
     let svgWires = []
     
-    let gridController = new CircuitController(params.grid)
-
     //the svg string of the current connection, previews the connection being made
     let activeSvgWire=""
     //the svg string of all the visible connection points
