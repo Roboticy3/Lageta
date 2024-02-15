@@ -24,15 +24,25 @@
     export function dragGateType(e, type, element=null) {
         circuitDragDropController.dragStartGateType(type, e, element) 
         resolveContents()
-        document.addEventListener("mousemove", onMouseMove)
-        onMouseMove(e) //update the position before the mouse actually moves
+        dragStartMouseMove(e)
     }
 
     function resolveContents() {
         const item = circuitDragDropController.getGateType()
         if (item !== undefined) {
             contents = getGateTypeSvg(item)
+            return
         }
+        contents = ""
+    }
+
+    /**
+     * 
+     * @param {MouseEvent} e
+     */
+    function dragStartMouseMove(e) {
+        document.addEventListener("mousemove", onMouseMove)
+        onMouseMove(e)
     }
 
     let posX = 0
@@ -45,6 +55,7 @@
      */
      export function drag(e, query, element=null) {
         circuitDragDropController.dragStart(query, e, element)
+        dragStartMouseMove(e)
     }
 
     /**
@@ -59,8 +70,19 @@
      * 
      * @param {MouseEvent} e
      */
+     function dragEndMouseMove(e) {
+        document.removeEventListener("mousemove", onMouseMove)
+    }
+
+    /**
+     * 
+     * @param {MouseEvent} e
+     */
     export function drop(e) {
-        return circuitDragDropController.dragEnd(e)
+        const result = circuitDragDropController.dragEnd(e)
+        resolveContents()
+        dragEndMouseMove(e)
+        return result
     }
 
     export function getController() {
