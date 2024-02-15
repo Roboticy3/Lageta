@@ -263,7 +263,6 @@ export class CircuitController {
         const gateId = this.gateGrid.gates.length
 
         const [localX, localY] = this.unprojectOffset(offsetX, offsetY)
-        console.log(localX, localY, offsetX, offsetY)
         let [x, y] = this.gateGrid.offsetToIndex(localX, localY)
         const result = this.gateGrid.addGate(x, y, gate)
         if (result === undefined) {
@@ -272,6 +271,17 @@ export class CircuitController {
         }
 
         console.log(this.gateGrid.graph)
+    }
+
+    previewAddGate(
+        gType:GateType,
+        offsetX:number,
+        offsetY:number
+    ) {
+        const [localX, localY] = this.unprojectOffset(offsetX, offsetY)
+        const [x, y] = this.gateGrid.offsetToIndex(localX, localY)
+        const gate = new Gate(gType)
+        return this.gateGrid.canAddGate(x, y, gate)
     }
 
     /**

@@ -1,11 +1,9 @@
 
 <script>
-    //@ts-ignore
-    import { CircuitController } from "$lib/circuit_types/CircuitController";
+    import GameViewCircuitPanel from './GameViewCircuitPanel.svelte';
 
-    //@ts-ignore
+    import { CircuitController } from "$lib/circuit_types/CircuitController";
     import { CircuitDragDropController } from "$lib/circuit_types/CircuitDragDropController";
-    //@ts-ignore
     import { GateType } from "$lib/circuit_types/Gate";
     import { getGateTypeSvgContents, getGateTypeSvg } from "../GateSvgs.svelte";
 
@@ -24,7 +22,7 @@
      * @param {HTMLElement | null} element
      */
     export function dragGateType(e, type, element=null) {
-        circuitDragDropController.dragStart(type, element) 
+        circuitDragDropController.dragStart(type, element, e) 
         resolveContents()
         document.addEventListener("mousemove", onMouseMove)
         onMouseMove(e) //update the position before the mouse actually moves
@@ -53,10 +51,8 @@
      * @param {MouseEvent} e
      */
     export function dropGate(e) {
-        
 
-
-        circuitDragDropController.dragEnd()
+        circuitDragDropController.dragEnd(e)
     }
 </script>
 

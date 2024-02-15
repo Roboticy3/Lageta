@@ -53,9 +53,6 @@
      * @type {GameViewCircuitPanel}
     */
     let circuitPanel
-    function getCircuitPanel() {
-        return circuitPanel
-    }
 
     /**
      * @type {HTMLDivElement}
@@ -161,6 +158,7 @@
         bind:this={circuitPanel} 
         params={params}
         gridController={circuitController}
+        circuitDraggable={circuitDraggable}
     > 
     {#if mainController}  
         {#each mainController.getInputIds() as from}

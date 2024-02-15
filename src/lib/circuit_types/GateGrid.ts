@@ -30,7 +30,7 @@ export class GateGrid {
 
         for (let i = 0; i < gates.length; i++) {
             const gate = gates[i]
-            this.addGate(gate.x || 0, gate.y || 0, gate)
+            this.addGateExisting(gate)
         }
         graph.gates = this.gates
 
@@ -78,8 +78,14 @@ export class GateGrid {
         return this.grid[x + this.sizeX * y]
     }
 
-    //add a gate at the given coordinates, and fail to add anything if another gate is in the way
-    addGate(x:number, y:number, gate:Gate):number[] | undefined{
+    /**
+     * Check if a gate can be added at the current posision.
+     * @param x 
+     * @param y 
+     * @param gate 
+     * @returns 
+     */
+    canAddGate(x:number, y:number, gate:Gate): number[] | undefined {
         const gType = gate.type
         const cell = this.getGateIndex(gate, x, y)
 
@@ -93,6 +99,14 @@ export class GateGrid {
         if (collision !== undefined) {
             return undefined
         }
+
+        return cell
+    }
+
+    //add a gate at the given coordinates, and fail to add anything if another gate is in the way
+    addGate(x:number, y:number, gate:Gate):number[] | undefined{
+        const cell = this.canAddGate(x, y, gate)
+        if (cell === undefined) return undefined
 
         //add the gate
         this.addGateNoChecks(cell[0], cell[1], gate)
@@ -123,6 +137,7 @@ export class GateGrid {
      * @returns 
      */
     getGateIndex(gate:Gate, x:number, y:number) {
+        //center about the grid
         //x -= Math.floor(gate.gridHeight * .5)
         //y -= Math.floor(gate.gridWidth * .5)
 
