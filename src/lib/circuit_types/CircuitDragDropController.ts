@@ -49,10 +49,14 @@ export class CircuitDragDropController {
 
     public dragEnd(e:MouseEvent) {
         
+        const result = this.contents
+
         this.contents = new CircuitControllerQueryResult()
         this.sourceElement = null
 
         this.dragEndHandler(e)
+
+        return result
     }
 
     public dragCircuit(e:MouseEvent) {

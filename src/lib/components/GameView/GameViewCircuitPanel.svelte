@@ -108,6 +108,8 @@
      */
     function onDragStart(e) {
         const query = gridController.query(e.offsetX, e.offsetY)
+        if (query.type === "") return
+        circuitDraggable.drag(e, query, circuitContainer)
         console.log("Picked up ", query)
     }
 
@@ -122,7 +124,8 @@
      * @param {MouseEvent} e
      */
     function onDrop(e) {
-
+        const query = circuitDraggable.drop(e)
+        console.log("Dropped ", query)
     }
 
     /**

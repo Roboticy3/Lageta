@@ -2,7 +2,7 @@
 <script>
     import GameViewCircuitPanel from './GameViewCircuitPanel.svelte';
 
-    import { CircuitController } from "$lib/circuit_types/CircuitController";
+    import { CircuitController, CircuitControllerQueryResult } from "$lib/circuit_types/CircuitController";
     import { CircuitDragDropController } from "$lib/circuit_types/CircuitDragDropController";
     import { GateType } from "$lib/circuit_types/Gate";
     import { getGateTypeSvgContents, getGateTypeSvg } from "../GateSvgs.svelte";
@@ -40,6 +40,15 @@
 
     /**
      * @param {MouseEvent} e
+     * @param {CircuitControllerQueryResult} query
+     * @param {HTMLElement | null} element
+     */
+     export function drag(e, query, element=null) {
+        circuitDragDropController.dragStart(query, e, element)
+    }
+
+    /**
+     * @param {MouseEvent} e
      */
     function onMouseMove(e) {
         posX = e.pageX
@@ -50,9 +59,8 @@
      * 
      * @param {MouseEvent} e
      */
-    export function dropGate(e) {
-
-        circuitDragDropController.dragEnd(e)
+    export function drop(e) {
+        return circuitDragDropController.dragEnd(e)
     }
 </script>
 
