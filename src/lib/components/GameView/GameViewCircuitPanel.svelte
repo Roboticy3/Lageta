@@ -2,7 +2,7 @@
     import CircuitDraggable from './CircuitDraggable.svelte';
 
     import { GateType, Buf, Gate, all_gates} from '$lib/circuit_types/Gate'
-    import { onMount } from 'svelte';
+    import { onMount, tick } from 'svelte';
 
     import { getGateSvgContents, ConnectionSvg, buildSvg, wireSvg, getGateSvg } from '../GateSvgs.svelte';
 
@@ -92,15 +92,28 @@
     /**
      * Add evs for dragging related to the circuit
      */
-    function addDragEventListeners() {
+    async function addDragEventListeners() {
         if (circuitContainer == null) {
-            console.log(" not found!!")
+            console.log("circuitContainer not found!!")
             return
         }
 
         circuitContainer.addEventListener("mousedown", onDragStart)
-        circuitContainer.addEventListener("mousemove", onDrag)
         circuitContainer.addEventListener("mouseup", onDrop)
+
+        await tick()
+
+        circuitDraggable.getController().dragStartHandler = addMouseMoveListener
+        console.log(circuitDraggable)
+    }
+
+    function addMouseMoveListener() {
+        if (circuitContainer == null) {
+            console.log("circuitContainer not found!!")
+            return
+        }
+
+        circuitContainer.addEventListener("mousemove", onDrag)
     }
 
     /**
@@ -109,6 +122,7 @@
     function onDragStart(e) {
         const query = gridController.query(e.offsetX, e.offsetY)
         if (query.type === "") return
+
         circuitDraggable.drag(e, query, circuitContainer)
         console.log("Picked up ", query)
     }
@@ -120,12 +134,27 @@
         console.log("Dragging...")
     }
 
+    function removeMouseMoveListener() {
+        if (circuitContainer == null) {
+            console.log("circuitContainer not found!!")
+            return
+        }
+
+        circuitContainer.removeEventListener("mousemove", onDrag)
+    }
+
     /**
      * @param {MouseEvent} e
      */
     function onDrop(e) {
+
         const query = circuitDraggable.drop(e)
+
+        if (query.type === "") return
+
         console.log("Dropped ", query)
+        
+        removeMouseMoveListener()
     }
 
     /**

@@ -62,6 +62,10 @@
     export function drop(e) {
         return circuitDragDropController.dragEnd(e)
     }
+
+    export function getController() {
+        return circuitDragDropController
+    }
 </script>
 
 <div style="top:{posY}px; left:{posX}px;">{@html contents}</div>
