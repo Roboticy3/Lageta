@@ -22,7 +22,7 @@
      * @param {HTMLElement | null} element
      */
     export function dragGateType(e, type, element=null) {
-        circuitDragDropController.dragStart(type, element, e) 
+        circuitDragDropController.dragStartGateType(type, e, element) 
         resolveContents()
         document.addEventListener("mousemove", onMouseMove)
         onMouseMove(e) //update the position before the mouse actually moves

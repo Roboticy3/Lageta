@@ -1,6 +1,6 @@
 
-import type { CircuitController } from "./CircuitController";
-import { all_gates, type Gate, type GateType } from "./Gate";
+import { CircuitControllerQueryResult, type CircuitController } from "./CircuitController";
+import { all_gates, Gate, type GateType } from "./Gate";
 import type { ConnectionType } from "./GateGraph";
 
 export class CircuitDragDropController {
@@ -14,49 +14,42 @@ export class CircuitDragDropController {
     }
 
     public sourceElement : HTMLElement | null = null
-    private currentType : GateType | undefined = undefined
-    private currentGate : Gate | undefined = undefined
-    private currentConnectionType : ConnectionType = ""
-    private currentConnectionIndex : number | undefined
+
+    private contents:CircuitControllerQueryResult = new CircuitControllerQueryResult()
 
     public dragStartHandler=(e:MouseEvent) => {}
     public dragEndHandler=(e:MouseEvent) => {}
     public dragCircuitHandler=(e:MouseEvent) => {}
 
-    public dragStart(
-        from: number | string | GateType, 
-        element: HTMLElement | null, 
-        e:MouseEvent, 
-        connectionType: ConnectionType = "", 
-        connectionIndex: number | undefined = undefined
+    public dragStartGateType(
+        type:GateType,
+        e:MouseEvent,
+        element: HTMLElement | null = null
     ) {
-        switch (typeof from) {
-            case "number":
-                this.currentGate = this.circuitController.getGate(from)
-                if (this.currentGate === undefined) break;
-                this.currentType = this.currentGate.type
-                break;
-            case "string":
-                this.currentType = all_gates.get(from)
-                break;
-            default:
-                this.currentType = from
-        }  
-
-        if (this.currentGate !== undefined) {
-            this.currentConnectionType = connectionType
-            this.currentConnectionIndex = connectionIndex
+        this.contents = {
+            type:"Gate",
+            gate:new Gate(type),
+            connectionIndex: undefined
         }
-        this.sourceElement = element  
+        this.sourceElement = element
 
-        this.dragCircuitHandler(e)
+        this.dragStartHandler(e)
+    }
+
+    public dragStart(
+        from:CircuitControllerQueryResult,
+        e:MouseEvent,
+        element: HTMLElement | null = null
+    ) {
+        this.contents = from
+        this.sourceElement = element
+
+        this.dragStartHandler(e)
     }
 
     public dragEnd(e:MouseEvent) {
-        this.currentType = undefined
-        this.currentGate = undefined
-        this.currentConnectionIndex = undefined
-        this.currentConnectionType = ""
+        
+        this.contents = new CircuitControllerQueryResult()
         this.sourceElement = null
 
         this.dragEndHandler(e)
@@ -67,7 +60,10 @@ export class CircuitDragDropController {
     }
 
     public getGateType() {
-        return this.currentType
+        if (this.contents.type == "Gate") {
+            return this.contents.gate?.type
+        }
+        return undefined
     }
 
 }
