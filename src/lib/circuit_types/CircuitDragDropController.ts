@@ -70,6 +70,10 @@ export class CircuitDragDropController {
         return undefined
     }
 
+    public getContentType() {
+        return this.contents.type
+    }
+
 }
 
 export type CircuitDragDropItem = GateType | [number, number]

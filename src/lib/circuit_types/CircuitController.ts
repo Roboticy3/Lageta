@@ -610,9 +610,9 @@ export class CircuitController {
      * @param gate 
      * @returns 
      */
-    getGateSvgTransform(gate:Gate) {
+    getGateSvgTransform(gate:Gate | {type:GateType, x:number, y:number}) {
         const gType = gate.type
-        const position = this.gateGrid.indexToOffset(gate.x || 0, gate.y || 0)
+        const position = this.gateGrid.indexToOffset(gate.x, gate.y)
         const snappedX = position[0]
         const snappedY = position[1]
 

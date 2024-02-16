@@ -1,12 +1,9 @@
 <script>
-
-    //@ts-ignore
     import { Buf, GateType } from "$lib/circuit_types/Gate";
     import { onMount } from "svelte";
 
     import { getGateSvg, getGateTypeSvg } from "../GateSvgs.svelte";
 
-    //@ts-ignore
     import CircuitDraggable from "./CircuitDraggable.svelte";
 
     /**

@@ -4,12 +4,9 @@
     import { GateType, Buf, Gate, all_gates} from '$lib/circuit_types/Gate'
     import { onMount, tick } from 'svelte';
 
-    import { getGateSvgContents, ConnectionSvg, buildSvg, wireSvg, getGateSvg } from '../GateSvgs.svelte';
+    import { getGateSvgContents, ConnectionSvg, buildSvg, wireSvg, getGateSvg, getGateTypeSvg, getGateTypeSvgContents } from '../GateSvgs.svelte';
 
-    //@ts-ignore
     import { CircuitController } from '$lib/circuit_types/CircuitController';
-    
-    //@ts-ignore
     import { GameViewParameters } from '$lib/level_types/GameViewParameters';
 
     /**
@@ -127,10 +124,36 @@
         console.log("Picked up ", query)
     }
 
+    let activeSvgGate = ""
+
     /**
      * @param {MouseEvent} e
      */
     function onDrag(e) {
+
+        const controller = circuitDraggable.getController()
+        const cType = controller.getContentType()
+
+        if (cType === "") {
+            onDrop(e)
+            return
+        }
+
+        const gType = controller.getGateType()
+        if (cType == "Gate" && gType !== undefined) {
+            const result = gridController.previewAddGate(
+                gType,
+                e.offsetX,
+                e.offsetY
+            )
+
+            if (result !== undefined) {
+                activeSvgGate = `<g ${gridController.getGateSvgTransform(
+                    {type:gType, x:result[0], y:result[1]}
+                )}>${getGateTypeSvgContents(gType)}</g>`
+            }
+        }
+        
         console.log("Dragging...")
     }
 
@@ -155,6 +178,8 @@
         console.log("Dropped ", query)
         
         removeMouseMoveListener()
+
+        activeSvgGate = ""
     }
 
     /**
@@ -211,6 +236,7 @@
 
             {@html svgConnectionPoints}
             {@html activeSvgWire}
+            {@html activeSvgGate}
         </g>
     </svg>
 
