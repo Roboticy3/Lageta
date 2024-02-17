@@ -129,6 +129,8 @@
             case "Output":
                 onDragStartOutput(e, query)
                 break
+            case "Gate":
+                onDragStartGate(e, query)
         }
     }
 
@@ -171,6 +173,14 @@
      */
     function onDragStartOutput(e, query) {
         //draw a new wire from the input, gategraph will handle merging it with any existing connections
+        circuitDraggable.drag(e, query, circuitContainer)
+    }
+
+    /**
+     * @param {MouseEvent} e
+     * @param {CircuitControllerQueryResult} query
+     */
+    function onDragStartGate(e, query) {
         circuitDraggable.drag(e, query, circuitContainer)
     }
 

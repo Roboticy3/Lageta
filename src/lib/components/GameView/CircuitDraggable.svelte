@@ -6,8 +6,13 @@
     import { CircuitDragDropController } from "$lib/circuit_types/CircuitDragDropController";
     import { GateType } from "$lib/circuit_types/Gate";
     import { getGateTypeSvgContents, getGateTypeSvg } from "../GateSvgs.svelte";
+    import { onMount } from 'svelte';
 
     let contents = ""
+
+    onMount(() => {
+        window.addEventListener("mousemove", onMouseMove)
+    })
 
     /**
      * @type {CircuitController}
@@ -24,7 +29,7 @@
     export function dragGateType(e, type, element=null) {
         circuitDragDropController.dragStartGateType(type, e, element) 
         resolveContents()
-        dragStartMouseMove(e)
+        onMouseMove(e)
     }
 
     function resolveContents() {
@@ -34,15 +39,6 @@
             return
         }
         contents = ""
-    }
-
-    /**
-     * 
-     * @param {MouseEvent} e
-     */
-    function dragStartMouseMove(e) {
-        document.addEventListener("mousemove", onMouseMove)
-        onMouseMove(e)
     }
 
     let posX = 0
@@ -55,8 +51,8 @@
      */
      export function drag(e, query, element=null) {
         circuitDragDropController.dragStart(query, e, element)
-        dragStartMouseMove(e)
         resolveContents()
+        onMouseMove(e)
     }
 
     /**
@@ -71,18 +67,9 @@
      * 
      * @param {MouseEvent} e
      */
-     function dragEndMouseMove(e) {
-        document.removeEventListener("mousemove", onMouseMove)
-    }
-
-    /**
-     * 
-     * @param {MouseEvent} e
-     */
     export function drop(e) {
         const result = circuitDragDropController.dragEnd(e)
         resolveContents()
-        dragEndMouseMove(e)
         return result
     }
 
@@ -95,10 +82,10 @@
     }
 </script>
 
-<div style="top:{posY}px; left:{posX}px;">{@html contents}</div>
+<div class="contents" style="top:{posY}px; left:{posX}px;">{@html contents}</div>
 
 <style>
-    div {
+    .contents {
         pointer-events: none;
         position: absolute;
         width: 30px;
