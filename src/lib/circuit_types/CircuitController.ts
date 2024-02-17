@@ -17,21 +17,28 @@ const connectionSelectRadius = 10
 export class CircuitControllerQueryResult {
     readonly gate:Gate | undefined
 
-    type: "Gate" | "Input" | "Output" | ""
-    connectionIndex:number | undefined
+    readonly gateType:GateType | undefined
+
+    readonly type: "Gate" | "Input" | "Output" | ""
+    readonly connectionIndex:number | undefined
 
     constructor(
         gate:Gate | undefined = undefined,
         type:"Gate" | "Input" | "Output" | "" = "",
-        connectionIndex:number | undefined = undefined
+        connectionIndex:number | undefined = undefined,
+        gateType:GateType | undefined = undefined
     ) {
         this.gate = gate
+        this.gateType = gate?.type || gateType
         this.type = type
         if ((type === "Input" || type === "Output") && 
             gate !== undefined && connectionIndex !== undefined) {
                 this.connectionIndex = connectionIndex
         }
+
     }
+
+    getId() {return this.gate?.id}
 }
 
 export type ConnectionIndex = {id:number, type:ConnectionType, index:number}
@@ -284,6 +291,18 @@ export class CircuitController {
         return this.gateGrid.canAddGate(x, y, gate)
     }
 
+    previewMoveGate(
+        id:number,
+        offsetX:number,
+        offsetY:number
+    ) {
+        const [localX, localY] = this.unprojectOffset(offsetX, offsetY)
+        const [x, y] = this.gateGrid.offsetToIndex(localX, localY)
+        const gate = this.gateGrid.gates[id]
+        if (gate === undefined) return undefined
+        return this.gateGrid.canMoveGate(gate, x, y)
+    }
+
     /**
      * Move the gate at the given id to the new global offset
      * @param gateId 
@@ -292,13 +311,11 @@ export class CircuitController {
      * @returns 
      */
     moveGate(
-        gateId:string, 
+        id:number, 
         offsetX:number, 
         offsetY:number
     ) {
-        console.log("moving gate: ", gateId)
-
-        const id = this.svgIdToGateId(gateId)
+        console.log("moving gate ", id)
 
         const gate = this.gateGrid.gates[id]
         if (gate === undefined) {
@@ -310,7 +327,6 @@ export class CircuitController {
         }
 
         const [localX, localY] = this.unprojectOffset(offsetX, offsetY)
-        console.log(offsetX, offsetY, localX, localY)
         let [x, y] = this.gateGrid.offsetToIndex(localX, localY)
 
         const result = this.gateGrid.moveGate(id, x, y)
@@ -324,15 +340,14 @@ export class CircuitController {
 
     /**
      * Remove a gate at the given id.
-     * @param gateId 
+     * @param id 
      * @param svgContents 
      */
     removeGate(
-        gateId:string,
+        id:number,
         svgContents:Array<string>
     ) {
-        console.log("removing gate: ", gateId)
-        const id = this.svgIdToGateId(gateId)
+        console.log("removing gate: ", id)
 
         const result = this.gateGrid.removeGate(id, true)
         if (result === undefined) {
@@ -515,6 +530,20 @@ export class CircuitController {
             svg[grid.sizeX + j] = `<path d="M 0 ${vpos} L ${offsetWidth} ${vpos}" stroke="${color}" stroke-width=".25pt"/>`
         }
         return svg
+    }
+
+    isOffsetInGrid(offsetX:number, offsetY:number) {
+        const localOffset = this.unprojectOffset(offsetX, offsetY)
+        const grid = this.gateGrid
+        const [sizeX, sizeY] = [
+            grid.sizeX * grid.cellOffset,
+            grid.sizeY * grid.cellOffset
+        ]
+
+        return (
+            localOffset[0] >= 0 && localOffset[1] >= 1 &&
+            localOffset[0] < sizeX && localOffset[1] < sizeY
+        )
     }
 
     /**

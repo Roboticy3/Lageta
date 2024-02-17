@@ -6,7 +6,7 @@
 
     import { getGateSvgContents, ConnectionSvg, buildSvg, wireSvg, getGateSvg, getGateTypeSvg, getGateTypeSvgContents } from '../GateSvgs.svelte';
 
-    import { CircuitController } from '$lib/circuit_types/CircuitController';
+    import { CircuitController, CircuitControllerQueryResult } from '$lib/circuit_types/CircuitController';
     import { GameViewParameters } from '$lib/level_types/GameViewParameters';
 
     /**
@@ -117,8 +117,17 @@
      * @param {MouseEvent} e
      */
     function onDragStart(e) {
+        e.preventDefault()
+
         const query = gridController.query(e.offsetX, e.offsetY)
-        if (query.type === "") return
+        
+        switch (query.type) {
+            case "Gate":
+                
+                break;
+
+            default: return
+        }
 
         circuitDraggable.drag(e, query, circuitContainer)
         console.log("Picked up ", query)
@@ -131,6 +140,11 @@
      */
     function onDrag(e) {
 
+        if (!gridController.isOffsetInGrid(e.offsetX, e.offsetY)) {
+            activeSvgGate = ""
+            return
+        }
+
         const controller = circuitDraggable.getController()
         const cType = controller.getContentType()
 
@@ -138,21 +152,33 @@
             onDrop(e)
             return
         }
+        
+        switch(cType) {
+            case "Gate":
+                const gType = controller.getGateType()
+                if (gType === undefined) break;
+                
+                const id = controller.getId()
+                const result = id ? 
+                    gridController.previewMoveGate(
+                        id,
+                        e.offsetX,
+                        e.offsetY
+                    ) :
+                    gridController.previewAddGate(
+                        gType,
+                        e.offsetX,
+                        e.offsetY
+                    )
+                
 
-        const gType = controller.getGateType()
-        if (cType == "Gate" && gType !== undefined) {
-            const result = gridController.previewAddGate(
-                gType,
-                e.offsetX,
-                e.offsetY
-            )
-
-            if (result !== undefined) {
-                activeSvgGate = `<g ${gridController.getGateSvgTransform(
-                    {type:gType, x:result[0], y:result[1]}
-                )}>${getGateTypeSvgContents(gType)}</g>`
-            }
+                if (result !== undefined) {
+                    activeSvgGate = `<g ${gridController.getGateSvgTransform(
+                        {type:gType, x:result[0], y:result[1]}
+                    )}>${getGateTypeSvgContents(gType)}</g>`
+                }
         }
+        
         
         console.log("Dragging...")
     }
@@ -171,43 +197,70 @@
      */
     function onDrop(e) {
 
-        const query = circuitDraggable.drop(e)
+        const controller = circuitDraggable.getController()
 
-        if (query.type === "") return
+        const cType = controller.getContentType()
 
-        console.log("Dropped ", query)
+        if (cType === "") return
+        else if (cType === "Gate") {
+            const gType = controller.getGateType() || Buf
+            dropGate(gType, e)
+        }
+        else {
+            const query = gridController.query(e.offsetX, e.offsetY)
+            dropConnection(controller.getContents(), query)
+        }
+
+        console.log("Dropped ", controller.getContentType())
         
         removeMouseMoveListener()
 
         activeSvgGate = ""
+
+        circuitDraggable.drop(e)
     }
 
     /**
-     * Check if the offset is in the circuit panel,
-     * more reliable than getting targets from events
-     * @param {number} offsetX
-     * @param {number} offsetY
+     * @param {GateType} gType
+     * @param {MouseEvent} e
      */
-    function inCircuitPanel(offsetX, offsetY) {
-        if (circuitContainer === null) {
-            return false
+    function dropGate(gType, e) {
+        const content = circuitDraggable.getController().getContents()
+
+        const id = content.getId()
+        if (id === undefined) {
+            gridController.addGate(gType, e.offsetX, e.offsetY)
+        }
+        else {
+            if (gridController.isOffsetInGrid(e.offsetX, e.offsetY)) {
+                gridController.moveGate(id, e.offsetX, e.offsetY)
+            }
+            else {
+                gridController.removeGate(id, svgGates)
+            }
+        }
+        
+        updateSvg()
+    }
+
+    /**
+     * @param {CircuitControllerQueryResult} from
+     * @param {CircuitControllerQueryResult} to
+     */
+    function dropConnection(from, to) {
+        switch ([from.type, to.type]) {
+            case ["Input", "Ouput"]:
+                break;
+            case ["Output", "Input"]:
+                break;
         }
 
-        if (offsetX >= circuitContainer.offsetLeft && 
-            offsetX < circuitContainer.offsetLeft + circuitContainer.offsetWidth &&
-            offsetY >= circuitContainer.offsetTop && 
-            offsetY < circuitContainer.offsetTop + circuitContainer.offsetHeight) 
-        {
-            return true
-        }
 
-        return false
     }
 
 </script>
 
 <div
-    draggable="true" 
     class="circuit-container" 
     id="circuitContainer" 
     role="application"

@@ -236,6 +236,23 @@ export class GateGrid {
         if (!gate) {
             return undefined
         }
+        
+        const toCell = this.canMoveGate(gate, toX, toY)
+        if (toCell === undefined) return undefined
+
+        toX = toCell[0]
+        toY = toCell[1]
+        const gType = gate.type
+        const [sizeX, sizeY] = [gType.gridWidth, gType.gridHeight]
+
+        this.removeGate(id, false)
+        this.setIndexToRange(id, toX, toY, sizeX, sizeY)
+        gate.givePos(toX, toY)
+
+        return toCell
+    }
+
+    canMoveGate(gate:Gate, toX:number, toY:number) {
         const gType = gate.type
 
         const [sizeX, sizeY] = [gType.gridWidth, gType.gridHeight]
@@ -244,17 +261,12 @@ export class GateGrid {
         toX = toCell[0]
         toY = toCell[1]
 
-        const collision = this.getInRange(toX, toY, sizeX, sizeY, [id])
+        const collision = this.getInRange(toX, toY, sizeX, sizeY, [gate.id])
         if (collision !== undefined) {
-            console.log(id, collision)
             return undefined
         }
 
-        this.removeGate(id, false)
-        this.setIndexToRange(id, toX, toY, sizeX, sizeY)
-        gate.givePos(toX, toY)
-
-        return toCell
+        return [toX, toY]
     }
 
     iterGates(iter:(g:Gate) => any) {

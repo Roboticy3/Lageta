@@ -26,11 +26,9 @@ export class CircuitDragDropController {
         e:MouseEvent,
         element: HTMLElement | null = null
     ) {
-        this.contents = {
-            type:"Gate",
-            gate:new Gate(type),
-            connectionIndex: undefined
-        }
+        this.contents = new CircuitControllerQueryResult(
+            undefined,"Gate",undefined,type
+        )
         this.sourceElement = element
 
         this.dragStartHandler(e)
@@ -65,13 +63,25 @@ export class CircuitDragDropController {
 
     public getGateType() {
         if (this.contents.type == "Gate") {
-            return this.contents.gate?.type
+            return this.contents.gateType
         }
         return undefined
     }
 
+    public hasGate() {
+        return this.contents.gate !== undefined
+    }
+
+    public getId() {
+        return this.contents.getId()
+    }
+
     public getContentType() {
         return this.contents.type
+    }
+
+    public getContents() {
+        return this.contents
     }
 
 }
