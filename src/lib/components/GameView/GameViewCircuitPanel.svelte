@@ -124,6 +124,51 @@
             circuitDraggable.drag(e, query, circuitContainer)
         }
         
+        switch (query.type) {
+            case "Input":
+                onDragStartInput(e)
+                break
+            case "Output":
+                onDragStartOutput(e)
+                break
+        }
+    }
+
+    /**
+     * @param {MouseEvent} e
+     */
+    function onDragStartInput(e) {
+        //check if an input is already there
+        const controller = circuitDraggable.getController()
+        const contents = controller.getContents()
+        const connected = gridController.getConnectedTo(
+            contents.getId() || 0, 
+            contents.connectionIndex || 0
+        )
+        //if so, "consume" it, deleting it and starting an active wire from the same output in the draggable
+        if (connected) {
+            gridController.removeConnection(
+                {id:contents.getId() || 0, type:"Input", index:contents.connectionIndex || 0}
+            )
+
+            //we can coerce the onDrag functions to do this by simply switching out the contents
+            circuitDraggable.drag(
+                e,
+                gridController.toQuery(connected[0], "Output", connected[1]),
+                circuitContainer
+            )     
+
+            onDragOutput(e)
+        }
+        
+        updateSvg()
+    }
+
+    /**
+     * @param {MouseEvent} e
+     */
+    function onDragStartOutput(e) {
+        //draw a new wire from the input, gategraph will handle merging it with any existing connections
     }
 
     let activeSvgGate = ""
@@ -197,16 +242,26 @@
      * @param {MouseEvent} e
      */
     function onDragInput(e) {
-        //check if an input is already there
-        //if so, "consume" it, deleting it and starting an active wire from the same output in the draggable
-        //else, draw a new wire from the input
+        const contents = circuitDraggable.getController().getContents()
+        activeSvgWire = wireSvg(
+            gridController.getConnectionPoint(
+                {id:contents.getId() || 0, type:"Input", index:contents.connectionIndex || 0}
+            ),
+            gridController.unprojectOffset(e.offsetX, e.offsetY)
+        )
     }
 
     /**
      * @param {MouseEvent} e
      */
     function onDragOutput(e) {
-        //draw a new wire from the input, gategraph will handle merging it with any existing connections
+        const contents = circuitDraggable.getController().getContents()
+        activeSvgWire = wireSvg(
+            gridController.unprojectOffset(e.offsetX, e.offsetY),
+            gridController.getConnectionPoint(
+                {id:contents.getId() || 0, type:"Output", index:contents.connectionIndex || 0}
+            )
+        )
     }
 
     function removeMouseMoveListener() {
@@ -243,8 +298,11 @@
         removeMouseMoveListener()
 
         activeSvgGate = ""
+        activeSvgWire = ""
 
         circuitDraggable.drop(e)
+
+        updateSvg()
     }
 
     /**
@@ -267,8 +325,6 @@
                 gridController.removeGate(id, svgGates)
             }
         }
-        
-        updateSvg()
     }
 
     /**
@@ -276,13 +332,22 @@
      * @param {CircuitControllerQueryResult} qb
      */
     function dropConnection(qa, qb) {
-        switch ([qa.type, qb.type]) {
-            case ["Input", "Ouput"]:
-                break;
-            case ["Output", "Input"]:
-                break;
+        switch (qa.type + qb.type) {
+            case "OutputInput":
+                console.log("laying connection from ", qa, qb)
+                gridController.addConnection(
+                    qa.getId() || 0, qa.connectionIndex || 0, 
+                    qb.getId() || 0, qb.connectionIndex || 0
+                );
+                break
+            case "InputOutput":
+                console.log("laying connection from ", qb, qa)
+                gridController.addConnection(
+                    qb.getId() || 0, qb.connectionIndex || 0, 
+                    qa.getId() || 0, qa.connectionIndex || 0
+                );
+                break
         }
-
 
     }
 

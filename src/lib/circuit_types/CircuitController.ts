@@ -252,6 +252,17 @@ export class CircuitController {
         ) 
     }
 
+    toQuery(
+        id:number | undefined = undefined,
+        type:"" | "Gate" | "Input" | "Output" = "",
+        connectionIndex:number | undefined = undefined
+    ) {
+        const gate = id ? this.gateGrid.gates[id]:undefined
+        return new CircuitControllerQueryResult(
+            gate, type, connectionIndex
+        )
+    }
+
     /**
      * Attempt to add a gate of a given type to the grid at the given global offset
      * @param gType 
@@ -421,9 +432,28 @@ export class CircuitController {
         const graph = this.gateGrid.graph
         
         const c = graph.inputs[gateId][inputIndex]
-        console.log(c)
 
         return c?.from
+    }
+
+    isConnected(
+        connectionIndex:ConnectionIndex
+    ) {
+        const grid = this.gateGrid
+        const graph = grid.graph
+        const gate = grid.gates[connectionIndex.id]
+        if (gate === undefined) return false
+        switch (connectionIndex.type) {
+            case "Input":
+                return graph.getInput(
+                    [connectionIndex.id, connectionIndex.index]
+                ) !== undefined
+            case "Output":
+                return graph.getOutput(
+                    [connectionIndex.id, connectionIndex.index]
+                ) !== undefined
+        }
+        return false
     }
 
     /**
