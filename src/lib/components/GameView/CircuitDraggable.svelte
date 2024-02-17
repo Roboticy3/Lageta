@@ -88,6 +88,10 @@
     export function getController() {
         return circuitDragDropController
     }
+
+    export function isDragging() {
+        return circuitDragDropController.hasContents()
+    }
 </script>
 
 <div style="top:{posY}px; left:{posX}px;">{@html contents}</div>

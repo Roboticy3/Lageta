@@ -120,7 +120,9 @@
         e.preventDefault()
 
         const query = gridController.query(e.offsetX, e.offsetY)
-        circuitDraggable.drag(e, query, circuitContainer)
+        if (!circuitDraggable.isDragging()) {
+            circuitDraggable.drag(e, query, circuitContainer)
+        }
     }
 
     let activeSvgGate = ""
@@ -233,6 +235,7 @@
             case "Output":
                 const query = gridController.query(e.offsetX, e.offsetY)
                 dropConnection(controller.getContents(), query)
+                break
             default: return
         }
 
@@ -254,6 +257,7 @@
 
         const id = content.getId()
         if (id === undefined) {
+            console.log(id)
             gridController.addGate(gType, e.offsetX, e.offsetY)
         }
         else {

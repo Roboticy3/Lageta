@@ -5,7 +5,7 @@ import type { ConnectionType } from "./GateGraph";
 
 export class CircuitDragDropController {
 
-    public circuitController:CircuitController
+    circuitController:CircuitController
 
     constructor(
         circuitController:CircuitController
@@ -13,15 +13,15 @@ export class CircuitDragDropController {
         this.circuitController = circuitController
     }
 
-    public sourceElement : HTMLElement | null = null
+    sourceElement : HTMLElement | null = null
 
     private contents:CircuitControllerQueryResult = new CircuitControllerQueryResult()
 
-    public dragStartHandler=(e:MouseEvent) => {}
-    public dragEndHandler=(e:MouseEvent) => {}
-    public dragCircuitHandler=(e:MouseEvent) => {}
+    dragStartHandler=(e:MouseEvent) => {}
+    dragEndHandler=(e:MouseEvent) => {}
+    dragCircuitHandler=(e:MouseEvent) => {}
 
-    public dragStartGateType(
+    dragStartGateType(
         type:GateType,
         e:MouseEvent,
         element: HTMLElement | null = null
@@ -34,7 +34,7 @@ export class CircuitDragDropController {
         this.dragStartHandler(e)
     }
 
-    public dragStart(
+    dragStart(
         from:CircuitControllerQueryResult,
         e:MouseEvent,
         element: HTMLElement | null = null
@@ -45,7 +45,7 @@ export class CircuitDragDropController {
         this.dragStartHandler(e)
     }
 
-    public dragEnd(e:MouseEvent) {
+    dragEnd(e:MouseEvent) {
         
         const result = this.contents
 
@@ -57,30 +57,34 @@ export class CircuitDragDropController {
         return result
     }
 
-    public dragCircuit(e:MouseEvent) {
+    dragCircuit(e:MouseEvent) {
         this.dragCircuitHandler(e)
     }
 
-    public getGateType() {
+    getGateType() {
         if (this.contents.type == "Gate") {
             return this.contents.gateType
         }
         return undefined
     }
 
-    public hasGate() {
+    hasGate() {
         return this.contents.gate !== undefined
     }
 
-    public getId() {
+    hasContents() {
+        return this.contents.type !== ""
+    }
+
+    getId() {
         return this.contents.getId()
     }
 
-    public getContentType() {
+    getContentType() {
         return this.contents.type
     }
 
-    public getContents() {
+    getContents() {
         return this.contents
     }
 
