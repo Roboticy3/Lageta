@@ -155,16 +155,20 @@
             q = gridController.toQuery(connected[0], "Output", connected[1])   
             console.log(q)
 
-            onDragOutput(e)
+            onDragStartOutput(e, q)
 
             gridController.removeConnection(
                 {id:index[0], type:"Input", index:index[1]}
             )
+
+            return
         }
 
         circuitDraggable.drag(e, q, circuitContainer)
         
         updateSvg()
+
+        svgConnectionPoints = gridController.drawConnectionPoints(ConnectionSvg, "Output")
     }
 
     /**
@@ -174,6 +178,8 @@
     function onDragStartOutput(e, query) {
         //draw a new wire from the input, gategraph will handle merging it with any existing connections
         circuitDraggable.drag(e, query, circuitContainer)
+
+        svgConnectionPoints = gridController.drawConnectionPoints(ConnectionSvg, "Input")
     }
 
     /**
