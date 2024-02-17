@@ -155,18 +155,20 @@
             q = gridController.toQuery(connected[0], "Output", connected[1])   
             console.log(q)
 
-            onDragStartOutput(e, q)
-
             gridController.removeConnection(
                 {id:index[0], type:"Input", index:index[1]}
             )
+
+            updateSvg()
+
+            onDragStartOutput(e, q)
 
             return
         }
 
         circuitDraggable.drag(e, q, circuitContainer)
-        
-        updateSvg()
+
+        onDragInput(e)
 
         svgConnectionPoints = gridController.drawConnectionPoints(ConnectionSvg, "Output")
     }
@@ -180,6 +182,8 @@
         circuitDraggable.drag(e, query, circuitContainer)
 
         svgConnectionPoints = gridController.drawConnectionPoints(ConnectionSvg, "Input")
+
+        onDragOutput(e)
     }
 
     /**
