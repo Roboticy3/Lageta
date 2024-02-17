@@ -119,56 +119,59 @@
     function onDragStart(e) {
         e.preventDefault()
 
-        const query = gridController.query(e.offsetX, e.offsetY)
-        if (!circuitDraggable.isDragging()) {
-            circuitDraggable.drag(e, query, circuitContainer)
-        }
-        
+        if (circuitDraggable.isDragging()) return
+
+        const query = gridController.query(e.offsetX, e.offsetY)        
         switch (query.type) {
             case "Input":
-                onDragStartInput(e)
+                onDragStartInput(e, query)
                 break
             case "Output":
-                onDragStartOutput(e)
+                onDragStartOutput(e, query)
                 break
         }
     }
 
     /**
      * @param {MouseEvent} e
+     * @param {CircuitControllerQueryResult} query
      */
-    function onDragStartInput(e) {
+    function onDragStartInput(e, query) {
         //check if an input is already there
-        const controller = circuitDraggable.getController()
-        const contents = controller.getContents()
+        const index = [query.getId() || 0, query.connectionIndex || 0]
         const connected = gridController.getConnectedTo(
-            contents.getId() || 0, 
-            contents.connectionIndex || 0
+            index[0], index[1]
         )
+
+        console.log("Checking if input is already connected:", connected)
+
+        let q = query
         //if so, "consume" it, deleting it and starting an active wire from the same output in the draggable
         if (connected) {
-            gridController.removeConnection(
-                {id:contents.getId() || 0, type:"Input", index:contents.connectionIndex || 0}
-            )
 
             //we can coerce the onDrag functions to do this by simply switching out the contents
-            circuitDraggable.drag(
-                e,
-                gridController.toQuery(connected[0], "Output", connected[1]),
-                circuitContainer
-            )     
+            q = gridController.toQuery(connected[0], "Output", connected[1])   
+            console.log(q)
 
             onDragOutput(e)
+
+            gridController.removeConnection(
+                {id:index[0], type:"Input", index:index[1]}
+            )
         }
+
+        circuitDraggable.drag(e, q, circuitContainer)
         
         updateSvg()
     }
 
     /**
      * @param {MouseEvent} e
+     * @param {CircuitControllerQueryResult} query
      */
-    function onDragStartOutput(e) {
+    function onDragStartOutput(e, query) {
         //draw a new wire from the input, gategraph will handle merging it with any existing connections
+        circuitDraggable.drag(e, query, circuitContainer)
     }
 
     let activeSvgGate = ""
