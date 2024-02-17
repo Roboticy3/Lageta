@@ -56,6 +56,7 @@
      export function drag(e, query, element=null) {
         circuitDragDropController.dragStart(query, e, element)
         dragStartMouseMove(e)
+        resolveContents()
     }
 
     /**

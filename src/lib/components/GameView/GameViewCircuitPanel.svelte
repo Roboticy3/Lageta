@@ -123,6 +123,7 @@
         if (!circuitDraggable.isDragging()) {
             circuitDraggable.drag(e, query, circuitContainer)
         }
+        
     }
 
     let activeSvgGate = ""
@@ -238,8 +239,6 @@
                 break
             default: return
         }
-
-        console.log("Dropped ", controller.getContentType())
         
         removeMouseMoveListener()
 
