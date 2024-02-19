@@ -61,6 +61,9 @@
     function onMouseMove(e) {
         posX = e.pageX
         posY = e.pageY
+        if (isDragging()) {
+            circuitDragDropController.dragCircuit(e)
+        }
     }
 
     /**

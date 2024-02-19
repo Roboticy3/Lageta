@@ -98,17 +98,6 @@
     }
 
     /**
-     * @param {MouseEvent} e
-     * @param {MouseEvent} f
-     */
-    function mouseEventDistance(e, f) {
-        return Math.pow(
-            Math.pow(e.pageX - f.pageX, 2) + 
-            Math.pow(e.pageY - f.pageY, 2), 0.5
-        )
-    }
-
-    /**
      * Attaches the onDrag function to the circuitContainer div's mousemove event. 
      * Used by addDragEventListeners such that it will be called whenever a drag starts. 
      * The component will then call onDrag whenever the mouse moves until the drag ends.
