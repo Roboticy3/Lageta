@@ -82,7 +82,7 @@
     /**
      * Add all events needed to edit the circuit, name is a hold-over from when the project used the drag and drop api
      */
-     async function addDragEventListeners() {
+    async function addDragEventListeners() {
         if (circuitContainer == null) {
             console.log("circuitContainer not found!!")
             return
@@ -95,6 +95,17 @@
 
         circuitDraggable.getController().dragStartHandler = addMouseMoveListener
         console.log(circuitDraggable)
+    }
+
+    /**
+     * @param {MouseEvent} e
+     * @param {MouseEvent} f
+     */
+    function mouseEventDistance(e, f) {
+        return Math.pow(
+            Math.pow(e.pageX - f.pageX, 2) + 
+            Math.pow(e.pageY - f.pageY, 2), 0.5
+        )
     }
 
     /**
@@ -352,19 +363,18 @@
      */
     function onDrop(e) {
 
-        const controller = circuitDraggable.getController()
+        const result = circuitDraggable.drop(e)
 
-        const cType = controller.getContentType()
+        const cType = result.type
 
         switch (cType) {
             case "Gate": 
-                const gType = controller.getGateType() || Buf
-                dropGate(gType, e)
+                dropGate(result, e)
                 break
             case "Input":
             case "Output":
                 const query = gridController.query(e.offsetX, e.offsetY)
-                dropConnection(controller.getContents(), query)
+                dropConnection(result, query)
                 break
             default: return
         }
@@ -373,8 +383,6 @@
 
         activeSvgGate = ""
         activeSvgWire = ""
-
-        circuitDraggable.drop(e)
 
         updateSvg()
     }
@@ -385,13 +393,17 @@
      * The circuitpanel-overhaul branch should have fully isolated the Gate class from the view, making it a proper model class.
      * While we can technically still reference it here, there's no need. Gates are added via their readonly gateType, and moved/removed via their id.
      * 
-     * @param {GateType} gType
+     * @param {CircuitControllerQueryResult} result
      * @param {MouseEvent} e
      */
-    function dropGate(gType, e) {
-        const content = circuitDraggable.getController().getContents()
+    function dropGate(result, e) {
+        if (!gridController.isOffsetInGrid(e.offsetX, e.offsetY)) {
+            return
+        }
 
-        const id = content.getId()
+        const gType = result.gateType || Buf
+
+        const id = result.getId()
         if (id === undefined) {
             console.log(id)
             gridController.addGate(gType, e.offsetX, e.offsetY)
