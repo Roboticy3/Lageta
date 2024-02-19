@@ -2,7 +2,7 @@
     import { Buf, GateType } from "$lib/circuit_types/Gate";
     import { onMount } from "svelte";
 
-    import { getGateSvg, getGateTypeSvg } from "../GateSvgs.svelte";
+    import { getGateTypeSvg } from "../GateSvgs.svelte";
 
     import CircuitDraggable from "./CircuitDraggable.svelte";
 

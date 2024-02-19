@@ -4,7 +4,7 @@
     import { GateType, Buf, Gate, all_gates} from '$lib/circuit_types/Gate'
     import { onMount, tick } from 'svelte';
 
-    import { getGateSvgContents, ConnectionSvg, buildSvg, wireSvg, getGateSvg, getGateTypeSvg, getGateTypeSvgContents } from '../GateSvgs.svelte';
+    import { ConnectionSvg, buildSvg, wireSvg, getGateTypeSvg, getGateTypeSvgContents } from '../GateSvgs.svelte';
 
     import { CircuitController, CircuitControllerQueryResult } from '$lib/circuit_types/CircuitController';
     import { GameViewParameters } from '$lib/level_types/GameViewParameters';
@@ -55,7 +55,7 @@
      * This function gets called pretty often, but it's still better than refreshing the svg every tick.
      */
     export function updateSvg() {
-        svgGates = gridController.drawGates(getGateSvgContents)
+        svgGates = gridController.drawGates(getGateTypeSvgContents)
         svgConnectionPoints = gridController.drawConnectionPoints(ConnectionSvg)
         svgWires = gridController.drawWires(wireSvg)
         showSlot = !gridController.isPlaying()

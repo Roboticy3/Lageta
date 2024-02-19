@@ -56,16 +56,6 @@
    ])
 
    /**
-    * 
-    * @param {Gate} gate
-    * @returns {String}
-    */
-   export const getGateSvgContents = (gate) => {
-      const gType = gate.type
-      return getGateTypeSvgContents(gType)
-   }
-
-   /**
     * @param {GateType} gType
     */
    export const getGateTypeSvgContents = (gType) => {
@@ -75,13 +65,6 @@
 
    function defaultSvg(width=2, height=2, font=4) {
       return `<text x="${font}" y="${height / 2 + font / 2}" stroke="transparent" fill="black" style="font: ${font}px sans-serif;" />`
-   }
-
-   /**
-    * @param {Gate} gate
-    */
-   export const getGateSvg = (gate) => {
-      return buildSvg(gate.type)
    }
 
    /**

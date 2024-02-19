@@ -555,10 +555,10 @@ export class CircuitController {
 
     /**
      * Given a drawing function for gates, return an array of strings containing whem all in SVG form.
-     * @param getGateSvgContents 
+     * @param getGateTypeSvgContents 
      * @returns 
      */
-    drawGates(getGateSvgContents:(gate:Gate) => string) {
+    drawGates(getGateTypeSvgContents:(gate:GateType) => string) {
         var result = Array<string>()
         this.gateGrid.iterGates((g) => {
         result.push
@@ -567,7 +567,7 @@ export class CircuitController {
 <g 
     id="${g.id || 0}" 
     ${this.getGateSvgTransform(g)}>
-    ${getGateSvgContents(g)}
+    ${getGateTypeSvgContents(g.type)}
 </g>
 `
     )
