@@ -1,11 +1,20 @@
 <script>
-
-    import { Buf } from "$lib/circuit_types/Gate";
+    import { Buf, GateType } from "$lib/circuit_types/Gate";
     import { onMount } from "svelte";
 
     import { getGateSvg, getGateTypeSvg } from "../GateSvgs.svelte";
 
+    import CircuitDraggable from "./CircuitDraggable.svelte";
+
+    /**
+     * @type {GateType}
+     */
     export let gateType = Buf
+
+    /**
+     * @type {CircuitDraggable}
+     */
+    export let circuitDraggable
 
     onMount(() => {
 
@@ -19,33 +28,29 @@
     let id = `gateshelf.${gateType.name}`
 
     /**
-     * @param {DragEvent} e
+     * @type {HTMLElement}
      */
-    export let onDragStart = (e) => {
+    let element
 
-        const dataTransfer = e.dataTransfer
-        if (dataTransfer === null) {
-            return
-        }
-        dataTransfer.setData("type","Gate")
-
-        dataTransfer.setData('ShelfButtonId', id)
-        dataTransfer.setData('GateName', gateType.name)
-        
-        dataTransfer.setData('offset', `${e.offsetX}|${e.offsetY}`)
+    /**
+     * @param {MouseEvent} e
+     */
+    export let onMouseDown = (e) => {
+        circuitDraggable.dragGateType(e, gateType, element)
     }
+
 </script>
 
-<div class="shelf-button" draggable="true" id={id} on:dragstart={onDragStart}>
+<button class="shelf-button" id={id} bind:this={element} on:mousedown={onMouseDown}>
     {@html getGateTypeSvg(gateType)}
-</div>
+</button>
 
 <style>
     .shelf-button {
-        display: flex;
+        display: block;
         margin-left: 3%;
+        padding: 0;
         align-self: center;
-        align-items: center;
         background-color: yellow;
         max-height: 50px;
         aspect-ratio: 1;

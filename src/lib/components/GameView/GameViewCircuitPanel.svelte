@@ -1,18 +1,28 @@
 <script>
+    import CircuitDraggable from './CircuitDraggable.svelte';
+
     import { GateType, Buf, Gate, all_gates} from '$lib/circuit_types/Gate'
-    import { onMount } from 'svelte';
+    import { onMount, tick } from 'svelte';
 
-    import { getGateSvgContents, ConnectionSvg, buildSvg, wireSvg, getGateSvg } from '../GateSvgs.svelte';
+    import { getGateSvgContents, ConnectionSvg, buildSvg, wireSvg, getGateSvg, getGateTypeSvg, getGateTypeSvgContents } from '../GateSvgs.svelte';
 
-    import { CircuitController } from '$lib/circuit_types/CircuitController';
-    
-    //@ts-ignore
+    import { CircuitController, CircuitControllerQueryResult } from '$lib/circuit_types/CircuitController';
     import { GameViewParameters } from '$lib/level_types/GameViewParameters';
 
     /**
      * @type {GameViewParameters}
     */
     export let params
+
+    /**
+     * @type {CircuitController}
+     */
+    export let gridController
+
+    /**
+     * @type {CircuitDraggable}
+     */
+    export let circuitDraggable
 
     /**
      * @type {SVGElement} circuit
@@ -25,14 +35,6 @@
     let circuitContainer;
 
     /**
-     * 
-     * @param {DragEvent} e
-     */
-     let preventDefault = (e) => {
-        e.preventDefault()
-    }
-
-    /**
      * @type {Array<String>}
      */
     let svgGates = []
@@ -41,8 +43,6 @@
      */
     let svgWires = []
     
-    let gridController = new CircuitController(params.grid)
-
     //the svg string of the current connection, previews the connection being made
     let activeSvgWire=""
     //the svg string of all the visible connection points
@@ -50,26 +50,20 @@
 
     let showSlot = true
 
-    //update the svg, try to call whenever the grid changes
+    /**
+     * Corrects the svg display of the circuit to be up to date with the state of the circuit
+     * This function gets called pretty often, but it's still better than refreshing the svg every tick.
+     */
     export function updateSvg() {
         svgGates = gridController.drawGates(getGateSvgContents)
         svgConnectionPoints = gridController.drawConnectionPoints(ConnectionSvg)
         svgWires = gridController.drawWires(wireSvg)
-        clearActiveSvgConnection()
         showSlot = !gridController.isPlaying()
     }
 
-    function clearActiveSvgConnection() {
-        activeSvgWire = ""
-    }
-    
-    let mountCircuit = () => {
-        addDragEventListeners()
-        updateViewBox()
-        updateSvg()
-    }
-    onMount(mountCircuit)
-
+    /**
+     * Corrects the viewBox of the circuit such that it won't change size when the window is resized.
+     */
     function updateViewBox() {
         if (circuitContainer === null) {
             return
@@ -85,424 +79,368 @@
         updateViewBox()
     })
 
-    //when the user clicks and drags on the circuit panel, they can either be dragging a connection or a gate
-    //each of these are handled by their own functions, dragStartGate and dragStartConnection
     /**
-     * @param {DragEvent} e
+     * Add all events needed to edit the circuit, name is a hold-over from when the project used the drag and drop api
      */
-    function onDragStart(e) {
-
-        const result = gridController.query(e.offsetX, e.offsetY)
-        const gate = result.gate
-        console.log(result, e.offsetX, e.offsetY)
-        if (gate === undefined) {
-            preventDefault(e)
+    async function addDragEventListeners() {
+        if (circuitContainer == null) {
+            console.log("circuitContainer not found!!")
             return
         }
 
-        const tString = result.type
+        circuitContainer.addEventListener("mousedown", onDragStart)
+        circuitContainer.addEventListener("mouseup", onDrop)
 
-        const d = e.dataTransfer
-        if (d === null) {
-            preventDefault(e)
-            return
-        }
+        await tick()
 
-        giveGateData(gate, d)
-
-        switch (tString) {
-            case "Gate":
-                dragStartGate(e, d, gate)
-                return
-            case "Input":
-            case "Output":
-                if (result.connectionIndex === undefined) {
-                    console.log("no index found for query result ", result)
-                    return
-                }
-                dragStartConnection(e, gate, tString, result.connectionIndex)
-                return
-        }
-
-        preventDefault(e)
-
-        return
-    }
-
-    //burn the necessary data from a gate into dataTransfer
-    /**
-     * @param {Gate} gate
-     * @param {DataTransfer} d
-     */
-    function giveGateData(gate, d) {
-        const gType = gate.type
-        d.setData('SourceGate', `${gType.name}-${gate.id}`) 
-        d.setData('GateName', gType.name)
+        circuitDraggable.getController().dragStartHandler = addMouseMoveListener
+        console.log(circuitDraggable)
     }
 
     /**
-     * @param {DragEvent} e
-     * @param {DataTransfer} d
-     * @param {Gate} gate
+     * Attaches the onDrag function to the circuitContainer div's mousemove event. 
+     * Used by addDragEventListeners such that it will be called whenever a drag starts. 
+     * The component will then call onDrag whenever the mouse moves until the drag ends.
      */
-    function dragStartGate(e, d, gate) {
-        const gType = gate.type
-        if (!gType.moveable) {
-            console.log("gate type ", gType, " is not moveable")
+    function addMouseMoveListener() {
+        if (circuitContainer == null) {
+            console.log("circuitContainer not found!!")
             return
         }
-        const [x, y] = [gate.x || 0, gate.y || 0]
 
-        d.setData("type","Gate")
-
-        const target_id = `gateshelf.${gType.name}`
-        let svg = document.getElementById(target_id)
-        if (!svg) {
-            console.log("shelf button ", target_id, " not found!")
-            return
-        }
-        d.setData('ShelfButtonId', target_id)
-
-        const gateOffset = gridController.indexToOffset(gate.x || 0, gate.y || 0)
-        const localOffset = gridController.unprojectOffset(e.offsetX, e.offsetY)
-        const offset = [
-            localOffset[0] - gateOffset[0],
-            localOffset[1] - gateOffset[1]
-        ]
-        d.setData('offset', `${offset[0]}|${offset[1]}`)
-        
-        d.setDragImage(svg, 0, 0)
-
-        window.addEventListener("drop", windowDropEV)
-        window.addEventListener("dragover", preventDefault)
+        circuitContainer.addEventListener("mousemove", onDrag)
     }
 
     /**
-     * @param {DragEvent} e
-     * @param {Gate} gate
-     * @param {number} connectionIndex
-     * @param {"Input" | "Output"} type
+     * Disconnect onDrag from mousemove
      */
-    function dragStartConnection(e, gate, type, connectionIndex) {
-
-        const d = e.dataTransfer
-        if (d === null) {
+     function removeMouseMoveListener() {
+        if (circuitContainer == null) {
+            console.log("circuitContainer not found!!")
             return
         }
 
-        const toType = gridController.flipConnectionType(type)
-
-        const offset = gridController.getConnectionPoint({id:gate.id, type:type, index:connectionIndex})
-        d.setData('offset', `${offset[0]}|${offset[1]}`) 
-        
-        if (type === "Input") {
-            const from = gridController.getConnectedTo(
-                gate.id || 0, connectionIndex
-            )
-            if (from !== undefined) {
-                const newGate = gridController.getGate(from[0])
-                d.setData("ConnectionValue",String(newGate?.getOutput(from[1])))
-                if (newGate !== undefined) {
-                    giveGateData(newGate, d)
-                    dragStartConnection(e, newGate, "Output", from[1])
-                    gridController.removeConnection({
-                        id:gate.id, 
-                        type:"Input", 
-                        index:connectionIndex
-                    })
-                    updateSvg()
-                    return
-                }
-            }
-        }
-
-        //literally just removes the drag image
-        //I wanted to add a little connection dot, but overriding the stupid default drag image became more important
-        var parser = new DOMParser();
-        const svg = parser.parseFromString(ConnectionSvg(), "image/svg+xml").children[0];
-        if (svg === undefined) {
-            return
-        }
-        d.setDragImage(svg, 0, 0)
-        
-        d.setData("type",type)
-        d.setData("ConnectionIndex",connectionIndex.toString())
-
-        if (type === "Output") {
-            d.setData("ConnectionValue", String(gate.getOutput(connectionIndex)))
-        }
-
-        svgConnectionPoints = gridController.drawConnectionPoints(
-            ConnectionSvg, gridController.flipConnectionType(type)
-        )
+        circuitContainer.removeEventListener("mousemove", onDrag)
     }
     
     /**
-     * Add evs for dragging related to the circuit
+     * Called in onMount, runs addDragEventListeners, updateViewBox, and updateSvg
+     * These functions all adjust the input handling and display of the circuit, and can be called again whenever appropriate.
      */
-    function addDragEventListeners() {
-        if (circuitContainer == null) {
-            console.log(" not found!!")
-            return
-        }
-
-        circuitContainer.addEventListener("dragover", circuitDragEV)
-
-        circuitContainer.addEventListener("dragenter", preventDefault)
-        circuitContainer.addEventListener("dragleave", preventDefault)
-
-        circuitContainer.addEventListener("drop", circuitDropEV)
-
-
+    let mountCircuit = () => {
+        addDragEventListeners()
+        updateViewBox()
+        updateSvg()
     }
+    onMount(mountCircuit)
 
     /**
-     * @param {DragEvent} e
-     */
-    function circuitDragEV(e) {
-        preventDefault(e)
-
-        const d = e.dataTransfer
-        if (d === null) {
-            console.log("dataTransfer not found!")
-            return
-        }
-
-        const type = d.getData("type")
-        if (type === "") {
-            console.log("drag type not found!")
-            return
-        }
-
-        switch (type) {
-            case "Input":
-            case "Output":
-                circuitDragConnection(e, d)
-        }
-    }
-
-    /**
+     * addDragEventListeners should hook this up so it starts when the user selects an object in the circuitContainer div.
+     * Outside of that div, other components will be in charge of starting a drag.
      * 
-     * @param {DragEvent} e
-     * @param {DataTransfer} d
+     * @param {MouseEvent} e
      */
-    function circuitDragConnection(e, d) {
-        const fromData = d.getData("offset")
+    function onDragStart(e) {
+        e.preventDefault()
 
-        const connectionValue = d.getData("ConnectionValue")
-        const params = connectionValue === "true" ? `stroke="red"`:""
-        if (fromData === "") {
-            console.log("from offset not found!")
+        if (circuitDraggable.isDragging()) return
+
+        const query = gridController.query(e.offsetX, e.offsetY)        
+        switch (query.type) {
+            case "Input":
+                onDragStartInput(e, query)
+                break
+            case "Output":
+                onDragStartOutput(e, query)
+                break
+            case "Gate":
+                onDragStartGate(e, query)
+        }
+    }
+
+    /**
+     * onDragStart calls this when the event passed to it selected an input connection.
+     * It also needs a query referencing the id of the gate and the index of the connection to proceed.
+     * 
+     * Dragging from an empty input should create a new wire, 
+     * while dragging from a populated input should appear to reroute the existing connection.
+     * 
+     * @param {MouseEvent} e
+     * @param {CircuitControllerQueryResult} query
+     */
+    function onDragStartInput(e, query) {
+        //check if an input wire is already there
+        const index = [query.getId() || 0, query.connectionIndex || 0]
+        const connected = gridController.getConnectedTo(
+            index[0], index[1]
+        )
+
+        console.log("Checking if input is already connected:", connected)
+
+        let q = query
+        //if so, "consume" the wire, deleting its connection and starting an active wire from the same output as the original
+        if (connected) {
+
+            //we can coerce the onDrag functions to do this by simply switching out the query for one originating from the output
+            q = gridController.toQuery(connected[0], "Output", connected[1])   
+            console.log(q)
+            //then we can delete the old connection
+            gridController.removeConnection(
+                {id:index[0], type:"Input", index:index[1]}
+            )
+
+            //update the svg because a connection has been removed, otherwise it will keep being drawn
+            updateSvg()
+
+            //tell onDragStartOutput it's business as usual and pretend we didn't do any of this nonsense behind its back
+            onDragStartOutput(e, q)
+
             return
         }
-        const fromS = fromData.split("|").map(Number)
-        const localOffset = gridController.unprojectOffset(e.offsetX, e.offsetY)
+
+        //otherwise, just start a drag
+        circuitDraggable.drag(e, q, circuitContainer)
+
+        //updates the activeSvgWire without having to wait until the user moves their mouse, so they don't get too confused
+        onDragInput(e)
+
+        //draw only the connection points that can be connected to from here
+        svgConnectionPoints = gridController.drawConnectionPoints(ConnectionSvg, "Output")
+    }
+
+    /**
+     * onDragStart calls this when the event passed to it selected an input connection.
+     * It also needs a query referencing the id of the gate and the index of the connection to proceed.
+     * 
+     * @param {MouseEvent} e
+     * @param {CircuitControllerQueryResult} query
+     */
+    function onDragStartOutput(e, query) {
+        //draw a new wire from the input, gategraph will handle merging it with any existing connections
+        circuitDraggable.drag(e, query, circuitContainer)
+
+        //same as the end of onDragStartInput
+        svgConnectionPoints = gridController.drawConnectionPoints(ConnectionSvg, "Input")
+        onDragOutput(e)
+    }
+
+    /**
+     * onDragStart calls this when the event passed to it selected an input connection.
+     * It also needs a query referencing the id of the gate and the index of the connection to proceed.
+     * 
+     * @param {MouseEvent} e
+     * @param {CircuitControllerQueryResult} query
+     */
+    function onDragStartGate(e, query) {
+        circuitDraggable.drag(e, query, circuitContainer)
+    }
+
+    /**
+     * The svg string of a gate, if one is being previewed during a drag
+     * 
+     */
+    let activeSvgGate = ""
+
+    /**
+     * Called after the user has started a drag. 
+     * Keeps activeSvgGate and activeSvgWire updated to preview the changes to user is trying to make.
+     * 
+     * @param {MouseEvent} e
+     */
+    function onDrag(e) {
+
+        if (!gridController.isOffsetInGrid(e.offsetX, e.offsetY)) {
+            activeSvgGate = ""
+            return
+        }
+
+        const controller = circuitDraggable.getController()
+        const cType = controller.getContentType()
+
+        if (cType === "") {
+            onDrop(e)
+            return
+        }
+        
+        switch(cType) {
+            case "Gate":
+                onDragGate(e)
+                break
+            case "Input":
+                onDragInput(e)
+                break
+            case "Output":
+                onDragOutput(e)
+                break
+
+            default: return
+        }
+        
+        
+        console.log("Dragging...")
+    }
+
+    /**
+     * onDrag calls this whenever the mouse moves and the user is dragging a gate.
+     * Handles displaying a gate, invoking different functions for adding a gate versus moving an existing one,
+     * since moving a gate won't collide with itself and so shouldn't appear as it does, but adding a new gate will collide with any other.
+     * 
+     * @param {MouseEvent} e
+     */
+    function onDragGate(e) {
+        const controller = circuitDraggable.getController()
+        const gType = controller.getGateType()
+        if (gType === undefined) return
+        
+        const id = controller.getId()
+        const result = id ? 
+            gridController.previewMoveGate(
+                id,
+                e.offsetX,
+                e.offsetY
+            ) :
+            gridController.previewAddGate(
+                gType,
+                e.offsetX,
+                e.offsetY
+            )
+        
+
+        if (result !== undefined) {
+            activeSvgGate = `<g ${gridController.getGateSvgTransform(
+                {type:gType, x:result[0], y:result[1]}
+            )}>${getGateTypeSvgContents(gType)}</g>`
+        }
+    }
+
+    /**
+     * onDrag calls this whenever the mouse moves and the user is dragging a wire from an input.
+     * 
+     * @param {MouseEvent} e
+     */
+    function onDragInput(e) {
+        const contents = circuitDraggable.getController().getContents()
         activeSvgWire = wireSvg(
-            [fromS[0], fromS[1]], 
-            localOffset,
-            params
+            gridController.getConnectionPoint(
+                {id:contents.getId() || 0, type:"Input", index:contents.connectionIndex || 0}
+            ),
+            gridController.unprojectOffset(e.offsetX, e.offsetY)
         )
     }
 
     /**
-     * Event for dropping an object in the circuit
-     * @param {DragEvent} e
-     */
-    function circuitDropEV(e) {
-
-        const d = e.dataTransfer
-        if (d === null) {
-            return
-        }
-
-        preventDefault(e)
-
-        const type = d.getData("type")
-        if (type === "") {
-            console.log("drag type not found!")
-            return
-        }
-
-        switch (type) {
-            case "Input":
-            case "Output":
-                circuitDropConnection(e, d, type)
-                break
-            case "Gate":
-                circuitDropGate(e, d)
-                break
-        }
-    }
-
-    /**
-     * watch for drops outside of the panel to remove gates
-     * records drops inside the panel too but does nothing, leving it to circuitDropEV
-     * @param {DragEvent} e
-     */
-    function windowDropEV(e) {
-        window.removeEventListener("drop", windowDropEV)
-        window.removeEventListener("dragover", preventDefault)
-        
-        preventDefault(e)
-
-        const dataTransfer = e.dataTransfer
-        if (!dataTransfer) {
-            updateSvg()
-            clearActiveSvgConnection()
-            return
-        }
-
-        
-        const source = dataTransfer.getData('SourceGate')
-
-        if (source != "" && !inCircuitPanel(e.pageX, e.pageY)) {
-            gridController.removeGate(source, svgGates);
-        }
-
-        updateSvg()
-        clearActiveSvgConnection()
-    }
-
-    /**
-     * @param {DragEvent} e
-     * @param {DataTransfer} d
-     */
-    function circuitDropGate(e, d) {
-        const id = d.getData('ShelfButtonId')
-        const name = d.getData('GateName')
-        if (id === '' || name === '') {
-            updateSvg()
-            return
-        }
-
-        let gType = all_gates.get(name) || Buf
-
-        const offsetString = d.getData('offset')
-        if (offsetString === "") {
-            updateSvg()
-            return
-        }
-        let offset = offsetString.split('|').map(Number)
-
-        const source = d.getData('SourceGate')
-        if (source !== "") {
-            gridController.moveGate(
-                source, 
-                e.offsetX,
-                e.offsetY
-            )
-        }
-        else {
-            gridController.addGate(
-                gType, 
-                e.offsetX,
-                e.offsetY
-            )
-        }
-
-        updateSvg()
-    }
-
-    /**
+     * onDrag calls this whenever the mouse moves and the user is dragging a wire from an output.
      * 
-     * @param {DragEvent} e
-     * @param {DataTransfer} d
-     * @param {"Input" | "Output"} fromType
-     * 
-     * @todo dropping a connection on nothing should delete it, currently does not
-     */
-    function circuitDropConnection(e, d, fromType) {
-        const target = gridController.query(e.offsetX, e.offsetY)
-        const toType = target.type
-
-        const gateId = Number(d.getData("SourceGate").split("-")[1])
-        if (Number.isNaN(gateId)) {
-            console.log("gate not found from id ", gateId, "!")
-            updateSvg()
-            return
-        }
-
-        const connectionIndex = Number(d.getData("ConnectionIndex"))
-        if (connectionIndex === null) {
-            console.log(connectionIndex, " not found!")
-            updateSvg()
-            return
-        }
-
-        const toId = target.gate?.id || 0
-
-        if (toType === fromType) {
-            console.log("can't connect ", fromType, " with ", toType)
-            updateSvg()
-            return
-        }
-
-        let result
-        switch (toType) {
-            case "Output":
-                result = gridController.addConnection(
-                    toId, 
-                    target?.connectionIndex || 0, 
-                    gateId, 
-                    connectionIndex
-                )
-                break
-            case "Input":
-                result = gridController.addConnection(
-                    gateId, 
-                    connectionIndex, 
-                    toId, 
-                    target?.connectionIndex || 0
-                )
-                break
-            default:
-                break
-        }
-
-        updateSvg()
-    }
-
-    /**
-     * listen for click events on the circuit
      * @param {MouseEvent} e
      */
-    function clickHandler(e) {
-        const result = gridController.query(e.offsetX, e.offsetY)
-        //console.log(result)
+    function onDragOutput(e) {
+        const contents = circuitDraggable.getController().getContents()
+        activeSvgWire = wireSvg(
+            gridController.unprojectOffset(e.offsetX, e.offsetY),
+            gridController.getConnectionPoint(
+                {id:contents.getId() || 0, type:"Output", index:contents.connectionIndex || 0}
+            )
+        )
     }
 
     /**
-     * Check if the offset is in the circuit panel,
-     * more reliable than getting targets from events
-     * @param {number} offsetX
-     * @param {number} offsetY
+     * Called at the end of a user's drag, calling dropGate or dropConnection depending on the type of the drag contents.
+     * 
+     * Also calls removeMouseMoveListener, calls updateSvg, and clears the active svg strings. 
+     * 
+     * @param {MouseEvent} e
      */
-    function inCircuitPanel(offsetX, offsetY) {
-        if (circuitContainer === null) {
-            return false
+    function onDrop(e) {
+
+        const result = circuitDraggable.drop(e)
+
+        const cType = result.type
+
+        switch (cType) {
+            case "Gate": 
+                dropGate(result, e)
+                break
+            case "Input":
+            case "Output":
+                const query = gridController.query(e.offsetX, e.offsetY)
+                dropConnection(result, query)
+                break
+            default: return
+        }
+        
+        removeMouseMoveListener()
+
+        activeSvgGate = ""
+        activeSvgWire = ""
+
+        updateSvg()
+    }
+
+    /**
+     * onDrop calls this when dropping a Gate.
+     * 
+     * The circuitpanel-overhaul branch should have fully isolated the Gate class from the view, making it a proper model class.
+     * While we can technically still reference it here, there's no need. Gates are added via their readonly gateType, and moved/removed via their id.
+     * 
+     * @param {CircuitControllerQueryResult} result
+     * @param {MouseEvent} e
+     */
+    function dropGate(result, e) {
+        const id = result.getId()
+
+        if (!gridController.isOffsetInGrid(e.offsetX, e.offsetY)) {
+            if (id !== undefined) {
+                gridController.removeGate(id)
+            }
+            return
         }
 
-        if (offsetX >= circuitContainer.offsetLeft && 
-            offsetX < circuitContainer.offsetLeft + circuitContainer.offsetWidth &&
-            offsetY >= circuitContainer.offsetTop && 
-            offsetY < circuitContainer.offsetTop + circuitContainer.offsetHeight) 
-        {
-            return true
+        const gType = result.gateType || Buf
+        if (id === undefined) {
+            console.log(id)
+            gridController.addGate(gType, e.offsetX, e.offsetY)
+        }
+        else {
+            gridController.moveGate(id, e.offsetX, e.offsetY)
+        }
+    }
+
+    /**
+     * onDrop calls this when dropping a connection, passing two queries for a start and end.
+     * 
+     * Only does stuff when the queries have opposite connection types, evading any undefined behavior from connecting two inputs or trying to connect a wire to nothing.
+     * 
+     * @param {CircuitControllerQueryResult} qa
+     * @param {CircuitControllerQueryResult} qb
+     */
+    function dropConnection(qa, qb) {
+        switch (qa.type + qb.type) {
+            case "OutputInput":
+                console.log("laying connection from ", qa, qb)
+                gridController.addConnection(
+                    qa.getId() || 0, qa.connectionIndex || 0, 
+                    qb.getId() || 0, qb.connectionIndex || 0
+                );
+                break
+            case "InputOutput":
+                console.log("laying connection from ", qb, qa)
+                gridController.addConnection(
+                    qb.getId() || 0, qb.connectionIndex || 0, 
+                    qa.getId() || 0, qa.connectionIndex || 0
+                );
+                break
         }
 
-        return false
     }
 
 </script>
 
 <div
-    draggable="true" 
     class="circuit-container" 
     id="circuitContainer" 
     role="application"
     bind:this={circuitContainer}
-    on:dragstart={onDragStart}
-    on:click={clickHandler}>
+    >
 
     <svg 
         stroke="black" 
@@ -526,6 +464,7 @@
 
             {@html svgConnectionPoints}
             {@html activeSvgWire}
+            {@html activeSvgGate}
         </g>
     </svg>
 

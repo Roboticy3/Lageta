@@ -5,23 +5,27 @@
     import { SignalSetController } from "$lib/signal_types/SignalSetController";
 
    /**
-    * make an svg for a gate, the default size is 20x20
-    * @param {String} contents
+    * make an svg for a gate
+    * @param {GateType} type
     */
-   export const buildSvg = (contents, offsetX=20, offsetY=20, id="") => {
+   export const buildSvg = (type, id="") => {
       let idString = ""
       if (id !== "") {
          idString = `id=${id}`
       }
+
+      let width = 10 * type.gridWidth
+      let height = 10 * type.gridHeight
+
       return (
 `
 <svg 
    ${idString}
    width="100%"
-   viewBox="0 0 ${offsetX} ${offsetY}"
+   viewBox="0 0 ${width} ${height}"
    stroke="black" stroke-width=".5pt" fill="none"
    xmlns="http://www.w3.org/2000/svg">
-   ${contents}
+   ${getGateTypeSvgContents(type)}
 </svg>
 `)
    }
@@ -77,14 +81,14 @@
     * @param {Gate} gate
     */
    export const getGateSvg = (gate) => {
-      return buildSvg(getGateSvgContents(gate))
+      return buildSvg(gate.type)
    }
 
    /**
     * @param {GateType} gType
     */
    export const getGateTypeSvg = (gType) => {
-      return buildSvg(getGateTypeSvgContents(gType))
+      return buildSvg(gType)
    }
 
    /**
