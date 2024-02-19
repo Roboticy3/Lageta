@@ -355,8 +355,7 @@ export class CircuitController {
      * @param svgContents 
      */
     removeGate(
-        id:number,
-        svgContents:Array<string>
+        id:number
     ) {
         console.log("removing gate: ", id)
 
@@ -364,8 +363,6 @@ export class CircuitController {
         if (result === undefined) {
             console.log("gate not found! ")
         }
-
-        svgContents[id] = ""
 
         console.log(this.gateGrid)
     }

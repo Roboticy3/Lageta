@@ -386,24 +386,22 @@
      * @param {MouseEvent} e
      */
     function dropGate(result, e) {
+        const id = result.getId()
+
         if (!gridController.isOffsetInGrid(e.offsetX, e.offsetY)) {
+            if (id !== undefined) {
+                gridController.removeGate(id)
+            }
             return
         }
 
         const gType = result.gateType || Buf
-
-        const id = result.getId()
         if (id === undefined) {
             console.log(id)
             gridController.addGate(gType, e.offsetX, e.offsetY)
         }
         else {
-            if (gridController.isOffsetInGrid(e.offsetX, e.offsetY)) {
-                gridController.moveGate(id, e.offsetX, e.offsetY)
-            }
-            else {
-                gridController.removeGate(id, svgGates)
-            }
+            gridController.moveGate(id, e.offsetX, e.offsetY)
         }
     }
 
