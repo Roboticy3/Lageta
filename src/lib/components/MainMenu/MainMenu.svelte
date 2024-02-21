@@ -12,8 +12,8 @@
     <div class="menu">
         <div class="options-container">
             <div class="options">
-                <MainMenuOption>Continue</MainMenuOption>
-                <MainMenuOption>Options</MainMenuOption>
+                <MainMenuOption path={"campaign"}>Continue</MainMenuOption>
+                <MainMenuOption gateType={Or}>Options</MainMenuOption>
             </div>
         </div>
     </div>
