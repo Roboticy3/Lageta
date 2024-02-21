@@ -1,28 +1,6 @@
 <script>
-    import MainMenuOptions from "$lib/components/MainMenu/MainMenuOptions.svelte";
+    import MainMenu from "$lib/components/MainMenu/MainMenu.svelte";
 
 </script>
-<div class="full">
-    <div class="title">
-        Lageta
-    </div>
-    <div class="menu">
-        <MainMenuOptions />
-    </div>
+<MainMenu />
 
-</div>
-
-<style>
-
-    .full {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-    }
-
-    .title {
-        margin: 5vh;
-        font-size: max(15vw, 15vh);
-        font-family:monospace;
-    }
-</style>
