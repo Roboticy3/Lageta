@@ -1,34 +1,28 @@
-<!-- home page, give list of assignments and freeplay -->
-
 <script>
-    import { Freeplay } from "$lib/level_types/Level";
-
-    let name = 'Lageta'
-
-    let count = 0;
-
-    function increment() {
-        count += 1;
-    }
-
-
+    import MainMenuOptions from "$lib/components/MainMenu/MainMenuOptions.svelte";
 
 </script>
+<div class="full">
+    <div class="title">
+        Lageta
+    </div>
+    <div class="menu">
+        <MainMenuOptions />
+    </div>
 
-<h1>Welcome to {name}!</h1>
-<ul class="menu">
-    <a href='/level/Freeplay'>freeplay</a>
-    <a href='/campaign'>campaign</a>
-</ul>
-
-
-<button on:click={increment}>
-    {count}
-</button>
+</div>
 
 <style>
-    .menu {
+
+    .full {
         display: flex;
         flex-direction: column;
+        align-items: center;
+    }
+
+    .title {
+        margin: 5vh;
+        font-size: max(15vw, 15vh);
+        font-family:monospace;
     }
 </style>
