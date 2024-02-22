@@ -522,9 +522,9 @@ export class CircuitController {
      * @param color 
      * @returns 
      */
-    gridCellsSvg(color:String = "purple") {
+    gridCellsSvg(color:string = "purple") {
         const grid = this.gateGrid
-        let svg = new Array<String>(grid.sizeX + grid.sizeY)
+        let svg = new Array<string>(grid.sizeX + grid.sizeY)
         const offsetHeight = grid.cellOffset * grid.sizeY
         const offsetWidth = grid.cellOffset * grid.sizeX
         for (let i = 0; i < grid.sizeX; i++) {

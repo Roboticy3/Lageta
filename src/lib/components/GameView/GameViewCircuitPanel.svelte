@@ -62,6 +62,23 @@
     }
 
     /**
+     * @type {string[]}
+     */
+    let cellsSvg = []
+
+    export function disableAutoResize() {
+        window.removeEventListener('resize', (e) => {
+            updateViewBox()
+        })
+    }
+    export function enableAutoResize() {
+        window.addEventListener('resize', (e) => {
+            updateViewBox()
+        })
+        updateViewBox()
+    }
+
+    /**
      * Corrects the viewBox of the circuit such that it won't change size when the window is resized.
      */
     function updateViewBox() {
@@ -71,13 +88,24 @@
 
         let offsetX = circuitContainer.offsetWidth;
         let offsetY = circuitContainer.offsetHeight;
-        circuit.setAttribute('viewBox', `0 0 ${offsetX} ${offsetY}`)
-        circuit.setAttribute('width', `${offsetX}`)
+        setViewBox(offsetX, offsetY)
     }
 
-    window.addEventListener('resize', (e) => {
-        updateViewBox()
-    })
+    /**
+     * @param {number} x
+     * @param {number} y
+     */
+     export function setViewBox(x, y) {
+        circuit.setAttribute('viewBox', `0 0 ${x} ${y}`)
+        circuit.setAttribute('width', `${x}`)
+        cellsSvg = gridController.gridCellsSvg()
+    }
+
+    export let startAutoResize = true
+
+    if (startAutoResize) {
+        enableAutoResize()
+    }
 
     /**
      * Add all events needed to edit the circuit, name is a hold-over from when the project used the drag and drop api
@@ -453,7 +481,7 @@
                 {@html wire}
             {/each}
 
-            {#each gridController.gridCellsSvg() as svg}
+            {#each cellsSvg as svg}
             {@html svg}
             {/each}
 
@@ -477,12 +505,13 @@
         grid-row: 2;
         grid-column: 1 / 2;
         background-color: white;  
-        padding: 0%;
-        width:100%;
+        width:min-content;
+        height:min-content;
     }
 
     .circuit-svg {
         pointer-events: none;
         display: flex;
+        height:100%;
     }
 </style>

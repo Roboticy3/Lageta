@@ -8,12 +8,31 @@
     import { CircuitController } from "$lib/circuit_types/CircuitController";
     import CircuitDraggable from "../GameView/CircuitDraggable.svelte";
 
-    const params = new GameViewParameters("LevelSelect", "", {size:[20, 20]})
+    const gridWidth = 20
+    const gridHeight = 10
+    const params = new GameViewParameters("LevelSelect", "", {size:[gridWidth, gridHeight]})
 
     let progress = new ProgressStorage()
     let levelSet = progress.levels()
 
+    /**
+     * @type {GameViewCircuitPanel}
+     */
     let circuitPanel
+    
+    onMount(() => {
+        resize()
+    })
+
+    function resize() {
+        const width = window.innerWidth
+        const cellOffset = width / gridWidth
+        circuitController.setGridCellOffset(cellOffset)
+        circuitPanel.setViewBox(width, cellOffset * gridHeight)
+        circuitPanel.updateSvg()
+    }
+
+    window.addEventListener('resize', resize)
 
     let circuitController = params.initializeGrid()
     
@@ -25,10 +44,21 @@
     bind:this={circuitDraggable}
     circuitController={circuitController}  
 />
+<div class="level-panel">
+    <GameViewCircuitPanel 
+        bind:this={circuitPanel} 
+        params={params}
+        gridController={circuitController}
+        circuitDraggable={circuitDraggable}
+        startAutoResize={false}
+    /> 
+</div>
 
-<GameViewCircuitPanel 
-    bind:this={circuitPanel} 
-    params={params}
-    gridController={circuitController}
-    circuitDraggable={circuitDraggable}
-/> 
+<style>
+    .level-panel {
+        display:flex;
+        height:100vh;
+        justify-content: center;
+        align-items: center;
+    }
+</style>
