@@ -33,7 +33,6 @@ export class GameViewParameters {
         this.completeCondition = completeCondition
         this.completeRewards = completeRewards
         this.allUnlocks = allUnlocks
-        console.log(this.grid)
     }
 
     initializeGrid() {

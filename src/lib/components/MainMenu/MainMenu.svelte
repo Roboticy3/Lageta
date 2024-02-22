@@ -10,20 +10,14 @@
         Lageta
     </div>
     <div class="menu">
-        <div class="options-container">
-            <div class="options">
-                <MainMenuOption path={"campaign"}>Continue</MainMenuOption>
-                <MainMenuOption gateType={Or}>Options</MainMenuOption>
-            </div>
+        <div class="options">
+            <MainMenuOption path={"campaign"}>Continue</MainMenuOption>
+            <MainMenuOption path={"level/Freeplay"} gateType={Or}>Options</MainMenuOption>
         </div>
     </div>
 </div>
 
 <style>
-
-    .options-container {
-        width: 100%;
-    }
 
     .options {
         display:flex;
@@ -38,9 +32,13 @@
     }
 
     .title {
-        margin: 5vh;
-        margin-top: 10%;
-        font-size: max(15vw, 15vh);
+        margin: 1em;
+        font-size: min(20vw, 20vh);
         font-family:monospace;
+    }
+
+    .menu {
+        width:20%;
+        height:30%;
     }
 </style>

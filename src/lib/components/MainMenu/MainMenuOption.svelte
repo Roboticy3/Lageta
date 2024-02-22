@@ -25,17 +25,15 @@
 <style>
     .option {
         display:flex;
-        justify-content:space-evenly;
+        justify-content:space-between;
         flex-direction:row;
-        height:5vh;
         background:none;
+        height:20px;
     }
     .option:hover {
         background:grey;
     }
     .option-text {
         font-family: monospace;
-        font-size: 4vh;
-        height:100%;
     }
 </style>

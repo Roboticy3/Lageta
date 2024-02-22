@@ -267,8 +267,6 @@ export class OrganizedCircuit {
                 graph.setInput(to[j], c)
             }
         }
-
-        console.log(this)
         return grid
     }
 

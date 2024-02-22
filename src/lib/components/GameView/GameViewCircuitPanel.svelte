@@ -94,7 +94,6 @@
         await tick()
 
         circuitDraggable.getController().dragStartHandler = addMouseMoveListener
-        console.log(circuitDraggable)
     }
 
     /**
@@ -479,6 +478,7 @@
         grid-column: 1 / 2;
         background-color: white;  
         padding: 0%;
+        width:100%;
     }
 
     .circuit-svg {
