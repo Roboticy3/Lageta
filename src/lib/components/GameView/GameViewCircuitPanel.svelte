@@ -32,7 +32,7 @@
     /**
      * @type {HTMLDivElement | null}
      */
-    let circuitContainer;
+    let circuitContainer = null;
 
     /**
      * @type {Array<String>}
@@ -82,7 +82,7 @@
      * Corrects the viewBox of the circuit such that it won't change size when the window is resized.
      */
     function updateViewBox() {
-        if (circuitContainer === null) {
+        if (!circuitContainer) {
             return
         }
 
@@ -464,7 +464,6 @@
 
 <div
     class="circuit-container" 
-    id="circuitContainer" 
     role="application"
     bind:this={circuitContainer}
     >
@@ -505,8 +504,6 @@
         grid-row: 2;
         grid-column: 1 / 2;
         background-color: white;  
-        width:min-content;
-        height:min-content;
     }
 
     .circuit-svg {
