@@ -22,19 +22,16 @@
     let circuitPanel
     
     onMount(() => {
-        console.log(levelSet)
-        levelSet.forEach((l, i, ls) => {
-            circuitController.addGateAtCell(l.type, l.x, l.y)
-        })
 
         resize()
     })
 
     function resize() {
         const width = window.innerWidth
+        const height = window.innerHeight
         const cellOffset = width / gridWidth
         circuitController.setGridCellOffset(cellOffset)
-        circuitPanel.setViewBox(width, cellOffset * gridHeight)
+        circuitPanel.setViewBox(width, height - height * 0.1)
         circuitPanel.updateSvg()
     }
 
@@ -58,7 +55,9 @@
         circuitDraggable={circuitDraggable}
         startAutoResize={false}
     >
-        <LevelViewer level={W1S1} circuitController={circuitController}/>
+        {#each levelSet as level}
+            <LevelViewer level={level} circuitController={circuitController}/>
+        {/each}
     </GameViewCircuitPanel>
 </div>
 

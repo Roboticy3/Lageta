@@ -44,12 +44,9 @@
         const gridEnd = [level.x + type.gridWidth, level.y + type.gridHeight]
         const localEnd = circuitController.indexToOffset(gridEnd[0], gridEnd[1])
 
-        console.log(gridStart, gridEnd)
-        console.log(localStart, localEnd)
-
         end = circuitController.projectOffset(
-            localEnd[0],
-            localEnd[1]
+            localEnd[0] - 8,
+            localEnd[1] - 8
         )
     }
 
@@ -59,13 +56,16 @@
 </script>
 
 <div class="level" bind:this={element} style="left:{start[0]}px; top:{start[1]}px; width:{end[0] - start[0]}px; height:{end[1] - start[1]}px;">
-    <p>epic</p>
+    <p>{level.name()}</p>
 </div>
 
 <style>
     .level {
         position:absolute;
-        background:blue;
-        margin:0px;
+        background:whitesmoke;
+        border-radius: 10%;
+        border: 4px ridge black;
+        text-align:center;
+        font-size: max(2vh, 2vw);
     }
 </style>

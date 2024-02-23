@@ -276,6 +276,8 @@
      */
     function onDrag(e) {
 
+        console.log(e)
+
         if (!gridController.isOffsetInGrid(e.offsetX, e.offsetY)) {
             activeSvgGate = ""
             return
