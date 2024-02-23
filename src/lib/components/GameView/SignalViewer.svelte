@@ -19,7 +19,6 @@
      * @type {(() => void) | null}
      */
     export let updateSvg
-    console.log(updateSvg)
 
     let [width, height] = [0, 0]
 

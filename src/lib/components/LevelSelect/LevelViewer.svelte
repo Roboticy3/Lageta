@@ -2,7 +2,7 @@
     import { goto } from "$app/navigation";
     import { CircuitController } from "$lib/circuit_types/CircuitController";
     import { Freeplay, Level } from "$lib/level_types/Level";
-    import { onMount } from "svelte";
+    import { onMount, tick } from "svelte";
 
     /**
      * @type {Level}
@@ -51,7 +51,10 @@
         )
     }
 
-    onMount(setOffset)
+    onMount(async () => {
+        await tick()
+        setOffset()
+    })
     
     window.addEventListener('resize',setOffset)
 

@@ -315,7 +315,6 @@ export function Input(size:number, otherParams:GateTypeParameters | undefined = 
         f:(x) => {return x}
     }
     if (otherParams) {
-        console.log(params, otherParams);
         params = combineGateTypeParameters(otherParams, params)
     }
     return getGateType (params)

@@ -71,7 +71,7 @@ export const Freeplay = new Level (
     1,1
 )
 
-export const W1S1 = new Level (
+export const NotLevel = new Level (
     new GameViewParameters(
         "Not",
         `
@@ -221,7 +221,7 @@ const In2Out1 = {
     size:[10,5]
 } as OrganizedCircuitContents
 
-export const W1S2 = new Level(
+export const AndLevel = new Level(
     new GameViewParameters(
         "And",
         "An And gate has two inputs, and only turns On when both are enabled.",
@@ -284,7 +284,7 @@ export const W1S2 = new Level(
     2, 4
 )
 
-export const W1S3 = new Level (
+export const OrLevel = new Level (
     new GameViewParameters(
         "Or",
         "An Or gate is On when either of its inputs are On",

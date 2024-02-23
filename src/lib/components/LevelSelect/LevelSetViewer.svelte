@@ -1,7 +1,7 @@
 <script>
     import { GameViewParameters } from "$lib/level_types/GameViewParameters";
     //@ts-ignore
-    import { Freeplay, Level, W1S1, all_levels } from "$lib/level_types/Level";
+    import { Freeplay, Level, NotLevel, all_levels } from "$lib/level_types/Level";
     import { ProgressStorage } from "$lib/storage_types/ProgressStore";
     import { onMount } from "svelte";
     import GameViewCircuitPanel from "../GameView/GameViewCircuitPanel.svelte";
