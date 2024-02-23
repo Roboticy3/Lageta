@@ -1,12 +1,13 @@
 <script>
     import { GameViewParameters } from "$lib/level_types/GameViewParameters";
     //@ts-ignore
-    import { Freeplay, Level, all_levels } from "$lib/level_types/Level";
+    import { Freeplay, Level, W1S1, all_levels } from "$lib/level_types/Level";
     import { ProgressStorage } from "$lib/storage_types/ProgressStore";
     import { onMount } from "svelte";
     import GameViewCircuitPanel from "../GameView/GameViewCircuitPanel.svelte";
     import { CircuitController } from "$lib/circuit_types/CircuitController";
     import CircuitDraggable from "../GameView/CircuitDraggable.svelte";
+    import LevelViewer from "./LevelViewer.svelte";
 
     const gridWidth = 20
     const gridHeight = 10
@@ -56,7 +57,9 @@
         gridController={circuitController}
         circuitDraggable={circuitDraggable}
         startAutoResize={false}
-    /> 
+    >
+        <LevelViewer level={W1S1} circuitController={circuitController}/>
+    </GameViewCircuitPanel>
 </div>
 
 <style>
