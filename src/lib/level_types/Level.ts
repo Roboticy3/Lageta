@@ -1,5 +1,5 @@
 import { CircuitController } from "$lib/circuit_types/CircuitController"
-import { And, Buf, Input, Not, Or, Output, all_gates } from "$lib/circuit_types/Gate"
+import { And, Buf, Gate, GateType, Input, Not, Or, Output, all_gates } from "$lib/circuit_types/Gate"
 import { GateGraph } from "$lib/circuit_types/GateGraph"
 import type { GateGrid } from "$lib/circuit_types/GateGrid"
 import { SignalSet } from "$lib/signal_types/Signal"
@@ -9,19 +9,26 @@ import { CompleteCondition, GameViewParameters } from "./GameViewParameters"
 export let all_levels = new Map<String, Level>()
 
 export class Level {
+    private params:GameViewParameters
+
     readonly x:number
     readonly y:number
-    private params:GameViewParameters
+
+    readonly type:GateType
 
     constructor(
         params:GameViewParameters,
         x:number = 0,
         y:number = 0,
+        type:GateType = Buf,
         register:boolean = true
     ) {
+
         this.x = x
         this.y = y
         this.params = params
+
+        this.type = type
 
         if (register) {
             all_levels.set(params.name, this)
