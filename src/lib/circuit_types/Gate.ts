@@ -21,7 +21,7 @@ export class GateType {
     readonly gridHeight:number = 2
     readonly moveable:boolean = true
     readonly variant:GateTypeVariant = "Gate"
-    private f:(x:(ConnectionValue)[]) => (ConnectionValue)[] = (x:(ConnectionValue)[])=>{return x}
+    private readonly f:(x:(ConnectionValue)[]) => (ConnectionValue)[] = (x:(ConnectionValue)[])=>{return x}
     
     constructor(
         params:GateTypeParameters
@@ -65,9 +65,11 @@ export class GateType {
 
         if (params.variant) this.variant = params.variant
 
-        if (params.moveable) this.moveable = params.moveable
+        if (params.moveable !== undefined) this.moveable = params.moveable
 
         if (params.f) this.f = params.f
+
+        console.log("Created GateType: ",this)
 
     }   
 

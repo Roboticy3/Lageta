@@ -22,7 +22,6 @@
     let circuitPanel
     
     onMount(() => {
-
         resize()
     })
 

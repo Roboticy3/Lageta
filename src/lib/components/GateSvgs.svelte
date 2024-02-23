@@ -63,10 +63,10 @@
     */
    export const getGateTypeSvgContents = (gType) => {
       let result = _svgs.get(gType.name)
-      return result || defaultSvg((gType?.gridWidth || 2) * 10, (gType?.gridHeight || 2) * 10, 4, gType.name);
+      return result || defaultSvg((gType?.gridWidth || 2) * 10, (gType?.gridHeight || 2) * 10, 4);
    } 
 
-   function defaultSvg(width=2, height=2, font=4, name="MissingSvg") {
+   function defaultSvg(width=2, height=2, font=4, name="") {
       return `<text x="${font}" y="${height / 2 + font / 2}" stroke="transparent" fill="black" style="font: ${font}px sans-serif;" >${name}</text>`
    }
 
