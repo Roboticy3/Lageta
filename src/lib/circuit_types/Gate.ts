@@ -140,7 +140,7 @@ function combineGateTypeParameters(a:GateTypeParameters, b:GateTypeParameters) {
  * @param params 
  * @returns 
  */
-function getGateType(params:GateTypeParameters) {
+export function getGateType(params:GateTypeParameters) {
     if (params.name) {
         const result = all_gates.get(params.name)
         if (result) {

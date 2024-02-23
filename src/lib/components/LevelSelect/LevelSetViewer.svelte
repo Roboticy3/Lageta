@@ -21,6 +21,11 @@
     let circuitPanel
     
     onMount(() => {
+        console.log(levelSet)
+        levelSet.forEach((l, i, ls) => {
+            circuitController.addGateAtCell(l.type, l.x, l.y)
+        })
+
         resize()
     })
 
@@ -57,7 +62,6 @@
 <style>
     .level-panel {
         display:flex;
-        height:100vh;
         justify-content: center;
         align-items: center;
     }

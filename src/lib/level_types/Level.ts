@@ -1,5 +1,5 @@
 import { CircuitController } from "$lib/circuit_types/CircuitController"
-import { And, Buf, Gate, GateType, Input, Not, Or, Output, all_gates } from "$lib/circuit_types/Gate"
+import { And, Buf, Gate, GateType, Input, Not, Or, Output, all_gates, getGateType } from "$lib/circuit_types/Gate"
 import { GateGraph } from "$lib/circuit_types/GateGraph"
 import type { GateGrid } from "$lib/circuit_types/GateGrid"
 import { SignalSet } from "$lib/signal_types/Signal"
@@ -20,7 +20,7 @@ export class Level {
         params:GameViewParameters,
         x:number = 0,
         y:number = 0,
-        type:GateType = Buf,
+        type:GateType = LevelGateType,
         register:boolean = true
     ) {
 
@@ -48,6 +48,8 @@ export class Level {
     }
 }
 
+export const LevelGateType = getGateType({name:"LevelGateType",gridSize:[2, 2]})
+
 export const Freeplay = new Level (
     new GameViewParameters(
         "Freeplay",
@@ -66,7 +68,7 @@ export const Freeplay = new Level (
         [],
         true
         ),
-    1,1,
+    1,1
 )
 
 export const W1S1 = new Level (

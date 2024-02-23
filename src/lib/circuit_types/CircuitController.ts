@@ -274,13 +274,21 @@ export class CircuitController {
         offsetX:number, 
         offsetY:number
     ) {
-        const gate = createGate(gType)
-        console.log("adding gate: ", gate)
-
-        const gateId = this.gateGrid.gates.length
 
         const [localX, localY] = this.unprojectOffset(offsetX, offsetY)
         let [x, y] = this.gateGrid.offsetToIndex(localX, localY)
+        
+        this.addGateAtCell(gType, x, y)
+    }
+
+    addGateAtCell(
+        gType:GateType,
+        x:number,
+        y:number
+    ) {
+        const gate = createGate(gType)
+        console.log("adding gate: ", gate)
+
         const result = this.gateGrid.addGate(x, y, gate)
         if (result === undefined) {
             console.log("failed add!")
