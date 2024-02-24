@@ -2,7 +2,7 @@ import { CircuitController } from "$lib/circuit_types/CircuitController"
 import { And, Buf, Gate, GateType, Input, Not, Or, Output, all_gates, getGateType } from "$lib/circuit_types/Gate"
 import { GateGraph } from "$lib/circuit_types/GateGraph"
 import type { GateGrid } from "$lib/circuit_types/GateGrid"
-import { SignalSet } from "$lib/signal_types/Signal"
+import { Signal, SignalSet, oscillator } from "$lib/signal_types/Signal"
 import type { OrganizedCircuitContents, SerializableGate } from "$lib/storage_types/CircuitStorage"
 import { CompleteCondition, GameViewParameters } from "./GameViewParameters"
 
@@ -87,112 +87,11 @@ export const NotLevel = new Level (
         } as OrganizedCircuitContents,
         new SignalSet(
             [
-                [
-                    {
-                        frame:10,
-                        value:true
-                    },
-                    {
-                        frame:20,
-                        value:false
-                    },
-                    {
-                        frame:30,
-                        value:true
-                    },
-                    {
-                        frame:40,
-                        value:false
-                    },
-                    {
-                        frame:45,
-                        value:true
-                    },
-                    {
-                        frame:50,
-                        value:false
-                    },
-                    {
-                        frame:55,
-                        value:true
-                    },
-                    {
-                        frame:60,
-                        value:false
-                    },
-                    {
-                        frame:65,
-                        value:true
-                    },
-                    {
-                        frame:70,
-                        value:false
-                    },
-                    {
-                        frame:73,
-                        value:true
-                    },
-                    {
-                        frame:76,
-                        value:false
-                    },
-                    {
-                        frame:79,
-                        value:true
-                    },
-                    {
-                        frame:82,
-                        value:false
-                    },
-                    {
-                        frame:85,
-                        value:true
-                    },
-                    {
-                        frame:88,
-                        value:false
-                    },
-                    {
-                        frame:91,
-                        value:true
-                    },
-                    {
-                        frame:92,
-                        value:false
-                    },
-                    {
-                        frame:93,
-                        value:true
-                    },
-                    {
-                        frame:94,
-                        value:false
-                    },
-                    {
-                        frame:95,
-                        value:true
-                    },
-                    {
-                        frame:96,
-                        value:false
-                    },
-                    {
-                        frame:97,
-                        value:true
-                    },
-                    {
-                        frame:98,
-                        value:false
-                    },
-                    {
-                        frame:99,
-                        value:true
-                    },
-                    {
-                        frame:100,
-                        value:false
-                    }
-                ]
+                (new Signal<boolean>())
+                    .push(oscillator(10, 2))
+                    .push(oscillator(5, 3))
+                    .push(oscillator(3, 3))
+                    .push(oscillator(1, 6))
             ],
             101,
             false,
@@ -228,50 +127,13 @@ export const AndLevel = new Level(
         In2Out1,
         new SignalSet(
             [
-                [
-                    {
-                        frame:10,
-                        value:true
-                    },
-                    {
-                        frame:20,
-                        value:false
-                    },
-                    {
-                        frame:30,
-                        value:true
-                    },
-                    {
-                        frame:40,
-                        value:false
-                    },
-                    {
-                        frame:50,
-                        value:true
-                    },
-                    {
-                        frame:60,
-                        value:false
-                    },
-                    {
-                        frame:70,
-                        value:true
-                    },
-                    {
-                        frame:80,
-                        value:false
-                    },
-                    {
-                        frame:90,
-                        value:true
-                    }
-                ],
-                [
+                oscillator(10, 5),
+                new Signal([
                     {
                         frame:50,
                         value:true
                     }
-                ]
+                ])
             ],
             100,
             false,
@@ -290,107 +152,13 @@ export const OrLevel = new Level (
         "An Or gate is On when either of its inputs are On",
         In2Out1,
         new SignalSet(
-            [
-                [
+            [   
+                new Signal([
                     {
-                        frame:10,
+                        frame:0,
                         value:true
-                    },
-                    {
-                        frame:12,
-                        value:false
-                    },
-                    {
-                        frame:24,
-                        value:true
-                    },
-                    {
-                        frame:26,
-                        value:false
-                    },
-                    {
-                        frame:38,
-                        value:true
-                    },
-                    {
-                        frame:40,
-                        value:false
-                    },
-                    {
-                        frame:45,
-                        value:true
-                    },
-                    {
-                        frame:47,
-                        value:false
-                    },
-                    {
-                        frame:52,
-                        value:true
-                    },
-                    {
-                        frame:54,
-                        value:false
-                    },
-                    {
-                        frame:59,
-                        value:true
-                    },
-                    {
-                        frame:61,
-                        value:false
                     }
-                ],
-                [
-                    {
-                        frame:17,
-                        value:true
-                    },
-                    {
-                        frame:19,
-                        value:false
-                    },
-                    {
-                        frame:31,
-                        value:true
-                    },
-                    {
-                        frame:33,
-                        value:false
-                    },
-                    {
-                        frame:38,
-                        value:true
-                    },
-                    {
-                        frame:40,
-                        value:false
-                    },
-                    {
-                        frame:45,
-                        value:true
-                    },
-                    {
-                        frame:47,
-                        value:false
-                    },
-                    {
-                        frame:52,
-                        value:true
-                    },
-                    {
-                        frame:54,
-                        value:false
-                    },
-                    {
-                        frame:59,
-                        value:true
-                    },
-                    {
-                        frame:61,
-                        value:false
-                    }
-                ]
+                ]) //TODO after implementing repeater
             ],
             70,
             false,

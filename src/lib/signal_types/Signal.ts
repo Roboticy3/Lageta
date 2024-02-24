@@ -5,16 +5,74 @@ export type SignalKeyFrame<T> = {
     value:T
 }
 
-export type Signal<T> = Array<SignalKeyFrame<T>>
+export class Signal<T> {
+    private block:Array<SignalKeyFrame<T>>
 
-export function bookend<T>(s:Signal<T>) {
-    const last = s[s.length - 1]
-    const bookend = {
-        frame:2147483647,
-        value:last.value
+    constructor(
+        block:Array<SignalKeyFrame<T>> = []
+    ) {
+        this.block = block
     }
-    s.push(bookend)
-    return s
+
+    unpack() {
+        return this.block
+    }
+
+    bookend() {
+        const last = this.block[this.block.length - 1]
+        const bookend = {
+            frame:2147483647,
+            value:last.value
+        }
+        this.block.push(bookend)
+    }
+    
+    toRelative() {
+        let offset = 0
+        for (let i = 0; i < this.block.length; i++) {
+            const temp = this.block[i].frame
+            this.block[i].frame -= offset
+            offset = temp
+        }
+    }
+
+    fromRelative() {
+        let offset = 0
+        for (let i = 0; i < this.block.length; i++) {
+            this.block[i].frame += offset
+            offset = this.block[i].frame
+        }
+
+        console.log(this.block)
+    }
+
+    push(signal:Signal<T>) {
+        this.block.push(...signal.unpack())
+        console.log(this)
+        return this
+    }
+    
+}
+
+export function oscillator(step:number, repeat:number=1) {
+    let result = new Signal<boolean>(new Array(repeat * 2))
+    let block = result.unpack()
+    const doubleRepeat = 2 * repeat
+    for (let i = 0; i < doubleRepeat; i += 2) {
+        block[i] = {frame:step,value:true}
+        block[i + 1] = {frame:step,value:false}
+    }
+    return result
+}
+
+export function repeater(source:Signal<boolean>, duration:number, repeat:number=1) {
+    const sourceLength = source.unpack().length
+    let result = new Signal<boolean>(new Array(sourceLength * repeat))
+    let block = result.unpack()
+    const scaledRepeat = sourceLength * repeat
+    for (let i = 0; i < scaledRepeat; i += sourceLength) {
+        //TODO :)
+    }
 }
 
 export class SignalSet implements Iterable<Array<boolean>>{
@@ -29,8 +87,15 @@ export class SignalSet implements Iterable<Array<boolean>>{
         block:Array<Signal<boolean>> = [],
         length:number = 0,
         defaultValue:boolean = false,
-        solverOrInputChannels:GateType | number = 0
+        solverOrInputChannels:GateType | number = 0,
+        inputBlockRelative:boolean = true
     ) {
+        if (inputBlockRelative) {
+            for (let s of block) {
+                s.fromRelative()
+            }
+        }
+
         this.block = block
         this.length = length
         const start = this.getInitial()
@@ -50,10 +115,10 @@ export class SignalSet implements Iterable<Array<boolean>>{
         this.outputs = solver.sizeOut
 
         let extendedBlock = gate.execute(this.getInitialValue()).map((v) => {
-            return [{
+            return new Signal<boolean>([{
                 value:v || false,
                 frame:0
-            }] as Signal<boolean>
+            }])
         })
         
         for (let point of this.points()) {
@@ -62,7 +127,7 @@ export class SignalSet implements Iterable<Array<boolean>>{
             //I can see how this should work when I write it on paper, but I have no idea how to express it as code
             const output = gate.execute(point.value)
             for (let i = 0; i < output.length; i++) {
-                extendedBlock[i].push({
+                extendedBlock[i].unpack().push({
                     value:output[i] || false,
                     frame:point.frame
                 })
@@ -112,7 +177,7 @@ export class SignalSet implements Iterable<Array<boolean>>{
         
         const xp = index.map((v, i) => {
             //if a channel has finished, delete it from the available set
-            if (v + 1 >= this.block[i].length) {
+            if (v + 1 >= this.block[i].unpack().length) {
                 availableChannels.delete(i)
             }
             return v + 1
@@ -136,12 +201,14 @@ export class SignalSet implements Iterable<Array<boolean>>{
             frame:this.length,
             value:this.defaultValue
         } as SignalKeyFrame<boolean>
-        for (let i of availableChannels) {
-            const candidate = this.block[i][xp[i]]
+        for (let i of availableChannels) 
+        {   
+            const block = this.block[i].unpack()
+            const candidate = block[xp[i]]
             //if the keyframe comes before the current nearest, replace the current nearest
             if (currentKeyFrame.frame > candidate.frame) {
                 nearest[0] = i
-                currentKeyFrame = this.block[i][xp[i]]
+                currentKeyFrame = block[xp[i]]
             }
         }
         //update the current frame
@@ -150,7 +217,7 @@ export class SignalSet implements Iterable<Array<boolean>>{
         //search the channels again for keyframes on the same frame as the nearest
         let nearestCount = 0
         for (let i of availableChannels) {
-            const candidate = this.block[i][xp[i]]
+            const candidate = this.block[i].unpack()[xp[i]]
             if (candidate.frame === currentKeyFrame.frame) {
                 nearest[nearestCount] = i
                 nearestCount++
@@ -161,14 +228,14 @@ export class SignalSet implements Iterable<Array<boolean>>{
         for (let i = 0; i < nearestCount; i++) {
             const ni = nearest[i]
             index[ni] = xp[ni]
-            value[ni] = this.block[ni][xp[ni]].value
+            value[ni] = this.block[ni].unpack()[xp[ni]].value
         }
 
         this.currentIndex = index
         this.currentValue = value
 
         return {
-            done:false,
+            done:this.currentFrame >= this.length,
             value:{
                 value:value,
                 frame:currentKeyFrame.frame
@@ -181,7 +248,7 @@ export class SignalSet implements Iterable<Array<boolean>>{
             return v + 1
         })
         for (let i = 0; i < this.block.length; i++) {
-            const keyFrame = this.block[i][xp[i]]
+            const keyFrame = this.block[i].unpack()[xp[i]]
             if (keyFrame && keyFrame.frame <= this.currentFrame) {
                 this.currentIndex[i] = xp[i]
                 this.currentValue[i] = keyFrame.value
@@ -217,9 +284,9 @@ export class SignalSet implements Iterable<Array<boolean>>{
     }
 
     toSignal(): Signal<Array<boolean>> {
-        let signal:Signal<Array<boolean>> = []
+        let signal:Signal<Array<boolean>> = new Signal()
         for (let point of this.points()) {
-            signal.push(point)
+            signal.unpack().push(point)
         }
         return signal
     }
@@ -231,29 +298,29 @@ export type SignalPointResult<T> = {
 
 export const TestSignalSet = new SignalSet(
     [
-        [
+        new Signal([
             {frame:6,value:true},
             {frame:12,value:false}
-        ],
-        [
+        ]),
+        new Signal([
             {frame:3,value:true},
             {frame:8,value:false},
             {frame:9,value:true},
             {frame:12,value:false}
-        ],
-        [
+        ]),
+        new Signal([
             {frame:5,value:true},
             {frame:9,value:false},
-        ],
-        [
+        ]),
+        new Signal([
             {frame:3,value:true},
             {frame:13,value:false}
-        ],
-        [
+        ]),
+        new Signal([
             {frame:5,value:true},
             {frame:9,value:false},
             {frame:16,value:true}
-        ]
+        ]),
     ],
     17,
     false,
@@ -274,7 +341,10 @@ export class SignalPlayer {
         this.length = signalSet.length
         this.initialValue = signalSet.getInitialValue()
         this.frameTime = frameTime
-        this.signal = bookend(signalSet.toSignal())
+
+        const s = signalSet.toSignal()
+        s.bookend()
+        this.signal = s
     }
 
     private currentKeyFrame:SignalKeyFrame<boolean[]> = {
@@ -310,7 +380,7 @@ export class SignalPlayer {
     }
 
     private scrubStep(iter:SignalFrameReader<boolean> | undefined = undefined) {
-        const nextKeyFrame:SignalKeyFrame<boolean[]> | undefined = this.signal[this.nextSignal]
+        const nextKeyFrame:SignalKeyFrame<boolean[]> | undefined = this.signal.unpack()[this.nextSignal]
         const nextFrame = nextKeyFrame.frame
 
         const update = this.currentFrame >= nextFrame
@@ -342,7 +412,7 @@ export class SignalPlayer {
         if (reset || this.currentFrame >= this.length) this.resetScrub()
         this.currentFrame = frame
 
-        for (let keyFrame of this.signal) {
+        for (let keyFrame of this.signal.unpack()) {
             this.nextSignal++
             if (keyFrame.frame > frame) {
                 break

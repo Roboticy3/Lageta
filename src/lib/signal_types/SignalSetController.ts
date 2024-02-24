@@ -1,5 +1,5 @@
 import type { CircuitController } from "$lib/circuit_types/CircuitController";
-import { TestSignalSet, SignalSet, type Signal, type SignalKeyFrame, bookend, SignalPlayer, type SignalFrameReader, type SignalPointResult } from "./Signal";
+import { TestSignalSet, SignalSet, Signal, type SignalKeyFrame, SignalPlayer, type SignalFrameReader, type SignalPointResult } from "./Signal";
 
 export class SignalSetController {
     private readonly signalSet:SignalSet
@@ -15,7 +15,7 @@ export class SignalSetController {
         }
         else {
             this.signalSet = new SignalSet(
-                Array<Signal<boolean>>(from).fill([]),
+                Array<Signal<boolean>>(from).fill(new Signal()),
                 0
             )
         }
@@ -30,34 +30,33 @@ export class SignalSetController {
     drawChannel(channel:number, to:number, pathParams:string) {
         const signal = this.signalSet.block[channel]
 
-        if (signal.length === 0) {
+        if (signal.unpack().length === 0) {
             return ""
         }
 
-        let keyFrame = signal[0]
         let lastFrame = {
             value:this.signalSet.defaultValue,
             frame:0
         }
         let path = ""
 
-        let i = 1
-        while (i < signal.length && keyFrame.frame < to) {
+        for (let i = 0; i < signal.unpack().length; i++) {
+            const keyFrame = signal.unpack()[i]
+            if (keyFrame.frame > to) break
+
             path += this.getPathElementsFrom(keyFrame, lastFrame.value, channel)
             lastFrame = keyFrame
-            keyFrame = signal[i]
-            i++
         }
 
         path += this.getPathElementsFrom(
-            keyFrame, lastFrame.value, channel
+            {value:lastFrame.value, frame:to},
+            lastFrame.value,channel
         )
     
         const baseHeight = this.getDesiredChannelHeight(channel)
         path = `<path ${pathParams} d="
             M 0 ${baseHeight + this.toHeightRev(this.signalSet.defaultValue)}
             ${path}
-            L ${this.getDesiredFrameWidth(to)} ${baseHeight + this.toHeightRev(keyFrame.value)}
         "/>`
         return path
     }
@@ -108,7 +107,9 @@ export class SignalSetController {
     }
 
     toSignal() {
-        return bookend(this.signalSet.toSignal())
+        const s = this.signalSet.toSignal()
+        s.bookend()
+        return s
     }
 
     private player:SignalPlayer | undefined = undefined
@@ -197,7 +198,7 @@ export class SignalSetController {
         }
 
         for (let i = 0; i < values.length; i++) {
-            this.signalSet.block[i].push({
+            this.signalSet.block[i].unpack().push({
                 value:values[i],
                 frame:frame
             })

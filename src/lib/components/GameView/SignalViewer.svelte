@@ -70,13 +70,6 @@
     window.addEventListener('resize', fixSvg)
 
     /**
-     * @param {MouseEvent} e
-     */
-     function onClickSvg(e) {
-        console.log(e)
-    }
-
-    /**
      * @type {"▶" | "⏸"}
      */
     let button = "▶"
@@ -99,7 +92,6 @@
                 if (playFrame === signalSetController.frameCount()) {
                     onClickRestart()
                 }
-                console.log(JSON.stringify(outputSignalSetController))
                 button = "⏸"
                 s.startPlayer(scrubStep.bind(scrubStep, g), false)
                 g.setInputs(s.getPlayerValue() || [])
@@ -137,7 +129,6 @@
         if (update) {
             const result = signalSetController.validateControllerWith(g, currentValue)
             
-            console.log(result)
             outputSignalSetController.push(result, currentFrame - 1)
 
             updateSvg?.call(updateSvg)
@@ -178,7 +169,6 @@
     class="signal-shelf-container"
     bind:this={container}>
     <svg 
-        on:click={onClickSvg}
         viewBox="{offset - 4} -10 {width + 4} {height}"
         width="100%"
         class="signal-shelf">
