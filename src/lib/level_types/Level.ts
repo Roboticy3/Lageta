@@ -2,7 +2,7 @@ import { CircuitController } from "$lib/circuit_types/CircuitController"
 import { And, Buf, Gate, GateType, Input, Not, Or, Output, all_gates, getGateType } from "$lib/circuit_types/Gate"
 import { GateGraph } from "$lib/circuit_types/GateGraph"
 import type { GateGrid } from "$lib/circuit_types/GateGrid"
-import { Signal, SignalSet, oscillator } from "$lib/signal_types/Signal"
+import { Signal, SignalSet, oscillator, repeater } from "$lib/signal_types/Signal"
 import type { OrganizedCircuitContents, SerializableGate } from "$lib/storage_types/CircuitStorage"
 import { CompleteCondition, GameViewParameters } from "./GameViewParameters"
 
@@ -158,7 +158,58 @@ export const OrLevel = new Level (
                         frame:0,
                         value:true
                     }
-                ]) //TODO after implementing repeater
+                ]).push(
+                    repeater(
+                        new Signal([
+                            {
+                                frame:3,
+                                value:false,
+                            },
+                            {
+                                frame:9,
+                                value:true
+                            }
+                        ]),
+                        3
+                    )
+                ).push(
+                    new Signal([{
+                        frame:3,
+                        value:false,
+                    }])
+                ).push(
+                    new Signal([
+                        {frame:6,value:false}
+                    ])
+                ).push(
+                    oscillator(3, 4)
+                ),
+                new Signal([
+                    {
+                        frame:6,
+                        value:true
+                    }
+                ]).push(
+                    repeater(
+                        new Signal([
+                            {
+                                frame:3,
+                                value:false,
+                            },
+                            {
+                                frame:9,
+                                value:true
+                            }
+                        ]),
+                        3
+                    )
+                ).push(
+                    new Signal([
+                        {frame:3,value:false}
+                    ])
+                ).push(
+                    oscillator(3, 4)
+                ),
             ],
             70,
             false,

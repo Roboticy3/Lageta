@@ -39,6 +39,7 @@ export class Signal<T> {
     fromRelative() {
         let offset = 0
         for (let i = 0; i < this.block.length; i++) {
+            console.log(JSON.stringify(this.block[i]), offset)
             this.block[i].frame += offset
             offset = this.block[i].frame
         }
@@ -48,7 +49,6 @@ export class Signal<T> {
 
     push(signal:Signal<T>) {
         this.block.push(...signal.unpack())
-        console.log(this)
         return this
     }
     
@@ -65,14 +65,21 @@ export function oscillator(step:number, repeat:number=1) {
     return result
 }
 
-export function repeater(source:Signal<boolean>, duration:number, repeat:number=1) {
+export function repeater(source:Signal<boolean>, repeat:number=1) {
+    const sBlock = source.unpack()
     const sourceLength = source.unpack().length
-    let result = new Signal<boolean>(new Array(sourceLength * repeat))
+    const resultLength = sourceLength * repeat
+    let result = new Signal<boolean>(new Array(resultLength))
     let block = result.unpack()
-    const scaledRepeat = sourceLength * repeat
-    for (let i = 0; i < scaledRepeat; i += sourceLength) {
-        //TODO :)
+    for (let i = 0; i < resultLength; i++) {
+        //have to do this so the block doesn't reference the same keyframe at multiple points. ig there *is* a weakness to relative keyframes after all
+        const keyFrame = sBlock[i % sourceLength]
+        block[i] = {
+            frame:keyFrame.frame,
+            value:keyFrame.value
+        }
     }
+    return result
 }
 
 export class SignalSet implements Iterable<Array<boolean>>{
@@ -90,6 +97,7 @@ export class SignalSet implements Iterable<Array<boolean>>{
         solverOrInputChannels:GateType | number = 0,
         inputBlockRelative:boolean = true
     ) {
+
         if (inputBlockRelative) {
             for (let s of block) {
                 s.fromRelative()
