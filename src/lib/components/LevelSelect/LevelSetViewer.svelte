@@ -8,6 +8,7 @@
     import { CircuitController } from "$lib/circuit_types/CircuitController";
     import CircuitDraggable from "../GameView/CircuitDraggable.svelte";
     import LevelViewer from "./LevelViewer.svelte";
+    import { Input } from "$lib/circuit_types/Gate";
 
     const gridWidth = 20
     const gridHeight = 10
@@ -23,6 +24,7 @@
     
     onMount(() => {
         resize()
+        circuitController.addGateAtCell(Input(1), 9, 0)
     })
 
     function resize() {

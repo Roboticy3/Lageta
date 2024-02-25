@@ -19,6 +19,8 @@
      */
     let element
 
+    let position = [level.x, level.y]
+
     let start = [0, 0]
     let end = [0, 0]
 
@@ -30,8 +32,8 @@
         start[0] = parentRect.x
         start[1] = parentRect.y
 
-        const gridStart = [level.x, level.y]
-        const localStart = circuitController.indexToOffset(level.x, level.y)
+        const gridStart = position
+        const localStart = circuitController.indexToOffset(position[0], position[1])
 
         const panelStart = circuitController.projectOffset(
             localStart[0],
@@ -42,7 +44,7 @@
         start[1] += localStart[1]
 
         const type = level.type
-        const gridEnd = [level.x + type.gridWidth, level.y + type.gridHeight]
+        const gridEnd = [position[0] + type.gridWidth, position[1] + type.gridHeight]
         const localEnd = circuitController.indexToOffset(gridEnd[0], gridEnd[1])
 
         end = circuitController.projectOffset(
@@ -65,7 +67,7 @@
 
 <div class="level" bind:this={element} style="left:{start[0]}px; top:{start[1]}px; width:{end[0] - start[0]}px; height:{end[1] - start[1]}px;">
     <p>{level.name()}</p>
-    <button on:click={playLevel}>Play</button>
+    <button style="pointer-events:all;"on:click={playLevel}>Play</button>
 </div>
 
 <style>
@@ -76,5 +78,6 @@
         border: 4px ridge black;
         text-align:center;
         font-size: max(1.5vh, 1.5vw);
+        pointer-events: none;
     }
 </style>

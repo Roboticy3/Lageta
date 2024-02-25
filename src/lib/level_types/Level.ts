@@ -101,7 +101,7 @@ export const NotLevel = new Level (
             "Or"
         ]
     ),
-    3, 1
+    5, 1
 )
 
 const In2Out1 = {

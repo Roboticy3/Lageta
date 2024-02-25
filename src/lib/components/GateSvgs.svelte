@@ -63,7 +63,7 @@
     */
    export const getGateTypeSvgContents = (gType) => {
       let result = _svgs.get(gType.name)
-      return result || defaultSvg((gType?.gridWidth || 2) * 10, (gType?.gridHeight || 2) * 10, 4);
+      return result || defaultSvg((gType?.gridWidth || 2) * 10, (gType?.gridHeight || 2) * 10, 4, gType.name);
    } 
 
    function defaultSvg(width=2, height=2, font=4, name="") {
