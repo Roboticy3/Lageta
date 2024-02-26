@@ -374,6 +374,8 @@ export class CircuitController {
         console.log(this.gateGrid)
     }
 
+    connectionListeners:Set<() => void> = new Set()
+
     /**
      * Add a connection using two gate ids and two connection indices. Connections from->outputs[output] to to->inputs[input]
      * @param from 
@@ -392,7 +394,11 @@ export class CircuitController {
         const c = new Connection(from, output, to, input)
         const result = graph.addConnection(c)
         
-        console.log(result, graph)
+        if (result.error === '') {
+            for (let l of this.connectionListeners) {
+                l()
+            }
+        }
         return result
     }
 
@@ -513,6 +519,20 @@ export class CircuitController {
             }))
         }
         return result
+    }
+
+    getGateInputs(
+        id:number
+    ) {
+        const gate = this.gateGrid.gates[id]
+        return gate?.override
+    }
+
+    getGateOutputs(
+        id:number
+    ) {
+        const gate = this.gateGrid.gates[id]
+        return gate?.execute()
     }
 
     /**

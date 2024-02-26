@@ -36,7 +36,7 @@
         circuitPanel.setViewBox(width, height - height * 0.1)
 
         await tick()
-
+        
         circuitPanel.updateSvg()
     }
 

@@ -55,6 +55,11 @@
     let showSlot = true
 
     /**
+     * @type {Set<() => void>}
+     */
+    let svgListeners = new Set()
+
+    /**
      * Corrects the svg display of the circuit to be up to date with the state of the circuit
      * This function gets called pretty often, but it's still better than refreshing the svg every tick.
      */
@@ -63,6 +68,24 @@
         if (showConnectionPoints) svgConnectionPoints = gridController.drawConnectionPoints(ConnectionSvg)
         if (showWires) svgWires = gridController.drawWires(wireSvg)
         showSlot = !gridController.isPlaying()
+        
+        for (let f of svgListeners) {
+            f()
+        }
+    }
+
+    /**
+     * @param {() => void} f
+     */
+    export function addSvgListener(f) {
+        svgListeners.add(f)
+    }
+
+    /**
+     * @param {() => void} f
+     */
+     export function removeSvgListener(f) {
+        svgListeners.delete(f)
     }
 
     /**

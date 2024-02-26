@@ -52,10 +52,22 @@
         )
     }
 
+    /**
+     * @type {number | undefined}
+     */
+    let gateId = undefined
+    let gateValue = undefined
+
     onMount(async () => {
         await tick()
         setOffset()
+        gateId = circuitController.getNumGates()
         circuitController.addGateAtCell(level.type, level.x, level.y)
+        if (circuitController.getNumGates() !== gateId + 1) {
+            gateId = undefined
+            console.log("Unable to set gateId of ", level, "!")
+            return
+        }
     })
     
     window.addEventListener('resize',setOffset)
@@ -70,6 +82,7 @@
     <button on:click={playLevel}>Play</button>
 </div>
 
+
 <style>
     .level {
         position:absolute;
@@ -78,5 +91,10 @@
         border: 4px ridge black;
         text-align:center;
         font-size: max(1vh, 1vw);
+    }
+
+    .unavailable {
+        filter:blur(2px) brightness(50%);
+        pointer-events: none;
     }
 </style>

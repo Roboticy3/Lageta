@@ -16,11 +16,14 @@ export class Level {
 
     readonly type:GateType
 
+    readonly playCondition:Array<boolean>
+
     constructor(
         params:GameViewParameters,
         x:number = 0,
         y:number = 0,
         type:GateType = LevelGateType,
+        playCondition:Array<boolean> | undefined = undefined,
         register:boolean = true
     ) {
 
@@ -30,9 +33,13 @@ export class Level {
 
         this.type = type
 
+        this.playCondition = playCondition || new Array<boolean>(this.type.sizeOut).fill(true)
+
         if (register) {
             all_levels.set(params.name, this)
         }
+
+
     }
 
     unpack() {
