@@ -73,6 +73,7 @@
                 updateAvailability()
             }
         })
+        updateAvailability()
     })
 
     let active = false
