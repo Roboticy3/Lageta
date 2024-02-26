@@ -626,7 +626,7 @@ export class CircuitController {
                     result += connectionBuilder(
                         inputOffsets[j][0],
                         inputOffsets[j][1],
-                        `stroke-width=.25px ` + (g.getInput(j) ? `fill="red" stroke="none" `:""),
+                        `stroke-width=.5px ` + (g.getInput(j) ? `fill="red" stroke="none" `:`stroke="blue" `),
                         g.type.inputLabels[j]
                     )
                     
@@ -635,7 +635,7 @@ export class CircuitController {
                     result += connectionBuilder(
                         outputOffsets[j][0],
                         outputOffsets[j][1],
-                        `stroke-width=.25px ` + (g.getOutput(j) ? `fill="red" stroke="none" `:""),
+                        `stroke-width=.5px ` + (g.getOutput(j) ? `fill="red" stroke="none" `:`stroke="blue" `),
                         g.type.outputLabels[j]
                     )
                     break

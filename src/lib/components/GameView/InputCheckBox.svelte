@@ -24,6 +24,8 @@
      */
     export let from
 
+    export let startChecked = true
+
     /**
      * @type {[number, number]}
      */
@@ -72,6 +74,8 @@
     onMount(async () => {
         await tick()
         setOffset()
+        checkbox.checked = startChecked
+        onChange()
     })
 
     window.addEventListener('resize', (e) => {

@@ -92,6 +92,17 @@
                 Back
             </button>
         </CircuitDiv>
+
+        <CircuitDiv
+            circuitController={circuitController}
+            position={[0, 1.5]}
+            size={[4, 4]}
+            active={true}
+        >
+            <p>Click on the <span style="color:blue;">triangular connection points</span> to drag out a wire.</p>
+            <p>Then, click on another connection point to connect the wire.</p>
+            <p>If power is flowing through the wire, the wire will glow.</p>
+        </CircuitDiv>
     </GameViewCircuitPanel>
 </div>
 
