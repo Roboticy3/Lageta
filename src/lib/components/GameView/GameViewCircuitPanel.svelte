@@ -298,6 +298,8 @@
      */
     let activeSvgGate = ""
 
+    export let forceDragOnCircuitContainerOnly = true
+
     /**
      * Called after the user has started a drag. 
      * Keeps activeSvgGate and activeSvgWire updated to preview the changes to user is trying to make.
@@ -305,6 +307,10 @@
      * @param {MouseEvent} e
      */
     function onDrag(e) {
+
+        if (forceDragOnCircuitContainerOnly && e.target !== circuitContainer) {
+            return
+        }
 
         if (!gridController.isOffsetInGrid(e.offsetX, e.offsetY)) {
             activeSvgGate = ""
