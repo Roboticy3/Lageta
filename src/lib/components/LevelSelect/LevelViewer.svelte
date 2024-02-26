@@ -68,7 +68,25 @@
             console.log("Unable to set gateId of ", level, "!")
             return
         }
+        circuitController.addConnectionListener((id) => {
+            if (id === gateId) {
+                updateAvailability()
+            }
+        })
     })
+
+    let active = false
+
+    function updateAvailability() {
+        if (gateId === undefined) return
+        const value = circuitController.getGateOutputs(gateId)
+        if (value === undefined) return
+
+        active = true
+        for (let i = 0; active && i < value.length; i++) {
+            active = (value[i] || false) === (level.playCondition[i] || false)
+        }
+    }
     
     window.addEventListener('resize',setOffset)
 
@@ -77,7 +95,7 @@
     }
 </script>
 
-<div class="level" bind:this={element} style="left:{start[0]}px; top:{start[1]}px; width:{end[0] - start[0]}px; height:{end[1] - start[1]}px;">
+<div class="level {active ? '':'unavailable'}" bind:this={element} style="left:{start[0]}px; top:{start[1]}px; width:{end[0] - start[0]}px; height:{end[1] - start[1]}px;">
     <p>{level.name()}</p>
     <button on:click={playLevel}>Play</button>
 </div>
