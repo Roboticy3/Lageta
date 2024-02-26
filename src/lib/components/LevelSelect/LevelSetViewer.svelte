@@ -10,6 +10,8 @@
     import LevelViewer from "./LevelViewer.svelte";
     import { Input } from "$lib/circuit_types/Gate";
     import InputCheckBox from "../GameView/InputCheckBox.svelte";
+    import CircuitDiv from "../GameView/CircuitDiv.svelte";
+    import { goto } from "$app/navigation";
 
     const gridWidth = 20
     const gridHeight = 10
@@ -24,7 +26,7 @@
     let circuitPanel
     
     onMount(() => {
-        circuitController.addGateAtCell(Input(1), 9, 0)
+        circuitController.addGateAtCell(Input(1, {name:"LevelSelectInput1", inputLabels:[""]}), 1, 1)
         resize()
     })
 
@@ -63,10 +65,33 @@
         showGates={false}
     >
         {#each levelSet as level}
-            <LevelViewer level={level} circuitController={circuitController}/>
+            <LevelViewer 
+                level={level} 
+                circuitController={circuitController}
+            />
         {/each}
 
-        <InputCheckBox circuitPanel={circuitPanel} gridController={circuitController} from={[0,0]}/>
+        <InputCheckBox 
+            circuitPanel={circuitPanel} 
+            gridController={circuitController} 
+            from={[0,0]}
+        />
+
+        <CircuitDiv 
+            circuitController={circuitController} 
+            position={[0, 0]} 
+            size={[3, 1.5]} 
+            active={true}
+        >
+            <button 
+                style="width:100%;height:100%;" 
+                on:click={() => {
+                    history.back()
+                }}
+            >
+                Back
+            </button>
+        </CircuitDiv>
     </GameViewCircuitPanel>
 </div>
 

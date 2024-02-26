@@ -75,7 +75,7 @@ export const Freeplay = new Level (
         [],
         true
         ),
-    0,0
+    18,0
 )
 
 export const NotLevel = new Level (
