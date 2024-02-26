@@ -48,6 +48,10 @@
     //the svg string of all the visible connection points
     let svgConnectionPoints = ""
 
+    export let showGates = true
+    export let showConnectionPoints = true
+    export let showWires = true
+    
     let showSlot = true
 
     /**
@@ -55,9 +59,9 @@
      * This function gets called pretty often, but it's still better than refreshing the svg every tick.
      */
     export function updateSvg() {
-        svgGates = gridController.drawGates(getGateTypeSvgContents)
-        svgConnectionPoints = gridController.drawConnectionPoints(ConnectionSvg)
-        svgWires = gridController.drawWires(wireSvg)
+        if (showGates) svgGates = gridController.drawGates(getGateTypeSvgContents)
+        if (showConnectionPoints) svgConnectionPoints = gridController.drawConnectionPoints(ConnectionSvg)
+        if (showWires) svgWires = gridController.drawWires(wireSvg)
         showSlot = !gridController.isPlaying()
     }
 
@@ -161,6 +165,9 @@
     }
     onMount(mountCircuit)
 
+    export let canDragGates = true
+    export let canDragConnections = true
+
     /**
      * addDragEventListeners should hook this up so it starts when the user selects an object in the circuitContainer div.
      * Outside of that div, other components will be in charge of starting a drag.
@@ -175,13 +182,13 @@
         const query = gridController.query(e.offsetX, e.offsetY)        
         switch (query.type) {
             case "Input":
-                onDragStartInput(e, query)
+                if (canDragConnections) onDragStartInput(e, query)
                 break
             case "Output":
-                onDragStartOutput(e, query)
+                if (canDragConnections) onDragStartOutput(e, query)
                 break
             case "Gate":
-                onDragStartGate(e, query)
+                if (canDragGates) onDragStartGate(e, query)
         }
     }
 

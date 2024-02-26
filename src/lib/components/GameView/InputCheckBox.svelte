@@ -3,7 +3,7 @@
     import { CircuitController } from "$lib/circuit_types/CircuitController";
     //@ts-ignore
     import GameViewCircuitPanel from "./GameViewCircuitPanel.svelte";
-    import { onMount } from "svelte";
+    import { onMount, tick } from "svelte";
 
     
     /**
@@ -69,7 +69,10 @@
             checkbox.hidden = false
         }
     }
-    onMount(setOffset)
+    onMount(async () => {
+        await tick()
+        setOffset()
+    })
 
     window.addEventListener('resize', (e) => {
         setOffset()

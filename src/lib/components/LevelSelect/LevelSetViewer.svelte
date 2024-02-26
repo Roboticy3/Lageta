@@ -3,12 +3,13 @@
     //@ts-ignore
     import { Freeplay, Level, NotLevel, all_levels } from "$lib/level_types/Level";
     import { ProgressStorage } from "$lib/storage_types/ProgressStore";
-    import { onMount } from "svelte";
+    import { onMount, tick } from "svelte";
     import GameViewCircuitPanel from "../GameView/GameViewCircuitPanel.svelte";
     import { CircuitController } from "$lib/circuit_types/CircuitController";
     import CircuitDraggable from "../GameView/CircuitDraggable.svelte";
     import LevelViewer from "./LevelViewer.svelte";
     import { Input } from "$lib/circuit_types/Gate";
+    import InputCheckBox from "../GameView/InputCheckBox.svelte";
 
     const gridWidth = 20
     const gridHeight = 10
@@ -23,16 +24,19 @@
     let circuitPanel
     
     onMount(() => {
-        resize()
         circuitController.addGateAtCell(Input(1), 9, 0)
+        resize()
     })
 
-    function resize() {
+    async function resize() {
         const width = window.innerWidth
         const height = window.innerHeight
         const cellOffset = width / gridWidth
         circuitController.setGridCellOffset(cellOffset)
         circuitPanel.setViewBox(width, height - height * 0.1)
+
+        await tick()
+
         circuitPanel.updateSvg()
     }
 
@@ -55,10 +59,14 @@
         gridController={circuitController}
         circuitDraggable={circuitDraggable}
         startAutoResize={false}
+        canDragGates={false}
+        showGates={false}
     >
         {#each levelSet as level}
             <LevelViewer level={level} circuitController={circuitController}/>
         {/each}
+
+        <InputCheckBox circuitPanel={circuitPanel} gridController={circuitController} from={[0,0]}/>
     </GameViewCircuitPanel>
 </div>
 

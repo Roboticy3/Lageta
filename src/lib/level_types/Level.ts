@@ -48,7 +48,7 @@ export class Level {
     }
 }
 
-export const LevelGateType = getGateType({name:"LevelGateType",gridSize:[2, 2]})
+export const LevelGateType = getGateType({name:"LevelGateType",gridSize:[2, 2],moveable:false})
 
 export const Freeplay = new Level (
     new GameViewParameters(
@@ -68,7 +68,7 @@ export const Freeplay = new Level (
         [],
         true
         ),
-    1,1
+    0,0
 )
 
 export const NotLevel = new Level (
@@ -101,7 +101,8 @@ export const NotLevel = new Level (
             "Or"
         ]
     ),
-    5, 1
+    8, 1,
+    Not
 )
 
 const In2Out1 = {
@@ -143,7 +144,8 @@ export const AndLevel = new Level(
             "Or"
         ]
     ),
-    2, 4
+    10,1,
+    And
 )
 
 export const OrLevel = new Level (
@@ -219,5 +221,6 @@ export const OrLevel = new Level (
             
         ]
     ),
-    4, 2
+    6, 3,
+    Or
 )

@@ -21,6 +21,8 @@
 
     let position = [level.x, level.y]
 
+    export let margin = 0.5
+
     let start = [0, 0]
     let end = [0, 0]
 
@@ -32,30 +34,28 @@
         start[0] = parentRect.x
         start[1] = parentRect.y
 
-        const gridStart = position
+        const cell = circuitController.getGridCellOffset()
         const localStart = circuitController.indexToOffset(position[0], position[1])
 
-        const panelStart = circuitController.projectOffset(
-            localStart[0],
-            localStart[1]
+        start = circuitController.projectOffset(
+            localStart[0] + margin * cell,
+            localStart[1] + margin * cell
         )
-
-        start[0] += localStart[0]
-        start[1] += localStart[1]
 
         const type = level.type
         const gridEnd = [position[0] + type.gridWidth, position[1] + type.gridHeight]
         const localEnd = circuitController.indexToOffset(gridEnd[0], gridEnd[1])
 
         end = circuitController.projectOffset(
-            localEnd[0] - 8,
-            localEnd[1] - 8
+            localEnd[0] - margin * cell,
+            localEnd[1] - margin * cell
         )
     }
 
     onMount(async () => {
         await tick()
         setOffset()
+        circuitController.addGateAtCell(level.type, level.x, level.y)
     })
     
     window.addEventListener('resize',setOffset)
@@ -67,7 +67,7 @@
 
 <div class="level" bind:this={element} style="left:{start[0]}px; top:{start[1]}px; width:{end[0] - start[0]}px; height:{end[1] - start[1]}px;">
     <p>{level.name()}</p>
-    <button style="pointer-events:all;"on:click={playLevel}>Play</button>
+    <button on:click={playLevel}>Play</button>
 </div>
 
 <style>
@@ -77,7 +77,6 @@
         border-radius: 10%;
         border: 4px ridge black;
         text-align:center;
-        font-size: max(1.5vh, 1.5vw);
-        pointer-events: none;
+        font-size: max(1vh, 1vw);
     }
 </style>
