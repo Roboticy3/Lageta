@@ -626,7 +626,7 @@ export class CircuitController {
                     result += connectionBuilder(
                         inputOffsets[j][0],
                         inputOffsets[j][1],
-                        `stroke-width=.5px ` + (g.getInput(j) ? `fill="red" stroke="none" `:`stroke="blue" `),
+                        `stroke-width=.5px ` + (g.getInput(j) ? `fill="var(--connection-color-on)" stroke="none" `:`stroke="var(--connection-color-off)" `),
                         g.type.inputLabels[j]
                     )
                     
@@ -635,7 +635,7 @@ export class CircuitController {
                     result += connectionBuilder(
                         outputOffsets[j][0],
                         outputOffsets[j][1],
-                        `stroke-width=.5px ` + (g.getOutput(j) ? `fill="red" stroke="none" `:`stroke="blue" `),
+                        `stroke-width=.5px ` + (g.getOutput(j) ? `fill="var(--connection-color-on)" stroke="none" `:`stroke="var(--connection-color-off)" `),
                         g.type.outputLabels[j]
                     )
                     break
@@ -658,7 +658,7 @@ export class CircuitController {
             const fOffsets = this.gateGrid.getGateOutputOffsets(f)
             const fValue = f.getOutputs()[o]
             const tOffsets = this.gateGrid.getGateInputOffsets(t)
-            const params = fValue ? `stroke="red"`:""
+            const params = fValue ? `stroke="var(--connection-color-on)"`:`stroke="var(--connection-color-off)"`
             result.push(wireBuilder(fOffsets[o], tOffsets[i], params))
         })
 

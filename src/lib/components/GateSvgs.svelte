@@ -93,4 +93,11 @@
         return result
     }
 
+   /**
+     * @param {boolean} value
+     */
+   export function connectionColor(value) {
+      return value ? 'var(--connection-color-on)':'var(--connection-color-off)'
+   }
+
 </script>

@@ -4,7 +4,7 @@
     import { GateType, Buf, Gate, all_gates} from '$lib/circuit_types/Gate'
     import { onMount, tick } from 'svelte';
 
-    import { ConnectionSvg, buildSvg, wireSvg, getGateTypeSvg, getGateTypeSvgContents } from '../GateSvgs.svelte';
+    import { ConnectionSvg, buildSvg, wireSvg, getGateTypeSvg, getGateTypeSvgContents, connectionColor } from '../GateSvgs.svelte';
 
     import { CircuitController, CircuitControllerQueryResult } from '$lib/circuit_types/CircuitController';
     import { GameViewParameters } from '$lib/level_types/GameViewParameters';
@@ -387,7 +387,8 @@
             gridController.getConnectionPoint(
                 {id:contents.getId() || 0, type:"Input", index:contents.connectionIndex || 0}
             ),
-            gridController.unprojectOffset(e.offsetX, e.offsetY)
+            gridController.unprojectOffset(e.offsetX, e.offsetY),
+            `stroke=${connectionColor(false)}`
         )
     }
 
@@ -402,7 +403,8 @@
             gridController.unprojectOffset(e.offsetX, e.offsetY),
             gridController.getConnectionPoint(
                 {id:contents.getId() || 0, type:"Output", index:contents.connectionIndex || 0}
-            )
+            ),
+            `stroke=${connectionColor((gridController.getGateOutputs(contents.getId()||0)||[])[contents.connectionIndex||0] || false)}`
         )
     }
 

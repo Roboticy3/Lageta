@@ -12,6 +12,7 @@
     import InputCheckBox from "../GameView/InputCheckBox.svelte";
     import CircuitDiv from "../GameView/CircuitDiv.svelte";
     import { goto } from "$app/navigation";
+    import { connectionColor } from "../GateSvgs.svelte";
 
     const gridWidth = 20
     const gridHeight = 10
@@ -48,6 +49,17 @@
     
     let circuitDraggable
 
+    /**
+     * @type {InputCheckBox}
+     */
+    let inputCheckBox
+    let tutorialHighlightColor = connectionColor(false)
+
+    function readInputCheckBox() {
+        tutorialHighlightColor = connectionColor(inputCheckBox.isChecked())
+        console.log(inputCheckBox.isChecked())
+    }
+
 </script>
 
 <CircuitDraggable 
@@ -75,6 +87,8 @@
             circuitPanel={circuitPanel} 
             gridController={circuitController} 
             from={[0,0]}
+            onChangeListener={readInputCheckBox}
+            bind:this={inputCheckBox}
         />
 
         <CircuitDiv 
@@ -99,9 +113,9 @@
             size={[4, 4]}
             active={true}
         >
-            <p>Click on the <span style="color:blue;">triangular connection points</span> to drag out a wire.</p>
+            <p>Click on the <span style="color:{tutorialHighlightColor};">triangular connection point</span> to drag out a wire.</p>
             <p>Then, click on another connection point to connect the wire.</p>
-            <p>If power is flowing through the wire, the wire will glow.</p>
+            <p>If power is flowing through the wire, the wire will <span style="color:{connectionColor(true)};">glow</span>.</p>
         </CircuitDiv>
     </GameViewCircuitPanel>
 </div>

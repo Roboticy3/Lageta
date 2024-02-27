@@ -82,12 +82,15 @@
         setOffset()
     })
 
+    export let onChangeListener = () => {}
+
     function onChange() {
         if (from === null) {
             return
         }
         gridController?.setInput(from, checkbox.checked)
         circuitPanel?.updateSvg()
+        onChangeListener()
     }
 
     function getPosition() {
@@ -95,6 +98,10 @@
             margin[0] + offset[0],
             margin[1] + offset[1]
         ]
+    }
+
+    export function isChecked() {
+        return checkbox.checked
     }
 
 </script>
@@ -111,5 +118,6 @@
     .input-checkbox {
         position: absolute;
         margin: 0px;
+        accent-color:var(--connection-color-on);
     }
 </style>
