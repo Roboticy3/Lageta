@@ -289,7 +289,7 @@
      * @param {CircuitControllerQueryResult} query
      */
     function onDragStartGate(e, query) {
-        circuitDraggable.drag(e, query, circuitContainer)
+        if (query.gateType?.moveable) circuitDraggable.drag(e, query, circuitContainer)
     }
 
     /**
