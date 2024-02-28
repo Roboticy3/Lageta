@@ -26,6 +26,7 @@
     let gateId = undefined
 
     onMount(async () => {
+        console.log("Mounting level selector for ",level)
         await tick()
         container.setOffset()
         gateId = circuitController.getNumGates()
@@ -49,7 +50,6 @@
         const value = circuitController.getGateOutputs(gateId)
         if (value === undefined) return
 
-        console.log(value, level.playCondition)
         let activate = true
         for (let i = 0; i < value.length; i++) {
             if( (value[i] || false) !== (level.playCondition[i] || false)) {

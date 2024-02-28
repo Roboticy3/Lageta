@@ -57,11 +57,9 @@
 
     function readInputCheckBox() {
         tutorialHighlightColor = connectionColor(inputCheckBox.isChecked())
-        console.log(inputCheckBox.isChecked())
     }
 
 </script>
-
 <CircuitDraggable 
     bind:this={circuitDraggable}
     circuitController={circuitController}  

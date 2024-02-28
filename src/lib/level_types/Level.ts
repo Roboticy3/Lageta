@@ -39,7 +39,7 @@ export class Level {
             all_levels.set(params.name, this)
         }
 
-
+        console.log("Created level", this)
     }
 
     unpack() {

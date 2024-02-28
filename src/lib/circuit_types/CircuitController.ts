@@ -295,7 +295,7 @@ export class CircuitController {
             return
         }
 
-        console.log(this.gateGrid.graph)
+        console.log(this.gateGrid)
     }
 
     previewAddGate(
@@ -493,7 +493,6 @@ export class CircuitController {
             if (i === undefined) {
                 continue
             }
-            console.log(i)
             const chunk = i.override.map((v) => {return v === true})
             result.push(...chunk)
         }

@@ -13,7 +13,6 @@ export function parseStorage<T extends {}>(
         result = JSON.parse(string || "")
         return Object.assign(generator(), result)
     } catch(e) {
-        console.log(e, string)
         console.log("failed to load", key, ", creating new one")
         return generator()
     }

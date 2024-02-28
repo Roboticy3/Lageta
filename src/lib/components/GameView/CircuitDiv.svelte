@@ -43,7 +43,6 @@
     })
 
     export function activate() {
-        console.log("activating!")
         active = true
     }
     export function deactivate() {

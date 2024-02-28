@@ -8,7 +8,6 @@
      * @returns {boolean}
      */
     export let submitFunction = (s) => {
-        console.log(s)
         return false
     }
 
@@ -58,7 +57,6 @@
     on:submit={(e) => {
         const formData = new FormData(form)
         const value = formData.get("name")
-        console.log(...formData.values())
         dialog.close()
         if (value === "") {
             return

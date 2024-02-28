@@ -360,7 +360,6 @@ export class GateGrid {
             const gType = g.type
             const gridPos = [(g.x || 0) + x, (g.y || 0) + y]
             
-            console.log(gridPos)
             const collision = this.getInRange(
                 gridPos[0],      gridPos[1],
                 gType.gridWidth, gType.gridWidth

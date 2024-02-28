@@ -9,7 +9,6 @@
      * @type {TruthTable}
      */
     export let table = new TruthTable(Buf)
-    console.log(table)
 
 </script>
 

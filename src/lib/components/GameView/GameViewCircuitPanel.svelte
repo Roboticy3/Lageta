@@ -139,7 +139,6 @@
      */
     async function addDragEventListeners() {
         if (circuitContainer == null) {
-            console.log("circuitContainer not found!!")
             return
         }
 
@@ -158,7 +157,6 @@
      */
     function addMouseMoveListener() {
         if (circuitContainer == null) {
-            console.log("circuitContainer not found!!")
             return
         }
 
@@ -170,7 +168,6 @@
      */
      function removeMouseMoveListener() {
         if (circuitContainer == null) {
-            console.log("circuitContainer not found!!")
             return
         }
 

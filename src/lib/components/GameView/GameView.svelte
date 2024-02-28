@@ -84,7 +84,6 @@
     let completionPopup
 
     function onComplete() {
-        console.log("bruh")
         const rewards = params.completeRewards
         progressStore.addGate(params.name)
         rewards.map(progressStore.addLevel.bind(progressStore))
@@ -119,7 +118,6 @@
      * @param {string | undefined} s
      */
     function onSubmitRemove(s) {
-        console.log(s)
         const result = circuitStore.remove(s)
         updateLocalStorageKeys()
         return result

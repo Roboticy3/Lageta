@@ -76,7 +76,6 @@
 
     function onClickPlay() {
         if (gridController === null) {
-            console.log("There should be a controller here!")
             return
         }
         let g = gridController

@@ -39,12 +39,9 @@ export class Signal<T> {
     fromRelative() {
         let offset = 0
         for (let i = 0; i < this.block.length; i++) {
-            console.log(JSON.stringify(this.block[i]), offset)
             this.block[i].frame += offset
             offset = this.block[i].frame
         }
-
-        console.log(this.block)
     }
 
     push(signal:Signal<T>) {
@@ -172,7 +169,6 @@ export class SignalSet implements Iterable<Array<boolean>>{
         this.currentIndex = start[0]
         this.currentValue = start[1]
         this.currentFrame = 0
-        console.log(this.currentIndex, this.currentValue, this.block.length)
     }
 
     nextKeyFrame() {
