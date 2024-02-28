@@ -1,7 +1,7 @@
 <script>
     import { GameViewParameters } from "$lib/level_types/GameViewParameters";
     //@ts-ignore
-    import { Freeplay, Level, NotLevel, all_levels } from "$lib/level_types/Level";
+    import { AndLevel, Freeplay, Level, NotLevel, OrLevel, all_levels } from "$lib/level_types/Level";
     import { ProgressStorage } from "$lib/storage_types/ProgressStore";
     import { onMount, tick } from "svelte";
     import GameViewCircuitPanel from "../GameView/GameViewCircuitPanel.svelte";
@@ -74,12 +74,22 @@
         canDragGates={false}
         showGates={false}
     >
-        {#each levelSet as level}
-            <LevelViewer 
-                level={level} 
-                circuitController={circuitController}
-            />
-        {/each}
+        <LevelViewer 
+            level={Freeplay} 
+            circuitController={circuitController}
+        />
+        <LevelViewer 
+            level={NotLevel} 
+            circuitController={circuitController}
+        />
+        <LevelViewer 
+            level={AndLevel} 
+            circuitController={circuitController}
+        />
+        <LevelViewer 
+            level={OrLevel} 
+            circuitController={circuitController}
+        />
 
         <InputCheckBox 
             circuitPanel={circuitPanel} 
