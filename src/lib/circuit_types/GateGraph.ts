@@ -463,6 +463,9 @@ export class GateGraph {
             depth + 1
         )
         const output = newGate.execute(result.result)
+        for (let l of this.connectionListeners) {
+            l(newGate.id)
+        }
         
         gate.override[inputIndex] = output[from[1]]
         return result
@@ -484,6 +487,8 @@ export class GateGraph {
         }
     }
 
+    connectionListeners:Set<(id:number) => void> = new Set()
+
     private resolveInputsFrom(
         gate:Gate, 
         cycleCheck:Set<Gate> = new Set<Gate>(), 
@@ -501,6 +506,9 @@ export class GateGraph {
         }
 
         let outputs = gate.execute()
+        for (let l of this.connectionListeners) {
+            l(gate.id)
+        }
 
         for (let i = 0; i < gType.sizeOut; i++) {
             const c = this.outputs[gate.id][i]

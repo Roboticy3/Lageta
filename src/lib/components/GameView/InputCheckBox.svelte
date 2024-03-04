@@ -3,7 +3,7 @@
     import { CircuitController } from "$lib/circuit_types/CircuitController";
     //@ts-ignore
     import GameViewCircuitPanel from "./GameViewCircuitPanel.svelte";
-    import { onMount } from "svelte";
+    import { onMount, tick } from "svelte";
 
     
     /**
@@ -23,6 +23,8 @@
      * @type {[number, number] | null}
      */
     export let from
+
+    export let startChecked = true
 
     /**
      * @type {[number, number]}
@@ -69,11 +71,18 @@
             checkbox.hidden = false
         }
     }
-    onMount(setOffset)
+    onMount(async () => {
+        await tick()
+        setOffset()
+        checkbox.checked = startChecked
+        onChange()
+    })
 
     window.addEventListener('resize', (e) => {
         setOffset()
     })
+
+    export let onChangeListener = () => {}
 
     function onChange() {
         if (from === null) {
@@ -81,6 +90,7 @@
         }
         gridController?.setInput(from, checkbox.checked)
         circuitPanel?.updateSvg()
+        onChangeListener()
     }
 
     function getPosition() {
@@ -88,6 +98,10 @@
             margin[0] + offset[0],
             margin[1] + offset[1]
         ]
+    }
+
+    export function isChecked() {
+        return checkbox.checked
     }
 
 </script>
@@ -104,5 +118,6 @@
     .input-checkbox {
         position: absolute;
         margin: 0px;
+        accent-color:var(--connection-color-on);
     }
 </style>

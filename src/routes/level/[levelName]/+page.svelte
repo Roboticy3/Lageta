@@ -8,7 +8,6 @@
 
     const levelName = $page.params.levelName
     const level = all_levels.get(levelName)
-    console.log(level)
     
 </script>
 

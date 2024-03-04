@@ -4,7 +4,7 @@
     import { GateType, Buf, Gate, all_gates} from '$lib/circuit_types/Gate'
     import { onMount, tick } from 'svelte';
 
-    import { ConnectionSvg, buildSvg, wireSvg, getGateTypeSvg, getGateTypeSvgContents } from '../GateSvgs.svelte';
+    import { ConnectionSvg, buildSvg, wireSvg, getGateTypeSvg, getGateTypeSvgContents, connectionColor } from '../GateSvgs.svelte';
 
     import { CircuitController, CircuitControllerQueryResult } from '$lib/circuit_types/CircuitController';
     import { GameViewParameters } from '$lib/level_types/GameViewParameters';
@@ -32,7 +32,7 @@
     /**
      * @type {HTMLDivElement | null}
      */
-    let circuitContainer;
+    let circuitContainer = null;
 
     /**
      * @type {Array<String>}
@@ -48,43 +48,97 @@
     //the svg string of all the visible connection points
     let svgConnectionPoints = ""
 
+    export let showGates = true
+    export let showConnectionPoints = true
+    export let showWires = true
+    
     let showSlot = true
+
+    /**
+     * @type {Set<() => void>}
+     */
+    let svgListeners = new Set()
 
     /**
      * Corrects the svg display of the circuit to be up to date with the state of the circuit
      * This function gets called pretty often, but it's still better than refreshing the svg every tick.
      */
     export function updateSvg() {
-        svgGates = gridController.drawGates(getGateTypeSvgContents)
-        svgConnectionPoints = gridController.drawConnectionPoints(ConnectionSvg)
-        svgWires = gridController.drawWires(wireSvg)
+        if (showGates) svgGates = gridController.drawGates(getGateTypeSvgContents)
+        if (showConnectionPoints) svgConnectionPoints = gridController.drawConnectionPoints(ConnectionSvg)
+        if (showWires) svgWires = gridController.drawWires(wireSvg)
         showSlot = !gridController.isPlaying()
+        
+        for (let f of svgListeners) {
+            f()
+        }
+    }
+
+    /**
+     * @param {() => void} f
+     */
+    export function addSvgListener(f) {
+        svgListeners.add(f)
+    }
+
+    /**
+     * @param {() => void} f
+     */
+     export function removeSvgListener(f) {
+        svgListeners.delete(f)
+    }
+
+    /**
+     * @type {string[]}
+     */
+    let cellsSvg = []
+
+    export function disableAutoResize() {
+        window.removeEventListener('resize', (e) => {
+            updateViewBox()
+        })
+    }
+    export function enableAutoResize() {
+        window.addEventListener('resize', (e) => {
+            updateViewBox()
+        })
+        updateViewBox()
     }
 
     /**
      * Corrects the viewBox of the circuit such that it won't change size when the window is resized.
      */
     function updateViewBox() {
-        if (circuitContainer === null) {
+        if (!circuitContainer) {
             return
         }
 
         let offsetX = circuitContainer.offsetWidth;
         let offsetY = circuitContainer.offsetHeight;
-        circuit.setAttribute('viewBox', `0 0 ${offsetX} ${offsetY}`)
-        circuit.setAttribute('width', `${offsetX}`)
+        setViewBox(offsetX, offsetY)
     }
 
-    window.addEventListener('resize', (e) => {
-        updateViewBox()
-    })
+    /**
+     * @param {number} x
+     * @param {number} y
+     */
+     export function setViewBox(x, y) {
+        circuit.setAttribute('viewBox', `0 0 ${x} ${y}`)
+        circuit.setAttribute('width', `${x}`)
+        cellsSvg = gridController.gridCellsSvg()
+    }
+
+    export let startAutoResize = true
+
+    if (startAutoResize) {
+        enableAutoResize()
+    }
 
     /**
      * Add all events needed to edit the circuit, name is a hold-over from when the project used the drag and drop api
      */
     async function addDragEventListeners() {
         if (circuitContainer == null) {
-            console.log("circuitContainer not found!!")
             return
         }
 
@@ -94,7 +148,6 @@
         await tick()
 
         circuitDraggable.getController().dragStartHandler = addMouseMoveListener
-        console.log(circuitDraggable)
     }
 
     /**
@@ -104,7 +157,6 @@
      */
     function addMouseMoveListener() {
         if (circuitContainer == null) {
-            console.log("circuitContainer not found!!")
             return
         }
 
@@ -116,7 +168,6 @@
      */
      function removeMouseMoveListener() {
         if (circuitContainer == null) {
-            console.log("circuitContainer not found!!")
             return
         }
 
@@ -134,6 +185,9 @@
     }
     onMount(mountCircuit)
 
+    export let canDragGates = true
+    export let canDragConnections = true
+
     /**
      * addDragEventListeners should hook this up so it starts when the user selects an object in the circuitContainer div.
      * Outside of that div, other components will be in charge of starting a drag.
@@ -148,13 +202,13 @@
         const query = gridController.query(e.offsetX, e.offsetY)        
         switch (query.type) {
             case "Input":
-                onDragStartInput(e, query)
+                if (canDragConnections) onDragStartInput(e, query)
                 break
             case "Output":
-                onDragStartOutput(e, query)
+                if (canDragConnections) onDragStartOutput(e, query)
                 break
             case "Gate":
-                onDragStartGate(e, query)
+                if (canDragGates) onDragStartGate(e, query)
         }
     }
 
@@ -232,7 +286,7 @@
      * @param {CircuitControllerQueryResult} query
      */
     function onDragStartGate(e, query) {
-        circuitDraggable.drag(e, query, circuitContainer)
+        if (query.gateType?.moveable) circuitDraggable.drag(e, query, circuitContainer)
     }
 
     /**
@@ -241,6 +295,8 @@
      */
     let activeSvgGate = ""
 
+    export let forceDragOnCircuitContainerOnly = true
+
     /**
      * Called after the user has started a drag. 
      * Keeps activeSvgGate and activeSvgWire updated to preview the changes to user is trying to make.
@@ -248,6 +304,10 @@
      * @param {MouseEvent} e
      */
     function onDrag(e) {
+
+        if (forceDragOnCircuitContainerOnly && e.target !== circuitContainer) {
+            return
+        }
 
         if (!gridController.isOffsetInGrid(e.offsetX, e.offsetY)) {
             activeSvgGate = ""
@@ -324,7 +384,8 @@
             gridController.getConnectionPoint(
                 {id:contents.getId() || 0, type:"Input", index:contents.connectionIndex || 0}
             ),
-            gridController.unprojectOffset(e.offsetX, e.offsetY)
+            gridController.unprojectOffset(e.offsetX, e.offsetY),
+            `stroke=${connectionColor(false)}`
         )
     }
 
@@ -339,7 +400,8 @@
             gridController.unprojectOffset(e.offsetX, e.offsetY),
             gridController.getConnectionPoint(
                 {id:contents.getId() || 0, type:"Output", index:contents.connectionIndex || 0}
-            )
+            ),
+            `stroke=${connectionColor((gridController.getGateOutputs(contents.getId()||0)||[])[contents.connectionIndex||0] || false)}`
         )
     }
 
@@ -437,7 +499,6 @@
 
 <div
     class="circuit-container" 
-    id="circuitContainer" 
     role="application"
     bind:this={circuitContainer}
     >
@@ -454,7 +515,7 @@
                 {@html wire}
             {/each}
 
-            {#each gridController.gridCellsSvg() as svg}
+            {#each cellsSvg as svg}
             {@html svg}
             {/each}
 
@@ -478,11 +539,11 @@
         grid-row: 2;
         grid-column: 1 / 2;
         background-color: white;  
-        padding: 0%;
     }
 
     .circuit-svg {
         pointer-events: none;
         display: flex;
+        height:100%;
     }
 </style>

@@ -1,58 +1,137 @@
 <script>
     import { GameViewParameters } from "$lib/level_types/GameViewParameters";
     //@ts-ignore
-    import { Freeplay, Level, all_levels } from "$lib/level_types/Level";
+    import { AndLevel, Freeplay, Level, NotLevel, OrLevel, all_levels } from "$lib/level_types/Level";
     import { ProgressStorage } from "$lib/storage_types/ProgressStore";
-    import { onMount } from "svelte";
+    import { onMount, tick } from "svelte";
+    import GameViewCircuitPanel from "../GameView/GameViewCircuitPanel.svelte";
+    import { CircuitController } from "$lib/circuit_types/CircuitController";
+    import CircuitDraggable from "../GameView/CircuitDraggable.svelte";
+    import LevelViewer from "./LevelViewer.svelte";
+    import { Input } from "$lib/circuit_types/Gate";
+    import InputCheckBox from "../GameView/InputCheckBox.svelte";
+    import CircuitDiv from "../GameView/CircuitDiv.svelte";
+    import { goto } from "$app/navigation";
+    import { connectionColor } from "../GateSvgs.svelte";
+
+    const gridWidth = 20
+    const gridHeight = 10
+    const params = new GameViewParameters("LevelSelect", "", {size:[gridWidth, gridHeight]})
 
     let progress = new ProgressStorage()
     let levelSet = progress.levels()
-    console.log(levelSet, all_levels)
-    
-    /**
-     * @type {Level | null}
-    */
-    let selectedLevel = null
 
     /**
-     * @type {HTMLElement}
+     * @type {GameViewCircuitPanel}
      */
-    let panel
+    let circuitPanel
+    
     onMount(() => {
-        panel.hidden = true
+        circuitController.addGateAtCell(Input(1, {name:"LevelSelectInput1", inputLabels:[""]}), 1, 1)
+        resize()
     })
 
+    async function resize() {
+        const width = window.innerWidth
+        const height = window.innerHeight
+        const cellOffset = width / gridWidth
+        circuitController.setGridCellOffset(cellOffset)
+        circuitPanel.setViewBox(width, height - height * 0.1)
+
+        await tick()
+        
+        circuitPanel.updateSvg()
+    }
+
+    window.addEventListener('resize', resize)
+
+    let circuitController = params.initializeGrid()
+    
+    let circuitDraggable
+
+    /**
+     * @type {InputCheckBox}
+     */
+    let inputCheckBox
+    let tutorialHighlightColor = connectionColor(false)
+
+    function readInputCheckBox() {
+        tutorialHighlightColor = connectionColor(inputCheckBox.isChecked())
+    }
+
 </script>
+<CircuitDraggable 
+    bind:this={circuitDraggable}
+    circuitController={circuitController}  
+/>
+<div class="level-panel">
+    <GameViewCircuitPanel 
+        bind:this={circuitPanel} 
+        params={params}
+        gridController={circuitController}
+        circuitDraggable={circuitDraggable}
+        startAutoResize={false}
+        canDragGates={false}
+        showGates={false}
+    >
+        <LevelViewer 
+            level={Freeplay} 
+            circuitController={circuitController}
+        />
+        <LevelViewer 
+            level={NotLevel} 
+            circuitController={circuitController}
+        />
+        <LevelViewer 
+            level={AndLevel} 
+            circuitController={circuitController}
+        />
+        <LevelViewer 
+            level={OrLevel} 
+            circuitController={circuitController}
+        />
 
-<div class="level-set">
-    {#each levelSet as level}
-        <button 
-            style="grid-column:{level.x}; grid-row:{level.y};"
-            on:click={(e) => {
-                selectedLevel = level
-                panel.hidden = false
-            }}>
+        <InputCheckBox 
+            circuitPanel={circuitPanel} 
+            gridController={circuitController} 
+            from={[0,0]}
+            onChangeListener={readInputCheckBox}
+            bind:this={inputCheckBox}
+        />
 
-            {level.name()}
+        <CircuitDiv 
+            circuitController={circuitController} 
+            position={[0, 0]} 
+            size={[3, 1.5]} 
+            active={true}
+        >
+            <button 
+                style="width:100%;height:100%;" 
+                on:click={() => {
+                    history.back()
+                }}
+            >
+                Back
+            </button>
+        </CircuitDiv>
 
-        </button>
-    {/each}
-    <div class="side-panel" bind:this={panel}>
-        {selectedLevel?.name() || ""}
-        <a href="/level/{selectedLevel?.name() || ""}">Play</a>
-    </div>
+        <CircuitDiv
+            circuitController={circuitController}
+            position={[0, 1.5]}
+            size={[4, 4]}
+            active={true}
+        >
+            <p>Click on the <span style="color:{tutorialHighlightColor};">triangular connection point</span> to drag out a wire.</p>
+            <p>Then, click on another connection point to connect the wire.</p>
+            <p>If power is flowing through the wire, the wire will <span style="color:{connectionColor(true)};">glow</span>.</p>
+        </CircuitDiv>
+    </GameViewCircuitPanel>
 </div>
 
 <style>
-    .level-set {
-        display: grid;
-        grid-template-columns: repeat(9, 10%);
-        grid-template-rows: repeat(7, 10%);
-        min-width:100%;
-        min-height:100%;
-    }
-    .side-panel {
-        grid-column: 8 / 9;
-        grid-row: 1 / 7;
+    .level-panel {
+        display:flex;
+        justify-content: center;
+        align-items: center;
     }
 </style>

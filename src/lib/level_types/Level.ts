@@ -1,31 +1,45 @@
 import { CircuitController } from "$lib/circuit_types/CircuitController"
-import { And, Buf, Input, Not, Or, Output, all_gates } from "$lib/circuit_types/Gate"
+import { And, Buf, Gate, GateType, Input, Not, Or, Output, all_gates, getGateType } from "$lib/circuit_types/Gate"
 import { GateGraph } from "$lib/circuit_types/GateGraph"
 import type { GateGrid } from "$lib/circuit_types/GateGrid"
-import { SignalSet } from "$lib/signal_types/Signal"
+import { Signal, SignalSet, oscillator, repeater } from "$lib/signal_types/Signal"
 import type { OrganizedCircuitContents, SerializableGate } from "$lib/storage_types/CircuitStorage"
 import { CompleteCondition, GameViewParameters } from "./GameViewParameters"
 
 export let all_levels = new Map<String, Level>()
 
 export class Level {
+    private params:GameViewParameters
+
     readonly x:number
     readonly y:number
-    private params:GameViewParameters
+
+    readonly type:GateType
+
+    readonly playCondition:Array<boolean>
 
     constructor(
         params:GameViewParameters,
         x:number = 0,
         y:number = 0,
+        type:GateType = LevelGateType,
+        playCondition:Array<boolean> | undefined = undefined,
         register:boolean = true
     ) {
+
         this.x = x
         this.y = y
         this.params = params
 
+        this.type = type
+
+        this.playCondition = playCondition || new Array<boolean>(this.type.sizeOut).fill(true)
+
         if (register) {
             all_levels.set(params.name, this)
         }
+
+        console.log("Created level", this)
     }
 
     unpack() {
@@ -40,6 +54,8 @@ export class Level {
         return this.params.name
     }
 }
+
+export const LevelGateType = getGateType({name:"LevelGateType",gridSize:[2, 2],moveable:false})
 
 export const Freeplay = new Level (
     new GameViewParameters(
@@ -59,10 +75,10 @@ export const Freeplay = new Level (
         [],
         true
         ),
-    1,1,
+    18,0
 )
 
-export const W1S1 = new Level (
+export const NotLevel = new Level (
     new GameViewParameters(
         "Not",
         `
@@ -78,112 +94,11 @@ export const W1S1 = new Level (
         } as OrganizedCircuitContents,
         new SignalSet(
             [
-                [
-                    {
-                        frame:10,
-                        value:true
-                    },
-                    {
-                        frame:20,
-                        value:false
-                    },
-                    {
-                        frame:30,
-                        value:true
-                    },
-                    {
-                        frame:40,
-                        value:false
-                    },
-                    {
-                        frame:45,
-                        value:true
-                    },
-                    {
-                        frame:50,
-                        value:false
-                    },
-                    {
-                        frame:55,
-                        value:true
-                    },
-                    {
-                        frame:60,
-                        value:false
-                    },
-                    {
-                        frame:65,
-                        value:true
-                    },
-                    {
-                        frame:70,
-                        value:false
-                    },
-                    {
-                        frame:73,
-                        value:true
-                    },
-                    {
-                        frame:76,
-                        value:false
-                    },
-                    {
-                        frame:79,
-                        value:true
-                    },
-                    {
-                        frame:82,
-                        value:false
-                    },
-                    {
-                        frame:85,
-                        value:true
-                    },
-                    {
-                        frame:88,
-                        value:false
-                    },
-                    {
-                        frame:91,
-                        value:true
-                    },
-                    {
-                        frame:92,
-                        value:false
-                    },
-                    {
-                        frame:93,
-                        value:true
-                    },
-                    {
-                        frame:94,
-                        value:false
-                    },
-                    {
-                        frame:95,
-                        value:true
-                    },
-                    {
-                        frame:96,
-                        value:false
-                    },
-                    {
-                        frame:97,
-                        value:true
-                    },
-                    {
-                        frame:98,
-                        value:false
-                    },
-                    {
-                        frame:99,
-                        value:true
-                    },
-                    {
-                        frame:100,
-                        value:false
-                    }
-                ]
+                (new Signal<boolean>())
+                    .push(oscillator(10, 2))
+                    .push(oscillator(5, 3))
+                    .push(oscillator(3, 3))
+                    .push(oscillator(1, 6))
             ],
             101,
             false,
@@ -193,7 +108,8 @@ export const W1S1 = new Level (
             "Or"
         ]
     ),
-    3, 1
+    8, 1,
+    Not
 )
 
 const In2Out1 = {
@@ -212,57 +128,20 @@ const In2Out1 = {
     size:[10,5]
 } as OrganizedCircuitContents
 
-export const W1S2 = new Level(
+export const AndLevel = new Level(
     new GameViewParameters(
         "And",
         "An And gate has two inputs, and only turns On when both are enabled.",
         In2Out1,
         new SignalSet(
             [
-                [
-                    {
-                        frame:10,
-                        value:true
-                    },
-                    {
-                        frame:20,
-                        value:false
-                    },
-                    {
-                        frame:30,
-                        value:true
-                    },
-                    {
-                        frame:40,
-                        value:false
-                    },
-                    {
-                        frame:50,
-                        value:true
-                    },
-                    {
-                        frame:60,
-                        value:false
-                    },
-                    {
-                        frame:70,
-                        value:true
-                    },
-                    {
-                        frame:80,
-                        value:false
-                    },
-                    {
-                        frame:90,
-                        value:true
-                    }
-                ],
-                [
+                oscillator(10, 5),
+                new Signal([
                     {
                         frame:50,
                         value:true
                     }
-                ]
+                ])
             ],
             100,
             false,
@@ -272,116 +151,74 @@ export const W1S2 = new Level(
             "Or"
         ]
     ),
-    2, 4
+    10,1,
+    And
 )
 
-export const W1S3 = new Level (
+export const OrLevel = new Level (
     new GameViewParameters(
         "Or",
         "An Or gate is On when either of its inputs are On",
         In2Out1,
         new SignalSet(
-            [
-                [
+            [   
+                new Signal([
                     {
-                        frame:10,
+                        frame:0,
                         value:true
-                    },
-                    {
-                        frame:12,
-                        value:false
-                    },
-                    {
-                        frame:24,
-                        value:true
-                    },
-                    {
-                        frame:26,
-                        value:false
-                    },
-                    {
-                        frame:38,
-                        value:true
-                    },
-                    {
-                        frame:40,
-                        value:false
-                    },
-                    {
-                        frame:45,
-                        value:true
-                    },
-                    {
-                        frame:47,
-                        value:false
-                    },
-                    {
-                        frame:52,
-                        value:true
-                    },
-                    {
-                        frame:54,
-                        value:false
-                    },
-                    {
-                        frame:59,
-                        value:true
-                    },
-                    {
-                        frame:61,
-                        value:false
                     }
-                ],
-                [
+                ]).push(
+                    repeater(
+                        new Signal([
+                            {
+                                frame:3,
+                                value:false,
+                            },
+                            {
+                                frame:9,
+                                value:true
+                            }
+                        ]),
+                        3
+                    )
+                ).push(
+                    new Signal([{
+                        frame:3,
+                        value:false,
+                    }])
+                ).push(
+                    new Signal([
+                        {frame:6,value:false}
+                    ])
+                ).push(
+                    oscillator(3, 4)
+                ),
+                new Signal([
                     {
-                        frame:17,
+                        frame:6,
                         value:true
-                    },
-                    {
-                        frame:19,
-                        value:false
-                    },
-                    {
-                        frame:31,
-                        value:true
-                    },
-                    {
-                        frame:33,
-                        value:false
-                    },
-                    {
-                        frame:38,
-                        value:true
-                    },
-                    {
-                        frame:40,
-                        value:false
-                    },
-                    {
-                        frame:45,
-                        value:true
-                    },
-                    {
-                        frame:47,
-                        value:false
-                    },
-                    {
-                        frame:52,
-                        value:true
-                    },
-                    {
-                        frame:54,
-                        value:false
-                    },
-                    {
-                        frame:59,
-                        value:true
-                    },
-                    {
-                        frame:61,
-                        value:false
                     }
-                ]
+                ]).push(
+                    repeater(
+                        new Signal([
+                            {
+                                frame:3,
+                                value:false,
+                            },
+                            {
+                                frame:9,
+                                value:true
+                            }
+                        ]),
+                        3
+                    )
+                ).push(
+                    new Signal([
+                        {frame:3,value:false}
+                    ])
+                ).push(
+                    oscillator(3, 4)
+                ),
             ],
             70,
             false,
@@ -391,5 +228,6 @@ export const W1S3 = new Level (
             
         ]
     ),
-    4, 2
+    6, 3,
+    Or
 )

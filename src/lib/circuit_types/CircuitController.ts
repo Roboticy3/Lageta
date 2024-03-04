@@ -72,8 +72,7 @@ export class CircuitController {
             this.gateGrid = gateGrid
         }
 
-        this.transformMatrix = transform(translate(100, 100
-            ))
+        this.transformMatrix = identity()
 
         if (makeMain) {
             mainController = this
@@ -275,20 +274,28 @@ export class CircuitController {
         offsetX:number, 
         offsetY:number
     ) {
-        const gate = createGate(gType)
-        console.log("adding gate: ", gate)
-
-        const gateId = this.gateGrid.gates.length
 
         const [localX, localY] = this.unprojectOffset(offsetX, offsetY)
         let [x, y] = this.gateGrid.offsetToIndex(localX, localY)
+        
+        this.addGateAtCell(gType, x, y)
+    }
+
+    addGateAtCell(
+        gType:GateType,
+        x:number,
+        y:number
+    ) {
+        const gate = createGate(gType)
+        console.log("adding gate: ", gate)
+
         const result = this.gateGrid.addGate(x, y, gate)
         if (result === undefined) {
             console.log("failed add!")
             return
         }
 
-        console.log(this.gateGrid.graph)
+        console.log(this.gateGrid)
     }
 
     previewAddGate(
@@ -384,8 +391,7 @@ export class CircuitController {
         const graph = this.gateGrid.graph
         const c = new Connection(from, output, to, input)
         const result = graph.addConnection(c)
-        
-        console.log(result, graph)
+
         return result
     }
 
@@ -452,6 +458,18 @@ export class CircuitController {
         }
     }
 
+    addConnectionListener(
+        f: (id: number) => void
+    ) {
+        this.gateGrid.graph.connectionListeners.add(f)
+    }
+
+    removeConnectionListener(
+        f: (id: number) => void
+    ) {
+        this.gateGrid.graph.connectionListeners.delete(f)
+    }
+
     getInputIds() {
         let result = new Array<[number, number]>()
         for (let i of this.gateGrid.inputs.values()) {
@@ -475,7 +493,6 @@ export class CircuitController {
             if (i === undefined) {
                 continue
             }
-            console.log(i)
             const chunk = i.override.map((v) => {return v === true})
             result.push(...chunk)
         }
@@ -508,6 +525,20 @@ export class CircuitController {
         return result
     }
 
+    getGateInputs(
+        id:number
+    ) {
+        const gate = this.gateGrid.gates[id]
+        return gate?.override
+    }
+
+    getGateOutputs(
+        id:number
+    ) {
+        const gate = this.gateGrid.gates[id]
+        return gate?.execute()
+    }
+
     /**
      * Convert and SVG id tag to a numeric id
      * @param id 
@@ -523,9 +554,9 @@ export class CircuitController {
      * @param color 
      * @returns 
      */
-    gridCellsSvg(color:String = "purple") {
+    gridCellsSvg(color:string = "purple") {
         const grid = this.gateGrid
-        let svg = new Array<String>(grid.sizeX + grid.sizeY)
+        let svg = new Array<string>(grid.sizeX + grid.sizeY)
         const offsetHeight = grid.cellOffset * grid.sizeY
         const offsetWidth = grid.cellOffset * grid.sizeX
         for (let i = 0; i < grid.sizeX; i++) {
@@ -594,7 +625,7 @@ export class CircuitController {
                     result += connectionBuilder(
                         inputOffsets[j][0],
                         inputOffsets[j][1],
-                        `stroke-width=.25px ` + (g.getInput(j) ? `fill="red" stroke="none" `:""),
+                        `stroke-width=.5px ` + (g.getInput(j) ? `fill="var(--connection-color-on)" stroke="none" `:`stroke="var(--connection-color-off)" `),
                         g.type.inputLabels[j]
                     )
                     
@@ -603,7 +634,7 @@ export class CircuitController {
                     result += connectionBuilder(
                         outputOffsets[j][0],
                         outputOffsets[j][1],
-                        `stroke-width=.25px ` + (g.getOutput(j) ? `fill="red" stroke="none" `:""),
+                        `stroke-width=.5px ` + (g.getOutput(j) ? `fill="var(--connection-color-on)" stroke="none" `:`stroke="var(--connection-color-off)" `),
                         g.type.outputLabels[j]
                     )
                     break
@@ -626,7 +657,7 @@ export class CircuitController {
             const fOffsets = this.gateGrid.getGateOutputOffsets(f)
             const fValue = f.getOutputs()[o]
             const tOffsets = this.gateGrid.getGateInputOffsets(t)
-            const params = fValue ? `stroke="red"`:""
+            const params = fValue ? `stroke="var(--connection-color-on)"`:`stroke="var(--connection-color-off)"`
             result.push(wireBuilder(fOffsets[o], tOffsets[i], params))
         })
 

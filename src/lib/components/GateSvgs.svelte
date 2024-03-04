@@ -7,24 +7,27 @@
    /**
     * make an svg for a gate
     * @param {GateType} type
+    * @param {string} customStyle
+    * @param {number | undefined} customWidth
+    * @param {number | undefined} customHeight
     */
-   export const buildSvg = (type, id="") => {
+   export const buildSvg = (type, id="", customStyle="", customWidth=undefined, customHeight=undefined) => {
       let idString = ""
       if (id !== "") {
          idString = `id=${id}`
       }
 
-      let width = 10 * type.gridWidth
-      let height = 10 * type.gridHeight
+      let width = customWidth || 10 * type.gridWidth
+      let height = customHeight || 10 * type.gridHeight
 
       return (
 `
 <svg 
    ${idString}
-   width="100%"
    viewBox="0 0 ${width} ${height}"
    stroke="black" stroke-width=".5pt" fill="none"
-   xmlns="http://www.w3.org/2000/svg">
+   xmlns="http://www.w3.org/2000/svg"
+   style="${customStyle}">
    ${getGateTypeSvgContents(type)}
 </svg>
 `)
@@ -60,18 +63,20 @@
     */
    export const getGateTypeSvgContents = (gType) => {
       let result = _svgs.get(gType.name)
-      return result || defaultSvg((gType?.gridWidth || 2) * 10, (gType?.gridHeight || 2) * 10, 4);
+      return result || defaultSvg((gType?.gridWidth || 2) * 10, (gType?.gridHeight || 2) * 10, 4, gType.name);
    } 
 
-   function defaultSvg(width=2, height=2, font=4) {
-      return `<text x="${font}" y="${height / 2 + font / 2}" stroke="transparent" fill="black" style="font: ${font}px sans-serif;" />`
+   function defaultSvg(width=2, height=2, font=4, name="") {
+      return `<text x="${font}" y="${height / 2 + font / 2}" stroke="transparent" fill="black" style="font: ${font}px sans-serif;" >${name}</text>`
    }
 
    /**
     * @param {GateType} gType
+    * @param {number | undefined} customWidth
+    * @param {number | undefined} customHeight
     */
-   export const getGateTypeSvg = (gType) => {
-      return buildSvg(gType)
+   export const getGateTypeSvg = (gType, customStyle="", customWidth=undefined, customHeight=undefined) => {
+      return buildSvg(gType, "", customStyle, customWidth, customHeight)
    }
 
    /**
@@ -87,5 +92,12 @@
 `
         return result
     }
+
+   /**
+     * @param {boolean} value
+     */
+   export function connectionColor(value) {
+      return value ? 'var(--connection-color-on)':'var(--connection-color-off)'
+   }
 
 </script>
