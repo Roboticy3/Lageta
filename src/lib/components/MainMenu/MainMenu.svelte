@@ -1,5 +1,5 @@
 <script>
-    import { Buf, Or, all_gates } from "$lib/circuit_types/Gate";
+    import { Or } from "$lib/dat/GateTypes/GateTypes";
     import { getGateTypeSvg } from "../GateSvgs.svelte";
     import MainMenuOption from "./MainMenuOption.svelte";
 

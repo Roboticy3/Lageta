@@ -4,9 +4,9 @@
 
     import { CircuitController, CircuitControllerQueryResult } from "$lib/circuit_types/CircuitController";
     import { CircuitDragDropController } from "$lib/circuit_types/CircuitDragDropController";
-    import { GateType } from "$lib/circuit_types/Gate";
     import { getGateTypeSvgContents, getGateTypeSvg } from "../GateSvgs.svelte";
     import { onMount } from 'svelte';
+    import { GateType } from '$lib/circuit_types/GateType';
 
     let contents = ""
 

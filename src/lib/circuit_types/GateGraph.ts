@@ -1,6 +1,7 @@
 
-import { Flow, type ConnectionValue, type Gate } from "./Gate";
+import { Flow, Gate } from "./Gate";
 import type { GateGrid } from "./GateGrid";
+import type { ConnectionValue } from "./GateType";
 
 export class GateGraph {
     inputs:Array<Array<Connection | undefined>> = []

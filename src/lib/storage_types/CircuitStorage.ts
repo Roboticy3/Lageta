@@ -1,5 +1,7 @@
+import { Gate, createGate } from "$lib/circuit_types/Gate";
+import { GateType } from "$lib/circuit_types/GateType";
+import { Buf } from "$lib/dat/GateTypes/GateTypes";
 import type { CircuitController } from "../circuit_types/CircuitController";
-import { Buf, Flow, Gate, createGate, type GateType } from "../circuit_types/Gate";
 import { Connection, GateGraph } from "../circuit_types/GateGraph";
 import { GateGrid } from "../circuit_types/GateGrid";
 import { parseStorage } from "./ParseStorage";

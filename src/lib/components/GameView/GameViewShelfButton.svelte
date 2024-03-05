@@ -1,10 +1,11 @@
 <script>
-    import { Buf, GateType } from "$lib/circuit_types/Gate";
     import { onMount } from "svelte";
 
     import { getGateTypeSvg } from "../GateSvgs.svelte";
 
     import CircuitDraggable from "./CircuitDraggable.svelte";
+    import { Buf } from "$lib/dat/GateTypes/GateTypes";
+    import { GateType } from "$lib/circuit_types/GateType";
 
     /**
      * @type {GateType}

@@ -1,6 +1,6 @@
 <script>
     import { goto } from "$app/navigation";
-    import { Buf } from "$lib/circuit_types/Gate";
+    import { Buf } from "$lib/dat/GateTypes/GateTypes";
     import { getGateTypeSvg } from "../GateSvgs.svelte";
 
     export let gateType = Buf

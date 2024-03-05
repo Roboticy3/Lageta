@@ -1,5 +1,4 @@
 import type { Gate } from "./Gate"
-import { Buf } from "./Gate"
 import type { GateGraph } from "./GateGraph"
 
 /**

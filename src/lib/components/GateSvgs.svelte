@@ -1,6 +1,7 @@
 <script context="module">
    //@ts-ignore
-   import { Gate, GateType, all_gates } from "$lib/circuit_types/Gate";
+   import { Gate } from "$lib/circuit_types/Gate";
+    import { GateType } from "$lib/circuit_types/GateType";
     import { TestSignalSet } from "$lib/signal_types/Signal";
     import { SignalSetController } from "$lib/signal_types/SignalSetController";
 

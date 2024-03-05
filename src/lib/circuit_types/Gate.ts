@@ -1,156 +1,5 @@
 import type { Connection } from "./GateGraph";
-import { TruthTable } from "./TruthTable";
-
-//every type of gate
-export let all_gates:Map<String, GateType> = new Map()
-
-/**
- * A set of data used both by Gates and view.
- * Every GateType created will be placed in all_gates with its name as the key, 
- * only one of each unique GateType should exist at any given time, the only reason the class is exported is so other scripts can typescheck for it
- */
-export class GateType {
-    name:string = "Buf"
-    readonly sizeIn:number = 1
-    readonly sizeOut:number = 1
-    readonly inputOffsets:Array<[number, number]> = [[0.25, 1]]
-    readonly outputOffsets:Array<[number, number]> = [[1.75, 1]]
-    readonly inputLabels:string[] = []
-    readonly outputLabels:string[] = []
-    readonly gridWidth:number = 2
-    readonly gridHeight:number = 2
-    readonly moveable:boolean = true
-    readonly variant:GateTypeVariant = "Gate"
-    private readonly f:(x:(ConnectionValue)[]) => (ConnectionValue)[] = (x:(ConnectionValue)[])=>{return x}
-    
-    constructor(
-        params:GateTypeParameters
-    )
-    {
-        if (params.gridSize) {
-            this.gridWidth = params.gridSize[0]
-            this.gridHeight = params.gridSize[1]
-        }
-
-        if (params.name) {
-            this.name = params.name
-        }
-
-        if (typeof params.inputs === "number") {
-            this.sizeIn = params.inputs
-            this.inputOffsets = this.spreadVerticalConnections(0.25, params.inputs)
-        }
-        else if (params.inputs instanceof Array) {
-            this.sizeIn = params.inputs.length
-            this.inputOffsets = params.inputs
-        }
-
-        if (typeof params.outputs === "number") {
-            this.sizeOut = params.outputs
-            this.outputOffsets = this.spreadVerticalConnections(this.gridWidth - 0.25, params.outputs)
-        }
-        else if (params.outputs instanceof Array) {
-            this.sizeOut = params.outputs.length
-            this.outputOffsets = params.outputs
-        }
-
-        this.inputLabels = params.inputLabels || 
-            Array(this.sizeIn).fill("")
-        this.outputLabels = params.outputLabels ||
-            Array(this.sizeOut).fill("")
-
-        if (params.register || true) {
-            registerGateType(this)
-        }
-
-        if (params.variant) this.variant = params.variant
-
-        if (params.moveable !== undefined) this.moveable = params.moveable
-
-        if (params.f) this.f = params.f
-
-        console.log("Created GateType: ",this)
-
-    }   
-
-    private spreadVerticalConnections(gridX:number, size:number) {
-        return spreadVerticalConnections(gridX, this.gridHeight, size)
-    }
-
-    execute(override:ConnectionValue[], x:ConnectionValue[]) {
-        let newArray = new Array<ConnectionValue>(this.sizeIn)
-        for (let i = 0; i < this.sizeIn; i++) {
-            newArray[i] = override[i] || x[i]
-        }
-        console.log("executing ", this.name, " with input ", newArray)
-        return this.f(newArray)
-    }
-}
-
-function spreadVerticalConnections(gridX:number, gridHeight:number, size:number) {
-    const step = gridHeight / (size + 1)
-    let result = new Array<[number, number]>(size)
-
-    for (let i = 0; i < size; i++) {
-        result[i] = [gridX, step * (i + 1)]
-    }
-
-    return result
-}
-
-function spreadHorizontalConnections(gridY:number, gridWidth:number, size:number) {
-    const step = gridWidth / (size + 1)
-    let result = new Array<[number, number]>(size)
-
-    for (let i = 0; i < size; i++) {
-        result[i] = [step * (i + 1), gridY]
-    }
-
-    return result
-}
-
-/**
- * Set of optional arguments for constructing a GateType
- */
-type GateTypeParameters = {
-    name?:string,
-    inputs?:number | Array<[number, number]>,
-    outputs?:number | Array<[number, number]>,
-    gridSize?:[number, number],
-    inputLabels?:string[],
-    outputLabels?:string[],
-    moveable?:boolean,
-    variant?:GateTypeVariant,
-    f?:(x:(ConnectionValue)[]) => (ConnectionValue)[],
-    register?:boolean
-}
-type GateTypeVariant = "Gate" | "Flow"
-
-/**
- * Return a combination of two GateTypeParameters objects
- * @param a The first set of params
- * @param b The second set of params, overrides values of the first if there are overlaps
- * @returns 
- */
-function combineGateTypeParameters(a:GateTypeParameters, b:GateTypeParameters) {
-    const result = {...b, ...a} //blasphemy, sodomy, and possibly embezzlement were involved in the development of TypeScript
-    return result as GateTypeParameters
-}
-
-/**
- * Get an existing GateType from the given parameters, or create a new one if necessary
- * @param params 
- * @returns 
- */
-export function getGateType(params:GateTypeParameters) {
-    if (params.name) {
-        const result = all_gates.get(params.name)
-        if (result) {
-            return result
-        }
-    }
-    return new GateType(params)
-}
+import { GateType, type ConnectionValue } from "./GateType";
 
 /**
  * The actual Gate object, takes a readonly reference to a GateType.
@@ -211,65 +60,6 @@ export class Gate {
     }
 }
 
-export type ConnectionValue = boolean | undefined
-
-const registerGateType = (gateType:GateType) => {
-    if (!all_gates.has(gateType.name)) {
-        all_gates.set(gateType.name, gateType)
-    }
-    all_gates = all_gates
-}
-
-const registerGateTypeJson = (gateType:string) => {
-    const gType = JSON.parse(gateType) as GateType
-    registerGateType(gType)
-}
-
-export const Buf = getGateType (
-    {name:"Buf", inputs:1, outputs:1}
-)
-
-export const Not = getGateType (
-    {name:"Not", inputs:1, outputs:1, f:(x) => {return [!(x[0])]}}
-)
-
-export const And = getGateType (
-    {name:"And", inputs:2, outputs:1, f:(x) => {return [x[0] && x[1]]}}
-)
-
-export const Or = getGateType (
-    {name:"Or", inputs:2, outputs:1, f:(x) => {return [x[0] || x[1]]}}
-)
-
-export const Nand = getGateType (
-    {name:"Nand", inputs:2, outputs:1, f:(x) => {return [!(x[0] && x[1])]}}
-)
-
-export function Mux(selectionSize:number) {
-    const size = Math.pow(2, selectionSize)
-    const inputOffsets = spreadVerticalConnections(0.25, size, size)
-    inputOffsets.push(...spreadHorizontalConnections(size - 0.25, selectionSize, selectionSize))
-    return getGateType (
-        {
-            name:"Mux" + String(size), 
-            inputs:inputOffsets, outputs:1, 
-            gridSize:[selectionSize, size], 
-            f:(x) => {
-                let sum = 0
-                let pow = 0
-                for (let i = inputOffsets.length - selectionSize; i < inputOffsets.length; i++) {
-                    
-                    if (x[i]) sum += Math.pow(2, pow)
-
-                    pow++
-                }
-
-                return [x[sum]]
-            }
-        }
-    )
-}
-
 /**
  * A special type of Gate with zero inputs, that treats it's override as it's output values
  */
@@ -292,45 +82,17 @@ export class Flow extends Gate {
     }
 }
 
-export function createGate(type:GateType) {
-    let g
+export function createGate(type: GateType) {
+    let g;
     switch (type.variant) {
         case "Flow":
-            g = new Flow(type)
-            break
-        case "Gate":
-            g = new Gate(type)
-            break
+            g = new Flow(type);
+            break;
+        default:
+            g = new Gate(type);
+            break;
     }
 
-    g.reset()
-    return g
-}
-
-export function Input(size:number, otherParams:GateTypeParameters | undefined = undefined) {
-    let params:GateTypeParameters = {
-        name:"Input" + String(size), 
-        inputs:0, outputs:size, 
-        gridSize:[2, size], 
-        variant:"Flow",
-        moveable:false,
-        f:(x) => {return x}
-    }
-    if (otherParams) {
-        params = combineGateTypeParameters(otherParams, params)
-    }
-    return getGateType (params)
-}
-
-export function Output(size:number, otherParams:GateTypeParameters | undefined = undefined) {
-    let params:GateTypeParameters = {
-        name:"Output" + String(size), 
-        inputs:size, outputs:0, 
-        gridSize:[2, size], 
-        moveable:false
-    }
-    if (otherParams) {
-        params = combineGateTypeParameters(params, otherParams)
-    }
-    return getGateType (params)
+    g.reset();
+    return g;
 }

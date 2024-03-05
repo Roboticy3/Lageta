@@ -1,7 +1,7 @@
 
 import { CircuitControllerQueryResult, type CircuitController } from "./CircuitController";
-import { all_gates, Gate, type GateType } from "./Gate";
 import type { ConnectionType } from "./GateGraph";
+import { GateType } from "./GateType";
 
 export class CircuitDragDropController {
 

@@ -1,13 +1,13 @@
 <script>
     import CircuitDraggable from './CircuitDraggable.svelte';
 
-    import { GateType, Buf, Gate, all_gates} from '$lib/circuit_types/Gate'
     import { onMount, tick } from 'svelte';
 
     import { ConnectionSvg, buildSvg, wireSvg, getGateTypeSvg, getGateTypeSvgContents, connectionColor } from '../GateSvgs.svelte';
 
     import { CircuitController, CircuitControllerQueryResult } from '$lib/circuit_types/CircuitController';
     import { GameViewParameters } from '$lib/level_types/GameViewParameters';
+    import { Buf } from '$lib/dat/GateTypes/GateTypes';
 
     /**
      * @type {GameViewParameters}

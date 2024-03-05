@@ -3,9 +3,6 @@
 <script>
     import { onMount } from 'svelte';
 
-    // @ts-ignore
-    import { GateType, all_gates } from "$lib/circuit_types/Gate";
-
     import GameViewShelfButton from "./GameViewShelfButton.svelte";
     import GameViewCircuitPanel from './GameViewCircuitPanel.svelte';
     import TextFormPopup from './TextFormPopup.svelte';
@@ -16,16 +13,14 @@
     import { CircuitStore } from '$lib/storage_types/CircuitStorage';
     import { ProgressStorage } from '$lib/storage_types/ProgressStore';
     
-    //@ts-ignore
     import { CompleteCondition, GameViewParameters } from '$lib/level_types/GameViewParameters';
     import { all_levels } from '$lib/level_types/Level';
-    import TruthTableView from './TruthTableView.svelte';
-    import { TruthTable } from '$lib/circuit_types/TruthTable';
     import InputCheckBox from './InputCheckBox.svelte';
     import { SignalSetController } from '$lib/signal_types/SignalSetController';
     import SignalViewer from './SignalViewer.svelte';
     import { SignalSet } from '$lib/signal_types/Signal';
     import CircuitDraggable from './CircuitDraggable.svelte';
+    import { GateType } from '$lib/circuit_types/GateType';
 
     /**
      * @type {GameViewParameters}
@@ -170,11 +165,6 @@
     </GameViewCircuitPanel>
     <div class="directions">
         {@html params.directions}
-        {#if params.completeCondition instanceof GateType}
-            <TruthTableView 
-                table={new TruthTable(params.completeCondition)}
-            />
-        {/if}
         {#if params.completeCondition instanceof SignalSet}
             <SignalViewer 
                 signalSetController={

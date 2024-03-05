@@ -8,11 +8,11 @@
     import { CircuitController } from "$lib/circuit_types/CircuitController";
     import CircuitDraggable from "../GameView/CircuitDraggable.svelte";
     import LevelViewer from "./LevelViewer.svelte";
-    import { Input } from "$lib/circuit_types/Gate";
     import InputCheckBox from "../GameView/InputCheckBox.svelte";
     import CircuitDiv from "../GameView/CircuitDiv.svelte";
     import { goto } from "$app/navigation";
     import { connectionColor } from "../GateSvgs.svelte";
+    import { Input } from "$lib/dat/GateTypes/GateTypes";
 
     const gridWidth = 20
     const gridHeight = 10

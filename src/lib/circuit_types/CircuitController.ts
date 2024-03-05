@@ -1,9 +1,10 @@
 import type { SignalPlayer } from "$lib/signal_types/Signal";
 import type { SignalSetController } from "$lib/signal_types/SignalSetController";
-import { Gate, type ConnectionValue, type GateType, createGate } from "./Gate";
+import { Gate, createGate } from "./Gate";
 import { GateGraph, Connection, type ConnectionType } from "./GateGraph"
 import { GateGrid } from "./GateGrid";
 import { identity, transform, type Matrix, type Transform, applyToPoint, inverse, toSVG, fromObject, translate, rotateDEG, rotate, scale} from "transformation-matrix";
+import { GateType } from "./GateType";
 
 const connectionSelectRadius = 10
 

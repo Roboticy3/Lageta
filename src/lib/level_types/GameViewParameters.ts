@@ -1,6 +1,7 @@
 import { CircuitController } from "$lib/circuit_types/CircuitController"
-import { createGate, type ConnectionValue, type GateType, Buf } from "$lib/circuit_types/Gate"
 import type { GateGrid } from "$lib/circuit_types/GateGrid"
+import { GateType } from "$lib/circuit_types/GateType"
+import { Buf } from "$lib/dat/GateTypes/GateTypes"
 import { SignalSet } from "$lib/signal_types/Signal"
 import { OrganizedCircuit, type OrganizedCircuitContents } from "$lib/storage_types/CircuitStorage"
 
@@ -60,4 +61,4 @@ export class CompleteCondition {
 }
 
 type GridSource = CircuitController | OrganizedCircuitContents | undefined
-type CompleteConditionSource = GateType | SignalSet | undefined
+export type CompleteConditionSource = GateType | SignalSet | undefined

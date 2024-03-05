@@ -1,4 +1,5 @@
-import { createGate, type ConnectionValue, type GateType } from "$lib/circuit_types/Gate"
+import { createGate } from "$lib/circuit_types/Gate"
+import { GateType } from "$lib/circuit_types/GateType"
 
 export type SignalKeyFrame<T> = {
     frame:number,

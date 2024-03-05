@@ -1,4 +1,4 @@
-import { And, Buf, Not, Or, all_gates } from "$lib/circuit_types/Gate"
+import { Buf, all_gates } from "$lib/dat/GateTypes/GateTypes"
 import { Freeplay, NotLevel, all_levels } from "$lib/level_types/Level"
 import { parseStorage } from "./ParseStorage"
 //storage format
