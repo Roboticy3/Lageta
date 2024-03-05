@@ -1,5 +1,6 @@
 import { Buf, all_gates } from "$lib/dat/GateTypes/GateTypes"
-import { Freeplay, NotLevel, all_levels } from "$lib/level_types/Level"
+import { all_levels } from "$lib/level_types/Level"
+import { Freeplay, NotLevel } from "$lib/dat/Levels/Levels"
 import { parseStorage } from "./ParseStorage"
 //storage format
 /*

@@ -1,7 +1,8 @@
 <script>
     import { goto } from "$app/navigation";
     import { CircuitController } from "$lib/circuit_types/CircuitController";
-    import { Freeplay, Level } from "$lib/level_types/Level";
+    import { Level } from "$lib/level_types/Level";
+    import { Freeplay } from "$lib/dat/Levels/Levels";
     import { onMount, tick } from "svelte";
     import CircuitDiv from "../GameView/CircuitDiv.svelte";
 

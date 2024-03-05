@@ -92,6 +92,8 @@ export const Nand = getGateType(
     { name: "Nand", inputs: 2, outputs: 1, f: (x) => { return [!(x[0] && x[1])]; } }
 );
 
+export const LevelGateType = getGateType({ name: "LevelGateType", gridSize: [2, 2], moveable: false });
+
 export function Mux(selectionSize: number) {
     const size = Math.pow(2, selectionSize);
     const inputOffsets = spreadVerticalConnections(0.25, size, size);
