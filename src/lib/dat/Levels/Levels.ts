@@ -1,5 +1,5 @@
 import { GateType } from "$lib/circuit_types/GateType";
-import { And, Buf, Input, Not, Or, Output, getGateType } from "$lib/dat/GateTypes/GateTypes";
+import { And, Buf, Input, Nand, Not, Or, Output, Xor, getGateType } from "$lib/dat/GateTypes/GateTypes";
 import { Signal, SignalSet, oscillator, repeater } from "$lib/signal_types/Signal";
 import type { OrganizedCircuitContents, SerializableGate } from "$lib/storage_types/CircuitStorage";
 import { ProgressStorage } from "$lib/storage_types/ProgressStore";
@@ -231,10 +231,76 @@ export const OrLevel:LevelParameters = {
             false,
             Or
         ),
-        []
+        [
+            "Making a Gate 1"
+        ]
     ),
     x:6, y:3,
     type:Or
+}
+
+export const NandLevel:LevelParameters ={
+    params:new GameViewParameters(
+        "Making a Gate 1",
+        `
+        <p>Most levels will have you making a gate. Connect multiple gates together to get more interesting effects!</p>
+        <p>Try and make your circuit match the expected output. If you succeed, you'll unlock a gate with the same behavior as your circuit to use in later levels.</p>
+        <p>The behavior here is called an "Nand" gate, or inverse And</p>
+        `,
+        In2Out1,
+        new SignalSet(
+            [
+                oscillator(10, 5),
+                new Signal([
+                    {
+                        frame: 50,
+                        value: true
+                    }
+                ])
+            ],
+            100,
+            false,
+            And
+        ),
+        [
+            "Nand",
+            "Making a Gate 2"
+        ]
+    ),
+    x:12,y:7,
+    type:Nand
+}
+
+export const XorLevel = {
+    params:new GameViewParameters(
+        "Making a Gate 2",
+        `
+        <p>Most levels will have you making a gate. Connect multiple gates together to get more interesting effects!</p>
+        <p>Try and make your circuit match the expected output. If you succeed, you'll unlock a gate with the same behavior as your circuit to use in later levels.</p>
+        <p>The behavior here is called an "Xor" gate, or exclusive or</p>
+        `,
+        In2Out1,
+        new SignalSet(
+            [
+                oscillator(10, 10),
+                repeater(
+                    new Signal([
+                        {frame:3, value:false},
+                        {frame:3, value:true}
+                    ]),
+                    24
+                ),
+            ],
+            200,
+            false,
+            Xor
+        ),
+        [
+            "Xor"
+        ]
+    ),
+    x:12,y:5,
+    type:Xor
 }
 
 const all_params = new Map<string, LevelParameters>([
@@ -242,7 +308,9 @@ const all_params = new Map<string, LevelParameters>([
     ["A Simple Start",BufLevel],
     ["Inverter",NotLevel],
     ["Some Kind of Combo",AndLevel],
-    ["Join",OrLevel]
+    ["Join",OrLevel],
+    ["Making a Gate 1", NandLevel],
+    ["Making a Gate 2", XorLevel]
 ])
 
 export function getLevel(name:string) {

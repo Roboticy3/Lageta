@@ -159,6 +159,7 @@ export class SignalSetController {
         const result = circuitController.getOutputs()
         
         if (this.circuitIsValid) {for (let i = 0; i < value.length - outputsStart; i++) {
+            console.log("validating output ", result[i], " with expected ", outputs[i])
             if (outputs[i] !== result[i]) {
                 this.circuitIsValid = false
                 break
