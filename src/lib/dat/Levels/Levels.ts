@@ -81,7 +81,10 @@ export const NotLevel:LevelParameters = {
     params:new GameViewParameters(
         "NotLevel",
         `
-        A Not gate "inverts" the input. On becomes Off, and vice-versa. Click and drag between the triangular connection points to draw a wire.
+        Click on the symbols on the top shelf to produce a gate, and drop it in the grid.
+        A Gate takes inputs and transforms them into outputs.
+        This level requires a "Not" Gate, which takes one input and produces the opposite.
+        The Not gate is a triangle with a circle at the end.
         `,
         MinCircuit,
         new SignalSet(
@@ -97,8 +100,8 @@ export const NotLevel:LevelParameters = {
             Not
         ),
         [
-            "Not",
-            "OrLevel"
+            "OrLevel",
+            "Or"
         ]
     ),
     x:8, y:3,
@@ -124,7 +127,12 @@ const In2Out1:OrganizedCircuitContents = {
 export const AndLevel:LevelParameters = {
     params:new GameViewParameters(
         "AndLevel",
-        "An And gate has two inputs, and only turns On when both are enabled.",
+        `
+        Click on the symbols on the top shelf to produce a gate, and drop it in the grid.
+        A Gate takes inputs and transforms them into outputs.
+        This level requires an "And" Gate, which takes two inputs and only outputs power when both inputs (Input 1 AND Input 2) are enabled.
+        The And gate is flat on one side and rounded on the other
+        `,
         In2Out1,
         new SignalSet(
             [
@@ -141,7 +149,8 @@ export const AndLevel:LevelParameters = {
             And
         ),
         [
-            "OrLevel"
+            "OrLevel",
+            "Or"
         ]
     ),
     x:10, y:1,
