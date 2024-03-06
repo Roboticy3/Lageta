@@ -69,8 +69,8 @@ export const BufLevel:LevelParameters = {
             "Not",
             "And",
             "Buf",
-            "NotLevel",
-            "AndLevel"
+            "Inverter",
+            "Some Kind of Combo"
         ]
     ),
     x:8, y:1,
@@ -79,7 +79,7 @@ export const BufLevel:LevelParameters = {
 
 export const NotLevel:LevelParameters = {
     params:new GameViewParameters(
-        "NotLevel",
+        "Inverter",
         `
         Click on the symbols on the top shelf to produce a gate, and drop it in the grid.
         A Gate takes inputs and transforms them into outputs.
@@ -100,7 +100,7 @@ export const NotLevel:LevelParameters = {
             Not
         ),
         [
-            "OrLevel",
+            "Join",
             "Or"
         ]
     ),
@@ -126,7 +126,7 @@ const In2Out1:OrganizedCircuitContents = {
 
 export const AndLevel:LevelParameters = {
     params:new GameViewParameters(
-        "AndLevel",
+        "Some Kind of Combo",
         `
         Click on the symbols on the top shelf to produce a gate, and drop it in the grid.
         A Gate takes inputs and transforms them into outputs.
@@ -149,7 +149,7 @@ export const AndLevel:LevelParameters = {
             And
         ),
         [
-            "OrLevel",
+            "Join",
             "Or"
         ]
     ),
@@ -159,7 +159,7 @@ export const AndLevel:LevelParameters = {
 
 export const OrLevel:LevelParameters = {
     params:new GameViewParameters(
-        "OrLevel",
+        "Join",
         "An Or gate is On when either of its inputs are On",
         In2Out1,
         new SignalSet(
@@ -235,9 +235,9 @@ export const OrLevel:LevelParameters = {
 const all_params = new Map<string, LevelParameters>([
     ["Freeplay",Freeplay],
     ["A Simple Start",BufLevel],
-    ["NotLevel",NotLevel],
-    ["AndLevel",AndLevel],
-    ["OrLevel",OrLevel]
+    ["Inverter",NotLevel],
+    ["Some Kind of Combo",AndLevel],
+    ["Join",OrLevel]
 ])
 
 export function getLevel(name:string) {
