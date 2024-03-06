@@ -79,7 +79,7 @@ export const BufLevel:LevelParameters = {
 
 export const NotLevel:LevelParameters = {
     params:new GameViewParameters(
-        "Not",
+        "NotLevel",
         `
         A Not gate "inverts" the input. On becomes Off, and vice-versa. Click and drag between the triangular connection points to draw a wire.
         `,
@@ -123,7 +123,7 @@ const In2Out1:OrganizedCircuitContents = {
 
 export const AndLevel:LevelParameters = {
     params:new GameViewParameters(
-        "And",
+        "AndLevel",
         "An And gate has two inputs, and only turns On when both are enabled.",
         In2Out1,
         new SignalSet(
@@ -150,7 +150,7 @@ export const AndLevel:LevelParameters = {
 
 export const OrLevel:LevelParameters = {
     params:new GameViewParameters(
-        "Or",
+        "OrLevel",
         "An Or gate is On when either of its inputs are On",
         In2Out1,
         new SignalSet(
