@@ -73,7 +73,7 @@ export const BufLevel:LevelParameters = {
             "Some Kind of Combo"
         ]
     ),
-    x:8, y:1,
+    x:4, y:1,
     type:Buf
 }
 
@@ -105,7 +105,7 @@ export const NotLevel:LevelParameters = {
             "Or"
         ]
     ),
-    x:8, y:3,
+    x:6, y:1,
     type:Not
 };
 
@@ -155,7 +155,7 @@ export const AndLevel:LevelParameters = {
             "Or"
         ]
     ),
-    x:10, y:1,
+    x:6, y:3,
     type:And
 }
 
@@ -235,7 +235,7 @@ export const OrLevel:LevelParameters = {
             "Making a Gate 1"
         ]
     ),
-    x:6, y:3,
+    x:8, y:1,
     type:Or
 }
 
@@ -260,14 +260,14 @@ export const NandLevel:LevelParameters ={
             ],
             100,
             false,
-            And
+            Nand
         ),
         [
             "Nand",
             "Making a Gate 2"
         ]
     ),
-    x:12,y:7,
+    x:10,y:1,
     type:Nand
 }
 
@@ -299,7 +299,7 @@ export const XorLevel = {
             "Xor"
         ]
     ),
-    x:12,y:5,
+    x:12,y:1,
     type:Xor
 }
 
