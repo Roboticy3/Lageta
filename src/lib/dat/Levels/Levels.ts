@@ -67,7 +67,10 @@ export const BufLevel:LevelParameters = {
         ),
         [
             "Not",
-            "Buf"
+            "And",
+            "Buf",
+            "NotLevel",
+            "AndLevel"
         ]
     ),
     x:8, y:1,
@@ -94,7 +97,8 @@ export const NotLevel:LevelParameters = {
             Not
         ),
         [
-            "Or"
+            "Not",
+            "OrLevel"
         ]
     ),
     x:8, y:3,
@@ -137,7 +141,7 @@ export const AndLevel:LevelParameters = {
             And
         ),
         [
-            "Or"
+            "OrLevel"
         ]
     ),
     x:10, y:1,
@@ -222,9 +226,9 @@ export const OrLevel:LevelParameters = {
 const all_params = new Map<string, LevelParameters>([
     ["Freeplay",Freeplay],
     ["A Simple Start",BufLevel],
-    ["Not",NotLevel],
-    ["And",AndLevel],
-    ["Or",OrLevel]
+    ["NotLevel",NotLevel],
+    ["AndLevel",AndLevel],
+    ["OrLevel",OrLevel]
 ])
 
 export function getLevel(name:string) {

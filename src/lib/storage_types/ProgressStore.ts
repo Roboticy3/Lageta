@@ -83,10 +83,11 @@ export class ProgressStorage {
 
     addGate(item:string) {
         const gateType = all_gates.get(item)
-        if (gateType !== undefined && this.findLevel(item) === -1) {
+        if (gateType !== undefined && this.findGate(item) === -1) {
             this.progressStorage.gates.push(item)
         }
         this.commit()
+        console.log("Unlocked gate ", item)
     }
 
     findLevel(levelName:string) {
@@ -94,11 +95,12 @@ export class ProgressStorage {
     }
 
     addLevel(item:string) {
-        const level = all_levels.get(item)
-        if (level !== undefined && this.findLevel(item) === -1) {
+        const params = getLevelParams(item)
+        if (params !== undefined && this.findLevel(item) === -1) {
             this.progressStorage.levels.push(item)
         }
         this.commit()
+        console.log("Unlocked level ", item)
     }
 }
 

@@ -3,12 +3,12 @@
 <script>
     import { page } from '$app/stores';
     import GameView from '$lib/components/GameView/GameView.svelte'
-    import { all_levels } from '$lib/level_types/Level';
-    import { Freeplay } from "$lib/dat/Levels/Levels";
+    import { Level, all_levels } from '$lib/level_types/Level';
+    import { Freeplay, getLevel } from "$lib/dat/Levels/Levels";
     import { ProgressStorage } from '$lib/storage_types/ProgressStore';
 
     const levelName = $page.params.levelName
-    const level = all_levels.get(levelName)
+    const level = getLevel(levelName)
     
 </script>
 

@@ -76,7 +76,7 @@
         showGates={false}
     >
         {#each levelSet as params}
-            <LevelViewer level={new Level(params)} circuitController={circuitController} />
+            <LevelViewer params={params} circuitController={circuitController} />
         {/each}
 
         <InputCheckBox 
