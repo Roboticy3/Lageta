@@ -50,11 +50,11 @@ export const BufLevel:LevelParameters = {
     params:new GameViewParameters(
         "A Simple Start",
         `
-        A regular level has inputs and outputs on a grid.
-        Click and drag between the input and output on the grid to draw a wire, then press the play button below to send a signal through the input.
-        The signal has input channels on top and output channels below. 
-        When you press play, the input channels will be sent to the input, and the outputs will be measured into the output channels.
-        If the measured output matches the expected output, you win!
+        <p>A regular level has inputs and outputs on a grid.</p>
+        <p>Click and drag between the input and output on the grid to draw a wire, then press the play button below to send a signal through the input.</p>
+        <p>The signal has input channels on top and output channels below.</p>
+        <p>When you press play, the input channels will be sent to the input, and the outputs will be measured into the output channels.</p>
+        <p>If the measured output matches the expected output, you win!</p>
         `,
         MinCircuit,
         new SignalSet(
@@ -81,10 +81,11 @@ export const NotLevel:LevelParameters = {
     params:new GameViewParameters(
         "Inverter",
         `
-        Click on the symbols on the top shelf to produce a gate, and drop it in the grid.
-        A Gate takes inputs and transforms them into outputs.
-        This level requires a "Not" Gate, which takes one input and produces the opposite.
-        The Not gate is a triangle with a circle at the end.
+        <p>This level requires a "Not" Gate, also called an inverter, which takes one input and produces its opposite.</p>
+        <p>The Not gate is represented by a triangle with a circle at the end.</p>
+        <p>Click on the symbols on the top shelf to produce a gate, and drop it in the grid.</p>
+        <p>A Gate takes inputs and transforms them into outputs.</p>
+        <p>After placing the gate, connect a wire to the input, and connect the output to the level's output.</p>
         `,
         MinCircuit,
         new SignalSet(
@@ -128,10 +129,11 @@ export const AndLevel:LevelParameters = {
     params:new GameViewParameters(
         "Some Kind of Combo",
         `
-        Click on the symbols on the top shelf to produce a gate, and drop it in the grid.
-        A Gate takes inputs and transforms them into outputs.
-        This level requires an "And" Gate, which takes two inputs and only outputs power when both inputs (Input 1 AND Input 2) are enabled.
-        The And gate is flat on one side and rounded on the other
+        <p>This level requires an "And" Gate, which takes two inputs and only outputs power when both inputs (Input 1 AND Input 2) are enabled.</p>
+        <p>The And gate is represented by a shape that's flat on one side and rounded on the other.</p>
+        <p>Click on the symbols on the top shelf to produce a gate, and drop it in the grid.</p>
+        <p>A Gate takes inputs and transforms them into outputs.</p>
+        <p>After placing the gate, connect a wire to one of its inputs, then connect its output to the output of the level.</p>
         `,
         In2Out1,
         new SignalSet(
@@ -160,7 +162,10 @@ export const AndLevel:LevelParameters = {
 export const OrLevel:LevelParameters = {
     params:new GameViewParameters(
         "Join",
-        "An Or gate is On when either of its inputs are On",
+        `
+        <p>An Or gate outputs power when recieving power from either of its inputs, 
+        and is represented by a shape that's curved inward on one side and rounded on the other like an And gate</p>
+        `,
         In2Out1,
         new SignalSet(
             [
