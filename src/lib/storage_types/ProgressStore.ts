@@ -1,6 +1,6 @@
 import { Buf, all_gates } from "$lib/dat/GateTypes/GateTypes"
 import { all_levels } from "$lib/level_types/Level"
-import { Freeplay, NotLevel } from "$lib/dat/Levels/Levels"
+import { Freeplay, NotLevel, getLevel, getLevelParams } from "$lib/dat/Levels/Levels"
 import { parseStorage } from "./ParseStorage"
 //storage format
 /*
@@ -70,7 +70,7 @@ export class ProgressStorage {
     levels() {
         return this.progressStorage.levels.map(
             (v, _i, _a) => {
-                const result = all_levels.get(v)
+                const result = getLevelParams(v)
                 if (result) return result
                 console.log("Failed to load Level ",v)
                 return Freeplay
@@ -104,14 +104,10 @@ export class ProgressStorage {
 
 class ProgressStorageObject {
     gates:Array<string> = [
-        "Not",
-        "And",
-        "Nand"
+        
     ]
     levels:Array<string> = [
-        "Freeplay",
-        "Not",
-        "And"
+        "A Simple Start"
     ]
 
     push(p:ProgressStorageObject) {

@@ -75,22 +75,9 @@
         canDragGates={false}
         showGates={false}
     >
-        <LevelViewer 
-            level={Freeplay} 
-            circuitController={circuitController}
-        />
-        <LevelViewer 
-            level={NotLevel} 
-            circuitController={circuitController}
-        />
-        <LevelViewer 
-            level={AndLevel} 
-            circuitController={circuitController}
-        />
-        <LevelViewer 
-            level={OrLevel} 
-            circuitController={circuitController}
-        />
+        {#each levelSet as params}
+            <LevelViewer level={new Level(params)} circuitController={circuitController} />
+        {/each}
 
         <InputCheckBox 
             circuitPanel={circuitPanel} 
