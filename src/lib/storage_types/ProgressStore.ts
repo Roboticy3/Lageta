@@ -96,6 +96,7 @@ export class ProgressStorage {
 
     addLevel(item:string) {
         const params = getLevelParams(item)
+        console.log(params)
         if (params !== undefined && this.findLevel(item) === -1) {
             this.progressStorage.levels.push(item)
         }

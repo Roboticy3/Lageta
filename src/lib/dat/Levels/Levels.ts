@@ -242,9 +242,9 @@ const all_params = new Map<string, LevelParameters>([
 
 export function getLevel(name:string) {
     const params = getLevelParams(name)
-    return new Level(params)
+    if (params) return new Level(params)
 }
 
 export function getLevelParams(name:string) {
-    return all_params.get(name) || Freeplay
+    return all_params.get(name)
 }
