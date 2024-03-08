@@ -1,3 +1,4 @@
+import { Connection } from "$lib/circuit_types/GateGraph";
 import { GateType } from "$lib/circuit_types/GateType";
 import { And, Buf, Decoder2t4, Encoder4t2, Input, Nand, Not, Or, Output, Xor, getGateType } from "$lib/dat/GateTypes/GateTypes";
 import { Signal, SignalSet, oscillator, repeater } from "$lib/signal_types/Signal";
@@ -15,28 +16,6 @@ export type LevelParameters = {
     register?:boolean
 }
 
-export const Freeplay:LevelParameters = {
-    params:new GameViewParameters(
-        "Freeplay",
-        "Have Fun!",
-        {
-            gateTypes: [
-                Input(10),
-                Output(10)
-            ],
-            gates: [
-                { x: 0, y: 0, id: 0, type: "Input10" } as SerializableGate,
-                { x: 13, y: 0, id: 1, type: "Output10" } as SerializableGate
-            ],
-            size: [15, 10]
-        },
-        undefined,
-        [],
-        true
-    ),
-    x:18, y:0
-}
-
 const MinCircuit:OrganizedCircuitContents = {
     gateTypes: [Input(1, { outputLabels: ["Input"] }), Output(1, { inputLabels: ["Output"] })],
     gates: [
@@ -45,69 +24,6 @@ const MinCircuit:OrganizedCircuitContents = {
     ],
     size: [10, 5]
 }
-
-export const BufLevel:LevelParameters = {
-    params:new GameViewParameters(
-        "A Simple Start",
-        `
-        <p>A regular level has inputs and outputs on a grid.</p>
-        <p>Click and drag between the input and output on the grid to draw a wire, then press the play button below to send a signal through the input.</p>
-        <p>The signal has input channels on top and output channels below.</p>
-        <p>When you press play, the input channels will be sent to the input, and the outputs will be measured into the output channels.</p>
-        <p>If the measured output matches the expected output, you win!</p>
-        `,
-        MinCircuit,
-        new SignalSet(
-            [
-                oscillator(20, 2)
-            ],
-            80,
-            false,
-            Buf
-        ),
-        [
-            "Not",
-            "And",
-            "Buf",
-            "Inverter",
-            "Some Kind of Combo"
-        ]
-    ),
-    x:4, y:1,
-    type:Buf
-}
-
-export const NotLevel:LevelParameters = {
-    params:new GameViewParameters(
-        "Inverter",
-        `
-        <p>This level requires a "Not" Gate, also called an inverter, which takes one input and produces its opposite.</p>
-        <p>The Not gate is represented by a triangle with a circle at the end.</p>
-        <p>Click on the symbols on the top shelf to produce a gate, and drop it in the grid.</p>
-        <p>A Gate takes inputs and transforms them into outputs.</p>
-        <p>After placing the gate, connect a wire to the input, and connect the output to the level's output.</p>
-        `,
-        MinCircuit,
-        new SignalSet(
-            [
-                new Signal([{frame:0,value:false}])
-                    .push(oscillator(10, 2))
-                    .push(oscillator(5, 3))
-                    .push(oscillator(3, 3))
-                    .push(oscillator(1, 6))
-            ],
-            101,
-            false,
-            Not
-        ),
-        [
-            "Join",
-            "Or"
-        ]
-    ),
-    x:6, y:1,
-    type:Not
-};
 
 const In2Out1:OrganizedCircuitContents = {
     gateTypes: [
@@ -125,42 +41,178 @@ const In2Out1:OrganizedCircuitContents = {
     size: [10, 5]
 };
 
-export const AndLevel:LevelParameters = {
+const DecoderLevelSignal = new SignalSet(
+    [
+        new Signal([{frame:0,value:false}]).push(oscillator(5, 10)),
+        new Signal([{frame:0,value:false}]).push(oscillator(10, 5))
+    ],
+    101,
+    false,
+    Decoder2t4
+)
+
+export const EncoderLevel = {
     params:new GameViewParameters(
-        "Some Kind of Combo",
+        "Counting Backwards",
         `
-        <p>This level requires an "And" Gate, which takes two inputs and only outputs power when both inputs (Input 1 AND Input 2) are enabled.</p>
-        <p>The And gate is represented by a shape that's flat on one side and rounded on the other.</p>
-        <p>Click on the symbols on the top shelf to produce a gate, and drop it in the grid.</p>
-        <p>A Gate takes inputs and transforms them into outputs.</p>
-        <p>After placing the gate, connect a wire to one of its inputs, then connect its output to the output of the level.</p>
+        <p>How many possibilities are there for 2 independent inputs?</p>
+        <p>Each output here maps to one of those possibilities from the inputs.</p>
         `,
-        In2Out1,
+        {
+            gateTypes: [
+                Input(4,
+                    { outputLabels: ["0", "1", "2", "3"], gridSize: [2, 7] }
+                ),
+                Output(2,
+                    { inputLabels: ["Output 1", "Output 2"], gridSize: [2, 3]}
+                )
+            ],
+            gates: [
+                { x: 0, y: 2, type: "Input4", id: 0 } as SerializableGate,
+                { x: 18, y: 4, type: "Output2", id: 1 } as SerializableGate
+            ],
+            size: [20, 11]
+        },
+        DecoderLevelSignal.inverted(),
+        [
+            Encoder4t2.name
+        ]
+    ),
+    x:13,y:3,
+    type:Encoder4t2,
+    playCondition:[true, true]
+}
+
+export const DecoderLevel = {
+    params:new GameViewParameters(
+        "Counting",
+        `
+        <p>How many possibilities are there for 2 independent inputs?</p>
+        <p>Each output here maps to one of those possibilities from the inputs.</p>
+        `,
+        {
+            gateTypes: [
+                Input(2,
+                    { outputLabels: ["Input 1", "Input 2"], gridSize: [2, 3] }
+                ),
+                Output(4,
+                    { inputLabels: ["0", "1", "2", "3"], gridSize: [2, 7]}
+                )
+            ],
+            gates: [
+                { x: 0, y: 4, type: "Input2", id: 0 } as SerializableGate,
+                { x: 18, y: 2, type: "Output4", id: 1 } as SerializableGate
+            ],
+            size: [20, 11]
+        },
+        DecoderLevelSignal,
+        [
+            Decoder2t4.name,
+            EncoderLevel.params.name
+        ]
+    ),
+    x:10,y:3,
+    type:Decoder2t4,
+    playCondition:[false, false, true, false]
+}
+
+export const XorLevel = {
+    params:new GameViewParameters(
+        "Making a Gate 2",
+        `
+        <p>Here's an example of making a more advanced gate</p>
+        <p>The behavior here is called an "Xor" gate, short for exclusive or. Like an Or gate but more... exclusive.</p>
+        `,
+        {
+            gateTypes: [
+                Input(2,
+                    { outputLabels: ["Input 1", "Input 2"], gridSize: [2, 3] }
+                ),
+                Output(1,
+                    { inputLabels: ["Output"] }
+                ),
+                Or
+            ],
+            gates: [
+                { x: 0, y: 1, type: "Input2", id: 0 } as SerializableGate,
+                { x: 8, y: 2, type: "Output1", id: 1 } as SerializableGate,
+                { x: 4, y: 1, type: "Or", id: 2} as SerializableGate
+            ],
+            connections: [
+                new Connection(0, 0, 2, 0),
+                new Connection(0, 1, 2, 1),
+                new Connection(2, 0, 1, 0)
+            ],
+            size: [10, 5]
+        },
         new SignalSet(
             [
-                new Signal([{frame:0,value:false}])
-                    .push(oscillator(10, 5)),
-                new Signal([
-                    {
-                        frame: 50,
-                        value: true
-                    }
-                ])
+                new Signal([{frame:0,value:false}]).push(oscillator(10, 10)),
+                new Signal([{frame:5,value:false}]).push(oscillator(10, 9))
+            ],
+            200,
+            false,
+            Xor
+        ),
+        [
+            Xor.name,
+            DecoderLevel.params.name
+        ]
+    ),
+    x:12,y:1,
+    type:Xor
+}
+
+export const NandLevel = {
+    params:new GameViewParameters(
+        "Making a Gate 1",
+        `
+        <p>Most levels will have you making a gate. Connect multiple gates together to get more interesting effects!</p>
+        <p>Try and make your circuit match the expected output. If you succeed, you'll unlock a gate with the same behavior to use in later levels.</p>
+        <p>The behavior here is called an "Nand" gate, the opposite of And.</p>
+        `,
+        {
+            gateTypes: [
+                Input(2,
+                    { outputLabels: ["Input 1", "Input 2"], gridSize: [2, 3] }
+                ),
+                Output(1,
+                    { inputLabels: ["Output"] }
+                ),
+                And
+            ],
+            gates: [
+                { x: 0, y: 1, type: "Input2", id: 0 } as SerializableGate,
+                { x: 8, y: 2, type: "Output1", id: 1 } as SerializableGate,
+                { x: 4, y: 1, type: "And", id: 2} as SerializableGate
+            ],
+            connections: [
+                new Connection(0, 0, 2, 0),
+                new Connection(0, 1, 2, 1),
+                new Connection(2, 0, 1, 0)
+            ],
+            size: [10, 5]
+        },
+        new SignalSet(
+            [
+                new Signal([{frame:0,value:false}]).push(oscillator(10, 5)),
+                new Signal([{frame:0,value:false},{frame: 50,value: true}])
             ],
             100,
             false,
-            And
+            Nand
         ),
         [
-            "Join",
-            "Or"
+            Nand.name,
+            XorLevel.params.name,
+            DecoderLevel.params.name
         ]
     ),
-    x:6, y:3,
-    type:And
+    x:10,y:1,
+    type:Nand
 }
 
-export const OrLevel:LevelParameters = {
+export const OrLevel = {
     params:new GameViewParameters(
         "Join",
         `
@@ -210,151 +262,142 @@ export const OrLevel:LevelParameters = {
             Or
         ),
         [
-            "Making a Gate 1"
+            NandLevel.params.name
         ]
     ),
     x:8, y:1,
     type:Or
 }
 
-export const NandLevel:LevelParameters ={
+export const AndLevel = {
     params:new GameViewParameters(
-        "Making a Gate 1",
+        "Some Kind of Combo",
         `
-        <p>Most levels will have you making a gate. Connect multiple gates together to get more interesting effects!</p>
-        <p>Try and make your circuit match the expected output. If you succeed, you'll unlock a gate with the same behavior as your circuit to use in later levels.</p>
-        <p>The behavior here is called an "Nand" gate, or inverse And</p>
+        <p>This level requires an "And" Gate, which takes two inputs and only outputs power when both inputs (Input 1 AND Input 2) are enabled.</p>
+        <p>The And gate is represented by a shape that's flat on one side and rounded on the other.</p>
+        <p>Click on the symbols on the top shelf to produce a gate, and drop it in the grid.</p>
+        <p>A Gate takes inputs and transforms them into outputs.</p>
+        <p>After placing the gate, connect a wire to one of its inputs, then connect its output to the output of the level.</p>
         `,
         In2Out1,
         new SignalSet(
             [
-                new Signal([{frame:0,value:false}]).push(oscillator(10, 5)),
-                new Signal([{frame:0,value:false},{frame: 50,value: true}])
+                new Signal([{frame:0,value:false}])
+                    .push(oscillator(10, 5)),
+                new Signal([
+                    {
+                        frame: 50,
+                        value: true
+                    }
+                ])
             ],
             100,
             false,
-            Nand
+            And
         ),
         [
-            "Nand",
-            "Making a Gate 2",
-            "Counting"
+            OrLevel.params.name,
+            Or.name
         ]
     ),
-    x:10,y:1,
-    type:Nand
+    x:6, y:3,
+    type:And
 }
 
-export const XorLevel = {
+export const NotLevel = {
     params:new GameViewParameters(
-        "Making a Gate 2",
+        "Inverter",
         `
-        <p>Most levels will have you making a gate. Connect multiple gates together to get more interesting effects!</p>
-        <p>Try and make your circuit match the expected output. If you succeed, you'll unlock a gate with the same behavior as your circuit to use in later levels.</p>
-        <p>The behavior here is called an "Xor" gate, or exclusive or</p>
+        <p>This level requires a "Not" Gate, also called an inverter, which takes one input and produces its opposite.</p>
+        <p>The Not gate is represented by a triangle with a circle at the end.</p>
+        <p>Click on the symbols on the top shelf to produce a gate, and drop it in the grid.</p>
+        <p>A Gate takes inputs and transforms them into outputs.</p>
+        <p>After placing the gate, connect a wire to the input, and connect the output to the level's output.</p>
         `,
-        In2Out1,
+        MinCircuit,
         new SignalSet(
             [
-                new Signal([{frame:0,value:false}]).push(oscillator(10, 10)),
-                new Signal([{frame:5,value:false}]).push(oscillator(10, 9))
+                new Signal([{frame:0,value:false}])
+                    .push(oscillator(10, 2))
+                    .push(oscillator(5, 3))
+                    .push(oscillator(3, 3))
+                    .push(oscillator(1, 6))
             ],
-            200,
+            101,
             false,
-            Xor
+            Not
         ),
         [
-            "Xor"
+            OrLevel.params.name,
+            Or.name
         ]
     ),
-    x:12,y:1,
-    type:Xor
+    x:6, y:1,
+    type:Not
+};
+
+export const BufLevel = {
+    params:new GameViewParameters(
+        "A Simple Start",
+        `
+        <p>A regular level has inputs and outputs on a grid.</p>
+        <p>Click and drag between the input and output on the grid to draw a wire, then press the play button below to send a signal through the input.</p>
+        <p>The signal has input channels on top and output channels below.</p>
+        <p>When you press play, the input channels will be sent to the input, and the outputs will be measured into the output channels.</p>
+        <p>If the measured output matches the expected output, you win!</p>
+        `,
+        MinCircuit,
+        new SignalSet(
+            [
+                new Signal([{frame:0,value:false}]).push(oscillator(20, 2))
+            ],
+            80,
+            false,
+            Buf
+        ),
+        [
+            Not.name,
+            And.name,
+            Buf.name,
+            NotLevel.params.name,
+            AndLevel.params.name
+        ]
+    ),
+    x:4, y:1,
+    type:Buf
 }
 
-const DecoderLevelSignal = new SignalSet(
-    [
-        new Signal([{frame:0,value:false}]).push(oscillator(5, 10)),
-        new Signal([{frame:0,value:false}]).push(oscillator(10, 5))
-    ],
-    101,
-    false,
-    Decoder2t4
-)
-
-export const EncoderLevel = {
+export const Freeplay = {
     params:new GameViewParameters(
-        "Counting Backwards",
-        `
-        <p>How many possibilities are there for 2 independent inputs?</p>
-        <p>Each output here maps to one of those possibilities from the inputs.</p>
-        `,
+        "Freeplay",
+        "Have Fun!",
         {
             gateTypes: [
-                Input(4,
-                    { outputLabels: ["0", "1", "2", "3"], gridSize: [2, 7] }
-                ),
-                Output(2,
-                    { inputLabels: ["Output 1", "Output 2"], gridSize: [2, 3]}
-                )
+                Input(10),
+                Output(10)
             ],
             gates: [
-                { x: 0, y: 2, type: "Input4", id: 0 } as SerializableGate,
-                { x: 18, y: 4, type: "Output2", id: 1 } as SerializableGate
+                { x: 0, y: 0, id: 0, type: "Input10" } as SerializableGate,
+                { x: 13, y: 0, id: 1, type: "Output10" } as SerializableGate
             ],
-            size: [20, 11]
+            size: [15, 10]
         },
-        DecoderLevelSignal.inverted(),
-        [
-            Encoder4t2.name
-        ]
+        undefined,
+        [],
+        true
     ),
-    x:10,y:3,
-    type:Encoder4t2,
-    playCondition:[true, true]
-}
-
-export const DecoderLevel = {
-    params:new GameViewParameters(
-        "Counting",
-        `
-        <p>How many possibilities are there for 2 independent inputs?</p>
-        <p>Each output here maps to one of those possibilities from the inputs.</p>
-        `,
-        {
-            gateTypes: [
-                Input(2,
-                    { outputLabels: ["Input 1", "Input 2"], gridSize: [2, 3] }
-                ),
-                Output(4,
-                    { inputLabels: ["0", "1", "2", "3"], gridSize: [2, 7]}
-                )
-            ],
-            gates: [
-                { x: 0, y: 4, type: "Input2", id: 0 } as SerializableGate,
-                { x: 18, y: 2, type: "Output4", id: 1 } as SerializableGate
-            ],
-            size: [20, 11]
-        },
-        DecoderLevelSignal,
-        [
-            Decoder2t4.name,
-            EncoderLevel.params.name
-        ]
-    ),
-    x:10,y:3,
-    type:Decoder2t4,
-    playCondition:[false, false, true, false]
+    x:18, y:0
 }
 
 const all_params = new Map<string, LevelParameters>([
-    ["Freeplay",Freeplay],
-    ["A Simple Start",BufLevel],
-    ["Inverter",NotLevel],
-    ["Some Kind of Combo",AndLevel],
-    ["Join",OrLevel],
-    ["Making a Gate 1", NandLevel],
-    ["Making a Gate 2", XorLevel],
-    ["Counting", DecoderLevel],
+    [Freeplay.params.name,Freeplay],
+    [BufLevel.params.name,BufLevel],
+    [NotLevel.params.name,NotLevel],
+    [AndLevel.params.name,AndLevel],
+    [OrLevel.params.name,OrLevel],
+    [NandLevel.params.name, NandLevel],
+    [XorLevel.params.name, XorLevel],
+    [DecoderLevel.params.name, DecoderLevel],
     [EncoderLevel.params.name, EncoderLevel]
 ])
 
