@@ -297,6 +297,18 @@ export class SignalSet implements Iterable<Array<boolean>>{
         }
         return signal
     }
+
+    inverted(): SignalSet {
+        let newBlock = this.block.slice(this.inputs);
+        newBlock.push(...this.block.slice(0, this.inputs))
+        return new SignalSet(
+            newBlock,
+            this.length,
+            this.defaultValue,
+            this.block.length - this.inputs,
+            false
+        )
+    }
 }
 export type SignalPointResult<T> = {
     value:Array<T>

@@ -1,5 +1,5 @@
 import { GateType } from "$lib/circuit_types/GateType";
-import { And, Buf, Decoder2t4, Input, Nand, Not, Or, Output, Xor, getGateType } from "$lib/dat/GateTypes/GateTypes";
+import { And, Buf, Decoder2t4, Encoder4t2, Input, Nand, Not, Or, Output, Xor, getGateType } from "$lib/dat/GateTypes/GateTypes";
 import { Signal, SignalSet, oscillator, repeater } from "$lib/signal_types/Signal";
 import type { OrganizedCircuitContents, SerializableGate } from "$lib/storage_types/CircuitStorage";
 import { ProgressStorage } from "$lib/storage_types/ProgressStore";
@@ -271,6 +271,48 @@ export const XorLevel = {
     type:Xor
 }
 
+const DecoderLevelSignal = new SignalSet(
+    [
+        new Signal([{frame:0,value:false}]).push(oscillator(5, 10)),
+        new Signal([{frame:0,value:false}]).push(oscillator(10, 5))
+    ],
+    101,
+    false,
+    Decoder2t4
+)
+
+export const EncoderLevel = {
+    params:new GameViewParameters(
+        "Counting Backwards",
+        `
+        <p>How many possibilities are there for 2 independent inputs?</p>
+        <p>Each output here maps to one of those possibilities from the inputs.</p>
+        `,
+        {
+            gateTypes: [
+                Input(4,
+                    { outputLabels: ["0", "1", "2", "3"], gridSize: [2, 7] }
+                ),
+                Output(2,
+                    { inputLabels: ["Output 1", "Output 2"], gridSize: [2, 3]}
+                )
+            ],
+            gates: [
+                { x: 0, y: 2, type: "Input4", id: 0 } as SerializableGate,
+                { x: 18, y: 4, type: "Output2", id: 1 } as SerializableGate
+            ],
+            size: [20, 11]
+        },
+        DecoderLevelSignal.inverted(),
+        [
+            Encoder4t2.name
+        ]
+    ),
+    x:10,y:3,
+    type:Encoder4t2,
+    playCondition:[true, true]
+}
+
 export const DecoderLevel = {
     params:new GameViewParameters(
         "Counting",
@@ -293,26 +335,15 @@ export const DecoderLevel = {
             ],
             size: [20, 11]
         },
-        new SignalSet(
-            [
-                new Signal([{frame:0,value:false}]).push(oscillator(5, 10)),
-                new Signal([{frame:0,value:false}]).push(oscillator(10, 5))
-            ],
-            101,
-            false,
-            Decoder2t4
-        ),
+        DecoderLevelSignal,
         [
-            Decoder2t4.name
+            Decoder2t4.name,
+            EncoderLevel.params.name
         ]
     ),
     x:10,y:3,
     type:Decoder2t4,
     playCondition:[false, false, true, false]
-}
-
-export const EncoderLevel = {
-
 }
 
 const all_params = new Map<string, LevelParameters>([
@@ -323,7 +354,8 @@ const all_params = new Map<string, LevelParameters>([
     ["Join",OrLevel],
     ["Making a Gate 1", NandLevel],
     ["Making a Gate 2", XorLevel],
-    ["Counting", DecoderLevel]
+    ["Counting", DecoderLevel],
+    [EncoderLevel.params.name, EncoderLevel]
 ])
 
 export function getLevel(name:string) {

@@ -165,7 +165,7 @@ export function Encoder(bits:number, otherParams: GateTypeParameters | undefined
             for (let i = 0; i < bits; i++) {
                 const r = idx % 2
                 result[i] = r === 1
-                idx /= 2
+                idx = Math.floor(idx / 2)
             }
             return result
         }
