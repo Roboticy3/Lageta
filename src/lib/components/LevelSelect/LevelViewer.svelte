@@ -6,7 +6,7 @@
     import CircuitDiv from "../GameView/CircuitDiv.svelte";
     import { Level } from "$lib/level_types/Level";
 
-    export let params = Freeplay
+    export let params
 
     let level = new Level(params)
     /**

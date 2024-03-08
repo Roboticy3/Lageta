@@ -1,6 +1,6 @@
 import { Buf, all_gates } from "$lib/dat/GateTypes/GateTypes"
 import { all_levels } from "$lib/level_types/Level"
-import { Freeplay, NotLevel, getLevel, getLevelParams } from "$lib/dat/Levels/Levels"
+import { Freeplay, NotLevel, getLevel, getLevelParams, type LevelParameters } from "$lib/dat/Levels/Levels"
 import { parseStorage } from "./ParseStorage"
 //storage format
 /*
@@ -73,7 +73,7 @@ export class ProgressStorage {
                 const result = getLevelParams(v)
                 if (result) return result
                 console.log("Failed to load Level ",v)
-                return Freeplay
+                return Freeplay as LevelParameters
         })
     }
 
