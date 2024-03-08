@@ -90,7 +90,7 @@ export const NotLevel:LevelParameters = {
         MinCircuit,
         new SignalSet(
             [
-                (new Signal<boolean>())
+                new Signal([{frame:0,value:false}])
                     .push(oscillator(10, 2))
                     .push(oscillator(5, 3))
                     .push(oscillator(3, 3))
@@ -138,7 +138,8 @@ export const AndLevel:LevelParameters = {
         In2Out1,
         new SignalSet(
             [
-                oscillator(10, 5),
+                new Signal([{frame:0,value:false}])
+                    .push(oscillator(10, 5)),
                 new Signal([
                     {
                         frame: 50,
@@ -169,12 +170,7 @@ export const OrLevel:LevelParameters = {
         In2Out1,
         new SignalSet(
             [
-                new Signal([
-                    {
-                        frame: 0,
-                        value: true
-                    }
-                ]).push(
+                new Signal([{frame:0,value:true}]).push(
                     repeater(
                         new Signal([
                             {
@@ -188,24 +184,10 @@ export const OrLevel:LevelParameters = {
                         ]),
                         3
                     )
-                ).push(
-                    new Signal([{
-                        frame: 3,
-                        value: false,
-                    }])
-                ).push(
-                    new Signal([
-                        { frame: 6, value: false }
-                    ])
-                ).push(
+                ).push(new Signal([{frame:3,value:false},{frame:6,value:false}])).push(
                     oscillator(3, 4)
                 ),
-                new Signal([
-                    {
-                        frame: 6,
-                        value: true
-                    }
-                ]).push(
+                new Signal([{frame:0,value:false},{frame:6,value:true}]).push(
                     repeater(
                         new Signal([
                             {
@@ -219,13 +201,9 @@ export const OrLevel:LevelParameters = {
                         ]),
                         3
                     )
-                ).push(
-                    new Signal([
-                        { frame: 3, value: false }
-                    ])
-                ).push(
+                ).push(new Signal([{frame:3,value:false}])).push(
                     oscillator(3, 4)
-                ),
+                )
             ],
             70,
             false,
@@ -250,7 +228,7 @@ export const NandLevel:LevelParameters ={
         In2Out1,
         new SignalSet(
             [
-                oscillator(10, 5),
+                new Signal([{frame:0,value:false}]).push(oscillator(10, 5)),
                 new Signal([
                     {
                         frame: 50,
@@ -282,7 +260,7 @@ export const XorLevel = {
         In2Out1,
         new SignalSet(
             [
-                oscillator(10, 10),
+                new Signal([{frame:0,value:false}]).push(oscillator(10, 10)),
                 repeater(
                     new Signal([
                         {frame:3, value:false},

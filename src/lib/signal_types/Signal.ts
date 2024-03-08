@@ -160,9 +160,11 @@ export class SignalSet implements Iterable<Array<boolean>>{
     }
 
     getInitialValue() {
-        return this.currentValue = new Array<boolean>(
-            this.block.length
-        ).fill(this.defaultValue)
+        return this.currentValue = this.block.map((v) => {
+            const b = v.unpack()
+            if (b.length === 0) return this.defaultValue
+            return v.unpack()[0].value
+        })
     }
     
     reset() {
@@ -204,7 +206,7 @@ export class SignalSet implements Iterable<Array<boolean>>{
         let nearest = new Array<number>(channelCount)
         let currentKeyFrame = {
             frame:this.length,
-            value:this.defaultValue
+            value:false
         } as SignalKeyFrame<boolean>
         for (let i of availableChannels) 
         {   
