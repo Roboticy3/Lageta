@@ -14,8 +14,12 @@ export class SignalSetController {
             this.signalSet = from
         }
         else {
+            let start = Array<Signal<boolean>>(from)
+            for (let i = 0; i < from; i++) {
+                start[i] = new Signal()
+            }
             this.signalSet = new SignalSet(
-                Array<Signal<boolean>>(from).fill(new Signal()),
+                start,
                 0
             )
         }
@@ -159,7 +163,6 @@ export class SignalSetController {
         const result = circuitController.getOutputs()
         
         if (this.circuitIsValid) {for (let i = 0; i < value.length - outputsStart; i++) {
-            console.log("validating output ", result[i], " with expected ", outputs[i])
             if (outputs[i] !== result[i]) {
                 this.circuitIsValid = false
                 break
@@ -198,11 +201,14 @@ export class SignalSetController {
             this.signalSet.length = frame
         }
 
-        for (let i = 0; i < values.length; i++) {
-            this.signalSet.block[i].unpack().push({
+        for (let i = 0; i < this.signalSet.block.length; i++) {
+            let signal = this.signalSet.block[i]
+            const newSignal = new Signal([{
                 value:values[i],
                 frame:frame
-            })
+            }])
+            
+            signal.push(newSignal)
         }
     }
 }
