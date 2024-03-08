@@ -1,5 +1,5 @@
 import { GateType } from "$lib/circuit_types/GateType";
-import { And, Buf, Input, Nand, Not, Or, Output, Xor, getGateType } from "$lib/dat/GateTypes/GateTypes";
+import { And, Buf, Decoder2t4, Input, Nand, Not, Or, Output, Xor, getGateType } from "$lib/dat/GateTypes/GateTypes";
 import { Signal, SignalSet, oscillator, repeater } from "$lib/signal_types/Signal";
 import type { OrganizedCircuitContents, SerializableGate } from "$lib/storage_types/CircuitStorage";
 import { ProgressStorage } from "$lib/storage_types/ProgressStore";
@@ -229,12 +229,7 @@ export const NandLevel:LevelParameters ={
         new SignalSet(
             [
                 new Signal([{frame:0,value:false}]).push(oscillator(10, 5)),
-                new Signal([
-                    {
-                        frame: 50,
-                        value: true
-                    }
-                ])
+                new Signal([{frame:0,value:false},{frame: 50,value: true}])
             ],
             100,
             false,
@@ -242,7 +237,8 @@ export const NandLevel:LevelParameters ={
         ),
         [
             "Nand",
-            "Making a Gate 2"
+            "Making a Gate 2",
+            "Counting"
         ]
     ),
     x:10,y:1,
@@ -261,13 +257,7 @@ export const XorLevel = {
         new SignalSet(
             [
                 new Signal([{frame:0,value:false}]).push(oscillator(10, 10)),
-                repeater(
-                    new Signal([
-                        {frame:3, value:false},
-                        {frame:3, value:true}
-                    ]),
-                    24
-                ),
+                new Signal([{frame:5,value:false}]).push(oscillator(10, 9))
             ],
             200,
             false,
@@ -281,6 +271,50 @@ export const XorLevel = {
     type:Xor
 }
 
+export const DecoderLevel = {
+    params:new GameViewParameters(
+        "Counting",
+        `
+        <p>How many possibilities are there for 2 independent inputs?</p>
+        <p>Each output here maps to one of those possibilities from the inputs.</p>
+        `,
+        {
+            gateTypes: [
+                Input(2,
+                    { outputLabels: ["Input 1", "Input 2"], gridSize: [2, 3] }
+                ),
+                Output(4,
+                    { inputLabels: ["0", "1", "2", "3"], gridSize: [2, 7]}
+                )
+            ],
+            gates: [
+                { x: 0, y: 4, type: "Input2", id: 0 } as SerializableGate,
+                { x: 18, y: 2, type: "Output4", id: 1 } as SerializableGate
+            ],
+            size: [20, 11]
+        },
+        new SignalSet(
+            [
+                new Signal([{frame:0,value:false}]).push(oscillator(5, 10)),
+                new Signal([{frame:0,value:false}]).push(oscillator(10, 5))
+            ],
+            101,
+            false,
+            Decoder2t4
+        ),
+        [
+            Decoder2t4.name
+        ]
+    ),
+    x:10,y:3,
+    type:Decoder2t4,
+    playCondition:[false, false, true, false]
+}
+
+export const EncoderLevel = {
+
+}
+
 const all_params = new Map<string, LevelParameters>([
     ["Freeplay",Freeplay],
     ["A Simple Start",BufLevel],
@@ -288,7 +322,8 @@ const all_params = new Map<string, LevelParameters>([
     ["Some Kind of Combo",AndLevel],
     ["Join",OrLevel],
     ["Making a Gate 1", NandLevel],
-    ["Making a Gate 2", XorLevel]
+    ["Making a Gate 2", XorLevel],
+    ["Counting", DecoderLevel]
 ])
 
 export function getLevel(name:string) {

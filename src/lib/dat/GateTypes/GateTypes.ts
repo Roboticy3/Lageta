@@ -98,31 +98,6 @@ export const Xor = getGateType(
 
 export const LevelGateType = getGateType({ name: "LevelGateType", gridSize: [2, 2], moveable: false });
 
-export function Mux(selectionSize: number) {
-    const size = Math.pow(2, selectionSize);
-    const inputOffsets = spreadVerticalConnections(0.25, size, size);
-    inputOffsets.push(...spreadHorizontalConnections(size - 0.25, selectionSize, selectionSize));
-    return getGateType(
-        {
-            name: "Mux" + String(size),
-            inputs: inputOffsets, outputs: 1,
-            gridSize: [selectionSize, size],
-            f: (x) => {
-                let sum = 0;
-                let pow = 0;
-                for (let i = inputOffsets.length - selectionSize; i < inputOffsets.length; i++) {
-
-                    if (x[i]) sum += Math.pow(2, pow);
-
-                    pow++;
-                }
-
-                return [x[sum]];
-            }
-        }
-    );
-}
-
 export function Input(size: number, otherParams: GateTypeParameters | undefined = undefined) {
     let params: GateTypeParameters = {
         name: "Input" + String(size),
@@ -151,3 +126,54 @@ export function Output(size: number, otherParams: GateTypeParameters | undefined
     }
     return getGateType(params);
 }
+
+export function Decoder(bits:number, otherParams: GateTypeParameters | undefined = undefined) {
+    const outSize = Math.pow(2, bits)
+    let params: GateTypeParameters = {
+        name: `${bits}-${outSize} Decoder`,
+        inputs: bits, outputs: outSize,
+        gridSize: [3, outSize],
+        f: (x) => {
+            let result = Array(outSize).fill(false)
+            let idx = 0
+            let pow = 1
+            for (let i = 0; i < bits; i++) {
+                if (x[i] === true) idx += pow
+                pow *= 2
+            }
+            result[idx] = true
+            return result
+        }
+    }
+    if (otherParams) {
+        params = combineGateTypeParameters(params, otherParams);
+    }
+    return getGateType(params);
+}
+
+export const Decoder2t4 = Decoder(2)
+
+export function Encoder(bits:number, otherParams: GateTypeParameters | undefined = undefined) {
+    const inSize = Math.pow(2, bits)
+    let params: GateTypeParameters = {
+        name: `${inSize}-${bits} Encoder`,
+        inputs: inSize, outputs: bits,
+        gridSize: [3, inSize],
+        f: (x) => {
+            let idx = x.indexOf(true)
+            let result = new Array(bits).fill(false)
+            for (let i = 0; i < bits; i++) {
+                const r = idx % 2
+                result[i] = r === 1
+                idx /= 2
+            }
+            return result
+        }
+    }
+    if (otherParams) {
+        params = combineGateTypeParameters(params, otherParams);
+    }
+    return getGateType(params);
+}
+
+export const Encoder4t2 = Encoder(2)
