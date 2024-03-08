@@ -37,10 +37,10 @@
         const height = window.innerHeight
         const cellOffset = width / gridWidth
         circuitController.setGridCellOffset(cellOffset)
-        circuitPanel.setViewBox(width, height - height * 0.1)
 
         await tick()
         
+        circuitPanel.setViewBox(width, height - height * 0.1)
         circuitPanel.updateSvg()
     }
 
