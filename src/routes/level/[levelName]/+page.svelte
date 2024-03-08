@@ -13,7 +13,7 @@
 </script>
 
 {#if level !== undefined}
-<GameView params={(level || Freeplay).unpack()}/>
+<GameView params={level.unpack()}/>
 {:else}
 Level not found!
 {/if}
