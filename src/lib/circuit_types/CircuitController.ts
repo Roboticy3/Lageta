@@ -501,6 +501,17 @@ export class CircuitController {
         return result
     }
 
+    getInputLabels() {
+        let result:string[] = []
+        for (let g of this.gateGrid.inputs) {
+            if (g === undefined) {
+                continue
+            }
+            result.push(...g.type.outputLabels)
+        }
+        return result
+    }
+
     setInput(index:[number, number], val:boolean) {
         this.gateGrid.graph.setFlow(index, val)
     }
@@ -522,6 +533,17 @@ export class CircuitController {
             result.push(...g.override.map((v) => {
                 return v || false
             }))
+        }
+        return result
+    }
+
+    getOutputLabels() {
+        let result:string[] = []
+        for (let g of this.gateGrid.outputs) {
+            if (g === undefined) {
+                continue
+            }
+            result.push(...g.type.inputLabels)
         }
         return result
     }
