@@ -133,9 +133,10 @@
             updateSvg?.call(updateSvg)
         }
         outputSvgs = outputSignalSetController.drawChannels(
-           currentFrame,
+            currentFrame,
             `stroke-width="1px" stroke="red" fill="none"`
         )
+        
         if (done) {
             button = "▶"
             if (playFrame === signalSetController.frameCount()) {

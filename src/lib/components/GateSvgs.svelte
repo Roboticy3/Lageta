@@ -56,7 +56,8 @@
       ['Not', `<path d="M 1 3 L 15 10 L 1 17 Z"/><circle cx="17" cy="10" r="2" />\n`],
       ['And', `<path d="M 2 2 L 10 2 C 20 2 20 18 10 18 L 2 18 Z"/>\n`],
       ['Or', `<path d="M 10 2 C 20 2 20 18 10 18 L 2 18 C 5 18 5 2 2 2 Z"/>\n`],
-      ['Nand', `<path d="M 2 2 L 10 2 C 20 2 20 18 10 18 L 2 18 Z"/>\n<circle cx=18 cy=10 r="2"/>\n`]
+      ['Nand', `<path d="M 2 2 L 10 2 C 20 2 20 18 10 18 L 2 18 Z"/>\n<circle cx=18 cy=10 r="2"/>\n`],
+      ['Xor', `<path d="M 10 2 C 20 2 20 18 10 18 L 5 18 C 8 18 8 2 5 2 Z"/>\n<path d="M 2 18 C 5 18 5 2 2 2"/>\n`]
    ])
 
    /**

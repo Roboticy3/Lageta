@@ -3,7 +3,8 @@ import { GateGraph } from "$lib/circuit_types/GateGraph"
 import type { GateGrid } from "$lib/circuit_types/GateGrid"
 import { GateType } from "$lib/circuit_types/GateType"
 import { CompleteCondition, GameViewParameters } from "./GameViewParameters"
-import { LevelGateType } from "../dat/GateTypes/GateTypes"
+import { Buf, LevelGateType } from "../dat/GateTypes/GateTypes"
+import type { LevelParameters } from "$lib/dat/Levels/Levels"
 
 export let all_levels = new Map<String, Level>()
 
@@ -18,24 +19,19 @@ export class Level {
     readonly playCondition:Array<boolean>
 
     constructor(
-        params:GameViewParameters,
-        x:number = 0,
-        y:number = 0,
-        type:GateType = LevelGateType,
-        playCondition:Array<boolean> | undefined = undefined,
-        register:boolean = true
+        params:LevelParameters
     ) {
 
-        this.x = x
-        this.y = y
-        this.params = params
+        this.x = params.x || 0
+        this.y = params.y || 0
+        this.params = params.params || new GameViewParameters()
 
-        this.type = type
+        this.type = params.type || Buf
 
-        this.playCondition = playCondition || new Array<boolean>(this.type.sizeOut).fill(true)
+        this.playCondition = params.playCondition || new Array<boolean>(this.type.sizeOut).fill(true)
 
-        if (register) {
-            all_levels.set(params.name, this)
+        if (params.register && params.params?.name) {
+            all_levels.set(params.params.name, this)
         }
 
         console.log("Created level", this)

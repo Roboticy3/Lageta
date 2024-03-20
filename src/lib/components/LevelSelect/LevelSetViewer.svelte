@@ -37,10 +37,10 @@
         const height = window.innerHeight
         const cellOffset = width / gridWidth
         circuitController.setGridCellOffset(cellOffset)
-        circuitPanel.setViewBox(width, height - height * 0.1)
 
         await tick()
         
+        circuitPanel.setViewBox(width, height - height * 0.1)
         circuitPanel.updateSvg()
     }
 
@@ -75,22 +75,9 @@
         canDragGates={false}
         showGates={false}
     >
-        <LevelViewer 
-            level={Freeplay} 
-            circuitController={circuitController}
-        />
-        <LevelViewer 
-            level={NotLevel} 
-            circuitController={circuitController}
-        />
-        <LevelViewer 
-            level={AndLevel} 
-            circuitController={circuitController}
-        />
-        <LevelViewer 
-            level={OrLevel} 
-            circuitController={circuitController}
-        />
+        {#each levelSet as params}
+            <LevelViewer params={params} circuitController={circuitController} />
+        {/each}
 
         <InputCheckBox 
             circuitPanel={circuitPanel} 

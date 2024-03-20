@@ -82,6 +82,7 @@
         const rewards = params.completeRewards
         progressStore.addGate(params.name)
         rewards.map(progressStore.addLevel.bind(progressStore))
+        rewards.map(progressStore.addGate.bind(progressStore))
         
         completionPopup.show()
     }
