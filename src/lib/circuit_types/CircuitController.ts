@@ -5,8 +5,9 @@ import { GateGraph, Connection, type ConnectionType } from "./GateGraph"
 import { GateGrid } from "./GateGrid";
 import { identity, transform, type Matrix, type Transform, applyToPoint, inverse, toSVG, fromObject, translate, rotateDEG, rotate, scale} from "transformation-matrix";
 import { GateType } from "./GateType";
+import CircuitRenderer from "$lib/components/GameView/CircuitRenderer.svelte";
 
-const connectionSelectRadius = 10
+const connectionSelectRadius = 3
 
 //
 /**
@@ -56,7 +57,7 @@ export class CircuitController {
     readonly gateGrid:GateGrid
     onComplete:() => void
 
-    private transformMatrix:Matrix
+    private renderer:CircuitRenderer | null = null
 
     constructor(
         gateGrid:GateGrid | undefined = undefined,
@@ -73,13 +74,19 @@ export class CircuitController {
             this.gateGrid = gateGrid
         }
 
-        this.transformMatrix = identity()
-
         if (makeMain) {
             mainController = this
         }
 
         this.onComplete = onComplete
+    }
+
+    giveRenderer(renderer:CircuitRenderer) {
+        this.renderer = renderer
+    }
+
+    getRenderer() {
+        return this.renderer
     }
 
     /**
@@ -90,7 +97,8 @@ export class CircuitController {
      */
     projectOffset(offsetX:number, offsetY:number) {
         const p:[number, number] = [offsetX, offsetY]
-        return applyToPoint(this.transformMatrix, p)
+        if (this.renderer) return applyToPoint(this.renderer.getTransformMatrix(), p)
+        return p
     }
 
     /**
@@ -101,7 +109,8 @@ export class CircuitController {
      */
     unprojectOffset(offsetX:number, offsetY:number) {
         const p:[number, number] = [offsetX, offsetY]
-        return applyToPoint(inverse(this.transformMatrix), p)
+        if (this.renderer) return applyToPoint(inverse(this.renderer.getTransformMatrix()), p)
+        return p
     }
 
     /**
@@ -113,6 +122,10 @@ export class CircuitController {
         const id = this.svgIdToGateId(gateId)
 
         return this.gateGrid.gates[id]
+    }
+
+    getGridSize() {
+        return [this.gateGrid.sizeX, this.gateGrid.sizeY]
     }
 
     /**
@@ -161,22 +174,16 @@ export class CircuitController {
         return this.gateGrid.gates[gateId]
     }
 
-    /**
-     * Change the grid cell offset to a new value
-     * @param offset 
-     */
-    setGridCellOffset(offset:number) {
-        this.gateGrid.cellOffset = offset
+    getGateType(gateId:number) {
+        return this.getGate(gateId)?.type
     }
 
-    /**
-     * Get the grid cell offset to a new value
-     * @param offset 
-     */
-    getGridCellOffset() {
-        return this.gateGrid.cellOffset
+    getGatePosition(gateId:number) {
+        const gate = this.getGate(gateId)
+        if (gate === undefined) return undefined
+        return [gate.x, gate.y]
     }
-    
+
     /**
      * @returns the number of gates in this controller's grid
      */
@@ -197,7 +204,9 @@ export class CircuitController {
     {
         const [localX, localY] = this.unprojectOffset(offsetX, offsetY)
         
+        
         const [x, y] = this.gateGrid.offsetToIndex(localX, localY)
+        console.log("query at: ", offsetX, offsetY, "(local ", localX, localY, ", tile ", x, y, ")")
         const gate = this.gateGrid.get(x, y)
         if (gate === undefined) {
             return new CircuitControllerQueryResult()
@@ -263,6 +272,12 @@ export class CircuitController {
         )
     }
 
+    toLocal(offsetX:number, offsetY:number) {
+        const [localX, localY] = this.unprojectOffset(offsetX, offsetY)
+        return this.gateGrid.offsetToIndex(localX, localY)
+
+    }
+
     /**
      * Attempt to add a gate of a given type to the grid at the given global offset
      * @param gType 
@@ -276,10 +291,10 @@ export class CircuitController {
         offsetY:number
     ) {
 
-        const [localX, localY] = this.unprojectOffset(offsetX, offsetY)
-        let [x, y] = this.gateGrid.offsetToIndex(localX, localY)
+        const [x, y] = this.toLocal(offsetX, offsetY)
         
         this.addGateAtCell(gType, x, y)
+
     }
 
     addGateAtCell(
@@ -288,13 +303,15 @@ export class CircuitController {
         y:number
     ) {
         const gate = createGate(gType)
-        console.log("adding gate: ", gate)
+        console.log("adding gate: ", gate, " at ", x, y)
 
         const result = this.gateGrid.addGate(x, y, gate)
         if (result === undefined) {
             console.log("failed add!")
             return
         }
+
+        this.renderer?.updateGate(gate.id)
 
         console.log(this.gateGrid)
     }
@@ -334,7 +351,8 @@ export class CircuitController {
         offsetX:number, 
         offsetY:number
     ) {
-        console.log("moving gate ", id)
+        const [x, y] = this.toLocal(offsetX, offsetY)
+        console.log("moving gate ", id, " to ", x, y)
 
         const gate = this.gateGrid.gates[id]
         if (gate === undefined) {
@@ -345,14 +363,13 @@ export class CircuitController {
             return
         }
 
-        const [localX, localY] = this.unprojectOffset(offsetX, offsetY)
-        let [x, y] = this.gateGrid.offsetToIndex(localX, localY)
-
         const result = this.gateGrid.moveGate(id, x, y)
         if (result === undefined) {
             console.log("failed move!")
             return
         }
+
+        this.renderer?.updateGate(id)
 
         console.log(this.gateGrid)
     }
@@ -370,7 +387,10 @@ export class CircuitController {
         const result = this.gateGrid.removeGate(id, true)
         if (result === undefined) {
             console.log("gate not found! ")
+            return
         }
+
+        this.renderer?.updateGate(id)
 
         console.log(this.gateGrid)
     }
@@ -572,33 +592,12 @@ export class CircuitController {
         return Number(idParts[1])
     }
 
-    /**
-     * return a string array of SVG lines denoting the cells of the grid
-     * @param color 
-     * @returns 
-     */
-    gridCellsSvg(color:string = "purple") {
-        const grid = this.gateGrid
-        let svg = new Array<string>(grid.sizeX + grid.sizeY)
-        const offsetHeight = grid.cellOffset * grid.sizeY
-        const offsetWidth = grid.cellOffset * grid.sizeX
-        for (let i = 0; i < grid.sizeX; i++) {
-            const hpos = i * grid.cellOffset
-            svg[i] = `<path d="M ${hpos} 0 L ${hpos} ${offsetHeight}" stroke="${color}" stroke-width=".25pt"/>`
-        }
-        for (let j = 0; j < grid.sizeY; j++) {
-            const vpos = j * grid.cellOffset
-            svg[grid.sizeX + j] = `<path d="M 0 ${vpos} L ${offsetWidth} ${vpos}" stroke="${color}" stroke-width=".25pt"/>`
-        }
-        return svg
-    }
-
     isOffsetInGrid(offsetX:number, offsetY:number) {
         const localOffset = this.unprojectOffset(offsetX, offsetY)
         const grid = this.gateGrid
         const [sizeX, sizeY] = [
-            grid.sizeX * grid.cellOffset,
-            grid.sizeY * grid.cellOffset
+            grid.sizeX * 10,
+            grid.sizeY * 10
         ]
 
         return (
@@ -691,7 +690,7 @@ export class CircuitController {
      * @returns A string in svg format for the transformation matrix, needed to display the circuit with proper pan and zoom
      */
     getMatrixSvg() {
-        return toSVG(this.transformMatrix)
+        return this.renderer?.getTransformString()
     }
 
     /**
@@ -706,9 +705,7 @@ export class CircuitController {
         const snappedX = position[0]
         const snappedY = position[1]
 
-        const scale = this.gateGrid.cellOffset / 10
-
-        return `transform="translate(${snappedX} ${snappedY}) scale(${scale} ${scale})"`
+        return `transform="translate(${snappedX} ${snappedY})"`
     }
 
     //reference the player giving the signal in a SignalViewer

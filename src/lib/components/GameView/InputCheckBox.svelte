@@ -55,7 +55,7 @@
         }
 
         offset = gridController.projectOffset(
-            localOffset[0] - gridController.getGridCellOffset() - 5,
+            localOffset[0] - 5,
             localOffset[1] - 5
         )
 

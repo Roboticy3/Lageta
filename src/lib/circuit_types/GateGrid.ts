@@ -12,7 +12,6 @@ export class GateGrid {
 
     sizeX = 20
     sizeY = 20
-    cellOffset = 30
 
     grid:Array<number | undefined>
     gates = new Array<Gate | undefined>()
@@ -37,13 +36,13 @@ export class GateGrid {
     }
 
     offsetToIndex(offsetX:number, offsetY:number) {
-        const x = Math.floor(offsetX / this.cellOffset)
-        const y = Math.floor(offsetY / this.cellOffset)
+        const x = Math.floor(offsetX / 10)
+        const y = Math.floor(offsetY / 10)
         return [x, y]
     }
 
     indexToOffset(x:number, y:number) {
-        return [this.cellOffset * x, this.cellOffset * y]
+        return [10 * x, 10 * y]
     }
 
     get(x:number, y:number) {
@@ -173,8 +172,8 @@ export class GateGrid {
         }
         const gridOffset = gate.type.inputOffsets[input]
         return [
-            ((gate.x || 0) + gridOffset[0]) * this.cellOffset, 
-            ((gate.y || 0) + gridOffset[1]) * this.cellOffset
+            ((gate.x || 0) + gridOffset[0]) * 10, 
+            ((gate.y || 0) + gridOffset[1]) * 10
         ]
     }
 
@@ -184,8 +183,8 @@ export class GateGrid {
         }
         const gridOffset = gate.type.outputOffsets[output]
         return [
-            ((gate.x || 0) + gridOffset[0]) * this.cellOffset, 
-            ((gate.y || 0) + gridOffset[1]) * this.cellOffset
+            ((gate.x || 0) + gridOffset[0]) * 10, 
+            ((gate.y || 0) + gridOffset[1]) * 10
         ]
     }
 

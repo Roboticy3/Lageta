@@ -3,6 +3,7 @@
 
     import { onMount, tick } from 'svelte';
 
+    import CircuitRenderer from './CircuitRenderer.svelte';
     import { ConnectionSvg, buildSvg, wireSvg, getGateTypeSvg, getGateTypeSvgContents, connectionColor } from '../GateSvgs.svelte';
 
     import { CircuitController, CircuitControllerQueryResult } from '$lib/circuit_types/CircuitController';
@@ -25,14 +26,14 @@
     export let circuitDraggable
 
     /**
-     * @type {SVGElement} circuit
-     */
-    let circuit;
-
-    /**
      * @type {HTMLDivElement | null}
      */
     let circuitContainer = null;
+
+    /**
+     * @type {CircuitRenderer}
+    */
+   let circuitRenderer
 
     /**
      * @type {Array<String>}
@@ -93,47 +94,6 @@
      */
     let cellsSvg = []
 
-    export function disableAutoResize() {
-        window.removeEventListener('resize', (e) => {
-            updateViewBox()
-        })
-    }
-    export function enableAutoResize() {
-        window.addEventListener('resize', (e) => {
-            updateViewBox()
-        })
-        updateViewBox()
-    }
-
-    /**
-     * Corrects the viewBox of the circuit such that it won't change size when the window is resized.
-     */
-    function updateViewBox() {
-        if (!circuitContainer) {
-            return
-        }
-
-        let offsetX = circuitContainer.offsetWidth;
-        let offsetY = circuitContainer.offsetHeight;
-        setViewBox(offsetX, offsetY)
-    }
-
-    /**
-     * @param {number} x
-     * @param {number} y
-     */
-     export function setViewBox(x, y) {
-        circuit.setAttribute('viewBox', `0 0 ${x} ${y}`)
-        circuit.setAttribute('width', `${x}`)
-        cellsSvg = gridController.gridCellsSvg()
-    }
-
-    export let startAutoResize = true
-
-    if (startAutoResize) {
-        enableAutoResize()
-    }
-
     /**
      * Add all events needed to edit the circuit, name is a hold-over from when the project used the drag and drop api
      */
@@ -180,8 +140,8 @@
      */
     let mountCircuit = () => {
         addDragEventListeners()
-        updateViewBox()
         updateSvg()
+        gridController.giveRenderer(circuitRenderer)
     }
     onMount(mountCircuit)
 
@@ -199,7 +159,7 @@
 
         if (circuitDraggable.isDragging()) return
 
-        const query = gridController.query(e.offsetX, e.offsetY)        
+        const query = gridController.query(e.offsetX, e.offsetY)      
         switch (query.type) {
             case "Input":
                 if (canDragConnections) onDragStartInput(e, query)
@@ -503,31 +463,7 @@
     bind:this={circuitContainer}
     >
 
-    <svg 
-        stroke="black" 
-        stroke-width=".5pt" 
-        fill="none" 
-        bind:this={circuit}
-        class="circuit-svg">
-        <g transform={gridController.getMatrixSvg()}>
-
-            {#each svgWires as wire}
-                {@html wire}
-            {/each}
-
-            {#each cellsSvg as svg}
-            {@html svg}
-            {/each}
-
-            {#each svgGates as svg}
-            {@html svg}
-            {/each}
-
-            {@html svgConnectionPoints}
-            {@html activeSvgWire}
-            {@html activeSvgGate}
-        </g>
-    </svg>
+    <CircuitRenderer bind:this={circuitRenderer} circuitController={gridController}/>
 
     {#if showSlot}
         <slot />
@@ -539,11 +475,5 @@
         grid-row: 2;
         grid-column: 1 / 2;
         background-color: white;  
-    }
-
-    .circuit-svg {
-        pointer-events: none;
-        display: flex;
-        height:100%;
     }
 </style>
