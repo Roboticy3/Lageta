@@ -1,7 +1,7 @@
 
 import { CircuitControllerQueryResult, type CircuitController } from "./CircuitController";
 import type { ConnectionType } from "./GateGraph";
-import { GateType } from "./GateType";
+import { GateType, GateTypeController } from "./GateType";
 
 export class CircuitDragDropController {
 
@@ -22,7 +22,7 @@ export class CircuitDragDropController {
     dragCircuitHandler=(e:MouseEvent) => {}
 
     dragStartGateType(
-        type:GateType,
+        type:GateTypeController,
         e:MouseEvent,
         element: HTMLElement | null = null
     ) {
@@ -85,7 +85,7 @@ export class CircuitDragDropController {
 
     getGateType() {
         if (this.contents.type == "Gate") {
-            return this.contents.gateType
+            return this.contents.gateTypeController
         }
         return undefined
     }

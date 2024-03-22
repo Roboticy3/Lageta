@@ -20,7 +20,7 @@
     import SignalViewer from './SignalViewer.svelte';
     import { SignalSet } from '$lib/signal_types/Signal';
     import CircuitDraggable from './CircuitDraggable.svelte';
-    import { GateType } from '$lib/circuit_types/GateType';
+    import { GateType, GateTypeController } from '$lib/circuit_types/GateType';
 
     /**
      * @type {GameViewParameters}
@@ -130,7 +130,7 @@
     updateLocalStorageKeys()
 
     /**
-     * @type {Array<GateType>}
+     * @type {Array<GateTypeController>}
     */
     var unlockedGates = []
     function updateUnlockedGates() {

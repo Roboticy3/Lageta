@@ -1,9 +1,9 @@
 import { CircuitController } from "$lib/circuit_types/CircuitController"
 import { GateGraph } from "$lib/circuit_types/GateGraph"
 import type { GateGrid } from "$lib/circuit_types/GateGrid"
-import { GateType } from "$lib/circuit_types/GateType"
+import { GateType, GateTypeController } from "$lib/circuit_types/GateType"
 import { CompleteCondition, GameViewParameters } from "./GameViewParameters"
-import { Buf, LevelGateType } from "../dat/GateTypes/GateTypes"
+import { Buf, LevelGateType, getGateType } from "../dat/GateTypes/GateTypes"
 import type { LevelParameters } from "$lib/dat/Levels/Levels"
 
 export let all_levels = new Map<String, Level>()
@@ -14,7 +14,7 @@ export class Level {
     readonly x:number
     readonly y:number
 
-    readonly type:GateType
+    readonly type:GateTypeController
 
     readonly playCondition:Array<boolean>
 
@@ -26,9 +26,9 @@ export class Level {
         this.y = params.y || 0
         this.params = params.params || new GameViewParameters()
 
-        this.type = params.type || Buf
+        this.type = params.type || getGateType(Buf)
 
-        this.playCondition = params.playCondition || new Array<boolean>(this.type.sizeOut).fill(true)
+        this.playCondition = params.playCondition || new Array<boolean>(this.type.model.sizeOut).fill(true)
 
         if (params.register && params.params?.name) {
             all_levels.set(params.params.name, this)

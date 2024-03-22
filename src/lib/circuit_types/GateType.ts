@@ -1,4 +1,6 @@
 import { registerGateType, type GateTypeParameters, spreadVerticalConnections } from "$lib/dat/GateTypes/GateTypes";
+import type { GateState } from "./Gate";
+import type { ConnectionType } from "./GateGraph";
 
 export type ConnectionValue = boolean | undefined;
 
@@ -11,18 +13,13 @@ export type GateTypeVariant = "Gate" | "Flow"
  */
 
 export class GateType {
-    name: string = "Buf";
+    readonly name: string = "Buf";
     readonly sizeIn: number = 1;
     readonly sizeOut: number = 1;
-    readonly inputOffsets: Array<[number, number]> = [[0.25, 1]];
-    readonly outputOffsets: Array<[number, number]> = [[1.75, 1]];
-    readonly inputLabels: string[] = [];
-    readonly outputLabels: string[] = [];
     readonly gridWidth: number = 2;
     readonly gridHeight: number = 2;
-    readonly moveable: boolean = true;
     readonly variant: GateTypeVariant = "Gate";
-    private f: (x: (ConnectionValue)[]) => (ConnectionValue)[] = (x: (ConnectionValue)[]) => { return x; };
+    readonly f: (s:GateState) => GateState = (s:GateState) => { return s; };
 
     constructor(
         params: GateTypeParameters
@@ -35,6 +32,53 @@ export class GateType {
         if (params.name) {
             this.name = params.name;
         }
+
+        if (typeof params.inputs === "number") {
+            this.sizeIn = params.inputs;
+        }
+        else if (params.inputs instanceof Array) {
+            this.sizeIn = params.inputs.length;
+        }
+
+        if (typeof params.outputs === "number") {
+            this.sizeOut = params.outputs;
+        }
+        else if (params.outputs instanceof Array) {
+            this.sizeOut = params.outputs.length;
+        }
+
+        if (params.variant) this.variant = params.variant;
+
+        if (params.f) this.f = params.f;
+
+        console.log(this)
+
+    }
+}
+
+export const defaultGateTypeDraw = (gridWidth:number, gridHeight:number) => {
+    const w = 10 * (gridWidth - 1)
+    const h = 10 * (gridHeight - 1)
+    return `<ellipse rx="${w/2 - 2}" ry="${h/2 - 2}" cx="${w}" cy="${h}" />`;
+}
+
+export class GateTypeView {
+    readonly name: string = "Buf";
+    readonly sizeIn: number = 1;
+    readonly sizeOut: number = 1;
+    readonly inputOffsets: Array<[number, number]> = [[0.25, 1]];
+    readonly outputOffsets: Array<[number, number]> = [[1.75, 1]];
+    readonly inputLabels: string[] = [];
+    readonly outputLabels: string[] = [];
+    readonly gridWidth: number = 2;
+    readonly gridHeight: number = 2;
+    readonly moveable: boolean = true;
+    private readonly drawInternal: (s:GateState) => string;
+
+    constructor(
+        params:GateTypeParameters
+    ) {
+        if (params.name) this.name = params.name
 
         if (typeof params.inputs === "number") {
             this.sizeIn = params.inputs;
@@ -59,28 +103,43 @@ export class GateType {
         this.outputLabels = params.outputLabels ||
             Array(this.sizeOut).fill("");
 
-        if (params.register || true) {
-            registerGateType(this);
-        }
-
-        if (params.variant) this.variant = params.variant;
-
-        if (params.moveable) this.moveable = params.moveable;
-
-        if (params.f) this.f = params.f;
-
+        const d =  (s:GateState) => {return defaultGateTypeDraw(this.gridWidth, this.gridHeight)}
+        this.drawInternal = params.draw || d
     }
 
     private spreadVerticalConnections(gridX: number, size: number) {
         return spreadVerticalConnections(gridX, this.gridHeight, size);
     }
 
-    execute(override: ConnectionValue[], x: ConnectionValue[]) {
-        let newArray = new Array<ConnectionValue>(this.sizeIn);
-        for (let i = 0; i < this.sizeIn; i++) {
-            newArray[i] = override[i] || x[i];
+    getConnectionPoint(type:ConnectionType, index:number) {
+        switch (type) {
+            case "Input":
+                return this.inputOffsets[index]
+            case "Output":
+                return this.outputOffsets[index]
         }
-        console.log("executing ", this.name, " with input ", newArray);
-        return this.f(newArray);
+    }
+
+    draw(s:GateState | undefined = undefined) {
+        if (s === undefined) s = {override:new Array<ConnectionValue>(this.sizeIn).fill(undefined)}
+        return this.drawInternal(s)
+    }
+}
+
+export class GateTypeController {
+    readonly model:GateType
+    readonly view:GateTypeView
+
+    readonly name:string
+
+    constructor(
+        params:GateTypeParameters
+    ) {
+        this.model = new GateType(params);
+        this.view = new GateTypeView(params);
+
+        this.name = params.name || "Buf"
+
+        registerGateType(this);
     }
 }

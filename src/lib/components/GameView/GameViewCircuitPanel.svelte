@@ -8,7 +8,7 @@
 
     import { CircuitController, CircuitControllerQueryResult } from '$lib/circuit_types/CircuitController';
     import { GameViewParameters } from '$lib/level_types/GameViewParameters';
-    import { Buf } from '$lib/dat/GateTypes/GateTypes';
+    import { Buf, getGateType } from '$lib/dat/GateTypes/GateTypes';
 
     /**
      * @type {GameViewParameters}
@@ -246,7 +246,7 @@
      * @param {CircuitControllerQueryResult} query
      */
     function onDragStartGate(e, query) {
-        if (query.gateType?.moveable) circuitDraggable.drag(e, query, circuitContainer)
+        if (query.gateTypeController?.view.moveable) circuitDraggable.drag(e, query, circuitContainer)
     }
 
     /**
@@ -309,8 +309,8 @@
      */
     function onDragGate(e) {
         const controller = circuitDraggable.getController()
-        const gType = controller.getGateType()
-        if (gType === undefined) return
+        const cType = controller.getGateType()
+        if (cType === undefined) return
         
         const id = controller.getId()
         const result = id ? 
@@ -320,7 +320,7 @@
                 e.offsetY
             ) :
             gridController.previewAddGate(
-                gType,
+                cType,
                 e.offsetX,
                 e.offsetY
             )
@@ -328,8 +328,8 @@
 
         if (result !== undefined) {
             activeSvgGate = `<g ${gridController.getGateSvgTransform(
-                {type:gType, x:result[0], y:result[1]}
-            )}>${getGateTypeSvgContents(gType)}</g>`
+                {type:cType.model, x:result[0], y:result[1]}
+            )}>${getGateTypeSvgContents(cType.model)}</g>`
         }
     }
 
@@ -340,13 +340,7 @@
      */
     function onDragInput(e) {
         const contents = circuitDraggable.getController().getContents()
-        activeSvgWire = wireSvg(
-            gridController.getConnectionPoint(
-                {id:contents.getId() || 0, type:"Input", index:contents.connectionIndex || 0}
-            ),
-            gridController.unprojectOffset(e.offsetX, e.offsetY),
-            `stroke=${connectionColor(false)}`
-        )
+        
     }
 
     /**
@@ -356,13 +350,7 @@
      */
     function onDragOutput(e) {
         const contents = circuitDraggable.getController().getContents()
-        activeSvgWire = wireSvg(
-            gridController.unprojectOffset(e.offsetX, e.offsetY),
-            gridController.getConnectionPoint(
-                {id:contents.getId() || 0, type:"Output", index:contents.connectionIndex || 0}
-            ),
-            `stroke=${connectionColor((gridController.getGateOutputs(contents.getId()||0)||[])[contents.connectionIndex||0] || false)}`
-        )
+        
     }
 
     /**
@@ -417,10 +405,10 @@
             return
         }
 
-        const gType = result.gateType || Buf
+        const cType = result.gateTypeController || getGateType(Buf)
         if (id === undefined) {
             console.log(id)
-            gridController.addGate(gType, e.offsetX, e.offsetY)
+            gridController.addGate(cType, e.offsetX, e.offsetY)
         }
         else {
             gridController.moveGate(id, e.offsetX, e.offsetY)

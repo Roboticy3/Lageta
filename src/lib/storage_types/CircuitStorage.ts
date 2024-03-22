@@ -1,6 +1,6 @@
-import { Gate, createGate } from "$lib/circuit_types/Gate";
-import { GateType } from "$lib/circuit_types/GateType";
-import { Buf } from "$lib/dat/GateTypes/GateTypes";
+import { Gate, createGate, type GateState } from "$lib/circuit_types/Gate";
+import { GateType, GateTypeController } from "$lib/circuit_types/GateType";
+import { Buf, all_gates, getGateType } from "$lib/dat/GateTypes/GateTypes";
 import type { CircuitController } from "../circuit_types/CircuitController";
 import { Connection, GateGraph } from "../circuit_types/GateGraph";
 import { GateGrid } from "../circuit_types/GateGrid";
@@ -31,7 +31,7 @@ export class CircuitStore {
     private grid:GateGrid
     private name:string
 
-    private circuitStorage:Array<{k:string, v:OrganizedCircuit}>
+    private circuitStorage:Array<{k:string, v:OrganizedCircuitContents}>
     private storageKey = "CircuitStorage"
 
     constructor(
@@ -46,7 +46,7 @@ export class CircuitStore {
 
         this.circuitStorage = parseStorage(
             localStorage, this.storageKey,
-            () => {return new Array<{k:string, v:OrganizedCircuit}>()}
+            () => {return new Array<{k:string, v:OrganizedCircuitContents}>()}
         )
         this.commit()
     }
@@ -66,7 +66,7 @@ export class CircuitStore {
         }
 
         const organizedCircuit = new OrganizedCircuit(this.grid)
-        this.setKey(this.name, organizedCircuit)
+        this.setKey(this.name, organizedCircuit.pack())
         this.commit()
 
         return true
@@ -83,13 +83,13 @@ export class CircuitStore {
             return false
         }
 
-        existing = new OrganizedCircuit(existing)
+        let circuit = new OrganizedCircuit(existing)
 
         if (name !== undefined) {
             this.name = name
         }
 
-        const newGrid = existing.unpack()
+        const newGrid = circuit.unpack()
         if (newGrid === undefined) {
             return false
         }
@@ -121,7 +121,7 @@ export class CircuitStore {
         return undefined
     }
 
-    private setKey(k:string, v:OrganizedCircuit) {
+    private setKey(k:string, v:OrganizedCircuitContents) {
         for (let i = 0; i < this.circuitStorage.length; i++) {
             const pair = this.circuitStorage[i]
             if (pair.k == k) {
@@ -156,7 +156,7 @@ export class CircuitStore {
 }
 
 export class OrganizedCircuit {
-    gateTypes:Array<GateType> = []
+    gateTypes:Array<string> = []
     gates:Array<SerializableGate> = []
     connections:Array<Connection> = []
     //the size of the circuit in grid squares
@@ -180,7 +180,7 @@ export class OrganizedCircuit {
     }
 
     fromGrid(grid:GateGrid) {
-        let types = new Map<string, GateType>()
+        let types = new Set<string>()
 
         this.gates = new Array<SerializableGate>(0)
         let indexMap = new Map<number, number>()
@@ -190,9 +190,7 @@ export class OrganizedCircuit {
         
         grid.iterGates((g) => {
             const gType = g.type
-            if (!types.has(gType.name)) {
-                types.set(gType.name, gType)
-            }
+            types.add(gType.name)
 
             indexMap.set(g.id || 0, this.gates.length)
             g.id = this.gates.length
@@ -222,7 +220,7 @@ export class OrganizedCircuit {
             }
         })
 
-        this.gateTypes = [...types.values()]
+        this.gateTypes = [...types.keys()]
         this.connections = [...connections.values()]
     }
 
@@ -233,7 +231,7 @@ export class OrganizedCircuit {
 
     //there literally has to be a better way to do this but I have no idea how TypeScript works so oh well
     fromObject(ob:OrganizedCircuitContents){
-        this.gateTypes = ob.gateTypes || this.gateTypes
+        this.gateTypes = ob.gateTypes?.map((v) => v.model.name) || this.gateTypes
         this.gates = ob.gates || this.gates
         this.connections = ob.connections || this.connections
         this.size = ob.size || this.size
@@ -244,17 +242,17 @@ export class OrganizedCircuit {
         const graph = new GateGraph()
         const grid = new GateGrid(graph, this.size[0], this.size[1])
 
-        let types = new Map<string, GateType>()
+        let types = new Set<string>()
         for (let i = 0; i < this.gateTypes.length; i++) {
             const t = this.gateTypes[i]
-            types.set(t.name, t)
+            types.add(t)
         }
 
         grid.gates = new Array<Gate | undefined>(this.gates.length)
 
         const offset = this.offset
         this.iterGates((g) => {
-            const nG = this.unpackGate(g, types)
+            const nG = this.unpackGate(g)
             nG.givePos(g.x - offset[0], g.y - offset[1]) 
             grid.addGateExisting(nG)
         })
@@ -272,6 +270,17 @@ export class OrganizedCircuit {
         return grid
     }
 
+    pack() {
+        const packed:OrganizedCircuitContents = {
+            gates:this.gates,
+            gateTypes:this.gateTypes.map((v) => all_gates.get(v) || getGateType(Buf)),
+            connections:this.connections,
+            size:this.size,
+            offset:this.offset
+        }
+        return packed
+    }
+
     iterGates(iter:(g:SerializableGate) => void) {
         const gates = this.gates
         for (let i = 0; i < gates.length; i++) {
@@ -283,8 +292,8 @@ export class OrganizedCircuit {
         }
     }
 
-    unpackGate(g:SerializableGate, types:Map<string, GateType>) {
-        const type = types.get(g.type) || Buf
+    unpackGate(g:SerializableGate) {
+        const type = all_gates.get(g.type) || getGateType(Buf)
         let nG = createGate(type)
         nG.givePos(g.x, g.y) 
         nG.giveId(g.id)
@@ -293,7 +302,7 @@ export class OrganizedCircuit {
 }
 
 export type OrganizedCircuitContents = {
-    gateTypes?:Array<GateType>
+    gateTypes?:Array<GateTypeController>
     gates?:Array<SerializableGate>
     connections?:Array<Connection>
     size?:[number, number]
@@ -305,7 +314,7 @@ export class SerializableGate {
     x:number
     y:number
     id:number
-    override:(boolean | undefined)[]
+    state:GateState
     type:string
     constructor(
         gate:Gate,
@@ -314,7 +323,7 @@ export class SerializableGate {
         this.x = gate.x || 0
         this.y = gate.y || 0
         this.id = gate.id || 0
-        this.override = gate.override
+        this.state = gate.state
         this.type = type
     }
 }

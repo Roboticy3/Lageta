@@ -1,6 +1,6 @@
 <script>
     import { CircuitController } from "$lib/circuit_types/CircuitController";
-    import { GateType } from "$lib/circuit_types/GateType";
+    import { GateType, GateTypeView, defaultGateTypeDraw } from "$lib/circuit_types/GateType";
     import { onMount } from "svelte";
     import { compose, fromString, identity, scale, toSVG, transform, translate } from "transformation-matrix";
 
@@ -84,7 +84,7 @@
      */
     export function updateGate(id) {
 
-        const gType = circuitController.getGateType(id)
+        const gType = circuitController.getGateTypeView(id)
         const gPos = circuitController.getGatePosition(id)
         const idString = gateIdString(id)
         let svg = gateGroup.querySelector(`#${gateIdString(id)}`)
@@ -158,11 +158,13 @@
     }
     
     /**
-     * @param {GateType} gType
+     * @param {GateTypeView} gType
      * @param {number} id
      */
     function svgGate(gType, id) {
-        return `<circle r="8" cx="10" cy="10" />`
+        const state = circuitController.getGateState(id)
+        if (state === undefined) return defaultGateTypeDraw(1, 1)
+        return gType.draw(state)
     }
 
 

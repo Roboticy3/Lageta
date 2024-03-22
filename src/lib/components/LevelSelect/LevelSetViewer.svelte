@@ -36,12 +36,7 @@
         const width = window.innerWidth
         const height = window.innerHeight
         const cellOffset = width / gridWidth
-        circuitController.setGridCellOffset(cellOffset)
-
-        await tick()
         
-        circuitPanel.setViewBox(width, height - height * 0.1)
-        circuitPanel.updateSvg()
     }
 
     window.addEventListener('resize', resize)
@@ -71,7 +66,6 @@
         params={params}
         gridController={circuitController}
         circuitDraggable={circuitDraggable}
-        startAutoResize={false}
         canDragGates={false}
         showGates={false}
     >

@@ -6,7 +6,7 @@
     import { CircuitDragDropController } from "$lib/circuit_types/CircuitDragDropController";
     import { getGateTypeSvgContents, getGateTypeSvg } from "../GateSvgs.svelte";
     import { onMount } from 'svelte';
-    import { GateType } from '$lib/circuit_types/GateType';
+    import { GateType, GateTypeController } from '$lib/circuit_types/GateType';
 
     let contents = ""
 
@@ -23,7 +23,7 @@
 
     /**
      * @param {MouseEvent} e
-     * @param {GateType} type
+     * @param {GateTypeController} type
      * @param {HTMLElement | null} element
      */
     export function dragGateType(e, type, element=null) {
@@ -35,7 +35,7 @@
     function resolveContents() {
         const item = circuitDragDropController.getGateType()
         if (item !== undefined) {
-            contents = getGateTypeSvg(item)
+            contents = item.view.draw()
             return
         }
         contents = ""

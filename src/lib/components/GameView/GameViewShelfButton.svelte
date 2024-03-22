@@ -4,13 +4,13 @@
     import { getGateTypeSvg } from "../GateSvgs.svelte";
 
     import CircuitDraggable from "./CircuitDraggable.svelte";
-    import { Buf } from "$lib/dat/GateTypes/GateTypes";
-    import { GateType } from "$lib/circuit_types/GateType";
+    import { Buf, getGateType } from "$lib/dat/GateTypes/GateTypes";
+    import { GateType, GateTypeController, GateTypeView } from "$lib/circuit_types/GateType";
 
     /**
-     * @type {GateType}
+     * @type {GateTypeController}
      */
-    export let gateType = Buf
+    export let gateType = getGateType(Buf)
 
     /**
      * @type {CircuitDraggable}
@@ -19,14 +19,14 @@
 
     onMount(() => {
 
-        let elem = document.getElementById(`gateshelf.${gateType.name}`)
+        let elem = document.getElementById(`gateshelf.${gateType.view.name}`)
 
         if (elem == null) {
             return
         }
     })
 
-    let id = `gateshelf.${gateType.name}`
+    let id = `gateshelf.${gateType.view.name}`
 
     /**
      * @type {HTMLElement}
@@ -43,7 +43,7 @@
 </script>
 
 <button class="shelf-button" id={id} bind:this={element} on:mousedown={onMouseDown}>
-    {@html getGateTypeSvg(gateType)}
+    {@html gateType.view.draw({override:[]})}
 </button>
 
 <style>

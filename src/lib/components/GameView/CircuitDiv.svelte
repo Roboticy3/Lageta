@@ -20,20 +20,19 @@
     let end = [0, 0]
 
     export function setOffset() {
-        const cell = circuitController.getGridCellOffset()
         const localStart = circuitController.indexToOffset(position[0], position[1])
 
         start = circuitController.projectOffset(
-            localStart[0] + margin * cell,
-            localStart[1] + margin * cell
+            localStart[0] + margin * 10,
+            localStart[1] + margin * 10
         )
 
         const gridEnd = [position[0] + size[0], position[1] + size[1]]
         const localEnd = circuitController.indexToOffset(gridEnd[0], gridEnd[1])
 
         end = circuitController.projectOffset(
-            localEnd[0] - margin * cell,
-            localEnd[1] - margin * cell
+            localEnd[0] - margin * 10,
+            localEnd[1] - margin * 10
         )
     }
 

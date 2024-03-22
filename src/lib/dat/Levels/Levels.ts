@@ -1,5 +1,5 @@
 import { Connection } from "$lib/circuit_types/GateGraph";
-import { GateType } from "$lib/circuit_types/GateType";
+import { GateType, GateTypeController } from "$lib/circuit_types/GateType";
 import { And, Buf, Decoder2t4, Encoder4t2, Input, Nand, Not, Or, Output, Xor, getGateType } from "$lib/dat/GateTypes/GateTypes";
 import { Signal, SignalSet, oscillator, repeater } from "$lib/signal_types/Signal";
 import type { OrganizedCircuitContents, SerializableGate } from "$lib/storage_types/CircuitStorage";
@@ -11,13 +11,13 @@ export type LevelParameters = {
     params?:GameViewParameters,
     x?:number,
     y?:number,
-    type?:GateType,
+    type?:GateTypeController,
     playCondition?:boolean[],
     register?:boolean
 }
 
 const MinCircuit:OrganizedCircuitContents = {
-    gateTypes: [Input(1, { outputLabels: ["Input"] }), Output(1, { inputLabels: ["Output"] })],
+    gateTypes: [getGateType(Input(1, { outputLabels: ["Input"] })), getGateType(Output(1, { inputLabels: ["Output"] }))],
     gates: [
         { x: 0, y: 2, id: 0, type: "Input1" } as SerializableGate,
         { x: 8, y: 2, id: 1, type: "Output1" } as SerializableGate
@@ -27,12 +27,12 @@ const MinCircuit:OrganizedCircuitContents = {
 
 const In2Out1:OrganizedCircuitContents = {
     gateTypes: [
-        Input(2,
+        getGateType(Input(2,
             { outputLabels: ["Input 1", "Input 2"], gridSize: [2, 3] }
-        ),
-        Output(1,
+        )),
+        getGateType(Output(1,
             { inputLabels: ["Output"] }
-        )
+        ))
     ],
     gates: [
         { x: 0, y: 1, type: "Input2", id: 0 } as SerializableGate,
@@ -48,7 +48,7 @@ const DecoderLevelSignal = new SignalSet(
     ],
     101,
     false,
-    Decoder2t4
+    getGateType(Decoder2t4)
 )
 
 export const EncoderLevel = {
@@ -60,12 +60,12 @@ export const EncoderLevel = {
         `,
         {
             gateTypes: [
-                Input(4,
+                getGateType(Input(4,
                     { outputLabels: ["0", "1", "2", "3"], gridSize: [2, 7] }
-                ),
-                Output(2,
+                )),
+                getGateType(Output(2,
                     { inputLabels: ["Output 1", "Output 2"], gridSize: [2, 3]}
-                )
+                ))
             ],
             gates: [
                 { x: 0, y: 2, type: "Input4", id: 0 } as SerializableGate,
@@ -75,7 +75,7 @@ export const EncoderLevel = {
         },
         DecoderLevelSignal.inverted(),
         [
-            Encoder4t2.name
+            getGateType(Encoder4t2).name
         ]
     ),
     x:13,y:3,
@@ -92,12 +92,12 @@ export const DecoderLevel = {
         `,
         {
             gateTypes: [
-                Input(2,
+                getGateType(Input(2,
                     { outputLabels: ["Input 1", "Input 2"], gridSize: [2, 3] }
-                ),
-                Output(4,
+                )),
+                getGateType(Output(4,
                     { inputLabels: ["0", "1", "2", "3"], gridSize: [2, 7]}
-                )
+                ))
             ],
             gates: [
                 { x: 0, y: 4, type: "Input2", id: 0 } as SerializableGate,
@@ -107,7 +107,7 @@ export const DecoderLevel = {
         },
         DecoderLevelSignal,
         [
-            Decoder2t4.name,
+            getGateType(Decoder2t4).name,
             EncoderLevel.params.name
         ]
     ),
@@ -125,13 +125,13 @@ export const XorLevel = {
         `,
         {
             gateTypes: [
-                Input(2,
+                getGateType(Input(2,
                     { outputLabels: ["Input 1", "Input 2"], gridSize: [2, 3] }
-                ),
-                Output(1,
+                )),
+                getGateType(Output(1,
                     { inputLabels: ["Output"] }
-                ),
-                Or
+                )),
+                getGateType(Or)
             ],
             gates: [
                 { x: 0, y: 1, type: "Input2", id: 0 } as SerializableGate,
@@ -152,10 +152,10 @@ export const XorLevel = {
             ],
             200,
             false,
-            Xor
+            getGateType(Xor)
         ),
         [
-            Xor.name,
+            getGateType(Xor).name,
             DecoderLevel.params.name
         ]
     ),
@@ -173,13 +173,13 @@ export const NandLevel = {
         `,
         {
             gateTypes: [
-                Input(2,
+                getGateType(Input(2,
                     { outputLabels: ["Input 1", "Input 2"], gridSize: [2, 3] }
-                ),
-                Output(1,
+                )),
+                getGateType(Output(1,
                     { inputLabels: ["Output"] }
-                ),
-                And
+                )),
+                getGateType(And)
             ],
             gates: [
                 { x: 0, y: 1, type: "Input2", id: 0 } as SerializableGate,
@@ -200,10 +200,10 @@ export const NandLevel = {
             ],
             100,
             false,
-            Nand
+            getGateType(Nand)
         ),
         [
-            Nand.name,
+            getGateType(Nand).name,
             XorLevel.params.name,
             DecoderLevel.params.name
         ]
@@ -259,7 +259,7 @@ export const OrLevel = {
             ],
             70,
             false,
-            Or
+            getGateType(Or)
         ),
         [
             NandLevel.params.name
@@ -293,11 +293,11 @@ export const AndLevel = {
             ],
             100,
             false,
-            And
+            getGateType(And)
         ),
         [
             OrLevel.params.name,
-            Or.name
+            getGateType(Or).name
         ]
     ),
     x:6, y:3,
@@ -325,11 +325,11 @@ export const NotLevel = {
             ],
             101,
             false,
-            Not
+            getGateType(Not)
         ),
         [
             OrLevel.params.name,
-            Or.name
+            getGateType(Or).name
         ]
     ),
     x:6, y:1,
@@ -353,12 +353,12 @@ export const BufLevel = {
             ],
             80,
             false,
-            Buf
+            getGateType(Buf)
         ),
         [
-            Not.name,
-            And.name,
-            Buf.name,
+            getGateType(Not).name,
+            getGateType(And).name,
+            getGateType(Buf).name,
             NotLevel.params.name,
             AndLevel.params.name
         ]
@@ -373,8 +373,8 @@ export const Freeplay = {
         "Have Fun!",
         {
             gateTypes: [
-                Input(10),
-                Output(10)
+                getGateType(Input(10)),
+                getGateType(Output(10))
             ],
             gates: [
                 { x: 0, y: 0, id: 0, type: "Input10" } as SerializableGate,

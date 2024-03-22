@@ -4,8 +4,8 @@ import { Gate, createGate } from "./Gate";
 import { GateGraph, Connection, type ConnectionType } from "./GateGraph"
 import { GateGrid } from "./GateGrid";
 import { identity, transform, type Matrix, type Transform, applyToPoint, inverse, toSVG, fromObject, translate, rotateDEG, rotate, scale} from "transformation-matrix";
-import { GateType } from "./GateType";
-import CircuitRenderer from "$lib/components/GameView/CircuitRenderer.svelte";
+import { GateType, GateTypeController, GateTypeView } from "./GateType";
+import { all_gates, getGateType, type GateTypeParameters } from "$lib/dat/GateTypes/GateTypes";
 
 const connectionSelectRadius = 3
 
@@ -19,7 +19,7 @@ const connectionSelectRadius = 3
 export class CircuitControllerQueryResult {
     readonly gate:Gate | undefined
 
-    readonly gateType:GateType | undefined
+    readonly gateTypeController:GateTypeController | undefined
 
     readonly type: "Gate" | "Input" | "Output" | ""
     readonly connectionIndex:number | undefined
@@ -28,10 +28,10 @@ export class CircuitControllerQueryResult {
         gate:Gate | undefined = undefined,
         type:"Gate" | "Input" | "Output" | "" = "",
         connectionIndex:number | undefined = undefined,
-        gateType:GateType | undefined = undefined
+        gateTypeController:GateTypeController | undefined = undefined
     ) {
         this.gate = gate
-        this.gateType = gate?.type || gateType
+        this.gateTypeController = gateTypeController
         this.type = type
         if ((type === "Input" || type === "Output") && 
             gate !== undefined && connectionIndex !== undefined) {
@@ -165,7 +165,7 @@ export class CircuitController {
     }
 
     /**
-     * return a gate from a specific id
+     * return a gate from a specific id, used by different parts of the model to communicate
      * this function is bad because it gives a mutable reference to a Gate, a model class, to the view. Oh well!
      * @param gateId 
      * @returns 
@@ -174,14 +174,27 @@ export class CircuitController {
         return this.gateGrid.gates[gateId]
     }
 
-    getGateType(gateId:number) {
-        return this.getGate(gateId)?.type
+    /**
+     * return a GateTypeView from a specific id for the veiw
+     * @param gateId 
+     * @returns 
+     */
+    getGateTypeView(gateId:number) {
+        const gate = this.getGate(gateId)
+        if (gate === undefined) return gate
+        return all_gates.get(gate.type.name)?.view
     }
 
     getGatePosition(gateId:number) {
         const gate = this.getGate(gateId)
         if (gate === undefined) return undefined
         return [gate.x, gate.y]
+    }
+
+    getGateState(gateId:number) {
+        const gate = this.getGate(gateId)
+        if (gate === undefined) return undefined
+        return gate.state
     }
 
     /**
@@ -212,8 +225,13 @@ export class CircuitController {
             return new CircuitControllerQueryResult()
         }
         const gType = gate.type
+        const cType = all_gates.get(gType.name)
+        if (cType === undefined) {
+            return new CircuitControllerQueryResult()
+        }
+        const vType = cType.view
 
-        const inputOffsets = this.gateGrid.getGateInputOffsets(gate)
+        const inputOffsets = vType.inputOffsets
         let i = 0;
         for (; i < gType.sizeIn; i++) {
             const offset = inputOffsets[i]
@@ -230,11 +248,12 @@ export class CircuitController {
             return new CircuitControllerQueryResult(
                 gate,
                 "Input",
-                i
+                i,
+                cType
             ) 
         }
 
-        const outputOffsets = this.gateGrid.getGateOutputOffsets(gate)
+        const outputOffsets = vType.outputOffsets
         i = 0
         for (; i < gType.sizeOut; i++) {
             const offset = outputOffsets[i]
@@ -251,13 +270,16 @@ export class CircuitController {
             return new CircuitControllerQueryResult(
                 gate,
                 "Output",
-                i
+                i,
+                cType
             ) 
         }
 
         return new CircuitControllerQueryResult(
             gate,
-            "Gate"
+            "Gate",
+            undefined,
+            cType
         ) 
     }
 
@@ -286,23 +308,24 @@ export class CircuitController {
      * @returns 
      */
     addGate(
-        gType:GateType, 
+        cType:GateTypeController, 
         offsetX:number, 
         offsetY:number
     ) {
 
         const [x, y] = this.toLocal(offsetX, offsetY)
         
-        this.addGateAtCell(gType, x, y)
+        this.addGateAtCell(cType, x, y)
 
     }
 
     addGateAtCell(
-        gType:GateType,
+        params:GateTypeParameters,
         x:number,
         y:number
     ) {
-        const gate = createGate(gType)
+        const cType = getGateType(params)
+        const gate = createGate(cType)
         console.log("adding gate: ", gate, " at ", x, y)
 
         const result = this.gateGrid.addGate(x, y, gate)
@@ -317,13 +340,13 @@ export class CircuitController {
     }
 
     previewAddGate(
-        gType:GateType,
+        cType:GateTypeController,
         offsetX:number,
         offsetY:number
     ) {
         const [localX, localY] = this.unprojectOffset(offsetX, offsetY)
         const [x, y] = this.gateGrid.offsetToIndex(localX, localY)
-        const gate = new Gate(gType)
+        const gate = new Gate(cType.model)
         return this.gateGrid.canAddGate(x, y, gate)
     }
 
@@ -354,12 +377,9 @@ export class CircuitController {
         const [x, y] = this.toLocal(offsetX, offsetY)
         console.log("moving gate ", id, " to ", x, y)
 
-        const gate = this.gateGrid.gates[id]
-        if (gate === undefined) {
-            return
-        }
-        const gType = gate.type
-        if (!gType.moveable) {
+        const vType = this.getGateTypeView(id)
+        if (vType === undefined) return
+        if (!(vType.moveable === true)) {
             return
         }
 
@@ -470,12 +490,15 @@ export class CircuitController {
     getConnectionPoint(
         index:ConnectionIndex
     ) {
+        const gateId = index.id
+        const vType = this.getGateTypeView(gateId)
+        if (vType === undefined) return undefined
         switch (index.type) {
             default:
             case "Input":
-                return this.gateGrid.getGateInputOffset(this.getGate(index.id), index.index)
+                return vType.inputOffsets[index.index]
             case "Output":
-                return this.gateGrid.getGateOutputOffset(this.getGate(index.id), index.index)
+                return vType.outputLabels[index.index]
         }
     }
 
@@ -514,7 +537,7 @@ export class CircuitController {
             if (i === undefined) {
                 continue
             }
-            const chunk = i.override.map((v) => {return v === true})
+            const chunk = i.state.override.map((v) => {return v === true})
             result.push(...chunk)
         }
 
@@ -527,7 +550,7 @@ export class CircuitController {
             if (g === undefined) {
                 continue
             }
-            result.push(...g.type.outputLabels)
+            result.push(g.type.name)
         }
         return result
     }
@@ -550,7 +573,7 @@ export class CircuitController {
             if (g === undefined) {
                 continue
             }
-            result.push(...g.override.map((v) => {
+            result.push(...g.state.override.map((v) => {
                 return v || false
             }))
         }
@@ -563,23 +586,35 @@ export class CircuitController {
             if (g === undefined) {
                 continue
             }
-            result.push(...g.type.inputLabels)
+            result.push(...this.getGateInputLabels(g))
         }
         return result
+    }
+
+    getGateInputLabels(gate:Gate) {
+        const key = gate.type.name
+        const cType = all_gates.get(key)
+        return cType?.view.inputLabels || []
     }
 
     getGateInputs(
         id:number
     ) {
         const gate = this.gateGrid.gates[id]
-        return gate?.override
+        return gate?.state.override
     }
 
     getGateOutputs(
         id:number
     ) {
         const gate = this.gateGrid.gates[id]
-        return gate?.execute()
+        return gate?.execute(undefined)
+    }
+
+    getGateOutputLabels(gate:Gate) {
+        const key = gate.type.name
+        const cType = all_gates.get(key)
+        return cType?.view.outputLabels || []
     }
 
     /**
@@ -640,15 +675,19 @@ export class CircuitController {
         let result = ""
 
         graph.iterConnectionPoints((g, t, j) => {
-            const inputOffsets = this.gateGrid.getGateInputOffsets(g)
-            const outputOffsets = this.gateGrid.getGateOutputOffsets(g)
+            const vType = this.getGateTypeView(g.id)
+            if (vType === undefined) return
+            const inputOffsets = vType.inputOffsets
+            const outputOffsets = vType.outputOffsets
+            const inputLabels = vType.inputLabels
+            const outputLabels = vType.outputLabels
             switch (t) {
                 case "Input":
                     result += connectionBuilder(
                         inputOffsets[j][0],
                         inputOffsets[j][1],
                         `stroke-width=.5px ` + (g.getInput(j) ? `fill="var(--connection-color-on)" stroke="none" `:`stroke="var(--connection-color-off)" `),
-                        g.type.inputLabels[j]
+                        inputLabels[j]
                     )
                     
                     break
@@ -657,7 +696,7 @@ export class CircuitController {
                         outputOffsets[j][0],
                         outputOffsets[j][1],
                         `stroke-width=.5px ` + (g.getOutput(j) ? `fill="var(--connection-color-on)" stroke="none" `:`stroke="var(--connection-color-off)" `),
-                        g.type.outputLabels[j]
+                        outputLabels[j]
                     )
                     break
             }
@@ -676,9 +715,14 @@ export class CircuitController {
         let result = new Array<string>()
         
         graph.iterConnections((f, o, t, i, _c) => {
-            const fOffsets = this.gateGrid.getGateOutputOffsets(f)
+            const fVType = this.getGateTypeView(f.id)
+            if (fVType === undefined) return
+            const fOffsets = fVType.outputOffsets
             const fValue = f.getOutputs()[o]
-            const tOffsets = this.gateGrid.getGateInputOffsets(t)
+
+            const tVType = this.getGateTypeView(t.id)
+            if (tVType === undefined) return
+            const tOffsets = tVType.inputOffsets
             const params = fValue ? `stroke="var(--connection-color-on)"`:`stroke="var(--connection-color-off)"`
             result.push(wireBuilder(fOffsets[o], tOffsets[i], params))
         })
