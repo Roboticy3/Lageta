@@ -2,14 +2,36 @@
     import { CircuitController } from "$lib/circuit_types/CircuitController";
     import { GateType } from "$lib/circuit_types/GateType";
     import { onMount } from "svelte";
-    import { fromString, identity, scale, toSVG, transform, translate } from "transformation-matrix";
+    import { compose, fromString, identity, scale, toSVG, transform, translate } from "transformation-matrix";
 
     /**
      * @type {CircuitController}
      */
     export let circuitController
 
-    export let transformMatrix = scale(3, 3)
+    let translateX = 0
+    let translateY = 0
+    let scaleX = 3
+    let scaleY = 3
+
+    /**
+     * @type {import("transformation-matrix").Matrix}
+     */
+    let transformMatrix = compose(translate(translateX, translateY), scale(scaleX, scaleY))
+
+    /**
+     * @param {number} tX
+     * @param {number} tY
+     * @param {number} sX
+     * @param {number} sY
+     */
+     export function setTransformMatrix(tX, tY, sX, sY) {
+        transformMatrix = compose(translate(tX, tY), scale(sX, sY))
+        translateX = tX
+        translateY = tY
+        scaleX = sX
+        scaleY = sY
+    }
 
     export function getTransformMatrix() {
         return transformMatrix
@@ -32,11 +54,9 @@
     const gridSize = circuitController.getGridSize();
 
     const cellOffset = 10
-    
-    let viewBoxWidth = 0
-    let viewBoxHeight = 0
-    $: viewBoxWidth = cellOffset * gridSize[0] * (transformMatrix.a + transformMatrix.b)
-    $: viewBoxHeight = cellOffset * gridSize[1] * (transformMatrix.d + transformMatrix.e)
+
+    let viewBoxWidth = cellOffset * gridSize[0]
+    let viewBoxHeight = cellOffset * gridSize[1]
     
     onMount(() => {
         drawGrid()
@@ -148,10 +168,17 @@
 
 </script>
 
-<svg class="circuit-svg" viewBox="0 0 {viewBoxWidth} {viewBoxHeight}" width="{viewBoxWidth}px">
-    <g transform={getTransformString()}>
-        <g bind:this={gridGroup} id="circuit-svg-lines" stroke="var(--grid-color)" fill="none"></g>
-        <g bind:this={gateGroup} id="circuit-svg-gates" stroke="var(--gate-color)" stroke-width="1" fill="none"></g>
+<svg 
+    class="circuit-svg" 
+    viewBox="
+        {-translateX} 
+        {-translateY} 
+        {scaleX * gridSize[0] * cellOffset + translateX} 
+        {scaleY * gridSize[1] * cellOffset + translateY}
+    " width="{scaleX * gridSize[0] * cellOffset + translateX}px">
+    <g transform="scale({scaleX}, {scaleY})">
+        <g bind:this={gridGroup} id="circuit-svg-lines" stroke="var(--grid-color)" stroke-width="0.25px" fill="none"></g>
+        <g bind:this={gateGroup} id="circuit-svg-gates" stroke="var(--gate-color)" stroke-width="0.5px" fill="none"></g>
     </g>  
 </svg>
 
