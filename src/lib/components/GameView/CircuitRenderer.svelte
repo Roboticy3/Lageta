@@ -1,6 +1,7 @@
 <script>
     import { CircuitController } from "$lib/circuit_types/CircuitController";
     import { GateType, GateTypeView } from "$lib/circuit_types/GateType";
+    import { drawConnectionPoint } from "$lib/dat/GateTypes/GateTypes";
     import { onMount } from "svelte";
     import { compose, fromString, identity, scale, toSVG, transform, translate } from "transformation-matrix";
 
@@ -173,15 +174,22 @@
     }
     
     /**
-     * @param {GateTypeView} gType
+     * @param {GateTypeView} vType
      * @param {number} id
      */
-    function svgGate(gType, id) {
+    function svgGate(vType, id) {
         const state = circuitController.getGateState(id)
         if (state === undefined) return `<text fill="black">gate ${id}</text>`
-        return gType.draw(state)
-    }
+        const body = vType.draw(state)
 
+        let inputs = new Array(vType.sizeIn).fill("")
+        vType.inputOffsets.forEach((o, i) => {
+            inputs[i] = drawConnectionPoint(o[0], o[1])
+        })
+        console.log(inputs)
+
+        return vType.draw(state) + inputs.join()
+    }
 
 </script>
 
