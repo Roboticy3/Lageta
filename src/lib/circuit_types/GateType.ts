@@ -79,6 +79,8 @@ export class GateTypeView {
 
         if (params.name) this.name = params.name
 
+        if (params.moveable !== undefined) this.moveable = params.moveable
+
         if (typeof params.inputs === "number") {
             this.sizeIn = params.inputs;
             this.inputOffsets = this.spreadVerticalConnections(0.25, params.inputs);
