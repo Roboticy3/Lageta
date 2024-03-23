@@ -1,9 +1,8 @@
 <script>
     import { goto } from "$app/navigation";
-    import { Buf } from "$lib/dat/GateTypes/GateTypes";
-    import { getGateTypeSvg } from "../GateSvgs.svelte";
+    import { Buf, getGateType, wrapGateTypeViewInViewbox } from "$lib/dat/GateTypes/GateTypes";
 
-    export let gateType = Buf
+    export let vType = getGateType(Buf).view
 
     export let path = ""
 
@@ -16,7 +15,7 @@
 </script>
 
 <button class="option" on:click={onClick}>
-    {@html getGateTypeSvg(gateType, "height:100%;vertical-align:sub;")} 
+    {@html wrapGateTypeViewInViewbox(vType.gridWidth, vType.gridHeight, vType.draw())} 
     <div class="option-text">
         <slot />
     </div>

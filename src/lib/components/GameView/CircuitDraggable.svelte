@@ -4,7 +4,6 @@
 
     import { CircuitController, CircuitControllerQueryResult } from "$lib/circuit_types/CircuitController";
     import { CircuitDragDropController } from "$lib/circuit_types/CircuitDragDropController";
-    import { getGateTypeSvgContents, getGateTypeSvg } from "../GateSvgs.svelte";
     import { onMount } from 'svelte';
     import { GateType, GateTypeController } from '$lib/circuit_types/GateType';
 

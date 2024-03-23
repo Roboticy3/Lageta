@@ -4,8 +4,7 @@
     import { onMount, tick } from 'svelte';
 
     import CircuitRenderer from './CircuitRenderer.svelte';
-    import { ConnectionSvg, buildSvg, wireSvg, getGateTypeSvg, getGateTypeSvgContents, connectionColor } from '../GateSvgs.svelte';
-
+    
     import { CircuitController, CircuitControllerQueryResult } from '$lib/circuit_types/CircuitController';
     import { GameViewParameters } from '$lib/level_types/GameViewParameters';
     import { Buf, getGateType } from '$lib/dat/GateTypes/GateTypes';
@@ -65,9 +64,11 @@
      * This function gets called pretty often, but it's still better than refreshing the svg every tick.
      */
     export function updateSvg() {
+        /* 
         if (showGates) svgGates = gridController.drawGates(getGateTypeSvgContents)
         if (showConnectionPoints) svgConnectionPoints = gridController.drawConnectionPoints(ConnectionSvg)
         if (showWires) svgWires = gridController.drawWires(wireSvg)
+        */
         showSlot = !gridController.isPlaying()
         
         for (let f of svgListeners) {
@@ -219,7 +220,7 @@
         onDragInput(e)
 
         //draw only the connection points that can be connected to from here
-        svgConnectionPoints = gridController.drawConnectionPoints(ConnectionSvg, "Output")
+        //svgConnectionPoints = gridController.drawConnectionPoints(ConnectionSvg, "Output")
     }
 
     /**
@@ -234,7 +235,7 @@
         circuitDraggable.drag(e, query, circuitContainer)
 
         //same as the end of onDragStartInput
-        svgConnectionPoints = gridController.drawConnectionPoints(ConnectionSvg, "Input")
+        //svgConnectionPoints = gridController.drawConnectionPoints(ConnectionSvg, "Input")
         onDragOutput(e)
     }
 
@@ -329,7 +330,7 @@
         if (result !== undefined) {
             activeSvgGate = `<g ${gridController.getGateSvgTransform(
                 {type:cType.model, x:result[0], y:result[1]}
-            )}>${getGateTypeSvgContents(cType.model)}</g>`
+            )}>${cType.view.draw()}</g>`
         }
     }
 

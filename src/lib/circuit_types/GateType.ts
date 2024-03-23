@@ -1,4 +1,4 @@
-import { registerGateType, type GateTypeParameters, spreadVerticalConnections } from "$lib/dat/GateTypes/GateTypes";
+import { registerGateType, type GateTypeParameters, spreadVerticalConnections, drawGateTypeEllipse } from "$lib/dat/GateTypes/GateTypes";
 import type { GateState } from "./Gate";
 import type { ConnectionType } from "./GateGraph";
 
@@ -56,12 +56,6 @@ export class GateType {
     }
 }
 
-export const defaultGateTypeDraw = (gridWidth:number, gridHeight:number) => {
-    const w = 10 * (gridWidth - 1)
-    const h = 10 * (gridHeight - 1)
-    return `<ellipse rx="${w/2 - 2}" ry="${h/2 - 2}" cx="${w}" cy="${h}" />`;
-}
-
 export class GateTypeView {
     readonly name: string = "Buf";
     readonly sizeIn: number = 1;
@@ -78,6 +72,11 @@ export class GateTypeView {
     constructor(
         params:GateTypeParameters
     ) {
+        if (params.gridSize) {
+            this.gridWidth = params.gridSize[0];
+            this.gridHeight = params.gridSize[1];
+        }
+
         if (params.name) this.name = params.name
 
         if (typeof params.inputs === "number") {
@@ -103,7 +102,7 @@ export class GateTypeView {
         this.outputLabels = params.outputLabels ||
             Array(this.sizeOut).fill("");
 
-        const d =  (s:GateState) => {return defaultGateTypeDraw(this.gridWidth, this.gridHeight)}
+        const d =  (s:GateState) => {return drawGateTypeEllipse(this.gridWidth, this.gridHeight)}
         this.drawInternal = params.draw || d
     }
 

@@ -1,10 +1,8 @@
 <script>
     import { onMount } from "svelte";
-
-    import { getGateTypeSvg } from "../GateSvgs.svelte";
-
+    
     import CircuitDraggable from "./CircuitDraggable.svelte";
-    import { Buf, getGateType } from "$lib/dat/GateTypes/GateTypes";
+    import { Buf, getGateType, wrapGateTypeViewInViewbox } from "$lib/dat/GateTypes/GateTypes";
     import { GateType, GateTypeController, GateTypeView } from "$lib/circuit_types/GateType";
 
     /**
@@ -24,6 +22,8 @@
         if (elem == null) {
             return
         }
+
+        render = gateType.view.draw({override:[]})
     })
 
     let id = `gateshelf.${gateType.view.name}`
@@ -32,6 +32,8 @@
      * @type {HTMLElement}
      */
     let element
+
+    let render = ""
 
     /**
      * @param {MouseEvent} e
@@ -43,7 +45,7 @@
 </script>
 
 <button class="shelf-button" id={id} bind:this={element} on:mousedown={onMouseDown}>
-    {@html gateType.view.draw({override:[]})}
+    {@html wrapGateTypeViewInViewbox(gateType.view.gridWidth, gateType.view.gridHeight, render)}
 </button>
 
 <style>

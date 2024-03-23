@@ -4,6 +4,7 @@ import { Gate, createGate } from "./Gate";
 import { GateGraph, Connection, type ConnectionType } from "./GateGraph"
 import { GateGrid } from "./GateGrid";
 import { identity, transform, type Matrix, type Transform, applyToPoint, inverse, toSVG, fromObject, translate, rotateDEG, rotate, scale} from "transformation-matrix";
+import CircuitRenderer from "$lib/components/GameView/CircuitRenderer.svelte";
 import { GateType, GateTypeController, GateTypeView } from "./GateType";
 import { all_gates, getGateType, type GateTypeParameters } from "$lib/dat/GateTypes/GateTypes";
 

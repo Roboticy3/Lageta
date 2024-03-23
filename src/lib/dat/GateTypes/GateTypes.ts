@@ -3,17 +3,40 @@ import { GateType, type GateTypeVariant, type ConnectionValue, GateTypeControlle
 
 export let all_gates: Map<string, GateTypeController> = new Map();
 
-export const Buf:GateTypeParameters = { name: "Buf", inputs: 1, outputs: 1 }
+export const Buf:GateTypeParameters = { 
+    name: "Buf", inputs: 1, outputs: 1, 
+    draw: (s) => {return `<path d="M 2 2 L 18 10 L 2 18 Z"/>\n`}
+}
 
-export const Not:GateTypeParameters = { name: "Not", inputs: 1, outputs: 1, f: (s:GateState) => { return {override:[!(s.override[0])]}; } };
+export const Not:GateTypeParameters = { 
+    name: "Not", inputs: 1, outputs: 1, 
+    f: (s:GateState) => { return {override:[!(s.override[0])]}; },
+    draw: (s) => {return `<path d="M 1 3 L 15 10 L 1 17 Z"/><circle cx="17" cy="10" r="2" />\n`}
+};
 
-export const And:GateTypeParameters = { name: "And", inputs: 2, outputs: 1, f: (s:GateState) => { return {override:[s.override[0] && s.override[1]]}; } };
+export const And:GateTypeParameters = { 
+    name: "And", inputs: 2, outputs: 1, 
+    f: (s:GateState) => { return {override:[s.override[0] && s.override[1]]}; },
+    draw: (s) => {return `<path d="M 2 2 L 10 2 C 20 2 20 18 10 18 L 2 18 Z"/>\n`}
+};
 
-export const Or:GateTypeParameters = { name: "Or", inputs: 2, outputs: 1, f: (s:GateState) => { return {override:[s.override[0] || s.override[1]]}; } };
+export const Or:GateTypeParameters = { 
+    name: "Or", inputs: 2, outputs: 1, 
+    f: (s:GateState) => { return {override:[s.override[0] || s.override[1]]}; },
+    draw: (s) => {return `<path d="M 10 2 C 20 2 20 18 10 18 L 2 18 C 5 18 5 2 2 2 Z"/>\n`}
+};
 
-export const Nand:GateTypeParameters = { name: "Nand", inputs: 2, outputs: 1, f: (s:GateState) => { return {override:[!(s.override[0] && s.override[1])]}; } };
+export const Nand:GateTypeParameters = { 
+    name: "Nand", inputs: 2, outputs: 1, 
+    f: (s:GateState) => { return {override:[!(s.override[0] && s.override[1])]}; },
+    draw: (s) => {return `<path d="M 2 2 L 10 2 C 20 2 20 18 10 18 L 2 18 Z"/>\n<circle cx=18 cy=10 r="2"/>\n`}
+};
 
-export const Xor:GateTypeParameters = { name: "Xor", inputs: 2, outputs: 1, f: (s:GateState) => { return {override:[s.override[0] !== s.override[1]]}; }}
+export const Xor:GateTypeParameters = { 
+    name: "Xor", inputs: 2, outputs: 1, 
+    f: (s:GateState) => { return {override:[s.override[0] !== s.override[1]]}; },
+    draw: (s) => {return `<path d="M 10 2 C 20 2 20 18 10 18 L 5 18 C 8 18 8 2 5 2 Z"/>\n<path d="M 2 18 C 5 18 5 2 2 2"/>\n`}
+}
 
 export const LevelGateType:GateTypeParameters = { name: "LevelGateType", gridSize: [2, 2], moveable: false };
 
@@ -95,6 +118,28 @@ export function spreadHorizontalConnections(gridY: number, gridWidth: number, si
 }
 
 
+export const drawGateTypeEllipse = (gridWidth:number, gridHeight:number) => {
+    const w = 10 * (gridWidth / 2)
+    const h = 10 * (gridHeight / 2)
+    return `<ellipse rx="${w - 2}" ry="${h - 2}" cx="${w}" cy="${h}" />\n`;
+}
+
+export const drawGateTypeRect = (gridWidth:number, gridHeight:number) => {
+    const w = 10 * (gridWidth)
+    const h = 10 * (gridHeight)
+    return `<rect width="${w - 4}" height="${h - 4}" x="${2}" y="${2}" />\n`;
+}
+
+export const wrapGateTypeViewInViewbox = (gridWidth:number, gridHeight:number, svg:string) => {
+    return `
+<svg 
+    viewBox="0 0 ${10 * gridWidth} ${10 * gridHeight}" 
+    stroke="var(--gate-color)" 
+    stroke-width="0.5px"
+    fill="none">\n
+    ${svg}
+</svg>`
+}
 
 export function Input(size: number, otherParams: GateTypeParameters | undefined = undefined) {
     let params: GateTypeParameters = {
@@ -102,7 +147,8 @@ export function Input(size: number, otherParams: GateTypeParameters | undefined 
         inputs: 0, outputs: size,
         gridSize: [2, size],
         variant: "Flow",
-        moveable: false
+        moveable: false,
+        draw: (s) => {return drawGateTypeRect(2, size)}
     };
     if (otherParams) {
         params = combineGateTypeParameters(params, otherParams);
@@ -115,7 +161,8 @@ export function Output(size: number, otherParams: GateTypeParameters | undefined
         name: "Output" + String(size),
         inputs: size, outputs: 0,
         gridSize: [2, size],
-        moveable: false
+        moveable: false,
+        draw: (s) => {return drawGateTypeRect(2, size)}
     };
     if (otherParams) {
         params = combineGateTypeParameters(params, otherParams);
