@@ -97,7 +97,7 @@ export function combineGateTypeParameters(a:GateTypeParameters, b:GateTypeParame
 }
 
 export function spreadVerticalConnections(gridX: number, gridHeight: number, size: number) {
-    const step = gridHeight / (size + 1);
+    const step = 10 * gridHeight / (size + 1);
     let result = new Array<[number, number]>(size);
 
     for (let i = 0; i < size; i++) {

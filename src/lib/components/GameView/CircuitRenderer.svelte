@@ -14,6 +14,10 @@
     let scaleX = 3
     let scaleY = 3
 
+    export let showGates = true
+    export let showConnectionPoints = true
+    export let showWires = true
+
     /**
      * @type {import("transformation-matrix").Matrix}
      */
@@ -60,6 +64,7 @@
     
     onMount(() => {
         drawGrid()
+        drawGates()
     })
 
     export function drawGrid() {
@@ -84,20 +89,23 @@
      */
     export function updateGate(id) {
 
-        const gType = circuitController.getGateTypeView(id)
+        if (!showGates) return
+
+        const vType = circuitController.getGateTypeView(id)
         const gPos = circuitController.getGatePosition(id)
         const idString = gateIdString(id)
         let svg = gateGroup.querySelector(`#${gateIdString(id)}`)
-        if (gType === undefined || gPos === undefined) {
+        if (vType === undefined || gPos === undefined) {
             if (svg instanceof SVGElement) {
                 gateGroup.removeChild(svg)
             }
             else {
-                console.log("tried to update nonexistend gate",id)   
+                console.log(vType, gPos)
+                console.log("tried to update nonexistent gate",id)   
             }
         }
         else {
-            const gateInner = svgGate(gType, id)
+            const gateInner = svgGate(vType, id)
             const gateTransform = svgGridTransform(gPos[0], gPos[1])
             if (svg instanceof SVGElement) {
                 svg.setAttribute('transform',gateTransform)
@@ -113,6 +121,13 @@
             }
             
             console.log("drawing gate:",id,svg)
+        }
+    }
+
+    export function drawGates() {
+        const c = circuitController.getNumGates()
+        for (let i = 0; i < c; i++) {
+            updateGate(i)
         }
     }
 

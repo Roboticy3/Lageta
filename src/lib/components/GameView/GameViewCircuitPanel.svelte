@@ -32,68 +32,13 @@
     /**
      * @type {CircuitRenderer}
     */
-   let circuitRenderer
+    let circuitRenderer
 
-    /**
-     * @type {Array<String>}
-     */
-    let svgGates = []
-    /**
-     * @type {Array<String>}
-     */
-    let svgWires = []
-    
-    //the svg string of the current connection, previews the connection being made
-    let activeSvgWire=""
-    //the svg string of all the visible connection points
-    let svgConnectionPoints = ""
-
-    export let showGates = true
-    export let showConnectionPoints = true
-    export let showWires = true
+    export function getRenderer() {
+        return circuitRenderer
+    }
     
     let showSlot = true
-
-    /**
-     * @type {Set<() => void>}
-     */
-    let svgListeners = new Set()
-
-    /**
-     * Corrects the svg display of the circuit to be up to date with the state of the circuit
-     * This function gets called pretty often, but it's still better than refreshing the svg every tick.
-     */
-    export function updateSvg() {
-        /* 
-        if (showGates) svgGates = gridController.drawGates(getGateTypeSvgContents)
-        if (showConnectionPoints) svgConnectionPoints = gridController.drawConnectionPoints(ConnectionSvg)
-        if (showWires) svgWires = gridController.drawWires(wireSvg)
-        */
-        showSlot = !gridController.isPlaying()
-        
-        for (let f of svgListeners) {
-            f()
-        }
-    }
-
-    /**
-     * @param {() => void} f
-     */
-    export function addSvgListener(f) {
-        svgListeners.add(f)
-    }
-
-    /**
-     * @param {() => void} f
-     */
-     export function removeSvgListener(f) {
-        svgListeners.delete(f)
-    }
-
-    /**
-     * @type {string[]}
-     */
-    let cellsSvg = []
 
     /**
      * Add all events needed to edit the circuit, name is a hold-over from when the project used the drag and drop api
@@ -141,7 +86,6 @@
      */
     let mountCircuit = () => {
         addDragEventListeners()
-        updateSvg()
         gridController.giveRenderer(circuitRenderer)
     }
     onMount(mountCircuit)
@@ -160,7 +104,8 @@
 
         if (circuitDraggable.isDragging()) return
 
-        const query = gridController.query(e.offsetX, e.offsetY)      
+        const query = gridController.query(e.offsetX, e.offsetY)     
+        console.log(query) 
         switch (query.type) {
             case "Input":
                 if (canDragConnections) onDragStartInput(e, query)
@@ -203,9 +148,6 @@
             gridController.removeConnection(
                 {id:index[0], type:"Input", index:index[1]}
             )
-
-            //update the svg because a connection has been removed, otherwise it will keep being drawn
-            updateSvg()
 
             //tell onDragStartOutput it's business as usual and pretend we didn't do any of this nonsense behind its back
             onDragStartOutput(e, q)
@@ -380,11 +322,6 @@
         }
         
         removeMouseMoveListener()
-
-        activeSvgGate = ""
-        activeSvgWire = ""
-
-        updateSvg()
     }
 
     /**

@@ -90,7 +90,7 @@ export class GateTypeView {
 
         if (typeof params.outputs === "number") {
             this.sizeOut = params.outputs;
-            this.outputOffsets = this.spreadVerticalConnections(this.gridWidth - 0.25, params.outputs);
+            this.outputOffsets = this.spreadVerticalConnections(10 * this.gridWidth - 2, params.outputs);
         }
         else if (params.outputs instanceof Array) {
             this.sizeOut = params.outputs.length;

@@ -66,7 +66,6 @@
         gridController={circuitController}
         circuitDraggable={circuitDraggable}
         canDragGates={false}
-        showGates={false}
     >
         {#each levelSet as params}
             <LevelViewer params={params} circuitController={circuitController} />

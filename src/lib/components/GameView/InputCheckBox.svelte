@@ -54,7 +54,7 @@
             return
         }
         
-        const conOffset = vType.getConnectionPoint("Input", from[1])
+        const conOffset = vType.getConnectionPoint("Output", from[1])
         if (conOffset === undefined) {
             checkbox.parentNode?.removeChild(checkbox)
             console.log("InputCheckBox indexes a non-existent connection!")
@@ -103,7 +103,7 @@
             return
         }
         gridController?.setInput(from, checkbox.checked)
-        circuitPanel?.updateSvg()
+        circuitPanel?.getRenderer().updateGate(from[0])
         onChangeListener()
     }
 
