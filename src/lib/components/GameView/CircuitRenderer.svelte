@@ -214,12 +214,10 @@
             return drawConnectionPoint(o[0], o[1], state.override[i])
         }) : []
 
-        const outState = cType.model.f(state)
+        const outState = cType.model.f(state) //temp hack, state should store outputs too
         const outputs = showConnectionPoints ? cType.view.outputOffsets.map((o, i) => {
             return drawConnectionPoint(o[0], o[1], outState.override[i])
         }) : []
-
-        console.log(inputs, outputs)
 
         return inputs.join() + outputs.join()
     }

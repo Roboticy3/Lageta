@@ -224,13 +224,12 @@ export class CircuitController {
     {
         const [localX, localY] = this.unprojectOffset(offsetX, offsetY)
         
-        
         const [x, y] = this.gateGrid.offsetToIndex(localX, localY)
-        const [gridOffsetX, gridOffsetY] = [x * 10, y * 10]
         const gate = this.gateGrid.get(x, y)
         if (gate === undefined) {
             return new CircuitControllerQueryResult()
         }
+        const [gridOffsetX, gridOffsetY] = [gate.x * 10, gate.y * 10]
         const gType = gate.type
         const cType = all_gates.get(gType.name)
         if (cType === undefined) {
@@ -241,12 +240,12 @@ export class CircuitController {
         const inputOffsets = vType.inputOffsets
         let i = 0;
         for (; i < gType.sizeIn; i++) {
-            let offset = [inputOffsets[i][0] + gridOffsetX, inputOffsets[i][1] + gridOffsetY]
+            const offset = [inputOffsets[i][0] + gridOffsetX, inputOffsets[i][1] + gridOffsetY]
             const dX = localX - offset[0]
             const dY = localY - offset[1]
 
             const d = this.gridEuclidDistance(dX, dY)
-            console.log(d)
+            console.log(offset, [localX, localY])
             if (d < connectionSelectRadius) {
                 break
             }
@@ -264,7 +263,7 @@ export class CircuitController {
         const outputOffsets = vType.outputOffsets
         i = 0
         for (; i < gType.sizeOut; i++) {
-            let offset = [outputOffsets[i][0] + gridOffsetX, outputOffsets[i][1] + gridOffsetY]
+            const offset = [outputOffsets[i][0] + gridOffsetX, outputOffsets[i][1] + gridOffsetY]
             const dX = localX - offset[0]
             const dY = localY - offset[1]
 

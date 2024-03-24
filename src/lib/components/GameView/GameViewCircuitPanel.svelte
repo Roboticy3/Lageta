@@ -316,6 +316,7 @@
             case "Input":
             case "Output":
                 const query = gridController.query(e.offsetX, e.offsetY)
+                console.log(query)
                 dropConnection(result, query)
                 break
             default: return
