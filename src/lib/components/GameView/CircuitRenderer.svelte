@@ -1,7 +1,6 @@
 <script>
     import { CircuitController } from "$lib/circuit_types/CircuitController";
     import { GateType, GateTypeController, GateTypeView } from "$lib/circuit_types/GateType";
-    import { drawConnectionPoint } from "$lib/dat/GateTypes/GateTypes";
     import { onMount } from "svelte";
     import { compose, fromString, identity, scale, toSVG, transform, translate } from "transformation-matrix";
 
@@ -60,6 +59,11 @@
      * @type {SVGGElement}
      */
     let gateGroup
+
+    /**
+     * @type {SVGElement}
+     */
+    let connectionGroup
 
     const gridSize = circuitController.getGridSize();
 
@@ -128,6 +132,11 @@
         if (svg instanceof SVGElement) {
             svg.setAttribute('transform',gateTransform)
             svg.innerHTML = gateInner
+
+            const outputs = circuitController.getGateOutputs(id)
+            if (outputs) for (let i = 0; i < cType.model.sizeOut; i++) {
+                updateWire([id, i], outputs.override)
+            } 
         }
         else {
             const idString = gateIdString(id)
@@ -140,6 +149,35 @@
         }
 
         console.log("drawing gate:",id,svg)
+        
+    }
+
+    /**
+     * @param {[number, number]} index
+     * @param {import("$lib/circuit_types/GateType").ConnectionValue[] | undefined} outputs
+     */
+    export function updateWire(index, outputs = undefined) {
+        
+        if (!showWires) return
+
+        const result = getGateElementAndTypeAndClean(index[0])
+        if (outputs === undefined) outputs = circuitController.getGateOutputs(index[0])?.override
+        const toIndices = circuitController.getConnectedFrom(index[0], index[1])
+        if (result === undefined || outputs === undefined || toIndices === undefined) return
+        const value = outputs[index[1]]
+        const fVType = result.cType.view
+        const outputOffset = fVType.outputOffsets[index[1]]
+
+        let wires = []
+        for (const toIndex of toIndices) {
+            const tVType = circuitController.getGateTypeView(toIndex[0])
+            if (tVType === undefined) continue
+            const inputOffset = tVType.inputOffsets[toIndex[1]]
+
+            wires.push(drawWire(outputOffset, inputOffset, value))
+        }
+
+        console.log("Updating wires: ", index, wires)
         
     }
 
@@ -204,6 +242,32 @@
     }
 
     /**
+     * @param {import("$lib/circuit_types/GateType").ConnectionValue} value
+     */
+    function connectionValueToColor(value) { 
+        let color = ""
+        switch (value) {
+            case true: 
+                color = `stroke="var(--connection-color-on)"`
+                break
+            case false: 
+                color = `stroke="var(--connection-color-off)"`
+                break
+        }
+        return color
+    }
+
+    /**
+     * @param {number} offsetX
+     * @param {number} offsetY
+     * @param {import("$lib/circuit_types/GateType").ConnectionValue} value
+     */
+    function svgConnectionPoint(offsetX, offsetY, value = undefined) {
+        const color = connectionValueToColor(value)
+        return `<path d="M ${offsetX - 1} ${offsetY - 1} l 2 1 l -2 1 Z" stroke-width=".25px" ${color} />`
+    }
+
+    /**
      * @param {GateTypeController} cType
      * @param {number | import("$lib/circuit_types/Gate").GateState} idOrState
      */
@@ -211,15 +275,25 @@
         const state = (typeof idOrState === "number" ? circuitController.getGateState(idOrState) : idOrState) || {override:[]}
 
         const inputs = showConnectionPoints ? cType.view.inputOffsets.map((o, i) => {
-            return drawConnectionPoint(o[0], o[1], state.override[i])
+            return svgConnectionPoint(o[0], o[1], state.override[i])
         }) : []
 
         const outState = cType.model.f(state) //temp hack, state should store outputs too
         const outputs = showConnectionPoints ? cType.view.outputOffsets.map((o, i) => {
-            return drawConnectionPoint(o[0], o[1], outState.override[i])
+            return svgConnectionPoint(o[0], o[1], outState.override[i])
         }) : []
 
         return inputs.join() + outputs.join()
+    }
+
+    /**
+     * @param {[number, number]} from
+     * @param {[number, number]} to
+     * @param {import("$lib/circuit_types/GateType").ConnectionValue} value
+     */
+    function drawWire(from, to, value = undefined) {
+        const color = connectionValueToColor(value)
+        return `<path d="M ${from[0]} ${from[1]} L ${to[0]} ${to[1]}" ${color} />`
     }
 
 </script>
@@ -235,6 +309,7 @@
     <g transform="scale({scaleX}, {scaleY})">
         <g bind:this={gridGroup} id="circuit-svg-lines" stroke="var(--grid-color)" stroke-width="0.25px" fill="none"></g>
         <g bind:this={gateGroup} id="circuit-svg-gates" stroke="var(--gate-color)" stroke-width="0.5px" fill="none"></g>
+        <g bind:this={connectionGroup} id="circuit-svg-gates" stroke="var(--gate-color)" stroke-width="0.5px" fill="none"></g>
     </g>  
 </svg>
 

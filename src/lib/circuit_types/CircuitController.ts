@@ -245,7 +245,6 @@ export class CircuitController {
             const dY = localY - offset[1]
 
             const d = this.gridEuclidDistance(dX, dY)
-            console.log(offset, [localX, localY])
             if (d < connectionSelectRadius) {
                 break
             }
@@ -440,6 +439,8 @@ export class CircuitController {
         const c = new Connection(from, output, to, input)
         const result = graph.addConnection(c)
 
+        this.renderer?.updateWire([from, output])
+
         return result
     }
 
@@ -457,6 +458,9 @@ export class CircuitController {
         switch (index.type) {
             case "Input":
                 graph.removeInput([index.id, index.index])
+                const fromIndex = this.getConnectedTo(index.id, index.index)
+                if (fromIndex === undefined) break
+                this.renderer?.updateWire(fromIndex)
                 break
             case "Output":
                 const c = graph.outputs[index.id][index.index]
@@ -464,6 +468,7 @@ export class CircuitController {
                     break
                 }
                 graph.removeOutput(c)
+                this.renderer?.updateWire(c.from)
                 break
         }
 
@@ -485,6 +490,17 @@ export class CircuitController {
         const c = graph.inputs[gateId][inputIndex]
 
         return c?.from
+    }
+
+    getConnectedFrom(
+        gateId:number,
+        outputIndex:number
+    ) {
+        const graph = this.gateGrid.graph
+
+        const c = graph.outputs[gateId][outputIndex]
+
+        return c?.to
     }
 
     /**
