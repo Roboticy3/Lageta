@@ -130,8 +130,17 @@ export const drawGateTypeRect = (gridWidth:number, gridHeight:number) => {
     return `<rect width="${w - 4}" height="${h - 4}" x="${2}" y="${2}" />\n`;
 }
 
-export const drawConnectionPoint = (offsetX:number, offsetY:number) => {
-    return `<path d="M ${offsetX - 1} ${offsetY - 1} l 2 1 l -2 1 Z" stroke-width=".25px" />`
+export const drawConnectionPoint = (offsetX:number, offsetY:number, value:ConnectionValue = undefined) => {
+    let color = ""
+    switch (value) {
+        case true: 
+            color = `stroke="var(--connection-color-on)"`
+            break
+        case false: 
+            color = `stroke="var(--connection-color-off)"`
+            break
+    }
+    return `<path d="M ${offsetX - 1} ${offsetY - 1} l 2 1 l -2 1 Z" stroke-width=".25px" ${color} />`
 }
 
 export const wrapGateTypeViewInViewbox = (gridWidth:number, gridHeight:number, svg:string) => {

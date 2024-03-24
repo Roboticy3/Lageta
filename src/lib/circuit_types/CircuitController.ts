@@ -186,6 +186,12 @@ export class CircuitController {
         return all_gates.get(gate.type.name)?.view
     }
 
+    getGateTypeController(gateId:number) {
+        const gate = this.getGate(gateId)
+        if (gate === undefined) return gate
+        return all_gates.get(gate.type.name)
+    }
+
     getGatePosition(gateId:number) {
         const gate = this.getGate(gateId)
         if (gate === undefined) return undefined
@@ -221,7 +227,6 @@ export class CircuitController {
         
         const [x, y] = this.gateGrid.offsetToIndex(localX, localY)
         const [gridOffsetX, gridOffsetY] = [x * 10, y * 10]
-        console.log("query at: ", offsetX, offsetY, "(local ", localX, localY, ", tile ", x, y, ")")
         const gate = this.gateGrid.get(x, y)
         if (gate === undefined) {
             return new CircuitControllerQueryResult()
