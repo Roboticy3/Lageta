@@ -34,7 +34,7 @@ export const Nand:GateTypeParameters = {
 
 export const Xor:GateTypeParameters = { 
     name: "Xor", inputs: 2, outputs: 1, 
-    f: (s:GateState) => { return {override:[s.override[0] !== s.override[1]]}; },
+    f: (s:GateState) => { return {override:[(s.override[0] || false) !== (s.override[1] || false)]}; },
     draw: (s) => {return `<path d="M 10 2 C 20 2 20 18 10 18 L 5 18 C 8 18 8 2 5 2 Z"/>\n<path d="M 2 18 C 5 18 5 2 2 2"/>\n`}
 }
 

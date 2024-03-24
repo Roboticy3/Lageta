@@ -84,6 +84,7 @@ export class CircuitController {
 
     giveRenderer(renderer:CircuitRenderer) {
         this.renderer = renderer
+        this.gateGrid.graph.connectionListeners.add(renderer.updateGate) //go-go gadget super spaghetti bullshit!
     }
 
     getRenderer() {
