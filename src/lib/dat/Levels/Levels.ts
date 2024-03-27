@@ -1,6 +1,6 @@
 import { Connection } from "$lib/circuit_types/GateGraph";
 import { GateType, GateTypeController } from "$lib/circuit_types/GateType";
-import { And, Buf, Decoder2t4, Encoder4t2, Input, Nand, Not, Or, Output, Xor, getGateType } from "$lib/dat/GateTypes/GateTypes";
+import { And, Buf, Decoder2t4, Encoder4t2, Input, Nand, Not, Or, Output, Xor, getGateType, type GateTypeParameters } from "$lib/dat/GateTypes/GateTypes";
 import { Signal, SignalSet, oscillator, repeater } from "$lib/signal_types/Signal";
 import type { OrganizedCircuitContents, SerializableGate } from "$lib/storage_types/CircuitStorage";
 import { ProgressStorage } from "$lib/storage_types/ProgressStore";
@@ -11,7 +11,7 @@ export type LevelParameters = {
     params?:GameViewParameters,
     x?:number,
     y?:number,
-    type?:GateTypeController,
+    type?:GateTypeParameters,
     playCondition?:boolean[],
     register?:boolean
 }

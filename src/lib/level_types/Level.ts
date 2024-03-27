@@ -26,7 +26,9 @@ export class Level {
         this.y = params.y || 0
         this.params = params.params || new GameViewParameters()
 
-        this.type = params.type || getGateType(Buf)
+        this.type = getGateType(params.type || Buf)
+
+        console.log(this.type)
 
         this.playCondition = params.playCondition || new Array<boolean>(this.type.model.sizeOut).fill(true)
 
