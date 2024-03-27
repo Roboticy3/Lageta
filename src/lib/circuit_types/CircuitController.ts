@@ -299,7 +299,7 @@ export class CircuitController {
     ) {
         const gate = this.gateGrid.gates[id]
         return new CircuitControllerQueryResult(
-            gate, type, connectionIndex
+            gate, type, connectionIndex, this.getGateTypeController(id)
         )
     }
 
@@ -460,10 +460,10 @@ export class CircuitController {
         
         switch (index.type) {
             case "Input":
-                graph.removeInput([index.id, index.index])
                 const fromIndex = this.getConnectedTo(index.id, index.index)
                 if (fromIndex === undefined) break
                 this.renderer?.updateWire(fromIndex)
+                graph.removeInput([index.id, index.index])
                 break
             case "Output":
                 const c = graph.outputs[index.id][index.index]

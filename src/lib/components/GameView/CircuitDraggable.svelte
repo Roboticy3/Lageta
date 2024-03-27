@@ -83,13 +83,6 @@
     export function isDragging() {
         return circuitDragDropController.hasContents()
     }
-
-    /**
-     * @param {(e: MouseEvent) => void} handler
-     */
-     export function setDragHandler(handler) {
-        circuitDragDropController.dragCircuitHandler = handler
-    }
 </script>
 
 <div class="contents" style="top:{posY}px; left:{posX}px;">{@html contents}</div>

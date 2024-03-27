@@ -346,7 +346,6 @@
 
         const cType = result.gateTypeController || getGateType(Buf)
         if (id === undefined) {
-            console.log(id)
             gridController.addGate(cType, e.offsetX, e.offsetY)
         }
         else {

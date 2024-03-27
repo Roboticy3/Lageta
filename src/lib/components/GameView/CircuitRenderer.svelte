@@ -145,6 +145,10 @@
             if (outputs) for (let i = 0; i < cType.view.sizeOut; i++) {
                 updateWire([id, i], outputs.override)
             } 
+            for (let i = 0; i < cType.view.sizeIn; i++) {
+                const fromIndex = circuitController.getConnectedTo(id, i)
+                if (fromIndex) updateWire(fromIndex)
+            } 
         }
         else {
             const idString = gateIdString(id)
@@ -157,9 +161,8 @@
         }
 
         console.log("drawing gate:",id,svg)
-
-        clearActiveWire()
         
+
     }
 
     /**
@@ -173,13 +176,18 @@
         
         if (!showWires) return
 
+        console.log("trying to update connection",index)
+
         //if a list of outputs is missing, try to retrieve one from the controller
         if (outputs === undefined) outputs = circuitController.getGateOutputs(index[0])?.override
 
         //check that all of the connection's endpoints exist, and that it's source gate exists
         const toIndices = circuitController.getConnectedFrom(index[0], index[1])
         let result = getGateElementAndTypeAndClean(index[0])
-        if (result === undefined || outputs === undefined || toIndices === undefined) return
+        if (result === undefined || outputs === undefined || toIndices === undefined) {
+            console.log(result, outputs, toIndices)
+            return
+        }
 
         //get the color of the connection and it's starting position
         const value = outputs[index[1]]
@@ -223,8 +231,6 @@
         }
 
         console.log("Updating wires: ", index, wires)
-
-        clearActiveWire()
     }
 
     export function drawGates() {
@@ -237,7 +243,9 @@
     async function linkDraggable() {
         await tick()
 
-        circuitDraggable.setDragHandler(drawActiveWire)
+        const controller = circuitDraggable.getController()
+        controller.dragCircuitHandler = drawActiveWire
+        controller.dragEndHandler = clearActiveWire
         const activeWire = document.createElementNS("http://www.w3.org/2000/svg", 'g')
         activeWire.setAttribute('id', "wire-active")
         connectionGroup.appendChild(activeWire)
@@ -277,6 +285,7 @@
     export function clearActiveWire() {
         const activeWire = connectionGroup.querySelector("#wire-active")
         if (activeWire === null) return
+        console.log("erasing active wire")
         activeWire.innerHTML = ""
     }
 
@@ -412,7 +421,7 @@
     <g transform="scale({scaleX}, {scaleY})">
         <g bind:this={gridGroup} id="circuit-svg-lines" stroke="var(--grid-color)" stroke-width="0.25px" fill="none"></g>
         <g bind:this={gateGroup} id="circuit-svg-gates" stroke="var(--gate-color)" stroke-width="0.5px" fill="none"></g>
-        <g bind:this={connectionGroup} id="circuit-svg-gates" stroke="var(--gate-color)" stroke-width="0.5px" fill="none"></g>
+        <g bind:this={connectionGroup} id="circuit-svg-connections" stroke="var(--gate-color)" stroke-width="0.5px" fill="none"></g>
     </g>  
 </svg>
 
