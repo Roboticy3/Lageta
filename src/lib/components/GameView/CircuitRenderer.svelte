@@ -1,13 +1,19 @@
 <script>
     import { CircuitController } from "$lib/circuit_types/CircuitController";
+    import CircuitDraggable from './CircuitDraggable.svelte';
     import { GateType, GateTypeController, GateTypeView } from "$lib/circuit_types/GateType";
-    import { onMount } from "svelte";
+    import { onMount, tick } from "svelte";
     import { compose, fromString, identity, scale, toSVG, transform, translate } from "transformation-matrix";
 
     /**
      * @type {CircuitController}
      */
     export let circuitController
+
+    /**
+     * @type {CircuitDraggable}
+     */
+    export let circuitDraggable
 
     let translateX = 0
     let translateY = 0
@@ -21,7 +27,7 @@
     /**
      * @type {import("$lib/circuit_types/GateGraph").ConnectionType}
      */
-    let connectionDisplayMode = ""
+    let connectionPointDisplayMode = ""
 
     /**
      * @type {import("transformation-matrix").Matrix}
@@ -72,9 +78,11 @@
     let viewBoxWidth = cellOffset * gridSize[0]
     let viewBoxHeight = cellOffset * gridSize[1]
     
-    onMount(() => {
+    onMount(async () => {
         drawGrid()
         drawGates()
+
+        linkDraggable()
     })
 
     export function drawGrid() {
@@ -149,6 +157,8 @@
         }
 
         console.log("drawing gate:",id,svg)
+
+        clearActiveWire()
         
     }
 
@@ -190,7 +200,6 @@
             result = getGateElementAndTypeAndClean(toIndex[0])
             if (result === undefined) continue
             const tVType = result.cType.view
-            if (tVType === undefined) continue
             localOffset = tVType.inputOffsets[toIndex[1]]
             /**
              * @type {[number, number]}
@@ -214,7 +223,8 @@
         }
 
         console.log("Updating wires: ", index, wires)
-        
+
+        clearActiveWire()
     }
 
     export function drawGates() {
@@ -222,6 +232,52 @@
         for (let i = 0; i < c; i++) {
             updateGate(i)
         }
+    }
+
+    async function linkDraggable() {
+        await tick()
+
+        circuitDraggable.setDragHandler(drawActiveWire)
+        const activeWire = document.createElementNS("http://www.w3.org/2000/svg", 'g')
+        activeWire.setAttribute('id', "wire-active")
+        connectionGroup.appendChild(activeWire)
+    }
+
+    /**
+     * @param {MouseEvent} e
+     */
+    export function drawActiveWire(e) {
+        const controller = circuitDraggable.getController()
+        const source = controller.getContents()
+        const activeWire = connectionGroup.querySelector("#wire-active")
+        const gPos = source.getPos()
+        const cType = source.gateTypeController
+        const index = source.connectionIndex
+        if (activeWire === null || gPos === undefined || index === undefined || cType === undefined) return
+        /**
+         * @type {[number, number] | null}
+         */
+        let fromOffset
+        let localOffset
+        switch (source.type) {
+            case "Input": 
+                localOffset = cType.view.inputOffsets[index]
+                fromOffset = [gPos[0] * 10 + localOffset[0], gPos[1] * 10 + localOffset[1]]
+                break
+            case "Output": 
+                localOffset = cType.view.outputOffsets[index]
+                fromOffset = [gPos[0] * 10 + localOffset[0], gPos[1] * 10 + localOffset[1]]
+                break
+            default: return
+        }
+
+        activeWire.innerHTML = drawWire(fromOffset, circuitController.unprojectOffset(e.offsetX, e.offsetY))
+    }
+
+    export function clearActiveWire() {
+        const activeWire = connectionGroup.querySelector("#wire-active")
+        if (activeWire === null) return
+        activeWire.innerHTML = ""
     }
 
     /**
@@ -326,7 +382,11 @@
             return svgConnectionPoint(o[0], o[1], outState.override[i])
         }) : []
 
-        return inputs.join() + outputs.join()
+        switch (connectionPointDisplayMode) {
+            case "": return inputs.join() + outputs.join()
+            case "Input": return inputs.join()
+            case "Output": return outputs.join()
+        }
     }
 
     /**

@@ -42,6 +42,8 @@ export class CircuitControllerQueryResult {
     }
 
     getId() {return this.gate?.id}
+
+    getPos() {return this.gate ? [this.gate.x, this.gate.y]:undefined}
 }
 
 export type ConnectionIndex = {id:number, type:ConnectionType, index:number}
