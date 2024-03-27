@@ -193,7 +193,7 @@ export class CircuitController {
         return all_gates.get(gate.type.name)
     }
 
-    getGatePosition(gateId:number) {
+    getGatePosition(gateId:number): [number, number] | undefined {
         const gate = this.getGate(gateId)
         if (gate === undefined) return undefined
         return [gate.x, gate.y]

@@ -134,7 +134,7 @@
             svg.innerHTML = gateInner
 
             const outputs = circuitController.getGateOutputs(id)
-            if (outputs) for (let i = 0; i < cType.model.sizeOut; i++) {
+            if (outputs) for (let i = 0; i < cType.view.sizeOut; i++) {
                 updateWire([id, i], outputs.override)
             } 
         }
@@ -154,27 +154,60 @@
 
     /**
      * @param {[number, number]} index
-     * @param {import("$lib/circuit_types/GateType").ConnectionValue[] | undefined} outputs
+     * 
+     * @param {import("$lib/circuit_types/GateType").ConnectionValue[] | undefined} outputs 
+     * the outputs of the gate the connection is being drawn from, 
+     * used to determine the color of the connection
      */
     export function updateWire(index, outputs = undefined) {
         
         if (!showWires) return
 
-        const result = getGateElementAndTypeAndClean(index[0])
+        //if a list of outputs is missing, try to retrieve one from the controller
         if (outputs === undefined) outputs = circuitController.getGateOutputs(index[0])?.override
+
+        //check that all of the connection's endpoints exist, and that it's source gate exists
         const toIndices = circuitController.getConnectedFrom(index[0], index[1])
+        let result = getGateElementAndTypeAndClean(index[0])
         if (result === undefined || outputs === undefined || toIndices === undefined) return
+
+        //get the color of the connection and it's starting position
         const value = outputs[index[1]]
         const fVType = result.cType.view
-        const outputOffset = fVType.outputOffsets[index[1]]
+        let localOffset = fVType.outputOffsets[index[1]]
+        console.log(fVType, index)
+        /**
+         * @type {[number, number]}
+         */
+        const outputOffset = [localOffset[0] + result.gPos[0] * 10, localOffset[1] + result.gPos[1] * 10]
 
-        let wires = []
+        //get the endpoint positions and pair them with the starting position to draw wires to a string array
+        const wires = []
         for (const toIndex of toIndices) {
-            const tVType = circuitController.getGateTypeView(toIndex[0])
+            result = getGateElementAndTypeAndClean(toIndex[0])
+            if (result === undefined) continue
+            const tVType = result.cType.view
             if (tVType === undefined) continue
-            const inputOffset = tVType.inputOffsets[toIndex[1]]
+            localOffset = tVType.inputOffsets[toIndex[1]]
+            /**
+             * @type {[number, number]}
+             */
+            const inputOffset = [localOffset[0] + result.gPos[0] * 10, localOffset[1] + result.gPos[1] * 10]
 
             wires.push(drawWire(outputOffset, inputOffset, value))
+        }
+
+        //check if the connection is already rendered
+        const idString = wireIndexString(index)
+        let svg = connectionGroup.querySelector(`#${idString}`)
+        if (svg instanceof SVGElement) {
+            svg.innerHTML = wires.join()
+        }
+        else {
+            svg = document.createElementNS("http://www.w3.org/2000/svg", 'g')
+            svg.setAttribute('id', idString)
+            svg.innerHTML = wires.join()
+            connectionGroup.appendChild(svg)
         }
 
         console.log("Updating wires: ", index, wires)
@@ -194,6 +227,13 @@
      */
     function gateIdString(id) {
         return `gate-${id}`
+    }
+
+    /**
+     * @param {[number, number]} index
+     */
+    function wireIndexString(index) {
+        return `wire-${index[0]}-${index[1]}`
     }
 
     /**
