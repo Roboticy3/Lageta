@@ -6,6 +6,7 @@
     import { CircuitDragDropController } from "$lib/circuit_types/CircuitDragDropController";
     import { onMount } from 'svelte';
     import { GateType, GateTypeController } from '$lib/circuit_types/GateType';
+    import { wrapGateTypeViewInViewbox } from '$lib/dat/GateTypes/GateTypes';
 
     let contents = ""
 
@@ -32,9 +33,9 @@
     }
 
     function resolveContents() {
-        const item = circuitDragDropController.getGateType()
-        if (item !== undefined) {
-            contents = item.view.draw()
+        const vType = circuitDragDropController.getGateType()?.view
+        if (vType !== undefined) {
+            contents = wrapGateTypeViewInViewbox(vType.gridWidth, vType.gridHeight, vType.draw())
             return
         }
         contents = ""

@@ -182,6 +182,9 @@
         const outputOffset = [localOffset[0] + result.gPos[0] * 10, localOffset[1] + result.gPos[1] * 10]
 
         //get the endpoint positions and pair them with the starting position to draw wires to a string array
+        /**
+         * @type {string[]}
+         */
         const wires = []
         for (const toIndex of toIndices) {
             result = getGateElementAndTypeAndClean(toIndex[0])
