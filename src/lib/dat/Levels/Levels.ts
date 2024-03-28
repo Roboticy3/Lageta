@@ -122,6 +122,7 @@ export const XorLevel = {
         `
         <p>Here's an example of making a more advanced gate</p>
         <p>The behavior here is called an "Xor" gate, short for exclusive or. Like an Or gate but more... exclusive.</p>
+        <p>There's already an Or gate in the circuit, try pressing play just to see how it's different from a Xor gate.</p>
         `,
         {
             gateTypes: [

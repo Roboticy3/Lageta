@@ -274,6 +274,22 @@ export class GateGraph {
         this.outputs[gateId] =[]
     }
 
+    getAllConnectionsOnGate(gateId:number) {
+        const gate = this.gates[gateId]
+        if (gate === undefined) return []
+
+        const arr = new Array<Connection | undefined>(gate.type.sizeIn + gate.type.sizeOut)
+
+        for (let i = 0; i < gate.type.sizeIn; i++) {
+            arr[i] = this.getInput([gateId, i])
+        }
+        for (let i = 0; i < gate.type.sizeOut; i++) {
+            arr[gate.type.sizeIn + i] = this.getOutput([gateId, i])
+        }
+
+        return arr
+    }
+
     iterConnections(iter:ConnectionReader) {
         for (let i = 0; i < this.gates.length; i++) {
             const gate = this.gates[i]

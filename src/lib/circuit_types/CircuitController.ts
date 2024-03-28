@@ -413,11 +413,17 @@ export class CircuitController {
     ) {
         console.log("removing gate: ", id)
 
+        const existing = this.gateGrid.graph.getAllConnectionsOnGate(id)
+
         const result = this.gateGrid.removeGate(id, true)
         if (result === undefined) {
             console.log("gate not found! ")
             return
         }
+
+        existing.forEach((c) => {
+            if (c) this.renderer?.updateWire(c.from)
+        })
 
         this.renderer?.updateGate(id)
 
@@ -440,9 +446,15 @@ export class CircuitController {
 
         const graph = this.gateGrid.graph
         const c = new Connection(from, output, to, input)
+
+        const existing = this.getConnectedTo(to, input)
+
         const result = graph.addConnection(c)
 
         this.renderer?.updateWire([from, output])
+        if (existing) {
+            this.renderer?.updateWire(existing)
+        }
 
         return result
     }
@@ -462,8 +474,8 @@ export class CircuitController {
             case "Input":
                 const fromIndex = this.getConnectedTo(index.id, index.index)
                 if (fromIndex === undefined) break
-                this.renderer?.updateWire(fromIndex)
                 graph.removeInput([index.id, index.index])
+                this.renderer?.updateWire(fromIndex) 
                 break
             case "Output":
                 const c = graph.outputs[index.id][index.index]

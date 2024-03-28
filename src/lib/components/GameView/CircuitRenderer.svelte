@@ -110,13 +110,16 @@
         const gPos = circuitController.getGatePosition(id)
         let svg = gateGroup.querySelector(`#${gateIdString(id)}`)
         if (cType === undefined || gPos === undefined) {
+            //if an svg element exists but not the gate, remove the gate and all associated connections
             if (svg instanceof SVGElement) {
                 gateGroup.removeChild(svg)
             }
+            //otherwise, it just doesn't exist, can't do anything with that
             else {
                 console.log("tried to update nonexistent gate",id)   
             }
         }
+        //if everything exists, return all the needed data
         else {
             return {svg:svg, cType:cType, gPos:gPos}
         }
@@ -140,15 +143,6 @@
         if (svg instanceof SVGElement) {
             svg.setAttribute('transform',gateTransform)
             svg.innerHTML = gateInner
-
-            const outputs = circuitController.getGateOutputs(id)
-            if (outputs) for (let i = 0; i < cType.view.sizeOut; i++) {
-                updateWire([id, i], outputs.override)
-            } 
-            for (let i = 0; i < cType.view.sizeIn; i++) {
-                const fromIndex = circuitController.getConnectedTo(id, i)
-                if (fromIndex) updateWire(fromIndex)
-            } 
         }
         else {
             const idString = gateIdString(id)
@@ -158,6 +152,14 @@
                 idString
             )
             gateGroup.appendChild(svg)
+        }
+
+        for (let i = 0; i < cType.view.sizeOut; i++) {
+            updateWire([id, i])
+        }
+        for (let i = 0; i < cType.view.sizeIn; i++) {
+            const fromIndex = circuitController.getConnectedTo(id, i)
+            if (fromIndex) updateWire(fromIndex)
         }
 
         console.log("drawing gate:",id,svg)
@@ -181,11 +183,15 @@
         //if a list of outputs is missing, try to retrieve one from the controller
         if (outputs === undefined) outputs = circuitController.getGateOutputs(index[0])?.override
 
+        const idString = wireIdString(index)
+        let svg = document.querySelector(`#${wireIdString(index)}`)
+
         //check that all of the connection's endpoints exist, and that it's source gate exists
         const toIndices = circuitController.getConnectedFrom(index[0], index[1])
         let result = getGateElementAndTypeAndClean(index[0])
         if (result === undefined || outputs === undefined || toIndices === undefined) {
             console.log(result, outputs, toIndices)
+            if (svg) connectionGroup.removeChild(svg)
             return
         }
 
@@ -218,13 +224,11 @@
         }
 
         //check if the connection is already rendered
-        const idString = wireIndexString(index)
-        let svg = connectionGroup.querySelector(`#${idString}`)
         if (svg instanceof SVGElement) {
             svg.innerHTML = wires.join()
         }
         else {
-            svg = document.createElementNS("http://www.w3.org/2000/svg", 'g')
+            const svg = document.createElementNS("http://www.w3.org/2000/svg", 'g')
             svg.setAttribute('id', idString)
             svg.innerHTML = wires.join()
             connectionGroup.appendChild(svg)
@@ -298,9 +302,9 @@
     }
 
     /**
-     * @param {[number, number]} index
+     * @param {[number | string, number | string]} index
      */
-    function wireIndexString(index) {
+    function wireIdString(index) {
         return `wire-${index[0]}-${index[1]}`
     }
 
