@@ -20,10 +20,11 @@
     let translateY = 0
     let scaleX = 3
     let scaleY = 3
-
-    export let showGates = true
-    export let showConnectionPoints = true
-    export let showWires = true
+    
+    /**
+     * @type {import("$lib/level_types/GameViewParameters").RendererParameters}
+     */
+    export let rendererParams = {}
 
     /**
      * @type {import("$lib/circuit_types/GateGraph").ConnectionType}
@@ -132,8 +133,6 @@
      */
     export function updateGate(id) {
 
-        if (!showGates) return
-
         const result = getGateElementAndTypeAndClean(id)
         if (result === undefined) return
         let svg = result.svg
@@ -176,7 +175,7 @@
      */
     export function updateWire(index, outputs = undefined) {
         
-        if (!showWires) return
+        if (rendererParams.showWires === false) return
 
         //if a list of outputs is missing, try to retrieve one from the controller
         if (outputs === undefined) outputs = circuitController.getGateOutputs(index[0])?.override
@@ -400,7 +399,7 @@
     function svgGate(cType, idOrState=undefined) {
         let state = typeof idOrState === "number" ? circuitController.getGateState(idOrState) : idOrState
         if (state === undefined) state = cType.generateDefaultState()
-        const body = showGates ? cType.view.draw(state) : ""     
+        const body = rendererParams.showGates === false ? "" : cType.view.draw(state)
 
         return body + svgConnectionPoints(cType, state)
     }
@@ -438,14 +437,14 @@
     function svgConnectionPoints(cType, idOrState) { 
         const state = (typeof idOrState === "number" ? circuitController.getGateState(idOrState) : idOrState) || {override:[]}
 
-        const inputs = showConnectionPoints ? cType.view.inputOffsets.map((o, i) => {
+        const inputs = rendererParams.showConnectionPoints === false ? [] : cType.view.inputOffsets.map((o, i) => {
             return svgConnectionPoint(o[0], o[1], state.override[i])
-        }) : []
+        })
 
         const outState = cType.model.f(state) //temp hack, state should store outputs too
-        const outputs = showConnectionPoints ? cType.view.outputOffsets.map((o, i) => {
+        const outputs =  rendererParams.showConnectionPoints === false ? [] : cType.view.outputOffsets.map((o, i) => {
             return svgConnectionPoint(o[0], o[1], outState.override[i])
-        }) : []
+        })
 
         switch (connectionPointDisplayMode) {
             case "": return inputs.join() + outputs.join()

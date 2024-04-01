@@ -385,6 +385,7 @@ export const Freeplay = {
         },
         undefined,
         [],
+        {},
         true
     ),
     x:18, y:0

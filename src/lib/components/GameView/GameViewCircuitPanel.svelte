@@ -389,7 +389,7 @@
     bind:this={circuitContainer}
     >
 
-    <CircuitRenderer bind:this={circuitRenderer} circuitController={gridController} circuitDraggable={circuitDraggable}/>
+    <CircuitRenderer bind:this={circuitRenderer} circuitController={gridController} circuitDraggable={circuitDraggable} rendererParams={params.rendererParams || {}}/>
 
     {#if showSlot}
         <slot />

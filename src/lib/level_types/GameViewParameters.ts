@@ -11,6 +11,7 @@ export class GameViewParameters {
     readonly grid:GateGrid | undefined
     readonly completeCondition:CompleteConditionSource
     readonly completeRewards:string[]
+    readonly rendererParams:RendererParameters
     readonly allUnlocks:boolean
     
     constructor(
@@ -19,6 +20,7 @@ export class GameViewParameters {
         grid:GridSource = undefined,
         completeCondition:CompleteConditionSource = undefined,
         completeRewards:string[] = [],
+        rendererParams:RendererParameters = {},
         allUnlocks:boolean = false
     ) {
         this.name = name
@@ -33,6 +35,7 @@ export class GameViewParameters {
 
         this.completeCondition = completeCondition
         this.completeRewards = completeRewards
+        this.rendererParams = rendererParams
         this.allUnlocks = allUnlocks
     }
 
@@ -62,3 +65,4 @@ export class CompleteCondition {
 
 type GridSource = CircuitController | OrganizedCircuitContents | undefined
 export type CompleteConditionSource = GateTypeController | SignalSet | undefined
+export type RendererParameters = {showGates?:boolean, showConnectionPoints?:boolean, showWires?:boolean}
