@@ -6,7 +6,7 @@
     import { CircuitDragDropController } from "$lib/circuit_types/CircuitDragDropController";
     import { onMount } from 'svelte';
     import { GateType, GateTypeController } from '$lib/circuit_types/GateType';
-    import { wrapGateTypeViewInViewbox } from '$lib/dat/GateTypes/GateTypes';
+    import { getGateType, wrapGateTypeViewInViewbox } from '$lib/dat/GateTypes/GateTypes';
 
     let contents = ""
 
@@ -61,8 +61,13 @@
     function onMouseMove(e) {
         posX = e.pageX
         posY = e.pageY
+        const controller = getController()
         if (isDragging()) {
-            circuitDragDropController.dragCircuit(e)
+            const type = controller.getContentType()
+            if (type == "Gate" || 
+                controller.sourceElement == e.target) {
+                controller.dragCircuit(e)
+            }
         }
     }
 

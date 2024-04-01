@@ -4,6 +4,7 @@
     import { GateType, GateTypeController, GateTypeView } from "$lib/circuit_types/GateType";
     import { onMount, tick } from "svelte";
     import { compose, fromString, identity, scale, toSVG, transform, translate } from "transformation-matrix";
+    import { draw } from "svelte/transition";
 
     /**
      * @type {CircuitController}
@@ -112,6 +113,7 @@
         if (cType === undefined || gPos === undefined) {
             //if an svg element exists but not the gate, remove the gate and all associated connections
             if (svg instanceof SVGElement) {
+                console.log("clearing gate",id)
                 gateGroup.removeChild(svg)
             }
             //otherwise, it just doesn't exist, can't do anything with that
@@ -163,8 +165,6 @@
         }
 
         console.log("drawing gate:",id,svg)
-        
-
     }
 
     /**
@@ -178,8 +178,6 @@
         
         if (!showWires) return
 
-        console.log("trying to update connection",index)
-
         //if a list of outputs is missing, try to retrieve one from the controller
         if (outputs === undefined) outputs = circuitController.getGateOutputs(index[0])?.override
 
@@ -190,7 +188,6 @@
         const toIndices = circuitController.getConnectedFrom(index[0], index[1])
         let result = getGateElementAndTypeAndClean(index[0])
         if (result === undefined || outputs === undefined || toIndices === undefined) {
-            console.log(result, outputs, toIndices)
             if (svg) connectionGroup.removeChild(svg)
             return
         }
@@ -248,11 +245,31 @@
         await tick()
 
         const controller = circuitDraggable.getController()
-        controller.dragCircuitHandler = drawActiveWire
-        controller.dragEndHandler = clearActiveWire
+        controller.dragCircuitHandler = onDragCircuit
+        controller.dragEndHandler = clearActives
+
         const activeWire = document.createElementNS("http://www.w3.org/2000/svg", 'g')
         activeWire.setAttribute('id', "wire-active")
         connectionGroup.appendChild(activeWire)
+
+        const activeGate = document.createElementNS("http://www.w3.org/2000/svg", 'g')
+        activeGate.setAttribute('id', "gate-active")
+        gateGroup.appendChild(activeGate)
+    }
+
+    /**
+     * @param {MouseEvent} e
+     */
+    function onDragCircuit(e) {
+        switch (circuitDraggable.getController().getContentType()) {
+            case "Input":
+            case "Output":
+                drawActiveWire(e)
+                break
+            case "Gate":
+                drawActiveGate(e)
+                break
+        }
     }
 
     /**
@@ -291,6 +308,41 @@
         if (activeWire === null) return
         console.log("erasing active wire")
         activeWire.innerHTML = ""
+    }
+
+    /**
+     * @param {MouseEvent} e
+     */
+    export function drawActiveGate(e) {
+        const controller = circuitDraggable.getController()
+        const cType = controller.getGateType()
+        const id = controller.getId()
+        let gPos
+        let svg = gateGroup.querySelector(`#gate-active`)
+        if (id && cType) {
+            gPos = circuitController.previewMoveGate(id, e.offsetX, e.offsetY)
+        } else if (cType) {
+            gPos = circuitController.previewAddGate(cType, e.offsetX, e.offsetY)
+        }
+        else return
+
+        if (gPos && svg) {
+            const transform = svgGridTransform(gPos[0], gPos[1])
+            svg.setAttribute('transform', transform)
+            svg.innerHTML = svgGate(cType, id)
+        }
+    }
+
+    export function clearActiveGate() {
+        const activeGate = gateGroup.querySelector("#gate-active")
+        if (activeGate === null) return
+        activeGate.innerHTML = ""
+    }
+
+    export function clearActives() {
+        console.log("dropping")
+        clearActiveGate()
+        clearActiveWire()
     }
 
     /**
@@ -343,11 +395,11 @@
     
     /**
      * @param {GateTypeController} cType
-     * @param {number | import("$lib/circuit_types/Gate").GateState} idOrState
+     * @param {number | import("$lib/circuit_types/Gate").GateState | undefined} idOrState
      */
-    function svgGate(cType, idOrState) {
-        const state = typeof idOrState === "number" ? circuitController.getGateState(idOrState) : idOrState
-        if (state === undefined) return `<text fill="black">gate ${idOrState}</text>`
+    function svgGate(cType, idOrState=undefined) {
+        let state = typeof idOrState === "number" ? circuitController.getGateState(idOrState) : idOrState
+        if (state === undefined) state = cType.generateDefaultState()
         const body = showGates ? cType.view.draw(state) : ""     
 
         return body + svgConnectionPoints(cType, state)

@@ -143,4 +143,11 @@ export class GateTypeController {
 
         registerGateType(this);
     }
+
+    generateDefaultState() {
+        const s:GateState = {
+            override: new Array<ConnectionValue>(this.model.sizeIn)
+        }
+        return s
+    }
 }
