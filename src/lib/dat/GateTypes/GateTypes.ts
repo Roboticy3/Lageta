@@ -203,7 +203,7 @@ export function Encoder(bits:number, otherParams: GateTypeParameters | undefined
         inputs: inSize, outputs: bits,
         gridSize: [3, inSize],
         f: (s) => {
-            let idx = s.override.indexOf(true)
+            let idx = s.override.lastIndexOf(true)
             let result = new Array(bits).fill(false)
             for (let i = 0; i < bits; i++) {
                 const r = idx % 2
