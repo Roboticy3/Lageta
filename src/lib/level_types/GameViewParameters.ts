@@ -65,4 +65,10 @@ export class CompleteCondition {
 
 type GridSource = CircuitController | OrganizedCircuitContents | undefined
 export type CompleteConditionSource = GateTypeController | SignalSet | undefined
-export type RendererParameters = {showGates?:boolean, showConnectionPoints?:boolean, showWires?:boolean}
+export type RendererParameters = {
+    showGates?:boolean, 
+    showConnectionPoints?:boolean, 
+    showWires?:boolean, 
+    initialScale?:[number, number],
+    initialTranslate?:[number, number]
+}

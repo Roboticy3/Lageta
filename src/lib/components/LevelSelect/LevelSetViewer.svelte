@@ -16,7 +16,10 @@
 
     const gridWidth = 20
     const gridHeight = 10
-    const params = new GameViewParameters("LevelSelect", "", {size:[gridWidth, gridHeight] }, undefined, [], {showGates:false})
+    const params = new GameViewParameters(
+        "LevelSelect", "", 
+        {size:[gridWidth, gridHeight] }, undefined, [], 
+        {showGates:false, initialScale:[8, 8]})
 
     let progress = new ProgressStorage()
     let levelSet = progress.levels()

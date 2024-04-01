@@ -85,7 +85,15 @@
         drawGates()
 
         linkDraggable()
+
+        applyInitialTransformParams()
     })
+
+    function applyInitialTransformParams() {
+        const [tX, tY] = rendererParams.initialTranslate || [translateX, translateY]
+        const [sX, sY] = rendererParams.initialScale || [scaleX, scaleY]
+        setTransformMatrix(tX, tY, sX, sY)
+    }
 
     export function drawGrid() {
         

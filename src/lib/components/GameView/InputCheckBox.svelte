@@ -70,7 +70,7 @@
 
         offset = gridController.projectOffset(
             localOffset[0] - 5,
-            localOffset[1] - 5
+            localOffset[1]
         )
 
         const position = getPosition()
