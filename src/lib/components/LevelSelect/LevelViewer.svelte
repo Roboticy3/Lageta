@@ -41,7 +41,6 @@
             }
         })
         updateAvailability()
-        window.addEventListener('resize',container.setOffset)
     })
 
     function updateAvailability() {

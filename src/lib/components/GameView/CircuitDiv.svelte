@@ -40,6 +40,7 @@
     onMount(async () => {
         await tick()
         setOffset()
+        window.addEventListener('resize',setOffset)
     })
 
     export function activate() {
