@@ -96,6 +96,8 @@
     }
 
     export function drawGrid() {
+
+        if (rendererParams.showGrid === false) return
         
         let grid = new Array(gridSize[0] + gridSize[1] - 2).fill("")
         const endX = cellOffset * gridSize[0]
