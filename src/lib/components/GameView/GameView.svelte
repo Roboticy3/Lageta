@@ -1,6 +1,11 @@
 <!-- simulator containing all the basic elements needed to build, save, and load logical circuits -->
 
 <script>
+    import { CircuitController } from "$lib/circuit_types/CircuitController";
+    import CircuitDiv from "./CircuitDiv.svelte";
+    import CircuitDraggable from "./CircuitDraggable.svelte";
+    import GameViewCircuitPanel from "./GameViewCircuitPanel.svelte";
+
 
     /**
      * @type {import("$lib/level_types/GameViewParameters").GameViewParameters}
@@ -9,19 +14,30 @@
 
     console.log("initializing GameView with params: ",params)
 
+    let circuitController = new CircuitController(params.grid)
+
+    let circuitDraggable
+
 </script>
 
 <div class="base-vertical">
+    <CircuitDraggable circuitController={circuitController} bind:this={circuitDraggable}/>
     <div class="nav">
 
     </div>
     <div class="sandbox-horizontal">
         <div class="circuit-editor">
             <div class="shelf">
-
+                
             </div>
-            <div class="circuit-viewer">
+            <div class="circuit-editor">
+                <GameViewCircuitPanel 
+                    params={params}
+                    gridController={circuitController}
+                    circuitDraggable={circuitDraggable}
+                >
 
+                </GameViewCircuitPanel>
             </div>
         </div>
         <div class="instructions">
@@ -33,15 +49,6 @@
     </div>
 </div>
 
-<!-- The layout of GameView is centered around this vertical layout -->
-<!-- The vertical layout is 10 units long, represented by the total flex-grow values of it's children -->
-
-<!-- The sandbox is a horizontal layout, a circuit editor on the left with an instruction panel on the right -->
-<!-- The horizontal layout is 10 units long in the same way as the vertical layout -->
-
-<!-- Finally, the circuit editor is also a layout for the shelf and the actual circuit view-->
-
-<!-- This design is based off of the Figma diagrams -->
 <style>
     
     .base-vertical {
@@ -57,26 +64,23 @@
 
     .base-vertical .sandbox-horizontal {
         flex-grow: 6.5;
-        background-color: var(--main-bg-color);
 
         display:flex;
         flex-direction: row;
     }
 
+    .circuit-editor .shelf {
+        flex-grow: 2;
+        background-color: var(--main-bg-color);
+        min-height: 50px;
+    }
+
     .sandbox-horizontal .circuit-editor {
-        flex-grow: 7;
+        flex-grow: 8;
+        background-color: var(--tertiary-bg-color);
 
         display: flex;
         flex-direction: column;
-    }
-
-    .circuit-editor .shelf {
-        flex-grow: 2;
-    }
-
-    .circuit-editor .circuit-viewer {
-        flex-grow: 8;
-        background-color: var(--tertiary-bg-color);
     }
 
     .sandbox-horizontal .instructions {

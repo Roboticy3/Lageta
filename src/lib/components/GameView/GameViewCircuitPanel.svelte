@@ -398,8 +398,6 @@
 
 <style>
     .circuit-container {
-        grid-row: 2;
-        grid-column: 1 / 2;
-        background-color: white;  
+        height:100%;
     }
 </style>
