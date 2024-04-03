@@ -5,7 +5,10 @@
     import { SignalSetController } from "$lib/signal_types/SignalSetController";
     import { onMount } from "svelte";
 
-    export let signalSetController = (new SignalSetController(TestSignalSet))
+    /**
+     * @type {SignalSetController}
+     */
+    export let signalSetController
     let channelSvgs = signalSetController.drawChannels()
     signalSetController.createPlayer(100)
 
@@ -19,6 +22,8 @@
      * @type {(() => void) | null}
      */
     export let updateSvg
+
+    export let labelWidth = 30
 
     let [width, height] = [0, 0]
 
@@ -60,9 +65,21 @@
         offset = Math.max(playTranslateX - width, 0)
     }
 
+    /**
+     * @type {string[]}
+     */
+    let labels = []
+    function fixLabels() {
+        if (gridController === null) return
+        labels = gridController.getInputLabels()
+        labels.push(...gridController.getOutputLabels())
+        console.log(labels)
+    }
+
     function fixSvg() {
         fixPlayBar()
         fixSvgHeader()
+        fixLabels()
     }
 
     onMount(fixSvg)
@@ -162,6 +179,13 @@
         } 
     }
 
+    /**
+     * @param {number} channel
+     */
+    function getChannelHeight(channel) {
+        return signalSetController.getDesiredChannelHeight(channel)
+    }
+
 </script>
 
 
@@ -172,23 +196,33 @@
         viewBox="{offset - 4} -10 {width + 4} {height}"
         width="100%"
         class="signal-shelf">
-        <g transform="translate({playTranslateX} 0)" >
+        <g transform="translate({playTranslateX + labelWidth} 0)" >
             {@html playBar}
         </g>
-        {#each channelSvgs as svg}
-            {@html svg}
+        {#each labels as label, i} 
+            <text 
+                y={getChannelHeight(i) + signalSetController.height / 2} 
+                x=0
+                font-size={signalSetController.height / 4}
+            >
+                {label}
+            </text>
         {/each}
-        <g transform="translate(0, {
-            signalSetController
-            .getDesiredChannelHeight(
-                signalSetController
-                .getInputSize()
-            )
-        })" >
-            {#each outputSvgs as svg}
-            {@html svg}
+        <g transform="translate({labelWidth} 0)">
+            {#each channelSvgs as svg, i}
+                <g transform="translate(0, {getChannelHeight(i)})">
+                    {@html svg}
+                </g>
             {/each}
+            <g transform="translate(0, {getChannelHeight(signalSetController.getInputSize())})" >
+                {#each outputSvgs as svg, i}
+                    <g transform="translate(0, {getChannelHeight(i)})">
+                        {@html svg}
+                    </g>
+                {/each}
+            </g>
         </g>
+        
     </svg>
 
     <button on:click={onClickPlay}>{button}</button>

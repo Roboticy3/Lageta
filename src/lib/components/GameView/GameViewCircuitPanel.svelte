@@ -3,11 +3,11 @@
 
     import { onMount, tick } from 'svelte';
 
-    import { ConnectionSvg, buildSvg, wireSvg, getGateTypeSvg, getGateTypeSvgContents, connectionColor } from '../GateSvgs.svelte';
-
+    import CircuitRenderer from './CircuitRenderer.svelte';
+    
     import { CircuitController, CircuitControllerQueryResult } from '$lib/circuit_types/CircuitController';
     import { GameViewParameters } from '$lib/level_types/GameViewParameters';
-    import { Buf } from '$lib/dat/GateTypes/GateTypes';
+    import { Buf, getGateType } from '$lib/dat/GateTypes/GateTypes';
 
     /**
      * @type {GameViewParameters}
@@ -25,114 +25,20 @@
     export let circuitDraggable
 
     /**
-     * @type {SVGElement} circuit
-     */
-    let circuit;
-
-    /**
      * @type {HTMLDivElement | null}
      */
     let circuitContainer = null;
 
     /**
-     * @type {Array<String>}
-     */
-    let svgGates = []
-    /**
-     * @type {Array<String>}
-     */
-    let svgWires = []
-    
-    //the svg string of the current connection, previews the connection being made
-    let activeSvgWire=""
-    //the svg string of all the visible connection points
-    let svgConnectionPoints = ""
+     * @type {CircuitRenderer}
+    */
+    let circuitRenderer
 
-    export let showGates = true
-    export let showConnectionPoints = true
-    export let showWires = true
+    export function getRenderer() {
+        return circuitRenderer
+    }
     
     let showSlot = true
-
-    /**
-     * @type {Set<() => void>}
-     */
-    let svgListeners = new Set()
-
-    /**
-     * Corrects the svg display of the circuit to be up to date with the state of the circuit
-     * This function gets called pretty often, but it's still better than refreshing the svg every tick.
-     */
-    export function updateSvg() {
-        if (showGates) svgGates = gridController.drawGates(getGateTypeSvgContents)
-        if (showConnectionPoints) svgConnectionPoints = gridController.drawConnectionPoints(ConnectionSvg)
-        if (showWires) svgWires = gridController.drawWires(wireSvg)
-        showSlot = !gridController.isPlaying()
-        
-        for (let f of svgListeners) {
-            f()
-        }
-    }
-
-    /**
-     * @param {() => void} f
-     */
-    export function addSvgListener(f) {
-        svgListeners.add(f)
-    }
-
-    /**
-     * @param {() => void} f
-     */
-     export function removeSvgListener(f) {
-        svgListeners.delete(f)
-    }
-
-    /**
-     * @type {string[]}
-     */
-    let cellsSvg = []
-
-    export function disableAutoResize() {
-        window.removeEventListener('resize', (e) => {
-            updateViewBox()
-        })
-    }
-    export function enableAutoResize() {
-        window.addEventListener('resize', (e) => {
-            updateViewBox()
-        })
-        updateViewBox()
-    }
-
-    /**
-     * Corrects the viewBox of the circuit such that it won't change size when the window is resized.
-     */
-    function updateViewBox() {
-        if (!circuitContainer) {
-            return
-        }
-
-        let offsetX = circuitContainer.offsetWidth;
-        let offsetY = circuitContainer.offsetHeight;
-        setViewBox(offsetX, offsetY)
-    }
-
-    /**
-     * @param {number} x
-     * @param {number} y
-     */
-     export function setViewBox(x, y) {
-        circuit.setAttribute('viewBox', `0 0 ${x} ${y}`)
-        circuit.setAttribute('width', `${x}`)
-        cellsSvg = gridController.gridCellsSvg()
-    }
-
-    export let startAutoResize = true
-
-    if (startAutoResize) {
-        enableAutoResize()
-    }
 
     /**
      * Add all events needed to edit the circuit, name is a hold-over from when the project used the drag and drop api
@@ -180,8 +86,7 @@
      */
     let mountCircuit = () => {
         addDragEventListeners()
-        updateViewBox()
-        updateSvg()
+        gridController.giveRenderer(circuitRenderer)
     }
     onMount(mountCircuit)
 
@@ -199,7 +104,8 @@
 
         if (circuitDraggable.isDragging()) return
 
-        const query = gridController.query(e.offsetX, e.offsetY)        
+        const query = gridController.query(e.offsetX, e.offsetY)     
+        console.log(query) 
         switch (query.type) {
             case "Input":
                 if (canDragConnections) onDragStartInput(e, query)
@@ -243,9 +149,6 @@
                 {id:index[0], type:"Input", index:index[1]}
             )
 
-            //update the svg because a connection has been removed, otherwise it will keep being drawn
-            updateSvg()
-
             //tell onDragStartOutput it's business as usual and pretend we didn't do any of this nonsense behind its back
             onDragStartOutput(e, q)
 
@@ -259,7 +162,7 @@
         onDragInput(e)
 
         //draw only the connection points that can be connected to from here
-        svgConnectionPoints = gridController.drawConnectionPoints(ConnectionSvg, "Output")
+        //svgConnectionPoints = gridController.drawConnectionPoints(ConnectionSvg, "Output")
     }
 
     /**
@@ -274,7 +177,7 @@
         circuitDraggable.drag(e, query, circuitContainer)
 
         //same as the end of onDragStartInput
-        svgConnectionPoints = gridController.drawConnectionPoints(ConnectionSvg, "Input")
+        //svgConnectionPoints = gridController.drawConnectionPoints(ConnectionSvg, "Input")
         onDragOutput(e)
     }
 
@@ -286,7 +189,7 @@
      * @param {CircuitControllerQueryResult} query
      */
     function onDragStartGate(e, query) {
-        if (query.gateType?.moveable) circuitDraggable.drag(e, query, circuitContainer)
+        if (query.gateTypeController?.view.moveable === true) circuitDraggable.drag(e, query, circuitContainer)
     }
 
     /**
@@ -349,8 +252,8 @@
      */
     function onDragGate(e) {
         const controller = circuitDraggable.getController()
-        const gType = controller.getGateType()
-        if (gType === undefined) return
+        const cType = controller.getGateType()
+        if (cType === undefined) return
         
         const id = controller.getId()
         const result = id ? 
@@ -360,7 +263,7 @@
                 e.offsetY
             ) :
             gridController.previewAddGate(
-                gType,
+                cType,
                 e.offsetX,
                 e.offsetY
             )
@@ -368,8 +271,8 @@
 
         if (result !== undefined) {
             activeSvgGate = `<g ${gridController.getGateSvgTransform(
-                {type:gType, x:result[0], y:result[1]}
-            )}>${getGateTypeSvgContents(gType)}</g>`
+                {type:cType.model, x:result[0], y:result[1]}
+            )}>${cType.view.draw()}</g>`
         }
     }
 
@@ -380,13 +283,7 @@
      */
     function onDragInput(e) {
         const contents = circuitDraggable.getController().getContents()
-        activeSvgWire = wireSvg(
-            gridController.getConnectionPoint(
-                {id:contents.getId() || 0, type:"Input", index:contents.connectionIndex || 0}
-            ),
-            gridController.unprojectOffset(e.offsetX, e.offsetY),
-            `stroke=${connectionColor(false)}`
-        )
+        
     }
 
     /**
@@ -396,13 +293,7 @@
      */
     function onDragOutput(e) {
         const contents = circuitDraggable.getController().getContents()
-        activeSvgWire = wireSvg(
-            gridController.unprojectOffset(e.offsetX, e.offsetY),
-            gridController.getConnectionPoint(
-                {id:contents.getId() || 0, type:"Output", index:contents.connectionIndex || 0}
-            ),
-            `stroke=${connectionColor((gridController.getGateOutputs(contents.getId()||0)||[])[contents.connectionIndex||0] || false)}`
-        )
+        
     }
 
     /**
@@ -425,17 +316,13 @@
             case "Input":
             case "Output":
                 const query = gridController.query(e.offsetX, e.offsetY)
+                console.log(query)
                 dropConnection(result, query)
                 break
             default: return
         }
         
         removeMouseMoveListener()
-
-        activeSvgGate = ""
-        activeSvgWire = ""
-
-        updateSvg()
     }
 
     /**
@@ -457,10 +344,9 @@
             return
         }
 
-        const gType = result.gateType || Buf
+        const cType = result.gateTypeController || getGateType(Buf)
         if (id === undefined) {
-            console.log(id)
-            gridController.addGate(gType, e.offsetX, e.offsetY)
+            gridController.addGate(cType, e.offsetX, e.offsetY)
         }
         else {
             gridController.moveGate(id, e.offsetX, e.offsetY)
@@ -503,31 +389,7 @@
     bind:this={circuitContainer}
     >
 
-    <svg 
-        stroke="black" 
-        stroke-width=".5pt" 
-        fill="none" 
-        bind:this={circuit}
-        class="circuit-svg">
-        <g transform={gridController.getMatrixSvg()}>
-
-            {#each svgWires as wire}
-                {@html wire}
-            {/each}
-
-            {#each cellsSvg as svg}
-            {@html svg}
-            {/each}
-
-            {#each svgGates as svg}
-            {@html svg}
-            {/each}
-
-            {@html svgConnectionPoints}
-            {@html activeSvgWire}
-            {@html activeSvgGate}
-        </g>
-    </svg>
+    <CircuitRenderer bind:this={circuitRenderer} circuitController={gridController} circuitDraggable={circuitDraggable} rendererParams={params.rendererParams || {}}/>
 
     {#if showSlot}
         <slot />
@@ -539,11 +401,5 @@
         grid-row: 2;
         grid-column: 1 / 2;
         background-color: white;  
-    }
-
-    .circuit-svg {
-        pointer-events: none;
-        display: flex;
-        height:100%;
     }
 </style>

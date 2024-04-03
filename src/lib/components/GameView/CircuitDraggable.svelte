@@ -4,9 +4,9 @@
 
     import { CircuitController, CircuitControllerQueryResult } from "$lib/circuit_types/CircuitController";
     import { CircuitDragDropController } from "$lib/circuit_types/CircuitDragDropController";
-    import { getGateTypeSvgContents, getGateTypeSvg } from "../GateSvgs.svelte";
     import { onMount } from 'svelte';
-    import { GateType } from '$lib/circuit_types/GateType';
+    import { GateType, GateTypeController } from '$lib/circuit_types/GateType';
+    import { getGateType, wrapGateTypeViewInViewbox } from '$lib/dat/GateTypes/GateTypes';
 
     let contents = ""
 
@@ -23,7 +23,7 @@
 
     /**
      * @param {MouseEvent} e
-     * @param {GateType} type
+     * @param {GateTypeController} type
      * @param {HTMLElement | null} element
      */
     export function dragGateType(e, type, element=null) {
@@ -33,9 +33,9 @@
     }
 
     function resolveContents() {
-        const item = circuitDragDropController.getGateType()
-        if (item !== undefined) {
-            contents = getGateTypeSvg(item)
+        const vType = circuitDragDropController.getGateType()?.view
+        if (vType !== undefined) {
+            contents = wrapGateTypeViewInViewbox(vType.gridWidth, vType.gridHeight, vType.draw())
             return
         }
         contents = ""
@@ -61,8 +61,13 @@
     function onMouseMove(e) {
         posX = e.pageX
         posY = e.pageY
+        const controller = getController()
         if (isDragging()) {
-            circuitDragDropController.dragCircuit(e)
+            const type = controller.getContentType()
+            if (type == "Gate" || 
+                controller.sourceElement == e.target) {
+                controller.dragCircuit(e)
+            }
         }
     }
 

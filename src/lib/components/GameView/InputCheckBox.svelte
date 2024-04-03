@@ -36,17 +36,31 @@
             return
         }
 
-        if (gridController === null || from === null) {
+        if (gridController === null) {
             checkbox.parentNode?.removeChild(checkbox)
             console.log("InputCheckBox needs a gridController and the index of the input!")
             return
         }
-
-        const localOffset = gridController.getConnectionPoint({
-            id:from[0],
-            type:"Output",
-            index:from[1]
-        })
+        if (from === null) {
+            checkbox.parentNode?.removeChild(checkbox)
+            console.log("InputCheckBox needs an index to draw at!")
+            return
+        }
+        const vType = gridController.getGateTypeView(from[0])
+        const gridPos = gridController.getGatePosition(from[0])
+        if (vType === undefined || gridPos === undefined) {
+            checkbox.parentNode?.removeChild(checkbox)
+            console.log("InputCheckBox doesn't link to a valid gate!")
+            return
+        }
+        
+        const conOffset = vType.getConnectionPoint("Output", from[1])
+        if (conOffset === undefined) {
+            checkbox.parentNode?.removeChild(checkbox)
+            console.log("InputCheckBox indexes a non-existent connection!")
+            return
+        }
+        const localOffset = [gridPos[0] * 10 + conOffset[0], gridPos[1] * 10 + conOffset[1]]
 
         const parentRect = checkbox?.parentElement?.getBoundingClientRect()
         if (parentRect !== undefined) {
@@ -55,8 +69,8 @@
         }
 
         offset = gridController.projectOffset(
-            localOffset[0] - gridController.getGridCellOffset() - 5,
-            localOffset[1] - 5
+            localOffset[0] - 5,
+            localOffset[1]
         )
 
         const position = getPosition()
@@ -89,7 +103,7 @@
             return
         }
         gridController?.setInput(from, checkbox.checked)
-        circuitPanel?.updateSvg()
+        circuitPanel?.getRenderer().updateGate(from[0])
         onChangeListener()
     }
 

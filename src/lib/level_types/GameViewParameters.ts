@@ -1,7 +1,7 @@
 import { CircuitController } from "$lib/circuit_types/CircuitController"
 import type { GateGrid } from "$lib/circuit_types/GateGrid"
-import { GateType } from "$lib/circuit_types/GateType"
-import { Buf } from "$lib/dat/GateTypes/GateTypes"
+import { GateType, GateTypeController } from "$lib/circuit_types/GateType"
+import { Buf, getGateType } from "$lib/dat/GateTypes/GateTypes"
 import { SignalSet } from "$lib/signal_types/Signal"
 import { OrganizedCircuit, type OrganizedCircuitContents } from "$lib/storage_types/CircuitStorage"
 
@@ -11,6 +11,7 @@ export class GameViewParameters {
     readonly grid:GateGrid | undefined
     readonly completeCondition:CompleteConditionSource
     readonly completeRewards:string[]
+    readonly rendererParams:RendererParameters
     readonly allUnlocks:boolean
     
     constructor(
@@ -19,6 +20,7 @@ export class GameViewParameters {
         grid:GridSource = undefined,
         completeCondition:CompleteConditionSource = undefined,
         completeRewards:string[] = [],
+        rendererParams:RendererParameters = {},
         allUnlocks:boolean = false
     ) {
         this.name = name
@@ -33,6 +35,7 @@ export class GameViewParameters {
 
         this.completeCondition = completeCondition
         this.completeRewards = completeRewards
+        this.rendererParams = rendererParams
         this.allUnlocks = allUnlocks
     }
 
@@ -53,12 +56,19 @@ export class CompleteCondition {
             this.outputSize = from.outputs
         }
         else {
-            from = from || Buf
-            this.inputSize = from.sizeIn
-            this.outputSize = from.sizeOut
+            from = from || getGateType(Buf)
+            this.inputSize = from.model.sizeIn
+            this.outputSize = from.model.sizeOut
         }
     }
 }
 
 type GridSource = CircuitController | OrganizedCircuitContents | undefined
-export type CompleteConditionSource = GateType | SignalSet | undefined
+export type CompleteConditionSource = GateTypeController | SignalSet | undefined
+export type RendererParameters = {
+    showGates?:boolean, 
+    showConnectionPoints?:boolean, 
+    showWires?:boolean, 
+    initialScale?:[number, number],
+    initialTranslate?:[number, number]
+}

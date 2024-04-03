@@ -3,7 +3,7 @@ import { TestSignalSet, SignalSet, Signal, type SignalKeyFrame, SignalPlayer, ty
 
 export class SignalSetController {
     private readonly signalSet:SignalSet
-    private height=20
+    readonly height=20
     private frameWidth = 3
     frameTime = 250
 
@@ -59,22 +59,21 @@ export class SignalSetController {
     
         const baseHeight = this.getDesiredChannelHeight(channel)
         path = `<path ${pathParams} d="
-            M 0 ${baseHeight + this.toHeightRev(this.signalSet.defaultValue)}
+            M 0 ${this.toHeightRev(this.signalSet.defaultValue)}
             ${path}
         "/>`
         return path
     }
 
     private getPathElementsFrom(p:SignalKeyFrame<boolean>, lastValue:boolean, channel:number) {
-        const baseHeight = (this.height + 2) * channel
         return `L ${
             p.frame * this.frameWidth
         } ${
-            (this.toHeightRev(lastValue)) + baseHeight
+            (this.toHeightRev(lastValue))
         } L ${
             p.frame * this.frameWidth
         } ${
-            (this.toHeightRev(p.value)) + baseHeight
+            (this.toHeightRev(p.value))
         } `
     }
 

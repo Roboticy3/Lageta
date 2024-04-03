@@ -45,7 +45,7 @@
 
     function updateAvailability() {
         if (gateId === undefined) return
-        const value = circuitController.getGateOutputs(gateId)
+        const value = circuitController.getGateOutputs(gateId)?.override
         if (value === undefined) return
 
         let activate = true
@@ -67,7 +67,7 @@
 <CircuitDiv 
     circuitController={circuitController} 
     position={[level.x, level.y]} 
-    size={[level.type.gridWidth, level.type.gridHeight]}
+    size={[level.type.model.gridWidth, level.type.model.gridHeight]}
     bind:this={container}
 >
     <p>{level.name()}</p>

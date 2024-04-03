@@ -1,5 +1,5 @@
 import { createGate } from "$lib/circuit_types/Gate"
-import { GateType } from "$lib/circuit_types/GateType"
+import { GateType, GateTypeController } from "$lib/circuit_types/GateType"
 
 export type SignalKeyFrame<T> = {
     frame:number,
@@ -92,7 +92,7 @@ export class SignalSet implements Iterable<Array<boolean>>{
         block:Array<Signal<boolean>> = [],
         length:number = 0,
         defaultValue:boolean = false,
-        solverOrInputChannels:GateType | number = 0,
+        solverOrInputChannels:GateTypeController | number = 0,
         inputBlockRelative:boolean = true
     ) {
 
@@ -117,10 +117,10 @@ export class SignalSet implements Iterable<Array<boolean>>{
         }
         const solver = solverOrInputChannels
         const gate = createGate(solver)
-        this.inputs = solver.sizeIn
-        this.outputs = solver.sizeOut
+        this.inputs = solver.model.sizeIn
+        this.outputs = solver.model.sizeOut
 
-        let extendedBlock = gate.execute(this.getInitialValue()).map((v) => {
+        let extendedBlock = gate.execute({override:this.getInitialValue()}).override.map((v) => {
             return new Signal<boolean>([{
                 value:v || false,
                 frame:0
@@ -131,7 +131,7 @@ export class SignalSet implements Iterable<Array<boolean>>{
             //run a function to add output keyframes based on the solver
             //these keyframes will go into the extended block, which will then get pushed onto the main block
             //I can see how this should work when I write it on paper, but I have no idea how to express it as code
-            const output = gate.execute(point.value)
+            const output = gate.execute({override:point.value}).override
             for (let i = 0; i < output.length; i++) {
                 extendedBlock[i].unpack().push({
                     value:output[i] || false,

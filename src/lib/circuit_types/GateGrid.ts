@@ -12,7 +12,6 @@ export class GateGrid {
 
     sizeX = 20
     sizeY = 20
-    cellOffset = 30
 
     grid:Array<number | undefined>
     gates = new Array<Gate | undefined>()
@@ -37,13 +36,13 @@ export class GateGrid {
     }
 
     offsetToIndex(offsetX:number, offsetY:number) {
-        const x = Math.floor(offsetX / this.cellOffset)
-        const y = Math.floor(offsetY / this.cellOffset)
+        const x = Math.floor(offsetX / 10)
+        const y = Math.floor(offsetY / 10)
         return [x, y]
     }
 
     indexToOffset(x:number, y:number) {
-        return [this.cellOffset * x, this.cellOffset * y]
+        return [10 * x, 10 * y]
     }
 
     get(x:number, y:number) {
@@ -145,48 +144,6 @@ export class GateGrid {
         y = clamp[1]
 
         return [x, y]
-    }
-
-    getGateInputOffsets(gate:Gate) {
-        const gType = gate.type
-        let result = new Array<[number, number]>(gType.sizeIn)
-        for (let i = 0; i < gType.sizeIn; i++) {
-            result[i] = this.getGateInputOffset(gate, i)
-        }
-
-        return result
-    }
-
-    getGateOutputOffsets(gate:Gate) {
-        const gType = gate.type
-        let result = new Array<[number, number]>(gType.sizeOut)
-        for (let i = 0; i < gType.sizeOut; i++) {
-            result[i] = this.getGateOutputOffset(gate, i)
-        }
-
-        return result
-    }
-
-    getGateInputOffset(gate:Gate | undefined, input:number): [number, number] {
-        if (gate === undefined) {
-            return [0, 0]
-        }
-        const gridOffset = gate.type.inputOffsets[input]
-        return [
-            ((gate.x || 0) + gridOffset[0]) * this.cellOffset, 
-            ((gate.y || 0) + gridOffset[1]) * this.cellOffset
-        ]
-    }
-
-    getGateOutputOffset(gate:Gate | undefined, output:number): [number, number] {
-        if (gate === undefined) {
-            return [0, 0]
-        }
-        const gridOffset = gate.type.outputOffsets[output]
-        return [
-            ((gate.x || 0) + gridOffset[0]) * this.cellOffset, 
-            ((gate.y || 0) + gridOffset[1]) * this.cellOffset
-        ]
     }
 
     removeGate(id:number, clear:boolean=true) {

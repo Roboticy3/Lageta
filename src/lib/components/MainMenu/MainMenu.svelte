@@ -1,6 +1,5 @@
 <script>
-    import { Or } from "$lib/dat/GateTypes/GateTypes";
-    import { getGateTypeSvg } from "../GateSvgs.svelte";
+    import { Or, getGateType } from "$lib/dat/GateTypes/GateTypes";
     import MainMenuOption from "./MainMenuOption.svelte";
 
 </script>
@@ -12,7 +11,7 @@
     <div class="menu">
         <div class="options">
             <MainMenuOption path={"campaign"}>Continue</MainMenuOption>
-            <MainMenuOption path={"level/Freeplay"} gateType={Or}>Options</MainMenuOption>
+            <MainMenuOption path={"level/Freeplay"} vType={getGateType(Or).view}>Options</MainMenuOption>
         </div>
     </div>
 </div>

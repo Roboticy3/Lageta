@@ -1,12 +1,69 @@
-import { Flow, Gate } from "$lib/circuit_types/Gate";
-import { GateType, type GateTypeVariant, type ConnectionValue } from "$lib/circuit_types/GateType";
+import { Flow, Gate, type GateState } from "$lib/circuit_types/Gate";
+import { GateType, type GateTypeVariant, type ConnectionValue, GateTypeController } from "$lib/circuit_types/GateType";
 
-export let all_gates: Map<String, GateType> = new Map();
+export let all_gates: Map<string, GateTypeController> = new Map();
 
-export const registerGateType = (gateType: GateType) => {
-    if (!all_gates.has(gateType.name)) {
-        all_gates.set(gateType.name, gateType);
+export const Buf:GateTypeParameters = { 
+    name: "Buf", inputs: 1, outputs: 1, 
+    draw: (s) => {return `<path d="M 2 2 L 18 10 L 2 18 Z"/>\n`}
+}
+
+export const Not:GateTypeParameters = { 
+    name: "Not", inputs: 1, outputs: 1, 
+    f: (s:GateState) => { return {override:[!(s.override[0])]}; },
+    draw: (s) => {return `<path d="M 1 3 L 15 10 L 1 17 Z"/><circle cx="17" cy="10" r="2" />\n`}
+};
+
+export const And:GateTypeParameters = { 
+    name: "And", inputs: 2, outputs: 1, 
+    f: (s:GateState) => { return {override:[s.override[0] && s.override[1]]}; },
+    draw: (s) => {return `<path d="M 2 2 L 10 2 C 20 2 20 18 10 18 L 2 18 Z"/>\n`}
+};
+
+export const Or:GateTypeParameters = { 
+    name: "Or", inputs: 2, outputs: 1, 
+    f: (s:GateState) => { return {override:[s.override[0] || s.override[1]]}; },
+    draw: (s) => {return `<path d="M 10 2 C 20 2 20 18 10 18 L 2 18 C 5 18 5 2 2 2 Z"/>\n`}
+};
+
+export const Nand:GateTypeParameters = { 
+    name: "Nand", inputs: 2, outputs: 1, 
+    f: (s:GateState) => { return {override:[!(s.override[0] && s.override[1])]}; },
+    draw: (s) => {return `<path d="M 2 2 L 10 2 C 20 2 20 18 10 18 L 2 18 Z"/>\n<circle cx=18 cy=10 r="2"/>\n`}
+};
+
+export const Xor:GateTypeParameters = { 
+    name: "Xor", inputs: 2, outputs: 1, 
+    f: (s:GateState) => { return {override:[(s.override[0] || false) !== (s.override[1] || false)]}; },
+    draw: (s) => {return `<path d="M 10 2 C 20 2 20 18 10 18 L 5 18 C 8 18 8 2 5 2 Z"/>\n<path d="M 2 18 C 5 18 5 2 2 2"/>\n`}
+}
+
+export const LevelGateType:GateTypeParameters = { name: "LevelGateType", gridSize: [2, 2], moveable: false };
+
+/**
+ * Get an existing GateType from the given parameters, or create a new one if necessary
+ * @param params 
+ * @returns 
+ */
+export function getGateType(params:GateTypeParameters) {
+    if (params.name) {
+        const result = all_gates.get(params.name)
+        if (result) {
+            return result
+        }
     }
+    
+    const c = new GateTypeController(params)
+    registerGateType(c)
+
+    console.log("registered type", c.name, " registered list:",Array.from(all_gates.keys()))
+
+    return c
+}
+
+export const registerGateType = (gateType: GateTypeController) => {
+    console.log("registering ", gateType)
+    all_gates.set(gateType.name, gateType);
 };
 
 /**
@@ -21,7 +78,8 @@ export type GateTypeParameters = {
     outputLabels?:string[],
     moveable?:boolean,
     variant?:GateTypeVariant,
-    f?:(x:(ConnectionValue)[]) => (ConnectionValue)[],
+    f?:(s:GateState) => GateState,
+    draw?:(s:GateState) => string
     register?:boolean
 }
 
@@ -32,27 +90,14 @@ export type GateTypeParameters = {
  * @returns 
  */
 export function combineGateTypeParameters(a:GateTypeParameters, b:GateTypeParameters) {
+    console.log("combining params: ", a, b)
     const result = {...b, ...a} //blasphemy, sodomy, and possibly embezzlement were involved in the development of TypeScript
+    console.log(result)
     return result as GateTypeParameters
 }
 
-/**
- * Get an existing GateType from the given parameters, or create a new one if necessary
- * @param params 
- * @returns 
- */
-export function getGateType(params:GateTypeParameters) {
-    if (params.name) {
-        const result = all_gates.get(params.name)
-        if (result) {
-            return result
-        }
-    }
-    return new GateType(params)
-}
-
 export function spreadVerticalConnections(gridX: number, gridHeight: number, size: number) {
-    const step = gridHeight / (size + 1);
+    const step = 10 * gridHeight / (size + 1);
     let result = new Array<[number, number]>(size);
 
     for (let i = 0; i < size; i++) {
@@ -72,31 +117,29 @@ export function spreadHorizontalConnections(gridY: number, gridWidth: number, si
     return result;
 }
 
-export const Buf = getGateType(
-    { name: "Buf", inputs: 1, outputs: 1 }
-);
 
-export const Not = getGateType(
-    { name: "Not", inputs: 1, outputs: 1, f: (x) => { return [!(x[0])]; } }
-);
+export const drawGateTypeEllipse = (gridWidth:number, gridHeight:number) => {
+    const w = 10 * (gridWidth / 2)
+    const h = 10 * (gridHeight / 2)
+    return `<ellipse rx="${w - 2}" ry="${h - 2}" cx="${w}" cy="${h}" />\n`;
+}
 
-export const And = getGateType(
-    { name: "And", inputs: 2, outputs: 1, f: (x) => { return [x[0] && x[1]]; } }
-);
+export const drawGateTypeRect = (gridWidth:number, gridHeight:number) => {
+    const w = 10 * (gridWidth)
+    const h = 10 * (gridHeight)
+    return `<rect width="${w - 4}" height="${h - 4}" x="${2}" y="${2}" />\n`;
+}
 
-export const Or = getGateType(
-    { name: "Or", inputs: 2, outputs: 1, f: (x) => { return [x[0] || x[1]]; } }
-);
-
-export const Nand = getGateType(
-    { name: "Nand", inputs: 2, outputs: 1, f: (x) => { return [!(x[0] && x[1])]; } }
-);
-
-export const Xor = getGateType(
-    { name: "Xor", inputs: 2, outputs: 1, f: (x) => { return [x[0] !== x[1]]}}
-)
-
-export const LevelGateType = getGateType({ name: "LevelGateType", gridSize: [2, 2], moveable: false });
+export const wrapGateTypeViewInViewbox = (gridWidth:number, gridHeight:number, svg:string) => {
+    return `
+<svg 
+    viewBox="0 0 ${10 * gridWidth} ${10 * gridHeight}" 
+    stroke="var(--gate-color)" 
+    stroke-width="0.5px"
+    fill="none">\n
+    ${svg}
+</svg>`
+}
 
 export function Input(size: number, otherParams: GateTypeParameters | undefined = undefined) {
     let params: GateTypeParameters = {
@@ -105,13 +148,12 @@ export function Input(size: number, otherParams: GateTypeParameters | undefined 
         gridSize: [2, size],
         variant: "Flow",
         moveable: false,
-        f: (x) => { return x; }
+        draw: (s) => {return drawGateTypeRect(2, size)}
     };
     if (otherParams) {
-        console.log(params, otherParams);
-        params = combineGateTypeParameters(otherParams, params);
+        params = combineGateTypeParameters(params, otherParams);
     }
-    return getGateType(params);
+    return params;
 }
 
 export function Output(size: number, otherParams: GateTypeParameters | undefined = undefined) {
@@ -119,12 +161,13 @@ export function Output(size: number, otherParams: GateTypeParameters | undefined
         name: "Output" + String(size),
         inputs: size, outputs: 0,
         gridSize: [2, size],
-        moveable: false
+        moveable: false,
+        draw: (s) => {return drawGateTypeRect(2, size)}
     };
     if (otherParams) {
         params = combineGateTypeParameters(params, otherParams);
     }
-    return getGateType(params);
+    return params;
 }
 
 export function Decoder(bits:number, otherParams: GateTypeParameters | undefined = undefined) {
@@ -133,22 +176,22 @@ export function Decoder(bits:number, otherParams: GateTypeParameters | undefined
         name: `${bits}-${outSize} Decoder`,
         inputs: bits, outputs: outSize,
         gridSize: [3, outSize],
-        f: (x) => {
+        f: (s) => {
             let result = Array(outSize).fill(false)
             let idx = 0
             let pow = 1
             for (let i = 0; i < bits; i++) {
-                if (x[i] === true) idx += pow
+                if (s.override[i] === true) idx += pow
                 pow *= 2
             }
             result[idx] = true
-            return result
+            return {override:result}
         }
     }
     if (otherParams) {
         params = combineGateTypeParameters(params, otherParams);
     }
-    return getGateType(params);
+    return params;
 }
 
 export const Decoder2t4 = Decoder(2)
@@ -159,21 +202,21 @@ export function Encoder(bits:number, otherParams: GateTypeParameters | undefined
         name: `${inSize}-${bits} Encoder`,
         inputs: inSize, outputs: bits,
         gridSize: [3, inSize],
-        f: (x) => {
-            let idx = x.indexOf(true)
+        f: (s) => {
+            let idx = s.override.lastIndexOf(true)
             let result = new Array(bits).fill(false)
             for (let i = 0; i < bits; i++) {
                 const r = idx % 2
                 result[i] = r === 1
                 idx = Math.floor(idx / 2)
             }
-            return result
+            return {override:result}
         }
     }
     if (otherParams) {
         params = combineGateTypeParameters(params, otherParams);
     }
-    return getGateType(params);
+    return params;
 }
 
 export const Encoder4t2 = Encoder(2)

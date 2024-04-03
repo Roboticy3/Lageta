@@ -12,12 +12,14 @@
     import InputCheckBox from "../GameView/InputCheckBox.svelte";
     import CircuitDiv from "../GameView/CircuitDiv.svelte";
     import { goto } from "$app/navigation";
-    import { connectionColor } from "../GateSvgs.svelte";
     import { Input } from "$lib/dat/GateTypes/GateTypes";
 
     const gridWidth = 20
     const gridHeight = 10
-    const params = new GameViewParameters("LevelSelect", "", {size:[gridWidth, gridHeight]})
+    const params = new GameViewParameters(
+        "LevelSelect", "", 
+        {size:[gridWidth, gridHeight] }, undefined, [], 
+        {showGates:false, initialScale:[8, 8]})
 
     let progress = new ProgressStorage()
     let levelSet = progress.levels()
@@ -36,12 +38,7 @@
         const width = window.innerWidth
         const height = window.innerHeight
         const cellOffset = width / gridWidth
-        circuitController.setGridCellOffset(cellOffset)
-
-        await tick()
         
-        circuitPanel.setViewBox(width, height - height * 0.1)
-        circuitPanel.updateSvg()
     }
 
     window.addEventListener('resize', resize)
@@ -54,10 +51,10 @@
      * @type {InputCheckBox}
      */
     let inputCheckBox
-    let tutorialHighlightColor = connectionColor(false)
+    let tutorialHighlightColor = "var(--connection-color-off)"
 
     function readInputCheckBox() {
-        tutorialHighlightColor = connectionColor(inputCheckBox.isChecked())
+        tutorialHighlightColor = inputCheckBox.isChecked() ? "var(--connection-color-on)" : "var(--connection-color-off)"
     }
 
 </script>
@@ -71,9 +68,7 @@
         params={params}
         gridController={circuitController}
         circuitDraggable={circuitDraggable}
-        startAutoResize={false}
         canDragGates={false}
-        showGates={false}
     >
         {#each levelSet as params}
             <LevelViewer params={params} circuitController={circuitController} />
@@ -111,15 +106,13 @@
         >
             <p>Click on the <span style="color:{tutorialHighlightColor};">triangular connection point</span> to drag out a wire.</p>
             <p>Then, click on another connection point to connect the wire.</p>
-            <p>If power is flowing through the wire, the wire will <span style="color:{connectionColor(true)};">glow</span>.</p>
+            <p>If power is flowing through the wire, the wire will <span style="color:var(--connection-color-on);">glow</span>.</p>
         </CircuitDiv>
     </GameViewCircuitPanel>
 </div>
 
 <style>
     .level-panel {
-        display:flex;
-        justify-content: center;
-        align-items: center;
+
     }
 </style>

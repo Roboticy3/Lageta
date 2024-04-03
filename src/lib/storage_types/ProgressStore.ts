@@ -1,4 +1,4 @@
-import { Buf, all_gates } from "$lib/dat/GateTypes/GateTypes"
+import { Buf, all_gates, getGateType } from "$lib/dat/GateTypes/GateTypes"
 import { all_levels } from "$lib/level_types/Level"
 import { Freeplay, NotLevel, getLevel, getLevelParams, type LevelParameters } from "$lib/dat/Levels/Levels"
 import { parseStorage } from "./ParseStorage"
@@ -63,7 +63,7 @@ export class ProgressStorage {
                 const result = all_gates.get(v)
                 if (result) return result
                 console.log("Failed to load GateType ",v)
-                return Buf
+                return getGateType(Buf)
             })
     }
 

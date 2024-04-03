@@ -1,5 +1,5 @@
 import type { Connection } from "./GateGraph";
-import { GateType, type ConnectionValue } from "./GateType";
+import { GateType, type ConnectionValue, GateTypeController } from "./GateType";
 
 /**
  * The actual Gate object, takes a readonly reference to a GateType.
@@ -8,11 +8,11 @@ import { GateType, type ConnectionValue } from "./GateType";
  */
 export class Gate {
     readonly type:GateType
-    //override the input array
-    override:Array<ConnectionValue> = []
+    state:GateState = {override:[]}
 
     constructor(type:GateType) {
         this.type = type
+        this.state = {override:new Array<ConnectionValue>(type.sizeIn).fill(undefined)}
     }
 
     x:number = 0;
@@ -27,37 +27,42 @@ export class Gate {
         this.id = id
     }
 
-    execute(x:(ConnectionValue)[] = []) {
-        const result = this.type.execute(this.override, x)
+    execute(s?:GateState) {
+        if (s) this.state = s
+        const result = this.type.f(this.state)
         return result
     }
 
     reset() {
-        this.override = new Array<ConnectionValue>(
+        this.state.override = new Array<ConnectionValue>(
             this.type.sizeIn
         ).fill(undefined)
     }
 
     getInput(index:number) {
-        if (this.override !== undefined) {
-            return this.override[index] || false
+        if (this.state.override !== undefined) {
+            return this.state.override[index] || false
         }
         return false
     }
 
     getOutput(index:number) {
-        return this.execute(undefined)[index] || false
+        return this.execute(undefined).override[index] || false
     }
 
     getInputs() {
-        return this.override || new Array<boolean>(
+        return this.state.override || new Array<boolean>(
             this.type.sizeIn
         ).fill(false)
     }
 
     getOutputs() {
-        return this.execute(undefined)
+        return this.execute(undefined).override
     }
+}
+
+export type GateState = {
+    override:Array<ConnectionValue>;
 }
 
 /**
@@ -71,25 +76,26 @@ export class Flow extends Gate {
         }
     }
 
-    override execute(_x:ConnectionValue[] = []) {
-        return this.override
+    override execute(_s:GateState) {
+        return this.state
     }
 
     override reset() {
-        this.override = new Array<ConnectionValue>(
+        this.state.override = new Array<ConnectionValue>(
             this.type.sizeOut
         ).fill(false)
     }
 }
 
-export function createGate(type: GateType) {
+export function createGate(cType: GateTypeController) {
+    const gType = cType.model
     let g;
-    switch (type.variant) {
+    switch (gType.variant) {
         case "Flow":
-            g = new Flow(type);
+            g = new Flow(gType);
             break;
         default:
-            g = new Gate(type);
+            g = new Gate(gType);
             break;
     }
 
