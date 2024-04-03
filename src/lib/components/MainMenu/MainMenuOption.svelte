@@ -30,7 +30,7 @@
         height:20px;
     }
     .option:hover {
-        background:grey;
+        background:var(--secondary-bg-color);
     }
     .option-text {
         font-family: monospace;
