@@ -66,7 +66,6 @@
         border-radius: 10%;
         border: 4px ridge black;
         text-align:center;
-        font-size: max(1vh, 1vw);
     }
 
     .unavailable {
