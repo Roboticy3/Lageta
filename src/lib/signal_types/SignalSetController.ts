@@ -85,12 +85,12 @@ export class SignalSetController {
         return this.frameWidth * frame
     }
 
-    getDesiredHeight() {
-        return (this.height + 2) * this.channelCount()
+    getDesiredHeight(overrideHeight?:number) {
+        return ((overrideHeight || this.height) + 2) * this.channelCount()
     }
 
-    getDesiredChannelHeight(channel:number) {
-        return (this.height + 2) * channel
+    getDesiredChannelHeight(channel:number, overrideHeight?:number) {
+        return ((overrideHeight || this.height) + 2) * channel
     }
 
     channelCount() {

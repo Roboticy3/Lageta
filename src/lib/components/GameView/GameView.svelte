@@ -2,9 +2,12 @@
 
 <script>
     import { CircuitController } from "$lib/circuit_types/CircuitController";
+    import { SignalSet } from "$lib/signal_types/Signal";
+    import { SignalSetController } from "$lib/signal_types/SignalSetController";
     import CircuitDiv from "./CircuitDiv.svelte";
     import CircuitDraggable from "./CircuitDraggable.svelte";
     import GameViewCircuitPanel from "./GameViewCircuitPanel.svelte";
+    import SignalViewer from "./SignalViewer.svelte";
 
 
     /**
@@ -14,14 +17,21 @@
 
     console.log("initializing GameView with params: ",params)
 
-    let circuitController = new CircuitController(params.grid)
+    const circuitController = new CircuitController(params.grid)
+
+    const signalSetController = 
+        params.completeCondition instanceof SignalSet ? 
+        new SignalSetController(params.completeCondition) : undefined
 
     let circuitDraggable
 
 </script>
 
 <div class="base-vertical">
-    <CircuitDraggable circuitController={circuitController} bind:this={circuitDraggable}/>
+    <CircuitDraggable 
+        circuitController={circuitController} 
+        bind:this={circuitDraggable}
+    />
     <div class="nav">
 
     </div>
@@ -44,9 +54,14 @@
 
         </div>
     </div>
-    <div class="signal">
-
-    </div>
+    {#if signalSetController}
+        <div class="signal">
+            <SignalViewer 
+                gridController={circuitController}
+                signalSetController={signalSetController}
+            />
+        </div>
+    {/if}
 </div>
 
 <style>
@@ -64,6 +79,7 @@
 
     .base-vertical .sandbox-horizontal {
         flex-grow: 6.5;
+        height:100%;
 
         display:flex;
         flex-direction: row;

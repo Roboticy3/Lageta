@@ -18,11 +18,6 @@
     export let gridController
     if (gridController) signalSetController.sendPlayerToController(gridController)
 
-    /**
-     * @type {(() => void) | null}
-     */
-    export let updateSvg
-
     export let labelWidth = 30
 
     let [width, height] = [0, 0]
@@ -33,21 +28,7 @@
     let container
 
     function fixSvgHeader() {
-        width = signalSetController.getDesiredWidth() + 10
-        height = signalSetController
-            .getDesiredHeight() + 10
-
-        const aspect = width / height
-
-        if (container === null) {
-            return
-        }
-        
-        const containerAspect = container.offsetWidth / container.offsetHeight
-
-        if (aspect > containerAspect) {
-            width = height * containerAspect
-        }
+       
     }
 
     let playBar = ""
@@ -114,7 +95,6 @@
                 break;
             case "⏸":
                 signalSetController.pausePlayer()
-                if (updateSvg) updateSvg()
                 button = "▶"
                 break;
         }    
@@ -146,8 +126,6 @@
             const result = signalSetController.validateControllerWith(g, currentValue)
             
             outputSignalSetController.push(result, currentFrame - 1)
-
-            updateSvg?.call(updateSvg)
         }
         outputSvgs = outputSignalSetController.drawChannels(
             currentFrame,
@@ -175,7 +153,6 @@
         if (gridController) {
             signalSetController.forceValidate()
             gridController.setInputs(signalSetController.getDefaultInputs())
-            if (updateSvg) updateSvg()
         } 
     }
 
@@ -233,8 +210,6 @@
 <style>
     .signal-shelf-container {
         display:flex;
-        width:100%;
-        height:50%;
         flex-direction: column;
     }
     .signal-shelf {
