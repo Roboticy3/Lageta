@@ -28,7 +28,6 @@
         if (svgContainer === null) return
         width = svgContainer.offsetWidth
         height = svgContainer.offsetHeight
-        console.log("signalviewer dimensions: ", width, height)
         const ratio = width / height
 
     }
@@ -53,9 +52,10 @@
 </div>
 
 <style>
-    .signal-container {
-        padding:5%;
+
+    .svg-container svg {
+        padding: 1%;
+        height:100%;
+        width: auto;
     }
-
-
 </style>

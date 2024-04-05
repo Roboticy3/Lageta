@@ -40,7 +40,7 @@
             <div class="shelf">
                 
             </div>
-            <div class="circuit-editor">
+            <div class="circuit-panel">
                 <GameViewCircuitPanel 
                     params={params}
                     gridController={circuitController}
@@ -56,10 +56,7 @@
     </div>
     {#if signalSetView}
         <div class="signal">
-            <SignalViewer 
-                circuitController={circuitController}
-                signalSetView={signalSetView}
-            />
+            
         </div>
     {/if}
 </div>
@@ -73,19 +70,19 @@
     }
 
     .base-vertical .nav {
-        flex: 1 0 10%;
+        flex: 1;
         background-color: var(--secondary-bg-color);
     }
 
     .base-vertical .sandbox-horizontal {
-        flex: 7 0 70%;
+        flex: 7;
         
         display:flex;
         flex-direction: row;
     }
 
     .sandbox-horizontal .circuit-editor {
-        flex: 7 0 70%;
+        flex: 9;
 
         background-color: var(--tertiary-bg-color);
 
@@ -94,17 +91,22 @@
     }
 
     .circuit-editor .shelf {
+        flex: 1;
         background-color: var(--main-bg-color);
-        min-height: 50px;
+    }
+
+    .circuit-editor .circuit-panel {
+        flex: 7;
+        min-height: 0;
     }
 
     .sandbox-horizontal .instructions {
-        flex: 3 0 30%;
+        flex: 3;
         background-color: var(--tertiary-bg-color);
     }
 
     .base-vertical .signal {
-        flex: 2 0 20%;
+        flex: 2;
         background-color: var(--secondary-bg-color);
     }
 </style>
