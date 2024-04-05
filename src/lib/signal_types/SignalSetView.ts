@@ -78,7 +78,7 @@ export class CircuitSignalSetView extends SignalSetView<ConnectionValue> {
         
             const baseHeight = this.getDesiredChannelHeight(channel)
             path = `<path ${pathParams} d="
-                M 0 ${defaultValue}
+                M 0 ${this.toHeightRev(defaultValue)}
                 ${path}
             "/>`
             return path

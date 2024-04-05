@@ -3,7 +3,6 @@ import { Gate, createGate } from "./Gate";
 import { GateGraph, Connection, type ConnectionType } from "./GateGraph"
 import { GateGrid } from "./GateGrid";
 import { identity, transform, type Matrix, type Transform, applyToPoint, inverse, toSVG, fromObject, translate, rotateDEG, rotate, scale} from "transformation-matrix";
-import CircuitRenderer from "$lib/components/GameView/CircuitRenderer.svelte";
 import { GateType, GateTypeController, GateTypeView, type ConnectionValue } from "./GateType";
 import { all_gates, getGateType, type GateTypeParameters } from "$lib/dat/GateTypes/GateTypes";
 
@@ -59,7 +58,7 @@ export class CircuitController {
     readonly gateGrid:GateGrid
     onComplete:() => void
 
-    private renderer:CircuitRenderer | null = null
+    private renderer:any = null
 
     constructor(
         gateGrid:GateGrid | undefined = undefined,
@@ -83,7 +82,7 @@ export class CircuitController {
         this.onComplete = onComplete
     }
 
-    giveRenderer(renderer:CircuitRenderer) {
+    giveRenderer(renderer:any) {
         this.renderer = renderer
         this.gateGrid.graph.connectionListeners.add(renderer.updateGate) //go-go gadget super spaghetti bullshit!
     }
@@ -100,8 +99,8 @@ export class CircuitController {
      */
     projectOffset(offsetX:number, offsetY:number) {
         const p:[number, number] = [offsetX, offsetY]
-        if (this.renderer) return applyToPoint(this.renderer.getTransformMatrix(), p)
-        return p
+        const m = this.getMatrix()
+        return m ? applyToPoint(m, p) : p
     }
 
     /**
@@ -112,8 +111,13 @@ export class CircuitController {
      */
     unprojectOffset(offsetX:number, offsetY:number) {
         const p:[number, number] = [offsetX, offsetY]
-        if (this.renderer) return applyToPoint(inverse(this.renderer.getTransformMatrix()), p)
-        return p
+        const m = this.getMatrix()
+        return m ? applyToPoint(inverse(m), p) : p
+    }
+
+    getMatrix() {
+        if (this.renderer?.updateTransformMatrix) 
+            return this.renderer?.updateTransformMatrix()
     }
 
     /**
@@ -790,8 +794,8 @@ export class CircuitController {
     }
 
     //reference the player giving the signal in a SignalViewer
-    private player:SignalPlayer | undefined = undefined
-    setPlayer(player:SignalPlayer) {
+    private player:SignalPlayer<ConnectionValue> | undefined = undefined
+    setPlayer(player:SignalPlayer<ConnectionValue>) {
         this.player = player
     }
 

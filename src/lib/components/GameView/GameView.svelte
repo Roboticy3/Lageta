@@ -73,38 +73,38 @@
     }
 
     .base-vertical .nav {
-        flex-grow: 1;
+        flex: 1 0 10%;
         background-color: var(--secondary-bg-color);
     }
 
     .base-vertical .sandbox-horizontal {
-        flex-grow: 6.5;
-
+        flex: 7 0 70%;
+        
         display:flex;
         flex-direction: row;
     }
 
-    .circuit-editor .shelf {
-        flex-grow: 2;
-        background-color: var(--main-bg-color);
-        min-height: 50px;
-    }
-
     .sandbox-horizontal .circuit-editor {
-        flex-grow: 8;
+        flex: 7 0 70%;
+
         background-color: var(--tertiary-bg-color);
 
         display: flex;
         flex-direction: column;
     }
 
+    .circuit-editor .shelf {
+        background-color: var(--main-bg-color);
+        min-height: 50px;
+    }
+
     .sandbox-horizontal .instructions {
-        flex-grow: 3;
+        flex: 3 0 30%;
         background-color: var(--tertiary-bg-color);
     }
 
     .base-vertical .signal {
-        flex-grow: 2.5;
+        flex: 2 0 20%;
         background-color: var(--secondary-bg-color);
     }
 </style>

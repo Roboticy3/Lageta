@@ -21,7 +21,7 @@
 
     export function setOffset() {
         const localStart = circuitController.indexToOffset(position[0], position[1])
-        const transform = circuitController.getRenderer()?.getTransformMatrix()
+        const transform = circuitController.getMatrix()
         if (!transform) return
 
         start = circuitController.projectOffset(

@@ -86,7 +86,7 @@
      */
     let mountCircuit = () => {
         addDragEventListeners()
-        gridController.giveRenderer(circuitRenderer)
+        if (!gridController.getRenderer() && circuitRenderer) gridController.giveRenderer(circuitRenderer)
     }
     onMount(mountCircuit)
 
@@ -389,7 +389,12 @@
     bind:this={circuitContainer}
     >
 
-    <CircuitRenderer bind:this={circuitRenderer} circuitController={gridController} circuitDraggable={circuitDraggable} rendererParams={params.rendererParams || {}}/>
+    <CircuitRenderer 
+        bind:this={circuitRenderer} 
+        circuitController={gridController} 
+        circuitDraggable={circuitDraggable} 
+        rendererParams={params.rendererParams || {}}
+    />
 
     {#if showSlot}
         <slot />

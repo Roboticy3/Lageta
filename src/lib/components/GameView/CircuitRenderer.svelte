@@ -1,3 +1,4 @@
+<svelte:options accessors={true}/>
 <script>
     import { CircuitController } from "$lib/circuit_types/CircuitController";
     import CircuitDraggable from './CircuitDraggable.svelte';
@@ -15,14 +16,19 @@
      * @type {CircuitDraggable}
      */
     export let circuitDraggable
-
-    let translateX = 0
-    let translateY = 0
-    let scaleX = 3
-    let scaleY = 3
     
     /**
-     * @type {import("$lib/level_types/GameViewParameters").RendererParameters}
+     * @type {import("$lib/renderer_types/RendererState").RendererState}
+     */
+    export let rendererState = {
+        translateX:0,
+        translateY:0,
+        scaleX:4,
+        scaleY:4
+    }
+    
+    /**
+     * @type {import("$lib/renderer_types/RendererParameters").RendererParameters}
      */
     export let rendererParams = {}
 
@@ -32,30 +38,31 @@
     let connectionPointDisplayMode = ""
 
     /**
-     * @type {import("transformation-matrix").Matrix}
-     */
-    let transformMatrix = compose(translate(translateX, translateY), scale(scaleX, scaleY))
-
-    /**
      * @param {number} tX
      * @param {number} tY
      * @param {number} sX
      * @param {number} sY
      */
-     export function setTransformMatrix(tX, tY, sX, sY) {
-        transformMatrix = compose(translate(tX, tY), scale(sX, sY))
-        translateX = tX
-        translateY = tY
-        scaleX = sX
-        scaleY = sY
+    export function setTransformMatrix(tX, tY, sX, sY) {
+        rendererState.translateX = tX
+        rendererState.translateY = tY
+        rendererState.scaleX = sX
+        rendererState.scaleY = sY
+        rendererState = rendererState
+        return compose(translate(tX, tY), scale(sX, sY))
     }
 
-    export function getTransformMatrix() {
-        return transformMatrix
+    export function updateTransformMatrix() {
+        return setTransformMatrix(
+            rendererState.translateX,
+            rendererState.translateY,
+            rendererState.scaleX,
+            rendererState.scaleY
+        )
     }
 
     export function getTransformString() {
-        return toSVG(transformMatrix)
+        return toSVG(updateTransformMatrix())
     }
 
     /**
@@ -90,8 +97,8 @@
     })
 
     function applyInitialTransformParams() {
-        const [tX, tY] = rendererParams.initialTranslate || [translateX, translateY]
-        const [sX, sY] = rendererParams.initialScale || [scaleX, scaleY]
+        const [tX, tY] = rendererParams.initialTranslate || [rendererState.translateX, rendererState.translateY]
+        const [sX, sY] = rendererParams.initialScale || [rendererState.scaleX, rendererState.scaleY]
         setTransformMatrix(tX, tY, sX, sY)
     }
 
@@ -478,12 +485,12 @@
 <svg 
     class="circuit-svg" 
     viewBox="
-        {-translateX} 
-        {-translateY} 
-        {scaleX * gridSize[0] * cellOffset + translateX} 
-        {scaleY * gridSize[1] * cellOffset + translateY}
-    " width="{scaleX * gridSize[0] * cellOffset + translateX}px">
-    <g transform="scale({scaleX}, {scaleY})">
+        {-rendererState.translateX} 
+        {-rendererState.translateY} 
+        {rendererState.scaleX * gridSize[0] * cellOffset + rendererState.translateX} 
+        {rendererState.scaleY * gridSize[1] * cellOffset + rendererState.translateY}
+    " width="{rendererState.scaleX * gridSize[0] * cellOffset + rendererState.translateX}px">
+    <g transform="scale({rendererState.scaleX}, {rendererState.scaleY})">
         <g bind:this={gridGroup} id="circuit-svg-lines" stroke="var(--grid-color)" stroke-width="0.25px" fill="none"></g>
         <g bind:this={gateGroup} id="circuit-svg-gates" stroke="var(--gate-color)" stroke-width="0.5px" fill="none"></g>
         <g bind:this={connectionGroup} id="circuit-svg-connections" stroke="var(--gate-color)" stroke-width="0.5px" fill="none"></g>
