@@ -1,5 +1,5 @@
 import { createGate } from "$lib/circuit_types/Gate"
-import { GateType, GateTypeController } from "$lib/circuit_types/GateType"
+import { GateType, GateTypeController, type ConnectionValue } from "$lib/circuit_types/GateType"
 
 export type SignalKeyFrame<T> = {
     frame:number,
@@ -53,7 +53,7 @@ export class Signal<T> {
 }
 
 export function oscillator(step:number, repeat:number=1) {
-    let result = new Signal<boolean>(new Array(repeat * 2))
+    let result = new Signal<ConnectionValue>(new Array(repeat * 2))
     let block = result.unpack()
     const doubleRepeat = 2 * repeat
     for (let i = 0; i < doubleRepeat; i += 2) {
@@ -63,11 +63,11 @@ export function oscillator(step:number, repeat:number=1) {
     return result
 }
 
-export function repeater(source:Signal<boolean>, repeat:number=1) {
+export function repeater<T>(source:Signal<T>, repeat:number=1) {
     const sBlock = source.unpack()
     const sourceLength = source.unpack().length
     const resultLength = sourceLength * repeat
-    let result = new Signal<boolean>(new Array(resultLength))
+    let result = new Signal<T>(new Array(resultLength))
     let block = result.unpack()
     for (let i = 0; i < resultLength; i++) {
         //have to do this so the block doesn't reference the same keyframe at multiple points. ig there *is* a weakness to relative keyframes after all
@@ -80,19 +80,16 @@ export function repeater(source:Signal<boolean>, repeat:number=1) {
     return result
 }
 
-export class SignalSet implements Iterable<Array<boolean>>{
-    readonly block:Array<Signal<boolean>>
+export class SignalSet<T> implements Iterable<Array<T>>{
+    readonly block:Array<Signal<T>>
     length:number
-    readonly inputs:number
-    readonly outputs:number
-
-    readonly defaultValue:boolean
+    inputs:number
+    outputs:number
 
     constructor(
-        block:Array<Signal<boolean>> = [],
+        block:Array<Signal<T>> = [],
         length:number = 0,
-        defaultValue:boolean = false,
-        solverOrInputChannels:GateTypeController | number = 0,
+        inputChannels:number = 0,
         inputBlockRelative:boolean = true
     ) {
 
@@ -108,45 +105,15 @@ export class SignalSet implements Iterable<Array<boolean>>{
         this.currentIndex = start[0]
         this.currentValue = start[1]
 
-        this.defaultValue = defaultValue
-
-        if (typeof solverOrInputChannels === "number") {
-            this.inputs = solverOrInputChannels
-            this.outputs = block.length - solverOrInputChannels
-            return
-        }
-        const solver = solverOrInputChannels
-        const gate = createGate(solver)
-        this.inputs = solver.model.sizeIn
-        this.outputs = solver.model.sizeOut
-
-        let extendedBlock = gate.execute({override:this.getInitialValue()}).override.map((v) => {
-            return new Signal<boolean>([{
-                value:v || false,
-                frame:0
-            }])
-        })
+        this.inputs = inputChannels
+        this.outputs = block.length - inputChannels
         
-        for (let point of this.points()) {
-            //run a function to add output keyframes based on the solver
-            //these keyframes will go into the extended block, which will then get pushed onto the main block
-            //I can see how this should work when I write it on paper, but I have no idea how to express it as code
-            const output = gate.execute({override:point.value}).override
-            for (let i = 0; i < output.length; i++) {
-                extendedBlock[i].unpack().push({
-                    value:output[i] || false,
-                    frame:point.frame
-                })
-            }
-        }
-        
-        this.block.push(...extendedBlock)
     }
 
     private currentIndex:Array<number>
-    private currentValue:Array<boolean>
+    private currentValue:Array<T>
     private currentFrame=0
-    private getInitial():[Array<number>,Array<boolean>] {
+    private getInitial():[Array<number>,Array<T>] {
         return [
             this.getInitialIndex(),
             this.getInitialValue()
@@ -162,7 +129,6 @@ export class SignalSet implements Iterable<Array<boolean>>{
     getInitialValue() {
         return this.currentValue = this.block.map((v) => {
             const b = v.unpack()
-            if (b.length === 0) return this.defaultValue
             return v.unpack()[0].value
         })
     }
@@ -207,7 +173,7 @@ export class SignalSet implements Iterable<Array<boolean>>{
         let currentKeyFrame = {
             frame:this.length,
             value:false
-        } as SignalKeyFrame<boolean>
+        } as SignalKeyFrame<T>
         for (let i of availableChannels) 
         {   
             const block = this.block[i].unpack()
@@ -250,7 +216,7 @@ export class SignalSet implements Iterable<Array<boolean>>{
         }
     }
 
-    nextFrame(): IteratorResult<Array<boolean>> {
+    nextFrame(): IteratorResult<Array<T>> {
         const xp = this.currentIndex.map((v, i) => {
             return v + 1
         })
@@ -270,7 +236,7 @@ export class SignalSet implements Iterable<Array<boolean>>{
         }
     }
 
-    [Symbol.iterator](): Iterator<Array<boolean>> {
+    [Symbol.iterator](): Iterator<Array<T>> {
         this.reset()
         const thisNext = this.nextFrame.bind(this)
         return {
@@ -278,11 +244,11 @@ export class SignalSet implements Iterable<Array<boolean>>{
         }
     }
 
-    points(): Iterable<SignalPointResult<boolean>> {
+    points(): Iterable<SignalPointResult<T>> {
         this.reset()
         const thisNext = this.nextKeyFrame.bind(this)
         return {
-            [Symbol.iterator](): Iterator<SignalPointResult<boolean>> {
+            [Symbol.iterator](): Iterator<SignalPointResult<T>> {
                 return {
                     next:thisNext
                 }
@@ -290,21 +256,20 @@ export class SignalSet implements Iterable<Array<boolean>>{
         }
     }
 
-    toSignal(): Signal<Array<boolean>> {
-        let signal:Signal<Array<boolean>> = new Signal()
+    toSignal(): Signal<Array<T>> {
+        let signal:Signal<Array<T>> = new Signal()
         for (let point of this.points()) {
             signal.unpack().push(point)
         }
         return signal
     }
 
-    inverted(): SignalSet {
+    inverted(): SignalSet<T> {
         let newBlock = this.block.slice(this.inputs);
         newBlock.push(...this.block.slice(0, this.inputs))
         return new SignalSet(
             newBlock,
             this.length,
-            this.defaultValue,
             this.block.length - this.inputs,
             false
         )
@@ -315,38 +280,44 @@ export type SignalPointResult<T> = {
     frame:number
 }
 
-export const TestSignalSet = new SignalSet(
-    [
-        new Signal([
-            {frame:6,value:true},
-            {frame:12,value:false}
-        ]),
-        new Signal([
-            {frame:3,value:true},
-            {frame:8,value:false},
-            {frame:9,value:true},
-            {frame:12,value:false}
-        ]),
-        new Signal([
-            {frame:5,value:true},
-            {frame:9,value:false},
-        ]),
-        new Signal([
-            {frame:3,value:true},
-            {frame:13,value:false}
-        ]),
-        new Signal([
-            {frame:5,value:true},
-            {frame:9,value:false},
-            {frame:16,value:true}
-        ]),
-    ],
-    17,
-    false,
-    5
-)
+export class ConnectionValueSignalSet extends SignalSet<ConnectionValue> {
+    constructor(
+        block:Array<Signal<ConnectionValue>> = [],
+        length:number = 0,
+        solver:GateTypeController,
+        inputBlockRelative:boolean = true
+    ) {
+        super()
 
-export class SignalPlayer {
+        const gate = createGate(solver)
+        this.inputs = solver.model.sizeIn
+        this.outputs = solver.model.sizeOut
+
+        let extendedBlock = gate.execute({override:this.getInitialValue()}).override.map((v) => {
+            return new Signal<ConnectionValue>([{
+                value:v || false,
+                frame:0
+            }])
+        })
+        
+        for (let point of this.points()) {
+            //run a function to add output keyframes based on the solver
+            //these keyframes will go into the extended block, which will then get pushed onto the main block
+            //I can see how this should work when I write it on paper, but I have no idea how to express it as code
+            const output = gate.execute({override:point.value}).override
+            for (let i = 0; i < output.length; i++) {
+                extendedBlock[i].unpack().push({
+                    value:output[i] || false,
+                    frame:point.frame
+                })
+            }
+        }
+        
+        this.block.push(...extendedBlock)
+    }
+}
+
+export class SignalPlayer<T> {
 
     readonly length
     readonly initialValue
@@ -354,7 +325,7 @@ export class SignalPlayer {
     readonly signal
 
     constructor(
-        signalSet:SignalSet,
+        signalSet:SignalSet<T>,
         frameTime:number
     ) {
         this.length = signalSet.length
@@ -366,7 +337,7 @@ export class SignalPlayer {
         this.signal = s
     }
 
-    private currentKeyFrame:SignalKeyFrame<boolean[]> = {
+    private currentKeyFrame:SignalKeyFrame<T[]> = {
         value:[],
         frame:0
     }
@@ -374,7 +345,7 @@ export class SignalPlayer {
     private nextSignal = 0
     private scrubIntervalId:number | undefined = undefined
     private scrubbing = false
-    scrub(iter:SignalFrameReader<boolean> | undefined = undefined, reset:boolean = true) {
+    scrub(iter:SignalFrameReader<T> | undefined = undefined, reset:boolean = true) {
         if (reset || this.currentFrame >= this.length) this.resetScrub()
         
         this.scrubbing = true
@@ -398,8 +369,8 @@ export class SignalPlayer {
         this.scrubbing = false
     }
 
-    private scrubStep(iter:SignalFrameReader<boolean> | undefined = undefined) {
-        const nextKeyFrame:SignalKeyFrame<boolean[]> | undefined = this.signal.unpack()[this.nextSignal]
+    private scrubStep(iter:SignalFrameReader<T> | undefined = undefined) {
+        const nextKeyFrame:SignalKeyFrame<T[]> | undefined = this.signal.unpack()[this.nextSignal]
         const nextFrame = nextKeyFrame.frame
 
         const update = this.currentFrame >= nextFrame

@@ -1,11 +1,10 @@
 import type { SignalPlayer } from "$lib/signal_types/Signal";
-import type { SignalSetController } from "$lib/signal_types/SignalSetController";
 import { Gate, createGate } from "./Gate";
 import { GateGraph, Connection, type ConnectionType } from "./GateGraph"
 import { GateGrid } from "./GateGrid";
 import { identity, transform, type Matrix, type Transform, applyToPoint, inverse, toSVG, fromObject, translate, rotateDEG, rotate, scale} from "transformation-matrix";
 import CircuitRenderer from "$lib/components/GameView/CircuitRenderer.svelte";
-import { GateType, GateTypeController, GateTypeView } from "./GateType";
+import { GateType, GateTypeController, GateTypeView, type ConnectionValue } from "./GateType";
 import { all_gates, getGateType, type GateTypeParameters } from "$lib/dat/GateTypes/GateTypes";
 
 const connectionSelectRadius = 5
@@ -597,7 +596,7 @@ export class CircuitController {
         this.gateGrid.graph.setFlow(index, val)
     }
 
-    setInputs(val:boolean[]) {
+    setInputs(val:ConnectionValue[]) {
         const inputs = this.gateGrid.inputs.map((g) => {
             return g?.id
         })

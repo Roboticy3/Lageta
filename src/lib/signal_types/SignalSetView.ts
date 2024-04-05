@@ -1,71 +1,97 @@
 import type { CircuitController } from "$lib/circuit_types/CircuitController";
-import { TestSignalSet, SignalSet, Signal, type SignalKeyFrame, SignalPlayer, type SignalFrameReader, type SignalPointResult } from "./Signal";
+import type { ConnectionValue } from "$lib/circuit_types/GateType";
+import { SignalSet, Signal, type SignalKeyFrame, SignalPlayer, type SignalFrameReader, type SignalPointResult, ConnectionValueSignalSet } from "./Signal";
 
-export class SignalSetController {
-    private readonly signalSet:SignalSet
+type SignalSetDrawChannel = (channel:number, to:number, pathParams:string) => string
+export class SignalSetView<T> {
+    readonly signalSet:SignalSet<T>
     readonly height=20
-    private frameWidth = 3
-    frameTime = 250
+    readonly drawChannel: SignalSetDrawChannel
 
     constructor(
-        from:SignalSet | number
+        from:SignalSet<T> | number,
+        drawChannel: SignalSetDrawChannel
     ) {
         if (from instanceof SignalSet) {
             this.signalSet = from
         }
         else {
-            let start = Array<Signal<boolean>>(from)
+            let start = Array<Signal<T>>(from)
             for (let i = 0; i < from; i++) {
                 start[i] = new Signal()
             }
-            this.signalSet = new SignalSet(
+            this.signalSet = new SignalSet<T>(
                 start,
                 0
             )
         }
+
+        this.drawChannel = drawChannel
     }
 
-    drawChannels(to=this.signalSet.length, pathParams=`stroke-width="1px" stroke="black" fill="none"`): Array<string> {
+
+    drawChannels(
+        to:number = this.signalSet.length, 
+        pathParams:string = `stroke-width="1px" stroke="black" fill="none"`
+    ) {
         return Array<string>(this.channelCount()).fill("").map((_, i) => {
             return this.drawChannel(i, to, pathParams)
         })
     }
 
-    drawChannel(channel:number, to:number, pathParams:string) {
-        const signal = this.signalSet.block[channel]
+    channelCount() {
+        return this.signalSet.block.length
+    }
+}
 
-        if (signal.unpack().length === 0) {
-            return ""
-        }
+export class CircuitSignalSetView extends SignalSetView<ConnectionValue> {
 
-        let lastFrame = {
-            value:this.signalSet.defaultValue,
-            frame:0
-        }
-        let path = ""
-
-        for (let i = 0; i < signal.unpack().length; i++) {
-            const keyFrame = signal.unpack()[i]
-            if (keyFrame.frame > to) break
-
-            path += this.getPathElementsFrom(keyFrame, lastFrame.value, channel)
-            lastFrame = keyFrame
-        }
-
-        path += this.getPathElementsFrom(
-            {value:lastFrame.value, frame:to},
-            lastFrame.value,channel
-        )
+    constructor(
+        from:ConnectionValueSignalSet | number,
+    ) {
+        const drawChannel = (channel:number, to:number, pathParams:string) => {
+            const signal = this.signalSet.block[channel]
+            const defaultValue = this.getDefaultInputs()[channel]
     
-        const baseHeight = this.getDesiredChannelHeight(channel)
-        path = `<path ${pathParams} d="
-            M 0 ${this.toHeightRev(this.signalSet.defaultValue)}
-            ${path}
-        "/>`
-        return path
+            if (signal.unpack().length === 0) {
+                return ""
+            }
+    
+            let lastFrame = {
+                value:defaultValue,
+                frame:0
+            }
+            let path = ""
+    
+            for (let i = 0; i < signal.unpack().length; i++) {
+                const keyFrame = signal.unpack()[i]
+                if (keyFrame.frame > to) break
+    
+                path += this.getPathElementsFrom(keyFrame, lastFrame.value, channel)
+                lastFrame = keyFrame
+            }
+    
+            path += this.getPathElementsFrom(
+                {value:lastFrame.value, frame:to},
+                lastFrame.value,channel
+            )
+        
+            const baseHeight = this.getDesiredChannelHeight(channel)
+            path = `<path ${pathParams} d="
+                M 0 ${defaultValue}
+                ${path}
+            "/>`
+            return path
+        }
+        super(from, drawChannel)
     }
 
-    private getPathElementsFrom(p:SignalKeyFrame<boolean>, lastValue:boolean, channel:number) {
+    frameWidth = 3
+    frameTime = 250
+
+    
+
+    private getPathElementsFrom(p:SignalKeyFrame<ConnectionValue>, lastValue:ConnectionValue, channel:number) {
         return `L ${
             p.frame * this.frameWidth
         } ${
@@ -101,11 +127,11 @@ export class SignalSetController {
         return this.signalSet.length
     }
 
-    toSigStrengthRev(x:boolean) {
+    toSigStrengthRev(x:ConnectionValue) {
         return x ? 0:1
     }
 
-    toHeightRev(x:boolean) {
+    toHeightRev(x:ConnectionValue) {
         return this.toSigStrengthRev(x) * this.height
     }
 
@@ -115,7 +141,7 @@ export class SignalSetController {
         return s
     }
 
-    private player:SignalPlayer | undefined = undefined
+    private player:SignalPlayer<ConnectionValue> | undefined = undefined
     createPlayer(frameTime=250) {
         this.player = new SignalPlayer(
             this.signalSet,
@@ -123,7 +149,7 @@ export class SignalSetController {
         )
     }
 
-    startPlayer(iter: SignalFrameReader<boolean> | undefined, reset:boolean) {
+    startPlayer(iter: SignalFrameReader<ConnectionValue> | undefined, reset:boolean) {
         if (this.player) this.player.scrub(iter, reset)
     }
 
@@ -144,16 +170,16 @@ export class SignalSetController {
         this.circuitIsValid = true
     }
 
-    sendPlayerToController(circuitController:CircuitController | SignalSetController) {
+    sendPlayerToController(circuitController:CircuitController | CircuitSignalSetView) {
         if (this.player) circuitController.setPlayer(this.player)
     }
 
-    setPlayer(player:SignalPlayer) {
+    setPlayer(player:SignalPlayer<ConnectionValue>) {
         this.player = player
     }
 
     private circuitIsValid = true
-    validateControllerWith(circuitController:CircuitController, value:boolean[]=this.getPlayerValue() || []) {
+    validateControllerWith(circuitController:CircuitController, value:ConnectionValue[]=this.getPlayerValue() || []) {
         const inputs = value.slice(0, this.signalSet.inputs)
         circuitController.setInputs(inputs)
 
@@ -188,7 +214,7 @@ export class SignalSetController {
     }
 
     getDefaultInputs() {
-        return Array<boolean>(this.getInputSize()).fill(this.signalSet.defaultValue)
+        return this.signalSet.getInitialValue()
     }
 
     getLength() {

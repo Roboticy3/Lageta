@@ -3,7 +3,7 @@
 <script>
     import { CircuitController } from "$lib/circuit_types/CircuitController";
     import { SignalSet } from "$lib/signal_types/Signal";
-    import { SignalSetController } from "$lib/signal_types/SignalSetController";
+    import { CircuitSignalSetView, SignalSetView } from "$lib/signal_types/SignalSetView";
     import CircuitDiv from "./CircuitDiv.svelte";
     import CircuitDraggable from "./CircuitDraggable.svelte";
     import GameViewCircuitPanel from "./GameViewCircuitPanel.svelte";
@@ -19,9 +19,9 @@
 
     const circuitController = new CircuitController(params.grid)
 
-    const signalSetController = 
+    const signalSetView = 
         params.completeCondition instanceof SignalSet ? 
-        new SignalSetController(params.completeCondition) : undefined
+        new CircuitSignalSetView(params.completeCondition) : undefined
 
     let circuitDraggable
 
@@ -54,11 +54,11 @@
 
         </div>
     </div>
-    {#if signalSetController}
+    {#if signalSetView}
         <div class="signal">
             <SignalViewer 
-                gridController={circuitController}
-                signalSetController={signalSetController}
+                circuitController={circuitController}
+                signalSetView={signalSetView}
             />
         </div>
     {/if}
@@ -79,7 +79,6 @@
 
     .base-vertical .sandbox-horizontal {
         flex-grow: 6.5;
-        height:100%;
 
         display:flex;
         flex-direction: row;
