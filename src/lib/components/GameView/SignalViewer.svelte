@@ -3,6 +3,7 @@
     import { CircuitController } from "$lib/circuit_types/CircuitController";
     import { CircuitSignalSetView } from "$lib/signal_types/SignalSetView";
     import { onMount } from "svelte";
+    import ResizingSvg from "../Misc/ResizingSvg.svelte";
 
     /**
      * @type {CircuitSignalSetView}
@@ -16,46 +17,8 @@
     */
     export let circuitController
 
-    let height = 0
-    let width = 0
-
-    /**
-     * @type {HTMLDivElement | null}
-     */
-    let svgContainer = null
-
-    function updateSvg() {
-        if (svgContainer === null) return
-        width = svgContainer.offsetWidth
-        height = svgContainer.offsetHeight
-        const ratio = width / height
-
-    }
-
-    onMount(() => {
-        updateSvg()
-        window.addEventListener('resize', updateSvg)
-    })
-
 </script>
 
-<div class="signal-container">
-    <div class="svg-container" bind:this={svgContainer}>
-        <svg viewBox="0 0 {signalSetView.getDesiredWidth()} {signalSetView.getDesiredHeight()}">
-            {#each channelSvgs as channel, index}
-                <g transform="translate(0, {signalSetView.getDesiredChannelHeight(index)})">
-                    {@html channel}
-                </g>
-            {/each}
-        </svg>
-    </div>
-</div>
-
-<style>
-
-    .svg-container svg {
-        padding: 1%;
-        height:100%;
-        width: auto;
-    }
-</style>
+<ResizingSvg lockHeight={signalSetView.getDesiredHeight()}>
+    <circle r="50" cx="10" cy="10" fill="red" />
+</ResizingSvg>

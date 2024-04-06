@@ -56,7 +56,7 @@
     </div>
     {#if signalSetView}
         <div class="signal">
-            
+            <SignalViewer circuitController={circuitController} signalSetView={signalSetView} />
         </div>
     {/if}
 </div>
@@ -79,6 +79,7 @@
         
         display:flex;
         flex-direction: row;
+        height:70%;
     }
 
     .sandbox-horizontal .circuit-editor {
@@ -108,5 +109,7 @@
     .base-vertical .signal {
         flex: 2;
         background-color: var(--secondary-bg-color);
+        width: 100%;
+        height: 20%;
     }
 </style>
