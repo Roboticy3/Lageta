@@ -17,26 +17,40 @@
      */
     let parent
 
+    let [baseWidth, baseHeight] = [0, 0]
     let [width, height] = [0, 0]
 
     function correct() {
         if (svg) parent = svg.parentElement
         if (!parent || !svg) return
 
-        width = parent.offsetWidth
-        height = parent.offsetHeight
-        const ratio = width / height
+        baseWidth = parent.offsetWidth
+        baseHeight = parent.offsetHeight
+        const ratio = baseWidth / baseHeight
 
         if (lockWidth) {
             width = lockWidth
             svg.setAttributeNS('http://www.w3.org/2000/svg','width', '100%')
-            if (lockHeight === undefined) height = width / ratio
+        }
+        else {
+            width = baseWidth + 0
         }
         if (lockHeight) {
             height = lockHeight
             svg.setAttributeNS('http://www.w3.org/2000/svg','height', '100%')
-            if (lockWidth === undefined) width = height * ratio
         }
+        else { 
+            height = baseHeight + 0
+        }
+
+        if (!lockWidth) {
+            width = height * ratio
+        }
+        if (!lockHeight) {
+            height = width / ratio
+        }
+
+        console.log("setting svg size", width, height)
     }
 
     onMount(() => {
@@ -48,6 +62,8 @@
 <svg 
     bind:this={svg}
     viewBox="{offsetX} {offsetY} {width} {height}" 
+    height={height}
+    width={width}
 >
     <slot />
 </svg>

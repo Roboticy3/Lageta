@@ -19,6 +19,34 @@
 
 </script>
 
-<ResizingSvg lockHeight={signalSetView.getDesiredHeight()}>
-    <circle r="50" cx="10" cy="10" fill="red" />
-</ResizingSvg>
+<div class="signal-viewer-container" style="min-height:{signalSetView.getDesiredHeight()}">
+    <div class="button-container">
+        blahblahblah
+    </div>
+    <div class="svg-container">
+        <ResizingSvg lockHeight={signalSetView.getDesiredHeight()}>
+            {#each channelSvgs as channel, index}
+                <g transform='translate(0, {signalSetView.getDesiredChannelHeight(index)})'>
+                    {@html channel}
+                </g>
+            {/each}
+        </ResizingSvg>
+    </div>
+</div>
+
+<style>
+    .signal-viewer-container {
+        display:grid;
+        grid-template-columns: 1fr 1fr 9fr;
+        gap: 5%;
+        margin: 5vh;
+        width: 100%;
+
+        background: var(--secondary-bg-color)
+    }
+
+    .svg-container {
+        height:100%;
+        grid-column: 3;
+    }
+</style>
