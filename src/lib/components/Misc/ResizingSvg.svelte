@@ -5,6 +5,8 @@
 
     export let ancestry = 1
 
+    export let [minHeight, minWidth] = [0, 0]
+
     /**
      * @type {SVGSVGElement}
      */
@@ -18,7 +20,6 @@
      */
     let contentGroup
 
-    let [width, height] = [0, 0]
     let [outerWidth, outerHeight] = [0, 0]
 
     /**
@@ -37,13 +38,11 @@
         if (!parent || !svg || !scaleGroup || !contentGroup) return
 
         const outer = parent.getBoundingClientRect()
-        outerHeight = outer.height
-        outerWidth = outer.width
+        outerHeight = Math.max(outer.height, minHeight)
+        outerWidth = Math.max(outer.width, minWidth)
 
         const inner = contentGroup.getBBox()
         const scale = outerHeight / inner.height
-        width = inner.width
-        height = inner.height
 
         scaleGroup.setAttribute(
             "transform",

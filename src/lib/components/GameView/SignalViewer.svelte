@@ -12,11 +12,21 @@
     let channelSvgs = signalSetView.drawChannels()
     signalSetView.createPlayer(100)
 
+    let labelOffset = 40
+
     /**
      * @type {CircuitController}
     */
     export let circuitController
+    let labels = circuitController.getInputLabels().concat(circuitController.getOutputLabels())
+    console.log(circuitController.getInputLabels(), circuitController.getOutputLabels())
 
+    /**
+     * @param {number} index
+     */
+    function channelSvgHeight(index) {
+        return signalSetView.getDesiredChannelHeight(index)
+    }
 </script>
 
 <div class="signal-viewer-container">
@@ -24,10 +34,13 @@
         blahblahblah
     </div>
     <div class="svg-container">
-        <ResizingSvg ancestry={2}>
+        <ResizingSvg ancestry={2} minHeight={signalSetView.getDesiredHeight() * 2}>
             {#each channelSvgs as channel, index}
-                <g transform='translate(0, {signalSetView.getDesiredChannelHeight(index)})'>
+                <g transform='translate({labelOffset}, {channelSvgHeight(index)})'>
                     {@html channel}
+                </g>
+                <g transform='translate(0, {channelSvgHeight(index)  + channelSvgHeight(1) / 2})'>
+                    <text>{labels[index]}</text>
                 </g>
             {/each}
         </ResizingSvg>
@@ -42,7 +55,8 @@
         gap: 5%;
         width: 100%;
         height: 100%;
-        overflow:hidden;
+        overflow-y:scroll;
+        overflow-x:hidden;
     }
 
     .svg-container {
