@@ -44,7 +44,6 @@
         const scale = outerHeight / inner.height
         width = inner.width
         height = inner.height
-        console.log(inner, outer)
 
         scaleGroup.setAttribute(
             "transform",

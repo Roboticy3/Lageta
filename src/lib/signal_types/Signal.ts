@@ -287,7 +287,7 @@ export class ConnectionValueSignalSet extends SignalSet<ConnectionValue> {
         solver:GateTypeController,
         inputBlockRelative:boolean = true
     ) {
-        super()
+        super(block,length,solver.model.sizeIn,inputBlockRelative)
 
         const gate = createGate(solver)
         this.inputs = solver.model.sizeIn

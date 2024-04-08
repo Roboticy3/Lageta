@@ -2,7 +2,7 @@
 
 <script>
     import { CircuitController } from "$lib/circuit_types/CircuitController";
-    import { SignalSet } from "$lib/signal_types/Signal";
+    import { ConnectionValueSignalSet, SignalSet } from "$lib/signal_types/Signal";
     import { CircuitSignalSetView, SignalSetView } from "$lib/signal_types/SignalSetView";
     import CircuitDiv from "./CircuitDiv.svelte";
     import CircuitDraggable from "./CircuitDraggable.svelte";
@@ -20,7 +20,7 @@
     const circuitController = new CircuitController(params.grid)
 
     const signalSetView = 
-        params.completeCondition instanceof SignalSet ? 
+        params.completeCondition instanceof ConnectionValueSignalSet ? 
         new CircuitSignalSetView(params.completeCondition) : undefined
 
     let circuitDraggable
