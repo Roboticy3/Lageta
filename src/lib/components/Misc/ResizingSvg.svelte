@@ -3,54 +3,53 @@
 
     export let [offsetX, offsetY] = [0, 0]
 
-    /**
-     * @type {[number | undefined, number | undefined]}
-     */
-    export let [lockWidth, lockHeight] = [undefined, undefined]
+    export let ancestry = 1
 
     /**
      * @type {SVGSVGElement}
      */
     let svg
     /**
+     * @type {SVGGraphicsElement}
+     */
+    let scaleGroup
+    /**
+     * @type {SVGGraphicsElement}
+     */
+    let contentGroup
+
+    let [width, height] = [0, 0]
+    let [outerWidth, outerHeight] = [0, 0]
+
+    /**
      * @type {HTMLElement | null}
      */
     let parent
 
-    let [baseWidth, baseHeight] = [0, 0]
-    let [width, height] = [0, 0]
-
     function correct() {
-        if (svg) parent = svg.parentElement
-        if (!parent || !svg) return
+        if (svg) {
+            parent = svg.parentElement
+            for (let i = 1; i < ancestry; i++) {
+                if (parent === null) break
+                parent = parent.parentElement
+            }
+        }
+        if (!parent || !svg || !scaleGroup || !contentGroup) return
 
-        baseWidth = parent.offsetWidth
-        baseHeight = parent.offsetHeight
-        const ratio = baseWidth / baseHeight
+        const outer = parent.getBoundingClientRect()
+        outerHeight = outer.height
+        outerWidth = outer.width
 
-        if (lockWidth) {
-            width = lockWidth
-            svg.setAttributeNS('http://www.w3.org/2000/svg','width', '100%')
-        }
-        else {
-            width = baseWidth + 0
-        }
-        if (lockHeight) {
-            height = lockHeight
-            svg.setAttributeNS('http://www.w3.org/2000/svg','height', '100%')
-        }
-        else { 
-            height = baseHeight + 0
-        }
+        const inner = contentGroup.getBBox()
+        const scale = outerHeight / inner.height
+        width = inner.width
+        height = inner.height
+        console.log(inner, outer)
 
-        if (!lockWidth) {
-            width = height * ratio
-        }
-        if (!lockHeight) {
-            height = width / ratio
-        }
-
-        console.log("setting svg size", width, height)
+        scaleGroup.setAttribute(
+            "transform",
+            `scale(${scale} ${scale})`
+        )
     }
 
     onMount(() => {
@@ -61,9 +60,13 @@
 
 <svg 
     bind:this={svg}
-    viewBox="{offsetX} {offsetY} {width} {height}" 
-    height={height}
-    width={width}
+    viewBox="{offsetX} {offsetY} {outerWidth} {outerHeight}" 
 >
-    <slot />
+    <g
+        bind:this={scaleGroup}
+    >
+        <g bind:this={contentGroup}>
+            <slot />
+        </g>
+    </g>
 </svg>

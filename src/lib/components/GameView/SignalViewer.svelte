@@ -19,12 +19,12 @@
 
 </script>
 
-<div class="signal-viewer-container" style="min-height:{signalSetView.getDesiredHeight()}">
+<div class="signal-viewer-container">
     <div class="button-container">
         blahblahblah
     </div>
     <div class="svg-container">
-        <ResizingSvg lockHeight={signalSetView.getDesiredHeight()}>
+        <ResizingSvg ancestry={2}>
             {#each channelSvgs as channel, index}
                 <g transform='translate(0, {signalSetView.getDesiredChannelHeight(index)})'>
                     {@html channel}
@@ -34,19 +34,19 @@
     </div>
 </div>
 
+
 <style>
     .signal-viewer-container {
         display:grid;
         grid-template-columns: 1fr 1fr 9fr;
         gap: 5%;
-        margin: 5vh;
         width: 100%;
-
-        background: var(--secondary-bg-color)
+        height: 100%;
+        overflow:hidden;
     }
 
     .svg-container {
-        height:100%;
+        
         grid-column: 3;
     }
 </style>
