@@ -109,8 +109,8 @@
     .base-vertical .signal {
         flex: 2;
         background-color: var(--secondary-bg-color);
-        padding:5%;
-        width: 90%;
-        height: 20%;
+        padding:2%;
+        width: 96%;
+        max-height: 16%;
     }
 </style>
