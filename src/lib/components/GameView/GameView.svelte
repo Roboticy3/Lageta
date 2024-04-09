@@ -19,8 +19,8 @@
 
     const circuitController = new CircuitController(params.grid)
 
-    const signalSetView = 
-        params.completeCondition instanceof ConnectionValueSignalSet ? 
+    
+    const signalSetView = params.completeCondition ? 
         new CircuitSignalSetView(params.completeCondition) : undefined
 
     let circuitDraggable

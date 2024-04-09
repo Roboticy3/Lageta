@@ -47,8 +47,8 @@ export class GameViewParameters {
 }
 
 export class CompleteCondition {
-    inputSize:number 
-    outputSize:number
+    inputSize=1
+    outputSize=1
 
     constructor (
         from:CompleteConditionSource
@@ -57,13 +57,10 @@ export class CompleteCondition {
             this.inputSize = from.inputs
             this.outputSize = from.outputs
         }
-        else {
-            from = from || getGateType(Buf)
-            this.inputSize = from.model.sizeIn
-            this.outputSize = from.model.sizeOut
-        }
+
+
     }
 }
 
 type GridSource = CircuitController | OrganizedCircuitContents | undefined
-export type CompleteConditionSource = GateTypeController | ConnectionValueSignalSet | undefined
+export type CompleteConditionSource = ConnectionValueSignalSet | undefined

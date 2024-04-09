@@ -315,6 +315,7 @@ export class ConnectionValueSignalSet extends SignalSet<ConnectionValue> {
         
         this.block.push(...extendedBlock)
     }
+
 }
 
 export class SignalPlayer<T> {

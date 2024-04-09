@@ -47,7 +47,7 @@ export class SignalSetView<T> {
 export class CircuitSignalSetView extends SignalSetView<ConnectionValue> {
 
     constructor(
-        from:ConnectionValueSignalSet | number,
+        from:ConnectionValueSignalSet | SignalSet<ConnectionValue> | number,
     ) {
         const drawChannel = (channel:number, to:number, pathParams:string) => {
             const signal = this.signalSet.block[channel]
