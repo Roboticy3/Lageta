@@ -591,7 +591,7 @@ export class CircuitController {
             if (g === undefined) {
                 continue
             }
-            result.push(g.type.name)
+            result.push(...this.getGateOutputLabels(g))
         }
         return result
     }
