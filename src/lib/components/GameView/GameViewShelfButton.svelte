@@ -54,9 +54,8 @@
         margin-left: 3%;
         padding: 0;
         align-self: center;
-        background-color: yellow;
+        background-color: var(--main-bg-color);
         height:80%;
         max-height: 50px;
-        aspect-ratio: 1;
     }
 </style>
