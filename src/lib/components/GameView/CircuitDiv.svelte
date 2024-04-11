@@ -57,16 +57,16 @@
 </script>
 
 <div 
-    class="{active ? '':'unavailable'}" 
+    class="circuit-div {active ? '':'unavailable'}" 
     style="left:{start[0]}px; top:{start[1]}px; width:{end[0] - start[0]}px; height:{end[1] - start[1]}px;" 
 >
     <slot/>
 </div>
 
 <style>
-    div {
+    .circuit-div {
         position:absolute;
-        background:whitesmoke;
+        background-color: var(--main-bg-color);
         border-radius: 10%;
         border: 4px ridge black;
         text-align:center;

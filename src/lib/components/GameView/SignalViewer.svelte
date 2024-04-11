@@ -31,10 +31,16 @@
 
 <div class="signal-viewer-container">
     <div class="button-container">
-        blahblahblah
+        <button>
+            ▶️
+        </button>
+        <button>
+            ⏯️
+        </button>
     </div>
+
     <div class="svg-container">
-        <ResizingSvg ancestry={2}>
+        <ResizingSvg>
             {#each channelSvgs as channel, index}
                 <g transform='translate({labelOffset}, {channelSvgHeight(index)})'>
                     {@html channel}
@@ -63,5 +69,11 @@
         grid-column: 3 / 4;
         padding: 1%;
         width: 100%;
+    }
+
+    .button-container {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
     }
 </style>

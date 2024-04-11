@@ -31,10 +31,4 @@
         background:none;
         height:10%;
     }
-    .option:hover {
-        background:var(--secondary-bg-color);
-    }
-    .option-text {
-        font-family: monospace;
-    }
 </style>
