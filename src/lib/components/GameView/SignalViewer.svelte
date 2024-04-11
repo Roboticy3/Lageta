@@ -34,7 +34,7 @@
         blahblahblah
     </div>
     <div class="svg-container">
-        <ResizingSvg ancestry={2} minHeight={signalSetView.getDesiredHeight() * 2}>
+        <ResizingSvg ancestry={2}>
             {#each channelSvgs as channel, index}
                 <g transform='translate({labelOffset}, {channelSvgHeight(index)})'>
                     {@html channel}
@@ -60,7 +60,8 @@
     }
 
     .svg-container {
-        
-        grid-column: 3;
+        grid-column: 3 / 4;
+        padding: 1%;
+        width: 100%;
     }
 </style>
