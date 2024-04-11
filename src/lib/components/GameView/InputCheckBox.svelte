@@ -1,8 +1,6 @@
 <script>
     //@ts-ignore
     import { CircuitController } from "$lib/circuit_types/CircuitController";
-    //@ts-ignore
-    import GameViewCircuitPanel from "./GameViewCircuitPanel.svelte";
     import { onMount, tick } from "svelte";
 
     
@@ -15,10 +13,6 @@
      * @type {CircuitController | null}
      */
     export let gridController
-    /**
-     * @type {GameViewCircuitPanel | null}
-     */
-    export let circuitPanel
     /**
      * @type {[number, number] | null}
      */
@@ -102,8 +96,10 @@
         if (from === null) {
             return
         }
-        gridController?.setInput(from, checkbox.checked)
-        circuitPanel?.getRenderer().updateGate(from[0])
+        if (gridController) {
+            gridController.setInput(from, checkbox.checked)
+            gridController.getRenderer().updateGate(from[0])
+        }
         onChangeListener()
     }
 

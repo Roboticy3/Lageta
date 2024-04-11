@@ -7,7 +7,8 @@
     
     import { CircuitController, CircuitControllerQueryResult } from '$lib/circuit_types/CircuitController';
     import { GameViewParameters } from '$lib/level_types/GameViewParameters';
-    import { Buf, getGateType } from '$lib/dat/GateTypes/GateTypes';
+    import { Buf, Input, getGateType } from '$lib/dat/GateTypes/GateTypes';
+    import InputCheckBox from './InputCheckBox.svelte';
 
     /**
      * @type {GameViewParameters}
@@ -395,6 +396,10 @@
         circuitDraggable={circuitDraggable} 
         rendererParams={params.rendererParams || {}}
     />
+
+    {#each gridController.getInputIds() as id}
+        <InputCheckBox gridController={gridController} from={id}/>
+    {/each}
 
     {#if showSlot}
         <slot />
