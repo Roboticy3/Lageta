@@ -37,6 +37,10 @@
      * @type {SVGElement | null}
      */
     let playBarGroup
+    /**
+     * @type {HTMLButtonElement | null}
+     */
+    let playButton
     let playing = false
 
     /**
@@ -44,13 +48,16 @@
      */
     let container
 
-    function playPause() {
+    /**
+     * @param {MouseEvent} e
+     */
+    function playPause(e) {
         playing = !playing
         if (playing) {
-            play()
+            play(e)
         }
         else {
-            pause()
+            pause(e)
         }
     }
 
@@ -60,12 +67,18 @@
         setPlayBarProgress()
     }
 
-    function play() {
-
+    /**
+     * @param {MouseEvent} e
+     */
+    function play(e) {
+        if (e.target instanceof HTMLButtonElement) e.target.innerText = "⏸"
     }
 
-    function pause() {
-        
+    /**
+     * @param {MouseEvent} e
+     */
+    function pause(e) {
+        if (e.target instanceof HTMLButtonElement) e.target.innerText = "⏵"
     }
 
     function setPlayBarProgress(frame = 0) {
@@ -77,7 +90,7 @@
 <div class="signal-viewer-container" bind:this={container}>
     <div class="button-container">
         <button on:click={playPause} id="signal-play-button">
-            ⏩︎
+            ⏵
         </button>
         <button on:click={restart} id="signal-restart-button">
             Restart
@@ -86,16 +99,18 @@
 
     <div class="svg-container">
         <ResizingSvg>
-            {#each channelSvgs as channel, index}
-                <g transform='translate({labelOffset}, {channelSvgHeight(index)})'>
-                    {@html channel}
+            <g transform="translate(0, 8)">
+                {#each channelSvgs as channel, index}
+                    <g transform='translate({labelOffset}, {channelSvgHeight(index)})'>
+                        {@html channel}
+                    </g>
+                    <g font-size="10px" transform='translate(0, {channelSvgHeight(index)  + channelSvgHeight(1) / 2})'>
+                        <text>{labels[index]}</text>
+                    </g>
+                {/each}
+                <g id="signal-svg-play-bar">
+                    <path d="M -4 -8 L 4 -8 L 0 0 L 0 {signalSetView.getDesiredHeight()} L 0 0 Z" stroke="var(--grid-color)" stroke-width="1px" fill="none"/>
                 </g>
-                <g font-size="10px" transform='translate(0, {channelSvgHeight(index)  + channelSvgHeight(1) / 2})'>
-                    <text>{labels[index]}</text>
-                </g>
-            {/each}
-            <g id="signal-svg-play-bar">
-                <path d="M -4 0 L 4 0 L 0 8 L 0 {signalSetView.getDesiredHeight()} L 0 8 Z" stroke="var(--grid-color)" stroke-width="1px" fill="none"/>
             </g>
         </ResizingSvg>
     </div>

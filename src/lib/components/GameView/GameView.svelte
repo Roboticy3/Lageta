@@ -117,6 +117,7 @@
         background-color: var(--tertiary-bg-color);
 
         padding: 3%;
+        overflow-y: scroll;
     }
 
     .base-vertical .signal {
