@@ -117,7 +117,6 @@
         background-color: var(--tertiary-bg-color);
 
         padding: 3%;
-        font-size: large;
     }
 
     .base-vertical .signal {
