@@ -57,4 +57,9 @@
         height:80%;
         max-height: 50px;
     }
+
+    .shelf-button:hover {
+        height:85%;
+        max-height: 55px;
+    }
 </style>

@@ -12,7 +12,7 @@
     let channelSvgs = signalSetView.drawChannels()
     signalSetView.createPlayer(100)
 
-    let labelOffset = 40
+    let labelOffset = 50
 
     /**
      * @type {CircuitController}
@@ -45,7 +45,7 @@
                 <g transform='translate({labelOffset}, {channelSvgHeight(index)})'>
                     {@html channel}
                 </g>
-                <g transform='translate(0, {channelSvgHeight(index)  + channelSvgHeight(1) / 2})'>
+                <g font-size="10px" transform='translate(0, {channelSvgHeight(index)  + channelSvgHeight(1) / 2})'>
                     <text>{labels[index]}</text>
                 </g>
             {/each}
@@ -72,6 +72,8 @@
     }
 
     .button-container {
+        grid-column: 2;
+
         display: flex;
         flex-direction: column;
         justify-content: center;
