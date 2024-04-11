@@ -10,7 +10,6 @@
      */
     export let signalSetView
     let channelSvgs = signalSetView.drawChannels()
-    signalSetView.createPlayer(100)
 
     let labelOffset = 50
 
@@ -27,15 +26,61 @@
     function channelSvgHeight(index) {
         return signalSetView.getDesiredChannelHeight(index)
     }
+
+    onMount(() => {
+        signalSetView.createPlayer(100)
+        signalSetView.sendPlayerToController(circuitController)
+        restart()
+    })
+
+    /**
+     * @type {SVGElement | null}
+     */
+    let playBarGroup
+    let playing = false
+
+    /**
+     * @type {HTMLDivElement}
+     */
+    let container
+
+    function playPause() {
+        playing = !playing
+        if (playing) {
+            play()
+        }
+        else {
+            pause()
+        }
+    }
+
+    function restart() {
+        signalSetView.resetPlayer()
+        playBarGroup = container.querySelector("#signal-svg-play-bar")
+        setPlayBarProgress()
+    }
+
+    function play() {
+
+    }
+
+    function pause() {
+        
+    }
+
+    function setPlayBarProgress(frame = 0) {
+        playBarGroup?.setAttribute('transform', `translate(${labelOffset + signalSetView.getDesiredFrameWidth() * frame}, 0)`)
+    }
+
 </script>
 
-<div class="signal-viewer-container">
+<div class="signal-viewer-container" bind:this={container}>
     <div class="button-container">
-        <button>
+        <button on:click={playPause} id="signal-play-button">
             ⏩︎
         </button>
-        <button>
-            ⏸︎
+        <button on:click={restart} id="signal-restart-button">
+            Restart
         </button>
     </div>
 
@@ -49,6 +94,9 @@
                     <text>{labels[index]}</text>
                 </g>
             {/each}
+            <g id="signal-svg-play-bar">
+                <path d="M -4 0 L 4 0 L 0 8 L 0 {signalSetView.getDesiredHeight()} L 0 8 Z" stroke="var(--grid-color)" stroke-width="1px" fill="none"/>
+            </g>
         </ResizingSvg>
     </div>
 </div>
@@ -81,15 +129,10 @@
 
     .button-container button {
         color: var(--grid-color);
-        -webkit-text-fill-color: var(--main-bg-color);
-        -webkit-text-stroke-width: 1px;
-        -webkit-text-stroke-color: var(--grid-color);
-
         font-size: x-large;
     }
 
     .button-container button:hover {
         font-size: xx-large;
-        -webkit-text-fill-color: var(--secondary-bg-color);
     }
 </style>
