@@ -45,7 +45,7 @@
 </script>
 
 <button class="shelf-button" id={id} bind:this={element} on:mousedown={onMouseDown}>
-    {@html wrapGateTypeViewInSvgHeader(gateType.view.gridWidth, gateType.view.gridHeight, render)}
+    {@html wrapGateTypeViewInSvgHeader(gateType.view.gridWidth, gateType.view.gridHeight, render, `width="100%" height="100%"`)}
 </button>
 
 <style>
