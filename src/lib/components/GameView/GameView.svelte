@@ -4,9 +4,11 @@
     import { CircuitController } from "$lib/circuit_types/CircuitController";
     import { ConnectionValueSignalSet, SignalSet } from "$lib/signal_types/Signal";
     import { CircuitSignalSetView, SignalSetView } from "$lib/signal_types/SignalSetView";
+    import { ProgressStorage } from "$lib/storage_types/ProgressStore";
     import CircuitDiv from "./CircuitDiv.svelte";
     import CircuitDraggable from "./CircuitDraggable.svelte";
     import GameViewCircuitPanel from "./GameViewCircuitPanel.svelte";
+    import GameViewShelfButton from "./GameViewShelfButton.svelte";
     import SignalViewer from "./SignalViewer.svelte";
 
 
@@ -25,6 +27,8 @@
 
     let circuitDraggable
 
+    let progressStorage = new ProgressStorage()
+
 </script>
 
 <div class="base-vertical">
@@ -38,7 +42,9 @@
     <div class="sandbox-horizontal">
         <div class="circuit-editor">
             <div class="shelf">
-                
+                {#each progressStorage.gates() as gateTypeController}
+                    <GameViewShelfButton circuitDraggable={circuitDraggable} gateType={gateTypeController}/>
+                {/each}
             </div>
             <div class="circuit-panel">
                 <GameViewCircuitPanel 
@@ -94,6 +100,9 @@
     .circuit-editor .shelf {
         flex: 1;
         background-color: var(--main-bg-color);
+
+        display: flex;
+        flex-direction: row;
     }
 
     .circuit-editor .circuit-panel {

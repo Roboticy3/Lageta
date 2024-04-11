@@ -1,6 +1,6 @@
 <script>
     import { goto } from "$app/navigation";
-    import { Buf, getGateType, wrapGateTypeViewInViewbox } from "$lib/dat/GateTypes/GateTypes";
+    import { Buf, getGateType, wrapGateTypeViewInSvgHeader } from "$lib/dat/GateTypes/GateTypes";
 
     export let vType = getGateType(Buf).view
 
@@ -15,7 +15,7 @@
 </script>
 
 <button class="option" on:click={onClick}>
-    {@html wrapGateTypeViewInViewbox(vType.gridWidth, vType.gridHeight, vType.draw())} 
+    {@html wrapGateTypeViewInSvgHeader(vType.gridWidth, vType.gridHeight, vType.draw())} 
     <div class="option-text">
         <slot />
     </div>

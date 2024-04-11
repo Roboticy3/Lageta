@@ -130,7 +130,7 @@ export const drawGateTypeRect = (gridWidth:number, gridHeight:number) => {
     return `<rect width="${w - 4}" height="${h - 4}" x="${2}" y="${2}" />\n`;
 }
 
-export const wrapGateTypeViewInViewbox = (gridWidth:number, gridHeight:number, svg:string) => {
+export const wrapGateTypeViewInSvgHeader = (gridWidth:number, gridHeight:number, svg:string) => {
     return `
 <svg 
     viewBox="0 0 ${10 * gridWidth} ${10 * gridHeight}" 

@@ -2,7 +2,7 @@
     import { onMount } from "svelte";
     
     import CircuitDraggable from "./CircuitDraggable.svelte";
-    import { Buf, getGateType, wrapGateTypeViewInViewbox } from "$lib/dat/GateTypes/GateTypes";
+    import { Buf, getGateType, wrapGateTypeViewInSvgHeader } from "$lib/dat/GateTypes/GateTypes";
     import { GateType, GateTypeController, GateTypeView } from "$lib/circuit_types/GateType";
 
     /**
@@ -45,7 +45,7 @@
 </script>
 
 <button class="shelf-button" id={id} bind:this={element} on:mousedown={onMouseDown}>
-    {@html wrapGateTypeViewInViewbox(gateType.view.gridWidth, gateType.view.gridHeight, render)}
+    {@html wrapGateTypeViewInSvgHeader(gateType.view.gridWidth, gateType.view.gridHeight, render)}
 </button>
 
 <style>
