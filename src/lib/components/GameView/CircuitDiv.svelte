@@ -50,6 +50,10 @@
     export function deactivate() {
         active = false
     }
+
+    export function isActive() {
+        return active
+    }
 </script>
 
 <div 

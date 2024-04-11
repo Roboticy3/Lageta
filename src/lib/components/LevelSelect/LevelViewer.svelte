@@ -20,6 +20,11 @@
     let container
 
     /**
+     * @type {HTMLButtonElement}
+     */
+    let button
+
+    /**
      * @type {number | undefined}
      */
     let gateId = undefined
@@ -57,6 +62,7 @@
         }
         if (activate) container.activate()
         else container.deactivate()
+        button.disabled = !activate
     }
 
     function playLevel() {
@@ -71,5 +77,5 @@
     bind:this={container}
 >
     <p>{level.name()}</p>
-    <button on:click={playLevel}>Play</button>
+    <button on:click={playLevel} bind:this={button}>Play</button>
 </CircuitDiv>
