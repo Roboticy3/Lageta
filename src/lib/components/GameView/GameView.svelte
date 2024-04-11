@@ -57,7 +57,7 @@
             </div>
         </div>
         <div class="instructions">
-
+            {@html params.directions}
         </div>
     </div>
     {#if signalSetView}
@@ -91,15 +91,13 @@
     .sandbox-horizontal .circuit-editor {
         flex: 9;
 
-        background-color: var(--tertiary-bg-color);
-
         display: flex;
         flex-direction: column;
     }
 
     .circuit-editor .shelf {
         flex: 1;
-        background-color: var(--main-bg-color);
+        background-color: var(--tertiary-bg-color);
 
         display: flex;
         flex-direction: row;
@@ -107,12 +105,19 @@
 
     .circuit-editor .circuit-panel {
         flex: 7;
+        background-color: var(--main-bg-color);
         min-height: 0;
+
+        border: thick double;
+        color: var(--grid-color);
     }
 
     .sandbox-horizontal .instructions {
         flex: 3;
         background-color: var(--tertiary-bg-color);
+
+        padding: 3%;
+        font-size: large;
     }
 
     .base-vertical .signal {
