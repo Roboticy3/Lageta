@@ -64,10 +64,7 @@
         const controller = getController()
         if (isDragging()) {
             const type = controller.getContentType()
-            if (type == "Gate" || 
-                controller.sourceElement == e.target) {
-                controller.dragCircuit(e)
-            }
+            controller.dragCircuit(e)
         }
     }
 

@@ -38,6 +38,11 @@
     let connectionPointDisplayMode = ""
 
     /**
+     * @type {SVGElement}
+     */
+    let svgHead
+
+    /**
      * @param {number} tX
      * @param {number} tY
      * @param {number} sX
@@ -292,12 +297,15 @@
      * @param {MouseEvent} e
      */
     export function drawActiveWire(e) {
+        if (e.target !== svgHead.parentElement) return
+
         const controller = circuitDraggable.getController()
         const source = controller.getContents()
         const activeWire = connectionGroup.querySelector("#wire-active")
         const gPos = source.getPos()
         const cType = source.gateTypeController
         const index = source.connectionIndex
+        
         if (activeWire === null || gPos === undefined || index === undefined || cType === undefined) return
         /**
          * @type {[number, number] | null}
@@ -330,6 +338,7 @@
      * @param {MouseEvent} e
      */
     export function drawActiveGate(e) {
+        if (e.target !== svgHead.parentElement) return
         const controller = circuitDraggable.getController()
         const cType = controller.getGateType()
         const id = controller.getId()
@@ -489,7 +498,9 @@
         {-rendererState.translateY} 
         {rendererState.scaleX * gridSize[0] * cellOffset + rendererState.translateX} 
         {rendererState.scaleY * gridSize[1] * cellOffset + rendererState.translateY}
-    " width="{rendererState.scaleX * gridSize[0] * cellOffset + rendererState.translateX}px">
+    " width="{rendererState.scaleX * gridSize[0] * cellOffset + rendererState.translateX}px"
+    bind:this={svgHead}
+>
     <g transform="scale({rendererState.scaleX}, {rendererState.scaleY})">
         <g bind:this={gridGroup} id="circuit-svg-lines" stroke="var(--grid-color)" stroke-width="0.25px" fill="none"></g>
         <g bind:this={gateGroup} id="circuit-svg-gates" stroke="var(--gate-color)" stroke-width="0.5px" fill="none"></g>
