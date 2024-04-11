@@ -85,7 +85,7 @@
         -webkit-text-stroke-width: 1px;
         -webkit-text-stroke-color: var(--grid-color);
 
-        font-size: larger;
+        font-size: x-large;
     }
 
     .button-container button:hover {

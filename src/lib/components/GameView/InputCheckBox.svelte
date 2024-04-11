@@ -128,6 +128,11 @@
     .input-checkbox {
         position: absolute;
         margin: 0px;
+        background-color: 2px solid var(--connection-color-off);
         accent-color:var(--connection-color-on);
+    }
+
+    .input-checkbox:hover {
+        transform: scale(1.2);
     }
 </style>
