@@ -32,10 +32,10 @@
 <div class="signal-viewer-container">
     <div class="button-container">
         <button>
-            ▶️
+            ⏩︎
         </button>
         <button>
-            ⏯️
+            ⏸︎
         </button>
     </div>
 
@@ -77,5 +77,19 @@
         display: flex;
         flex-direction: column;
         justify-content: center;
+    }
+
+    .button-container button {
+        color: var(--grid-color);
+        -webkit-text-fill-color: var(--main-bg-color);
+        -webkit-text-stroke-width: 1px;
+        -webkit-text-stroke-color: var(--grid-color);
+
+        font-size: larger;
+    }
+
+    .button-container button:hover {
+        font-size: xx-large;
+        -webkit-text-fill-color: var(--secondary-bg-color);
     }
 </style>
