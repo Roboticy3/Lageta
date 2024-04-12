@@ -48,37 +48,48 @@
      */
     let container
 
-    /**
-     * @param {MouseEvent} e
-     */
-    function playPause(e) {
-        playing = !playing
+    function playPause() {
         if (playing) {
-            play(e)
+            pause()
         }
         else {
-            pause(e)
+            play()
         }
     }
 
     function restart() {
+        pause()
         signalSetView.resetPlayer()
         playBarGroup = container.querySelector("#signal-svg-play-bar")
+        playButton = container.querySelector("#signal-play-button")
         setPlayBarProgress()
     }
 
     /**
-     * @param {MouseEvent} e
+     * @param {import("$lib/circuit_types/GateType").ConnectionValue[]} currentValue
+     * @param {number} currentFrame
+     * @param {boolean} update
+     * @param {boolean} done
      */
-    function play(e) {
-        if (e.target instanceof HTMLButtonElement) e.target.innerText = "⏸"
+    function onSignalStep(currentValue, currentFrame, update, done) {
+        setPlayBarProgress(currentFrame)
+        if (done) {
+            pause()
+        }  
     }
 
-    /**
-     * @param {MouseEvent} e
-     */
-    function pause(e) {
-        if (e.target instanceof HTMLButtonElement) e.target.innerText = "⏵"
+    function play() {
+        if (playButton) playButton.innerText = "⏸"
+
+        signalSetView.startPlayer(onSignalStep, false)
+        playing = true
+    }
+
+    function pause() {
+        if (playButton) playButton.innerText = "⏵"
+        
+        signalSetView.pausePlayer()
+        playing = false
     }
 
     function setPlayBarProgress(frame = 0) {
