@@ -88,6 +88,8 @@
 
         signalSetView.startPlayer(onSignalStep, false)
         playing = true
+
+        document.querySelectorAll("input").forEach((n) => n.setAttribute('disabled','disabled'))
     }
 
     function pause() {
@@ -95,6 +97,8 @@
         
         signalSetView.pausePlayer()
         playing = false
+
+        document.querySelectorAll("input").forEach((n) => n.removeAttribute('disabled'))
     }
 
     function setPlayBarProgress(frame = 0) {
