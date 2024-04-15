@@ -73,6 +73,11 @@
      */
     function onSignalStep(currentValue, currentFrame, update, done) {
         setPlayBarProgress(currentFrame)
+
+        if (update) {
+            circuitController.setInputs(currentValue)
+        }
+        
         if (done) {
             pause()
         }  
