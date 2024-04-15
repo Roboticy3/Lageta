@@ -359,7 +359,8 @@ export class CircuitController {
         const [localX, localY] = this.unprojectOffset(offsetX, offsetY)
         const [x, y] = this.gateGrid.offsetToIndex(localX, localY)
         const gate = new Gate(cType.model)
-        return this.gateGrid.canAddGate(x, y, gate)
+        if (this.gateGrid.canAddGate(x, y, gate)) return [x, y]
+        return
     }
 
     previewMoveGate(
@@ -370,8 +371,8 @@ export class CircuitController {
         const [localX, localY] = this.unprojectOffset(offsetX, offsetY)
         const [x, y] = this.gateGrid.offsetToIndex(localX, localY)
         const gate = this.gateGrid.gates[id]
-        if (gate === undefined) return undefined
-        return this.gateGrid.canMoveGate(gate, x, y)
+        if (gate !== undefined && this.gateGrid.canAddGate(x, y, gate)) return [x, y]
+        return undefined
     }
 
     /**
