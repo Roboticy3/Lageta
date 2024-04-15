@@ -145,6 +145,10 @@ export class CircuitController {
         return this.gateGrid.indexToOffset(x,y)
     }
 
+    offsetToIndex(offsetX:number, offsetY:number) {
+        return this.gateGrid.offsetToIndex(offsetX, offsetY)
+    }
+
     /**
      * Given a ConnectionType, return it's opposite, or "" if it was empty to begin with.
      * @param t 

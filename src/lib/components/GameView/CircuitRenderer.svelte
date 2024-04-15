@@ -351,10 +351,17 @@
         }
         else return
 
-        if (gPos && svg) {
+        if (svg) {
+            svg.setAttribute('stroke','black')
+            if (!gPos) {
+                const localOffset = circuitController.unprojectOffset(e.offsetX, e.offsetY)
+                gPos = circuitController.offsetToIndex(localOffset[0], localOffset[1])
+                svg.setAttribute('stroke','gray')
+            }
             const transform = svgGridTransform(gPos[0], gPos[1])
             svg.setAttribute('transform', transform)
             svg.innerHTML = svgGate(cType, id)
+            
         }
     }
 
