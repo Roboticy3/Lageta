@@ -300,11 +300,15 @@
         if (e.target !== svgHead.parentElement) return
 
         const controller = circuitDraggable.getController()
+
         const source = controller.getContents()
-        const activeWire = connectionGroup.querySelector("#wire-active")
         const gPos = source.getPos()
         const cType = source.gateTypeController
+        const id = source.getId()
         const index = source.connectionIndex
+
+        const target = circuitController.query(e.offsetX, e.offsetY)
+        const activeWire = connectionGroup.querySelector("#wire-active")
         
         if (activeWire === null || gPos === undefined || index === undefined || cType === undefined) return
         /**
@@ -322,6 +326,14 @@
                 fromOffset = [gPos[0] * 10 + localOffset[0], gPos[1] * 10 + localOffset[1]]
                 break
             default: return
+        }
+
+        activeWire.setAttribute('stroke', 'gray')
+        if (target.type !== "" && target.type !== source.type && target.type !== "Gate") {
+            const v = circuitController.getConnectionValue(
+                {id:id || 0, index:index, type:source.type}
+            )
+            activeWire.setAttribute('stroke',v?'var(--connection-color-on)':'var(--connection-color-off')
         }
 
         activeWire.innerHTML = drawWire(fromOffset, circuitController.unprojectOffset(e.offsetX, e.offsetY))

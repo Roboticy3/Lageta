@@ -548,6 +548,23 @@ export class CircuitController {
         }
     }
 
+    getConnectionValue(
+        index:ConnectionIndex
+    ) {
+        const gateId = index.id
+        switch (index.type) {
+            default:
+            case "Input":
+                const inputs = this.getGateInputs(gateId)
+                if (inputs === undefined) return
+                return inputs[index.index]
+            case "Output":
+                const outputs = this.getGateOutputs(gateId)
+                if (outputs === undefined) return
+                return outputs.override[index.index]
+        }
+    }
+
     addConnectionListener(
         f: (id: number) => void
     ) {
