@@ -1,11 +1,9 @@
 import type { SignalPlayer } from "$lib/signal_types/Signal";
-import type { SignalSetController } from "$lib/signal_types/SignalSetController";
 import { Gate, createGate } from "./Gate";
 import { GateGraph, Connection, type ConnectionType } from "./GateGraph"
 import { GateGrid } from "./GateGrid";
 import { identity, transform, type Matrix, type Transform, applyToPoint, inverse, toSVG, fromObject, translate, rotateDEG, rotate, scale} from "transformation-matrix";
-import CircuitRenderer from "$lib/components/GameView/CircuitRenderer.svelte";
-import { GateType, GateTypeController, GateTypeView } from "./GateType";
+import { GateType, GateTypeController, GateTypeView, type ConnectionValue } from "./GateType";
 import { all_gates, getGateType, type GateTypeParameters } from "$lib/dat/GateTypes/GateTypes";
 
 const connectionSelectRadius = 5
@@ -60,7 +58,7 @@ export class CircuitController {
     readonly gateGrid:GateGrid
     onComplete:() => void
 
-    private renderer:CircuitRenderer | null = null
+    private renderer:any = null
 
     constructor(
         gateGrid:GateGrid | undefined = undefined,
@@ -84,7 +82,7 @@ export class CircuitController {
         this.onComplete = onComplete
     }
 
-    giveRenderer(renderer:CircuitRenderer) {
+    giveRenderer(renderer:any) {
         this.renderer = renderer
         this.gateGrid.graph.connectionListeners.add(renderer.updateGate) //go-go gadget super spaghetti bullshit!
     }
@@ -101,8 +99,8 @@ export class CircuitController {
      */
     projectOffset(offsetX:number, offsetY:number) {
         const p:[number, number] = [offsetX, offsetY]
-        if (this.renderer) return applyToPoint(this.renderer.getTransformMatrix(), p)
-        return p
+        const m = this.getMatrix()
+        return m ? applyToPoint(m, p) : p
     }
 
     /**
@@ -113,8 +111,13 @@ export class CircuitController {
      */
     unprojectOffset(offsetX:number, offsetY:number) {
         const p:[number, number] = [offsetX, offsetY]
-        if (this.renderer) return applyToPoint(inverse(this.renderer.getTransformMatrix()), p)
-        return p
+        const m = this.getMatrix()
+        return m ? applyToPoint(inverse(m), p) : p
+    }
+
+    getMatrix() {
+        if (this.renderer?.updateTransformMatrix) 
+            return this.renderer?.updateTransformMatrix()
     }
 
     /**
@@ -140,6 +143,10 @@ export class CircuitController {
      */
     indexToOffset(x:number, y:number) {
         return this.gateGrid.indexToOffset(x,y)
+    }
+
+    offsetToIndex(offsetX:number, offsetY:number) {
+        return this.gateGrid.offsetToIndex(offsetX, offsetY)
     }
 
     /**
@@ -356,7 +363,8 @@ export class CircuitController {
         const [localX, localY] = this.unprojectOffset(offsetX, offsetY)
         const [x, y] = this.gateGrid.offsetToIndex(localX, localY)
         const gate = new Gate(cType.model)
-        return this.gateGrid.canAddGate(x, y, gate)
+        if (this.gateGrid.canAddGate(x, y, gate)) return [x, y]
+        return
     }
 
     previewMoveGate(
@@ -367,8 +375,8 @@ export class CircuitController {
         const [localX, localY] = this.unprojectOffset(offsetX, offsetY)
         const [x, y] = this.gateGrid.offsetToIndex(localX, localY)
         const gate = this.gateGrid.gates[id]
-        if (gate === undefined) return undefined
-        return this.gateGrid.canMoveGate(gate, x, y)
+        if (gate !== undefined && this.gateGrid.canAddGate(x, y, gate)) return [x, y]
+        return undefined
     }
 
     /**
@@ -540,6 +548,23 @@ export class CircuitController {
         }
     }
 
+    getConnectionValue(
+        index:ConnectionIndex
+    ) {
+        const gateId = index.id
+        switch (index.type) {
+            default:
+            case "Input":
+                const inputs = this.getGateInputs(gateId)
+                if (inputs === undefined) return
+                return inputs[index.index]
+            case "Output":
+                const outputs = this.getGateOutputs(gateId)
+                if (outputs === undefined) return
+                return outputs.override[index.index]
+        }
+    }
+
     addConnectionListener(
         f: (id: number) => void
     ) {
@@ -588,7 +613,7 @@ export class CircuitController {
             if (g === undefined) {
                 continue
             }
-            result.push(g.type.name)
+            result.push(...this.getGateOutputLabels(g))
         }
         return result
     }
@@ -597,7 +622,7 @@ export class CircuitController {
         this.gateGrid.graph.setFlow(index, val)
     }
 
-    setInputs(val:boolean[]) {
+    setInputs(val:ConnectionValue[]) {
         const inputs = this.gateGrid.inputs.map((g) => {
             return g?.id
         })
@@ -791,8 +816,8 @@ export class CircuitController {
     }
 
     //reference the player giving the signal in a SignalViewer
-    private player:SignalPlayer | undefined = undefined
-    setPlayer(player:SignalPlayer) {
+    private player:SignalPlayer<ConnectionValue> | undefined = undefined
+    setPlayer(player:SignalPlayer<ConnectionValue>) {
         this.player = player
     }
 

@@ -76,6 +76,10 @@ export class GateGrid {
         return this.grid[x + this.sizeX * y]
     }
 
+    canFit(x:number, y:number, ) {
+
+    }
+
     /**
      * Check if a gate can be added at the current posision.
      * @param x 
@@ -83,33 +87,36 @@ export class GateGrid {
      * @param gate 
      * @returns 
      */
-    canAddGate(x:number, y:number, gate:Gate): number[] | undefined {
+    canAddGate(x:number, y:number, gate:Gate) {
         const gType = gate.type
-        const cell = this.getGateIndex(gate, x, y)
 
         const [sizeX, sizeY] = [gType.gridWidth, gType.gridHeight]
+        const clamped = this.clampGate(gate, x, y)
+        if (clamped[0] !== x || clamped[1] !== y) {
+            return false
+        }
         
         //check for collisions with existing gates
         const collision = this.getInRange(
-            cell[0], cell[1], sizeX, sizeY
+            x, y, sizeX, sizeY
             )
         
         if (collision !== undefined) {
-            return undefined
+            return false
         }
 
-        return cell
+        return true
     }
 
     //add a gate at the given coordinates, and fail to add anything if another gate is in the way
-    addGate(x:number, y:number, gate:Gate):number[] | undefined{
-        const cell = this.canAddGate(x, y, gate)
-        if (cell === undefined) return undefined
+    addGate(x:number, y:number, gate:Gate) {
+
+        if (!this.canAddGate(x, y, gate)) return false
 
         //add the gate
-        this.addGateNoChecks(cell[0], cell[1], gate)
+        this.addGateNoChecks(x, y, gate)
 
-        return cell
+        return true
     }
 
     /**
@@ -124,8 +131,6 @@ export class GateGrid {
         this.setIndexToRange(id, g.x || 0, g.y || 0, gType.gridWidth, gType.gridHeight)
         this.addInputOutput(g)
     }
-
-    
 
     /**
      * Get a gate's position from a sample index
@@ -192,12 +197,9 @@ export class GateGrid {
         if (!gate) {
             return undefined
         }
-        
-        const toCell = this.canMoveGate(gate, toX, toY)
-        if (toCell === undefined) return undefined
 
-        toX = toCell[0]
-        toY = toCell[1]
+        if (!this.canAddGate(toX, toY, gate)) return false
+
         const gType = gate.type
         const [sizeX, sizeY] = [gType.gridWidth, gType.gridHeight]
 
@@ -205,24 +207,7 @@ export class GateGrid {
         this.setIndexToRange(id, toX, toY, sizeX, sizeY)
         gate.givePos(toX, toY)
 
-        return toCell
-    }
-
-    canMoveGate(gate:Gate, toX:number, toY:number) {
-        const gType = gate.type
-
-        const [sizeX, sizeY] = [gType.gridWidth, gType.gridHeight]
-
-        const toCell = this.getGateIndex(gate, toX, toY)
-        toX = toCell[0]
-        toY = toCell[1]
-
-        const collision = this.getInRange(toX, toY, sizeX, sizeY, [gate.id])
-        if (collision !== undefined) {
-            return undefined
-        }
-
-        return [toX, toY]
+        return true
     }
 
     iterGates(iter:(g:Gate) => any) {

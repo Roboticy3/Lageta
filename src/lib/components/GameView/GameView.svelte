@@ -1,78 +1,33 @@
 <!-- simulator containing all the basic elements needed to build, save, and load logical circuits -->
 
 <script>
-    import { onMount } from 'svelte';
-
+    import { CircuitController } from "$lib/circuit_types/CircuitController";
+    import { ConnectionValueSignalSet, SignalSet } from "$lib/signal_types/Signal";
+    import { CircuitSignalSetView, SignalSetView } from "$lib/signal_types/SignalSetView";
+    import { ProgressStorage } from "$lib/storage_types/ProgressStore";
+    import CircuitDiv from "./CircuitDiv.svelte";
+    import CircuitDraggable from "./CircuitDraggable.svelte";
+    import GameViewCircuitPanel from "./GameViewCircuitPanel.svelte";
     import GameViewShelfButton from "./GameViewShelfButton.svelte";
-    import GameViewCircuitPanel from './GameViewCircuitPanel.svelte';
-    import TextFormPopup from './TextFormPopup.svelte';
-    import CompletionPopup from './CompletionPopup.svelte';
+    import SignalViewer from "./SignalViewer.svelte";
+    import CompletionPopup from "./CompletionPopup.svelte";
 
-    import { CircuitController, mainController } from '$lib/circuit_types/CircuitController';
-    
-    import { CircuitStore } from '$lib/storage_types/CircuitStorage';
-    import { ProgressStorage } from '$lib/storage_types/ProgressStore';
-    
-    import { CompleteCondition, GameViewParameters } from '$lib/level_types/GameViewParameters';
-    import { all_levels } from '$lib/level_types/Level';
-    import InputCheckBox from './InputCheckBox.svelte';
-    import { SignalSetController } from '$lib/signal_types/SignalSetController';
-    import SignalViewer from './SignalViewer.svelte';
-    import { SignalSet } from '$lib/signal_types/Signal';
-    import CircuitDraggable from './CircuitDraggable.svelte';
-    import { GateType, GateTypeController } from '$lib/circuit_types/GateType';
 
     /**
-     * @type {GameViewParameters}
+     * @type {import("$lib/level_types/GameViewParameters").GameViewParameters}
      */
     export let params
 
-    /**
-     * @type {CircuitStore}
-     */
-    let circuitStore
-
-    /**
-     * @type {ProgressStorage}
-    */
-    let progressStore
-
-    let circuitController = new CircuitController(params.grid)
+    console.log("initializing GameView with params: ",params)
     
-    /**
-     * @type {CircuitDraggable}
-     */
+    const signalSetView = params.completeCondition ? 
+        new CircuitSignalSetView(params.completeCondition) : undefined
+
     let circuitDraggable
 
-    /**
-     * @type {GameViewCircuitPanel}
-    */
-    let circuitPanel
+    let progressStorage = new ProgressStorage()
 
-    /**
-     * @type {HTMLDivElement}
-     */
-    let shelf
-
-    onMount(() => {
-
-        if (mainController === undefined) {
-            console.log("there should be a controller here!")
-            return
-        }
-
-        mainController.onComplete = onComplete
-
-        circuitStore = new CircuitStore(mainController, "")
-        updateLocalStorageKeys()
-
-        progressStore = new ProgressStorage()
-        if (params.allUnlocks) {
-            progressStore.cheat()
-        }
-        updateUnlockedGates()
-    })
-
+    
     /**
      * @type {CompletionPopup}
      */
@@ -80,202 +35,114 @@
 
     function onComplete() {
         const rewards = params.completeRewards
-        progressStore.addGate(params.name)
-        rewards.map(progressStore.addLevel.bind(progressStore))
-        rewards.map(progressStore.addGate.bind(progressStore))
+        progressStorage.addGate(params.name)
+        rewards.map(progressStorage.addLevel.bind(progressStorage))
+        rewards.map(progressStorage.addGate.bind(progressStorage))
         
         completionPopup.show()
     }
 
-    /**
-     * @type {TextFormPopup}
-     */
-    let dialog
+    const circuitController = new CircuitController(params.grid, onComplete)
 
-    /**
-     * @param {string | undefined} s
-     */
-    function onSubmitSave(s) {
-        const result = circuitStore.save(s)
-        updateLocalStorageKeys()
-        return result
-    }
-
-    /**
-     * @param {string | undefined} s
-     */
-    function onSubmitLoad(s) {
-        const result = circuitStore.load(s)
-        circuitPanel.updateSvg()
-        return result
-    }
-
-    /**
-     * @param {string | undefined} s
-     */
-    function onSubmitRemove(s) {
-        const result = circuitStore.remove(s)
-        updateLocalStorageKeys()
-        return result
-    }
-
-    /**
-     * @type {string[]}
-     */
-    var circuitStorageKeys = []
-    function updateLocalStorageKeys() {
-        circuitStorageKeys = circuitStore?.keys() || []
-        return circuitStorageKeys
-    }
-    updateLocalStorageKeys()
-
-    /**
-     * @type {Array<GateTypeController>}
-    */
-    var unlockedGates = []
-    function updateUnlockedGates() {
-        unlockedGates = progressStore?.gates() || []
-        return unlockedGates
-    }
 </script>
 
-<div class="game-view" id="game-view">
+<div class="base-vertical">
+    <CircuitDraggable 
+        circuitController={circuitController} 
+        bind:this={circuitDraggable}
+    />
+    <div class="nav">
 
-    <CircuitDraggable circuitController={circuitController} bind:this={circuitDraggable}/>
-
-    <div class="shelf" bind:this={shelf}>
-        {#each unlockedGates as type}
-        <GameViewShelfButton circuitDraggable={circuitDraggable} gateType={type}/>
-        {/each}
     </div>
-    <GameViewCircuitPanel 
-        bind:this={circuitPanel} 
-        params={params}
-        gridController={circuitController}
-        circuitDraggable={circuitDraggable}
-    > 
-    {#if mainController}  
-        {#each mainController.getInputIds() as from}
-            <InputCheckBox 
-                gridController={mainController}
-                circuitPanel={circuitPanel}
-                from={from}
-            />
-        {/each}  
-    {/if}
-    </GameViewCircuitPanel>
-    <div class="directions">
-        {@html params.directions}
-        {#if params.completeCondition instanceof SignalSet}
-            <SignalViewer 
-                signalSetController={
-                    new SignalSetController(params.completeCondition)
-                } 
-                gridController={mainController || null} 
-                updateSvg={circuitPanel?.updateSvg || null}
-             />
-        {/if}
-    </div>
+    <div class="sandbox-horizontal">
+        <div class="circuit-editor">
+            <div class="shelf">
+                {#each progressStorage.gates() as gateTypeController}
+                    <GameViewShelfButton circuitDraggable={circuitDraggable} gateType={gateTypeController}/>
+                {/each}
+            </div>
+            <div class="circuit-panel">
+                <GameViewCircuitPanel 
+                    params={params}
+                    gridController={circuitController}
+                    circuitDraggable={circuitDraggable}
+                >
 
-    <div class="control-panel">
-        <div class="simulator-player">
-            <button on:click={() => {dialog.show("Save", onSubmitSave)}}>
-                save
-            </button>
-            <button on:click={() => {dialog.show("Load", onSubmitLoad)}}>
-                load
-            </button>
-            <button on:click={() => {dialog.show("Remove", onSubmitRemove)}}>
-                remove
-            </button>
+                </GameViewCircuitPanel>
+            </div>
+        </div>
+        <div class="instructions">
+            {@html params.directions}
         </div>
     </div>
-
-    <TextFormPopup submitFunction={(s) => {
-        return false
-    }} name={"Save"} bind:this={dialog}>
-    <div class="circuit-list">
-        {#each circuitStorageKeys as key} 
-        <p>{key} </p>
-        {/each}
-    </div>
-    </TextFormPopup>
-
-    <CompletionPopup bind:this={completionPopup} unlocks={params.completeRewards} />
-
+    {#if signalSetView}
+        <div class="signal">
+            <SignalViewer circuitController={circuitController} signalSetView={signalSetView} />
+        </div>
+    {/if}
 </div>
-    
-<style>
-    /*
-    
-    My idea is to layout the assigment page as a set of flexboxes.
-    
-    I'm not too familiar with css, but I know flexbox is the way to go for panel-style layouts
-    
-    The biggest challenge with this would probably be rendering the simulation of the logic circuit to the simulator box correctly
-    
-    We'll just have to see how it goes */
-    
-    /* board is the whole screen, laid out from top to bottom*/
-    .game-view {
-        display: grid;
-        grid-template-rows: 10% 83% 7%;
-        grid-template-columns: 65% 35%;
-        gap: 0%;
-        
-        position: absolute;
-        top: 0;
-        left: 0;
 
-        width: 100%;
-        height: 100%;
-        
+<CompletionPopup bind:this={completionPopup} unlocks={params.completeRewards} />
+
+<style>
+    
+    .base-vertical {
+        display:flex;
+        flex-direction: column;
+        height:100%;
     }
 
-/* the shelf is where the user picks elements, saves progress, and opens a menu to leave the level */
-    .shelf {
-        grid-row: 1;
-        grid-column: 1 / 3;
-        background-color: blue;
+    .base-vertical .nav {
+        flex: 1;
+        background-color: var(--secondary-bg-color);
+    }
+
+    .base-vertical .sandbox-horizontal {
+        flex: 7;
         
+        display:flex;
+        flex-direction: row;
+        height:70%;
+    }
+
+    .sandbox-horizontal .circuit-editor {
+        flex: 9;
+
+        display: flex;
+        flex-direction: column;
+    }
+
+    .circuit-editor .shelf {
+        flex: 1;
+        background-color: var(--tertiary-bg-color);
+
         display: flex;
         flex-direction: row;
-        justify-content: left;
     }
 
-    
+    .circuit-editor .circuit-panel {
+        flex: 7;
+        background-color: var(--main-bg-color);
+        min-height: 0;
 
-    .directions {
-        grid-row: 2;
-        grid-column: 2 / 3;
-        background-color: green;
-        padding: 30px 30px
+        border: thick double;
+        color: var(--grid-color);
     }
 
-/* simulation control goes on the bottom */
-    .control-panel {
-        grid-row: 3;
-        grid-column: 1 / 3;
-        display: flex;
-        background-color: red;
-        flex-grow: 1.5;
-        justify-content: center;
+    .sandbox-horizontal .instructions {
+        flex: 3;
+        background-color: var(--tertiary-bg-color);
+
+        padding: 3%;
+        overflow-y: scroll;
     }
 
-    .simulator-player {
-        display: flex;
-        margin: 0%;
-        height: 50%;
-        align-items: center;
-        align-self: center;
-        background-color: yellow;
+    .base-vertical .signal {
+        flex: 3;
+        background-color: var(--secondary-bg-color);
+        padding:2%;
+        width: 96%;
+        padding-bottom: 0%;
+        max-height: 36%;
     }
-
-    .circuit-list {
-        height: 75%;
-        overflow-x: hidden;
-        overflow-y: auto;
-        text-align: center;
-    }
-
 </style>

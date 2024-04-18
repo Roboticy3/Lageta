@@ -382,7 +382,7 @@ export class GateGraph {
         return true
     }
 
-    setFlows(val:boolean[], ids:(number | undefined)[]) {
+    setFlows(val:ConnectionValue[], ids:(number | undefined)[]) {
         const gates = ids.map((i) => {
             if (i === undefined) return undefined
             return this.gates[i]

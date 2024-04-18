@@ -2,8 +2,10 @@ import { CircuitController } from "$lib/circuit_types/CircuitController"
 import type { GateGrid } from "$lib/circuit_types/GateGrid"
 import { GateType, GateTypeController } from "$lib/circuit_types/GateType"
 import { Buf, getGateType } from "$lib/dat/GateTypes/GateTypes"
-import { SignalSet } from "$lib/signal_types/Signal"
+import { ConnectionValueSignalSet, SignalSet } from "$lib/signal_types/Signal"
+import { CircuitSignalSetView } from "$lib/signal_types/SignalSetView"
 import { OrganizedCircuit, type OrganizedCircuitContents } from "$lib/storage_types/CircuitStorage"
+import { type RendererParameters } from "../renderer_types/RendererParameters"
 
 export class GameViewParameters {
     readonly name:string
@@ -45,8 +47,8 @@ export class GameViewParameters {
 }
 
 export class CompleteCondition {
-    inputSize:number 
-    outputSize:number
+    inputSize=1
+    outputSize=1
 
     constructor (
         from:CompleteConditionSource
@@ -55,21 +57,10 @@ export class CompleteCondition {
             this.inputSize = from.inputs
             this.outputSize = from.outputs
         }
-        else {
-            from = from || getGateType(Buf)
-            this.inputSize = from.model.sizeIn
-            this.outputSize = from.model.sizeOut
-        }
+
+
     }
 }
 
 type GridSource = CircuitController | OrganizedCircuitContents | undefined
-export type CompleteConditionSource = GateTypeController | SignalSet | undefined
-export type RendererParameters = {
-    showGates?:boolean, 
-    showConnectionPoints?:boolean, 
-    showWires?:boolean, 
-    showGrid?:boolean,
-    initialScale?:[number, number],
-    initialTranslate?:[number, number]
-}
+export type CompleteConditionSource = ConnectionValueSignalSet | undefined

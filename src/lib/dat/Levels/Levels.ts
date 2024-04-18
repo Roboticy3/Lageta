@@ -1,7 +1,7 @@
 import { Connection } from "$lib/circuit_types/GateGraph";
-import { GateType, GateTypeController } from "$lib/circuit_types/GateType";
+import { GateType, GateTypeController, type ConnectionValue } from "$lib/circuit_types/GateType";
 import { And, Buf, Decoder2t4, Encoder4t2, Input, Nand, Not, Or, Output, Xor, getGateType, type GateTypeParameters } from "$lib/dat/GateTypes/GateTypes";
-import { Signal, SignalSet, oscillator, repeater } from "$lib/signal_types/Signal";
+import { ConnectionValueSignalSet, Signal, oscillator, repeater } from "$lib/signal_types/Signal";
 import type { OrganizedCircuitContents, SerializableGate } from "$lib/storage_types/CircuitStorage";
 import { ProgressStorage } from "$lib/storage_types/ProgressStore";
 import { GameViewParameters } from "../../level_types/GameViewParameters";
@@ -41,13 +41,12 @@ const In2Out1:OrganizedCircuitContents = {
     size: [10, 5]
 };
 
-const DecoderLevelSignal = new SignalSet(
+const DecoderLevelSignal = new ConnectionValueSignalSet(
     [
-        new Signal([{frame:0,value:false}]).push(oscillator(5, 10)),
-        new Signal([{frame:0,value:false}]).push(oscillator(10, 5))
+        new Signal<ConnectionValue>([{frame:0,value:false}]).push(oscillator(5, 10)),
+        new Signal<ConnectionValue>([{frame:0,value:false}]).push(oscillator(10, 5))
     ],
     101,
-    false,
     getGateType(Decoder2t4)
 )
 
@@ -82,6 +81,7 @@ export const EncoderLevel = {
     type:Encoder4t2,
     playCondition:[true, true]
 }
+console.log(EncoderLevel)
 
 export const DecoderLevel = {
     params:new GameViewParameters(
@@ -146,13 +146,12 @@ export const XorLevel = {
             ],
             size: [10, 5]
         },
-        new SignalSet(
+        new ConnectionValueSignalSet(
             [
-                new Signal([{frame:0,value:false}]).push(oscillator(10, 10)),
-                new Signal([{frame:5,value:false}]).push(oscillator(10, 9))
+                new Signal<ConnectionValue>([{frame:0,value:false}]).push(oscillator(10, 10)),
+                new Signal<ConnectionValue>([{frame:5,value:false}]).push(oscillator(10, 9))
             ],
             200,
-            false,
             getGateType(Xor)
         ),
         [
@@ -194,13 +193,12 @@ export const NandLevel = {
             ],
             size: [10, 5]
         },
-        new SignalSet(
+        new ConnectionValueSignalSet(
             [
-                new Signal([{frame:0,value:false}]).push(oscillator(10, 5)),
-                new Signal([{frame:0,value:false},{frame: 50,value: true}])
+                new Signal<ConnectionValue>([{frame:0,value:false}]).push(oscillator(10, 5)),
+                new Signal<ConnectionValue>([{frame:0,value:false},{frame:50,value:true}])
             ],
             100,
-            false,
             getGateType(Nand)
         ),
         [
@@ -221,14 +219,14 @@ export const OrLevel = {
         and is represented by a shape that's curved inward on one side and rounded on the other like an And gate</p>
         `,
         In2Out1,
-        new SignalSet(
+        new ConnectionValueSignalSet(
             [
-                new Signal([{frame:0,value:true}]).push(
+                new Signal<ConnectionValue>([{frame:0,value:true}]).push(
                     repeater(
-                        new Signal([
+                        new Signal<ConnectionValue>([
                             {
                                 frame: 3,
-                                value: false,
+                                value: false
                             },
                             {
                                 frame: 9,
@@ -237,15 +235,15 @@ export const OrLevel = {
                         ]),
                         3
                     )
-                ).push(new Signal([{frame:3,value:false},{frame:6,value:false}])).push(
+                ).push(new Signal<ConnectionValue>([{frame:3,value:false},{frame:6,value:false}])).push(
                     oscillator(3, 4)
                 ),
-                new Signal([{frame:0,value:false},{frame:6,value:true}]).push(
+                new Signal<ConnectionValue>([{frame:0,value:false},{frame:6,value:true}]).push(
                     repeater(
-                        new Signal([
+                        new Signal<ConnectionValue>([
                             {
                                 frame: 3,
-                                value: false,
+                                value: false
                             },
                             {
                                 frame: 9,
@@ -254,12 +252,11 @@ export const OrLevel = {
                         ]),
                         3
                     )
-                ).push(new Signal([{frame:3,value:false}])).push(
+                ).push(new Signal<ConnectionValue>([{frame:3,value:false}])).push(
                     oscillator(3, 4)
                 )
             ],
             70,
-            false,
             getGateType(Or)
         ),
         [
@@ -281,11 +278,11 @@ export const AndLevel = {
         <p>After placing the gate, connect a wire to one of its inputs, then connect its output to the output of the level.</p>
         `,
         In2Out1,
-        new SignalSet(
+        new ConnectionValueSignalSet(
             [
-                new Signal([{frame:0,value:false}])
+                new Signal<ConnectionValue>([{frame:0,value:false}])
                     .push(oscillator(10, 5)),
-                new Signal([
+                new Signal<ConnectionValue>([
                     {
                         frame: 50,
                         value: true
@@ -293,7 +290,6 @@ export const AndLevel = {
                 ])
             ],
             100,
-            false,
             getGateType(And)
         ),
         [
@@ -316,16 +312,15 @@ export const NotLevel = {
         <p>After placing the gate, connect a wire to the input, and connect the output to the level's output.</p>
         `,
         MinCircuit,
-        new SignalSet(
+        new ConnectionValueSignalSet(
             [
-                new Signal([{frame:0,value:false}])
+                new Signal<ConnectionValue>([{frame:0,value:false}])
                     .push(oscillator(10, 2))
                     .push(oscillator(5, 3))
                     .push(oscillator(3, 3))
                     .push(oscillator(1, 6))
             ],
             101,
-            false,
             getGateType(Not)
         ),
         [
@@ -348,12 +343,11 @@ export const BufLevel = {
         <p>If the measured output matches the expected output, you win!</p>
         `,
         MinCircuit,
-        new SignalSet(
+        new ConnectionValueSignalSet(
             [
-                new Signal([{frame:0,value:false}]).push(oscillator(20, 2))
+                new Signal<ConnectionValue>([{frame:0,value:false}]).push(oscillator(20, 2))
             ],
             80,
-            false,
             getGateType(Buf)
         ),
         [

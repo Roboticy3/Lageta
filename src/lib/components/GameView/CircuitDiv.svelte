@@ -21,7 +21,7 @@
 
     export function setOffset() {
         const localStart = circuitController.indexToOffset(position[0], position[1])
-        const transform = circuitController.getRenderer()?.getTransformMatrix()
+        const transform = circuitController.getMatrix()
         if (!transform) return
 
         start = circuitController.projectOffset(
@@ -50,19 +50,23 @@
     export function deactivate() {
         active = false
     }
+
+    export function isActive() {
+        return active
+    }
 </script>
 
 <div 
-    class="{active ? '':'unavailable'}" 
+    class="circuit-div {active ? '':'unavailable'}" 
     style="left:{start[0]}px; top:{start[1]}px; width:{end[0] - start[0]}px; height:{end[1] - start[1]}px;" 
 >
     <slot/>
 </div>
 
 <style>
-    div {
+    .circuit-div {
         position:absolute;
-        background:whitesmoke;
+        background-color: var(--main-bg-color);
         border-radius: 10%;
         border: 4px ridge black;
         text-align:center;

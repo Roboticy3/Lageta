@@ -1,3 +1,4 @@
+<svelte:options accessors={true}/>
 <script>
     import { CircuitController } from "$lib/circuit_types/CircuitController";
     import CircuitDraggable from './CircuitDraggable.svelte';
@@ -15,14 +16,19 @@
      * @type {CircuitDraggable}
      */
     export let circuitDraggable
-
-    let translateX = 0
-    let translateY = 0
-    let scaleX = 3
-    let scaleY = 3
     
     /**
-     * @type {import("$lib/level_types/GameViewParameters").RendererParameters}
+     * @type {import("$lib/renderer_types/RendererState").RendererState}
+     */
+    export let rendererState = {
+        translateX:0,
+        translateY:0,
+        scaleX:4,
+        scaleY:4
+    }
+    
+    /**
+     * @type {import("$lib/renderer_types/RendererParameters").RendererParameters}
      */
     export let rendererParams = {}
 
@@ -32,9 +38,9 @@
     let connectionPointDisplayMode = ""
 
     /**
-     * @type {import("transformation-matrix").Matrix}
+     * @type {SVGElement}
      */
-    let transformMatrix = compose(translate(translateX, translateY), scale(scaleX, scaleY))
+    let svgHead
 
     /**
      * @param {number} tX
@@ -42,20 +48,26 @@
      * @param {number} sX
      * @param {number} sY
      */
-     export function setTransformMatrix(tX, tY, sX, sY) {
-        transformMatrix = compose(translate(tX, tY), scale(sX, sY))
-        translateX = tX
-        translateY = tY
-        scaleX = sX
-        scaleY = sY
+    export function setTransformMatrix(tX, tY, sX, sY) {
+        rendererState.translateX = tX
+        rendererState.translateY = tY
+        rendererState.scaleX = sX
+        rendererState.scaleY = sY
+        rendererState = rendererState
+        return compose(translate(tX, tY), scale(sX, sY))
     }
 
-    export function getTransformMatrix() {
-        return transformMatrix
+    export function updateTransformMatrix() {
+        return setTransformMatrix(
+            rendererState.translateX,
+            rendererState.translateY,
+            rendererState.scaleX,
+            rendererState.scaleY
+        )
     }
 
     export function getTransformString() {
-        return toSVG(transformMatrix)
+        return toSVG(updateTransformMatrix())
     }
 
     /**
@@ -90,8 +102,8 @@
     })
 
     function applyInitialTransformParams() {
-        const [tX, tY] = rendererParams.initialTranslate || [translateX, translateY]
-        const [sX, sY] = rendererParams.initialScale || [scaleX, scaleY]
+        const [tX, tY] = rendererParams.initialTranslate || [rendererState.translateX, rendererState.translateY]
+        const [sX, sY] = rendererParams.initialScale || [rendererState.scaleX, rendererState.scaleY]
         setTransformMatrix(tX, tY, sX, sY)
     }
 
@@ -285,12 +297,19 @@
      * @param {MouseEvent} e
      */
     export function drawActiveWire(e) {
+        if (e.target !== svgHead.parentElement) return
+
         const controller = circuitDraggable.getController()
+
         const source = controller.getContents()
-        const activeWire = connectionGroup.querySelector("#wire-active")
         const gPos = source.getPos()
         const cType = source.gateTypeController
+        const id = source.getId()
         const index = source.connectionIndex
+
+        const target = circuitController.query(e.offsetX, e.offsetY)
+        const activeWire = connectionGroup.querySelector("#wire-active")
+        
         if (activeWire === null || gPos === undefined || index === undefined || cType === undefined) return
         /**
          * @type {[number, number] | null}
@@ -309,6 +328,14 @@
             default: return
         }
 
+        activeWire.setAttribute('stroke', 'gray')
+        if (target.type !== "" && target.type !== source.type && target.type !== "Gate") {
+            const v = circuitController.getConnectionValue(
+                {id:id || 0, index:index, type:source.type}
+            )
+            activeWire.setAttribute('stroke',v?'var(--connection-color-on)':'var(--connection-color-off')
+        }
+
         activeWire.innerHTML = drawWire(fromOffset, circuitController.unprojectOffset(e.offsetX, e.offsetY))
     }
 
@@ -323,6 +350,7 @@
      * @param {MouseEvent} e
      */
     export function drawActiveGate(e) {
+        if (e.target !== svgHead.parentElement) return
         const controller = circuitDraggable.getController()
         const cType = controller.getGateType()
         const id = controller.getId()
@@ -335,10 +363,17 @@
         }
         else return
 
-        if (gPos && svg) {
+        if (svg) {
+            svg.setAttribute('stroke','black')
+            if (!gPos) {
+                const localOffset = circuitController.unprojectOffset(e.offsetX, e.offsetY)
+                gPos = circuitController.offsetToIndex(localOffset[0], localOffset[1])
+                svg.setAttribute('stroke','gray')
+            }
             const transform = svgGridTransform(gPos[0], gPos[1])
             svg.setAttribute('transform', transform)
             svg.innerHTML = svgGate(cType, id)
+            
         }
     }
 
@@ -478,12 +513,14 @@
 <svg 
     class="circuit-svg" 
     viewBox="
-        {-translateX} 
-        {-translateY} 
-        {scaleX * gridSize[0] * cellOffset + translateX} 
-        {scaleY * gridSize[1] * cellOffset + translateY}
-    " width="{scaleX * gridSize[0] * cellOffset + translateX}px">
-    <g transform="scale({scaleX}, {scaleY})">
+        {-rendererState.translateX} 
+        {-rendererState.translateY} 
+        {rendererState.scaleX * gridSize[0] * cellOffset + rendererState.translateX} 
+        {rendererState.scaleY * gridSize[1] * cellOffset + rendererState.translateY}
+    " width="{rendererState.scaleX * gridSize[0] * cellOffset + rendererState.translateX}px"
+    bind:this={svgHead}
+>
+    <g transform="scale({rendererState.scaleX}, {rendererState.scaleY})">
         <g bind:this={gridGroup} id="circuit-svg-lines" stroke="var(--grid-color)" stroke-width="0.25px" fill="none"></g>
         <g bind:this={gateGroup} id="circuit-svg-gates" stroke="var(--gate-color)" stroke-width="0.5px" fill="none"></g>
         <g bind:this={connectionGroup} id="circuit-svg-connections" stroke="var(--gate-color)" stroke-width="0.5px" fill="none"></g>

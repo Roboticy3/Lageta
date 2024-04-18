@@ -7,7 +7,8 @@
     
     import { CircuitController, CircuitControllerQueryResult } from '$lib/circuit_types/CircuitController';
     import { GameViewParameters } from '$lib/level_types/GameViewParameters';
-    import { Buf, getGateType } from '$lib/dat/GateTypes/GateTypes';
+    import { Buf, Input, getGateType } from '$lib/dat/GateTypes/GateTypes';
+    import InputCheckBox from './InputCheckBox.svelte';
 
     /**
      * @type {GameViewParameters}
@@ -86,7 +87,7 @@
      */
     let mountCircuit = () => {
         addDragEventListeners()
-        gridController.giveRenderer(circuitRenderer)
+        if (!gridController.getRenderer() && circuitRenderer) gridController.giveRenderer(circuitRenderer)
     }
     onMount(mountCircuit)
 
@@ -389,7 +390,16 @@
     bind:this={circuitContainer}
     >
 
-    <CircuitRenderer bind:this={circuitRenderer} circuitController={gridController} circuitDraggable={circuitDraggable} rendererParams={params.rendererParams || {}}/>
+    <CircuitRenderer 
+        bind:this={circuitRenderer} 
+        circuitController={gridController} 
+        circuitDraggable={circuitDraggable} 
+        rendererParams={params.rendererParams || {}}
+    />
+
+    {#each gridController.getInputIds() as id}
+        <InputCheckBox gridController={gridController} from={id}/>
+    {/each}
 
     {#if showSlot}
         <slot />
@@ -398,8 +408,7 @@
 
 <style>
     .circuit-container {
-        grid-row: 2;
-        grid-column: 1 / 2;
-        background-color: white;  
+        height:100%;
+        overflow: hidden;
     }
 </style>
