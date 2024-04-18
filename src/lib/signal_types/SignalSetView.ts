@@ -7,29 +7,30 @@ type SignalSetDrawChannel = (channel:number, to:number, pathParams:string) => st
 export class SignalSetView<T> {
     readonly signalSet:SignalSet<T>
     readonly height=20
-    readonly drawChannel: SignalSetDrawChannel
 
     constructor(
         from:SignalSet<T> | number,
-        drawChannel: SignalSetDrawChannel
     ) {
         if (from instanceof SignalSet) {
             this.signalSet = from
         }
         else {
-            let start = Array<Signal<T>>(from)
-            for (let i = 0; i < from; i++) {
-                start[i] = new Signal()
-            }
-            this.signalSet = new SignalSet<T>(
-                start,
-                0
-            )
+            this.signalSet = this.initBlankChannels(from)
         }
-
-        this.drawChannel = drawChannel
     }
 
+    private initBlankChannels(from:number) {
+        let start = Array<Signal<T>>(from)
+        for (let i = 0; i < from; i++) {
+            start[i] = new Signal()
+        }
+        return new SignalSet<T>(
+            start,
+            0
+        )
+    }
+
+    drawChannel(channel:number, to:number, pathParams:string) {}
 
     drawChannels(
         to:number = this.signalSet.length, 
@@ -88,47 +89,46 @@ export class CircuitSignalSetView extends SignalSetView<ConnectionValue> {
     constructor(
         from:ConnectionValueSignalSet | SignalSet<ConnectionValue> | number,
     ) {
-        const drawChannel = (channel:number, to:number, pathParams:string) => {
-            const signal = this.signalSet.block[channel]
-            const defaultValue = this.getDefaultInputs()[channel]
-    
-            if (signal.unpack().length === 0) {
-                return ""
-            }
-    
-            let lastFrame = {
-                value:defaultValue,
-                frame:0
-            }
-            let path = ""
-    
-            for (let i = 0; i < signal.unpack().length; i++) {
-                const keyFrame = signal.unpack()[i]
-                if (keyFrame.frame > to) break
-    
-                path += this.getPathElementsFrom(keyFrame, lastFrame.value, channel)
-                lastFrame = keyFrame
-            }
-    
-            path += this.getPathElementsFrom(
-                {value:lastFrame.value, frame:to},
-                lastFrame.value,channel
-            )
-        
-            const baseHeight = this.getDesiredChannelHeight(channel)
-            path = `<path ${pathParams} d="
-                M 0 ${this.toHeightRev(defaultValue)}
-                ${path}
-            "/>`
-            return path
-        }
-        super(from, drawChannel)
+        super(from)
     }
 
     frameWidth = 3
     frameTime = 250
 
+    drawChannel = (channel:number, to:number, pathParams:string) => {
+        const signal = this.signalSet.block[channel]
+        const defaultValue = this.getDefaultInputs()[channel]
+
+        if (signal.unpack().length === 0) {
+            return ""
+        }
+
+        let lastFrame = {
+            value:defaultValue,
+            frame:0
+        }
+        let path = ""
+
+        for (let i = 0; i < signal.unpack().length; i++) {
+            const keyFrame = signal.unpack()[i]
+            if (keyFrame.frame > to) break
+
+            path += this.getPathElementsFrom(keyFrame, lastFrame.value, channel)
+            lastFrame = keyFrame
+        }
+
+        path += this.getPathElementsFrom(
+            {value:lastFrame.value, frame:to},
+            lastFrame.value,channel
+        )
     
+        const baseHeight = this.getDesiredChannelHeight(channel)
+        path = `<path ${pathParams} d="
+            M 0 ${this.toHeightRev(defaultValue)}
+            ${path}
+        "/>`
+        return path
+    }
 
     private getPathElementsFrom(p:SignalKeyFrame<ConnectionValue>, lastValue:ConnectionValue, channel:number) {
         return `L ${
