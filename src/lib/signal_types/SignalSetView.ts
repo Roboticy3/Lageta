@@ -9,13 +9,16 @@ export class SignalSetView<T> {
     readonly height=20
 
     constructor(
-        from:SignalSet<T> | number,
+        from:SignalSet<T> | number | T[],
     ) {
         if (from instanceof SignalSet) {
             this.signalSet = from
         }
-        else {
+        else if (typeof from === "number") {
             this.signalSet = this.initBlankChannels(from)
+        }
+        else {
+            this.signalSet = this.initChannelsWithValue(from)
         }
     }
 
@@ -23,6 +26,19 @@ export class SignalSetView<T> {
         let start = Array<Signal<T>>(from)
         for (let i = 0; i < from; i++) {
             start[i] = new Signal()
+        }
+        return new SignalSet<T>(
+            start,
+            0
+        )
+    }
+
+    private initChannelsWithValue(from:T[]) {
+        let start = Array<Signal<T>>(from.length)
+        for (let i = 0; i < from.length; i++) {
+            start[i] = new Signal(
+                [{value:from[i],frame:0}]
+            )
         }
         return new SignalSet<T>(
             start,
@@ -87,7 +103,7 @@ export class SignalSetView<T> {
 export class CircuitSignalSetView extends SignalSetView<ConnectionValue> {
 
     constructor(
-        from:ConnectionValueSignalSet | SignalSet<ConnectionValue> | number,
+        from:ConnectionValueSignalSet | SignalSet<ConnectionValue> | number | ConnectionValue[],
     ) {
         super(from)
     }
