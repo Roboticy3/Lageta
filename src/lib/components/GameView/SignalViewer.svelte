@@ -42,7 +42,6 @@
         signalSetView.createPlayer(100)
         signalSetView.sendPlayerToController(circuitController)
         restart()
-        resetOutputSignalSetView()
     })
 
     /**
@@ -54,6 +53,8 @@
      */
     let playButton
     let playing = false
+    let atStart = true
+    let atEnd = false
 
     /**
      * @type {HTMLDivElement}
@@ -71,11 +72,15 @@
 
     function restart() {
         pause()
+        
         signalSetView.resetPlayer()
         resetOutputSignalSetView()
+
         playBarGroup = container.querySelector("#signal-svg-play-bar")
         playButton = container.querySelector("#signal-play-button")
+
         setPlayBarProgress()
+        atStart = true
     }
 
     /**
@@ -88,20 +93,22 @@
         setPlayBarProgress(currentFrame)
 
         if (update) {
-            outputSignalSetView.push(currentValue, currentFrame - 1);
             circuitController.setInputs(currentValue)
+            outputSignalSetView.push(circuitController.getOutputs(), currentFrame - 1);
         }
 
         liveChannelSvgs = outputSignalSetView.drawChannels(currentFrame, `stroke="red"`)
-        console.log(outputSignalSetView)
         
         if (done) {
+            atEnd = true
             pause()
         }  
     }
 
     function play() {
         if (playButton) playButton.innerText = "⏸"
+
+        if (atEnd) restart()
 
         signalSetView.startPlayer(onSignalStep, false)
         playing = true
@@ -149,11 +156,8 @@
                     <path d="M -4 -8 L 4 -8 L 0 0 L 0 {signalSetView.getDesiredHeight()} L 0 0 Z" stroke="var(--grid-color)" stroke-width="1px" fill="none"/>
                 </g>
                 {#each liveChannelSvgs as channel, index}
-                    <g transform='translate({labelOffset}, {channelSvgHeight(index)})'>
+                    <g transform='translate({labelOffset}, {channelSvgHeight(index + signalSetView.getInputSize())})'>
                         {@html channel}
-                    </g>
-                    <g font-size="10px" transform='translate(0, {channelSvgHeight(index)  + channelSvgHeight(1) / 2})'>
-                        <text>{labels[index]}</text>
                     </g>
                 {/each}
             </g>
