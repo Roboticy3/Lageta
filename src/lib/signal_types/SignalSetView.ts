@@ -228,22 +228,24 @@ export class CircuitSignalSetView extends SignalSetView<ConnectionValue> {
     }
 
     private circuitIsValid = true
-    validateControllerWith(circuitController:CircuitController, value:ConnectionValue[]=this.getPlayerValue() || []) {
-        const inputs = value.slice(0, this.signalSet.inputs)
-        circuitController.setInputs(inputs)
+    validateControllerWith(circuitController:CircuitController) {
 
-        const outputsStart = value.length - this.signalSet.outputs
-        const outputs = value.slice(-this.signalSet.outputs, value.length)
+        if (this.circuitIsValid === false) return
+
+        const outputs = this.getPlayerValue()?.slice(this.signalSet.inputs)
+        if (outputs === undefined) {
+            this.circuitIsValid = false
+            return
+        }
         const result = circuitController.getOutputs()
+        //console.log("validating ", result, " against ", outputs)
         
-        if (this.circuitIsValid) {for (let i = 0; i < value.length - outputsStart; i++) {
+        for (let i = 0; i < outputs.length; i++) {
             if (outputs[i] !== result[i]) {
                 this.circuitIsValid = false
                 break
             }
-        }}
-
-        return result
+        }
     }
     
     validatedWithController() {

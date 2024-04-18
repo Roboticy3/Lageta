@@ -94,7 +94,10 @@
 
         if (update) {
             circuitController.setInputs(currentValue)
+
+            signalSetView.validateControllerWith(circuitController)
             outputSignalSetView.push(circuitController.getOutputs(), currentFrame - 1);
+            console.log(signalSetView)
         }
 
         liveChannelSvgs = outputSignalSetView.drawChannels(currentFrame, `stroke="red"`)
@@ -102,6 +105,7 @@
         if (done) {
             atEnd = true
             pause()
+
         }  
     }
 
