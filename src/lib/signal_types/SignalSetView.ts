@@ -3,6 +3,7 @@ import type { ConnectionValue } from "$lib/circuit_types/GateType";
 import { SignalSet, Signal, type SignalKeyFrame, SignalPlayer, type SignalFrameReader, type SignalPointResult, ConnectionValueSignalSet } from "./Signal";
 
 type SignalSetDrawChannel = (channel:number, to:number, pathParams:string) => string
+
 export class SignalSetView<T> {
     readonly signalSet:SignalSet<T>
     readonly height=20
@@ -41,6 +42,44 @@ export class SignalSetView<T> {
 
     channelCount() {
         return this.signalSet.block.length
+    }
+
+    getInputSize() {
+        return this.signalSet.inputs
+    }
+
+    getOutputSize() {
+        return this.signalSet.outputs
+    }
+
+    getDefaultInputs() {
+        return this.signalSet.getInitialValue()
+    }
+
+    getLength() {
+        return this.signalSet.length
+    }
+    
+    toSignal() {
+        const s = this.signalSet.toSignal()
+        s.bookend()
+        return s
+    }
+
+    push(values:T[], frame:number) {
+        if (this.signalSet.length < frame) {
+            this.signalSet.length = frame
+        }
+
+        for (let i = 0; i < this.signalSet.block.length; i++) {
+            let signal = this.signalSet.block[i]
+            const newSignal = new Signal([{
+                value:values[i],
+                frame:frame
+            }])
+            
+            signal.push(newSignal)
+        }
     }
 }
 
@@ -135,12 +174,6 @@ export class CircuitSignalSetView extends SignalSetView<ConnectionValue> {
         return this.toSigStrengthRev(x) * this.height
     }
 
-    toSignal() {
-        const s = this.signalSet.toSignal()
-        s.bookend()
-        return s
-    }
-
     private player:SignalPlayer<ConnectionValue> | undefined = undefined
     createPlayer(frameTime=250) {
         this.player = new SignalPlayer(
@@ -205,36 +238,6 @@ export class CircuitSignalSetView extends SignalSetView<ConnectionValue> {
         this.circuitIsValid = true
     }
 
-    getInputSize() {
-        return this.signalSet.inputs
-    }
-
-    getOutputSize() {
-        return this.signalSet.outputs
-    }
-
-    getDefaultInputs() {
-        return this.signalSet.getInitialValue()
-    }
-
-    getLength() {
-        return this.signalSet.length
-    }
-
-    push(values:boolean[], frame:number) {
-        if (this.signalSet.length < frame) {
-            this.signalSet.length = frame
-        }
-
-        for (let i = 0; i < this.signalSet.block.length; i++) {
-            let signal = this.signalSet.block[i]
-            const newSignal = new Signal([{
-                value:values[i],
-                frame:frame
-            }])
-            
-            signal.push(newSignal)
-        }
-    }
+   
 }
 

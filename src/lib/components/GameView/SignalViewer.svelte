@@ -4,12 +4,18 @@
     import { CircuitSignalSetView } from "$lib/signal_types/SignalSetView";
     import { onMount } from "svelte";
     import ResizingSvg from "../Misc/ResizingSvg.svelte";
+    import { ConnectionValueSignalSet } from "$lib/signal_types/Signal";
 
     /**
      * @type {CircuitSignalSetView}
      */
     export let signalSetView
     let channelSvgs = signalSetView.drawChannels()
+    
+    /**
+     * @type {string[]}
+     */
+    let liveChannelSvgs = []
 
     let labelOffset = 50
 
@@ -131,6 +137,8 @@
                 <g id="signal-svg-play-bar">
                     <path d="M -4 -8 L 4 -8 L 0 0 L 0 {signalSetView.getDesiredHeight()} L 0 0 Z" stroke="var(--grid-color)" stroke-width="1px" fill="none"/>
                 </g>
+                {#each liveChannelSvgs as channel, index}
+                {/each}
             </g>
         </ResizingSvg>
     </div>
