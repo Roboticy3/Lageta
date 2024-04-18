@@ -10,6 +10,7 @@
     import GameViewCircuitPanel from "./GameViewCircuitPanel.svelte";
     import GameViewShelfButton from "./GameViewShelfButton.svelte";
     import SignalViewer from "./SignalViewer.svelte";
+    import CompletionPopup from "./CompletionPopup.svelte";
 
 
     /**
@@ -18,9 +19,6 @@
     export let params
 
     console.log("initializing GameView with params: ",params)
-
-    const circuitController = new CircuitController(params.grid)
-
     
     const signalSetView = params.completeCondition ? 
         new CircuitSignalSetView(params.completeCondition) : undefined
@@ -28,6 +26,23 @@
     let circuitDraggable
 
     let progressStorage = new ProgressStorage()
+
+    
+    /**
+     * @type {CompletionPopup}
+     */
+    let completionPopup
+
+    function onComplete() {
+        const rewards = params.completeRewards
+        progressStorage.addGate(params.name)
+        rewards.map(progressStorage.addLevel.bind(progressStorage))
+        rewards.map(progressStorage.addGate.bind(progressStorage))
+        
+        completionPopup.show()
+    }
+
+    const circuitController = new CircuitController(params.grid, onComplete)
 
 </script>
 
@@ -66,6 +81,8 @@
         </div>
     {/if}
 </div>
+
+<CompletionPopup bind:this={completionPopup} unlocks={params.completeRewards} />
 
 <style>
     

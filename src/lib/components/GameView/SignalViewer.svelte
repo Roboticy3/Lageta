@@ -105,7 +105,10 @@
         if (done) {
             atEnd = true
             pause()
-
+            if (signalSetView.validatedWithController()) {
+                console.log("you win!")
+                circuitController.complete()
+            }
         }  
     }
 
