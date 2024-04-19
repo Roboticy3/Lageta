@@ -198,7 +198,7 @@ export class CircuitSignalSetView extends SignalSetView<ConnectionValue> {
         )
     }
 
-    startPlayer(iter: SignalFrameReader<ConnectionValue> | undefined, reset:boolean) {
+    startPlayer(iter: SignalFrameReader<ConnectionValue> | undefined, reset:boolean = false) {
         if (this.player) this.player.scrub(iter, reset)
     }
 
