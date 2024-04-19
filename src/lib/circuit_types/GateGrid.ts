@@ -101,7 +101,7 @@ export class GateGrid {
             x, y, sizeX, sizeY
             )
         
-        if (collision !== undefined) {
+        if (collision !== undefined && collision != gate.id) {
             return false
         }
 

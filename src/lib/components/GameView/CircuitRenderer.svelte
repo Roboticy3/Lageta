@@ -356,6 +356,7 @@
         const id = controller.getId()
         let gPos
         let svg = gateGroup.querySelector(`#gate-active`)
+        console.log("previewing ", cType, "with id", id)
         if (id && cType) {
             gPos = circuitController.previewMoveGate(id, e.offsetX, e.offsetY)
         } else if (cType) {
