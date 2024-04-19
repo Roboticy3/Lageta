@@ -190,9 +190,6 @@ export function Input(size: number, otherParams: GateTypeParameters = {}) {
         moveable: false,
         draw: (s) => {return drawGateTypeRect(2, size)}
     };
-    if (otherParams) {
-        params = combineGateTypeParameters(params, otherParams);
-    }
     return params;
 }
 
@@ -204,9 +201,6 @@ export function Output(size: number, otherParams: GateTypeParameters = {}) {
         moveable: false,
         draw: (s) => {return drawGateTypeRect(2, size)}
     };
-    if (otherParams) {
-        params = combineGateTypeParameters(params, otherParams);
-    }
     return params;
 }
 
@@ -232,9 +226,6 @@ export function Decoder(bits:number, otherParams: GateTypeParameters = {}) {
         draw: (s) => {
             return drawGateTypeDecode(s, gridWidth, gridHeight)
         }
-    }
-    if (otherParams) {
-        params = combineGateTypeParameters(params, otherParams);
     }
     return params;
 }
@@ -262,9 +253,6 @@ export function Encoder(bits:number, otherParams: GateTypeParameters = {}) {
         draw: (s) => {
             return drawGateTypeEncode(s, gridWidth, gridHeight)
         }
-    }
-    if (otherParams) {
-        params = combineGateTypeParameters(params, otherParams);
     }
     return params;
 }
