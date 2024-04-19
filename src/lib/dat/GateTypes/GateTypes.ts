@@ -56,6 +56,7 @@ export function getGateType(params:GateTypeParameters) {
     const c = new GateTypeController(params)
     registerGateType(c)
 
+    console.log("registered ", JSON.stringify(params))
     console.log("registered type", c, " registered list:",Array.from(all_gates.keys()))
 
     return c
@@ -91,7 +92,10 @@ export type GateTypeParameters = {
  */
 export function combineGateTypeParameters(a:GateTypeParameters, b:GateTypeParameters) {
     console.log("combining params: ", a, b)
-    const result = {...b, ...a} //blasphemy, sodomy, and possibly embezzlement were involved in the development of TypeScript
+    let result = Object.create(a)
+    for (let e in Object.entries(b)) {
+        result[e[0]] = e[1]
+    }
     console.log(result)
     return result as GateTypeParameters
 }
@@ -177,7 +181,7 @@ export const wrapGateTypeViewInSvgHeader = (gridWidth:number, gridHeight:number,
 </svg>`
 }
 
-export function Input(size: number, otherParams: GateTypeParameters | undefined = undefined) {
+export function Input(size: number, otherParams: GateTypeParameters = {}) {
     let params: GateTypeParameters = {
         name: "Input" + String(size),
         inputs: 0, outputs: size,
@@ -192,7 +196,7 @@ export function Input(size: number, otherParams: GateTypeParameters | undefined 
     return params;
 }
 
-export function Output(size: number, otherParams: GateTypeParameters | undefined = undefined) {
+export function Output(size: number, otherParams: GateTypeParameters = {}) {
     let params: GateTypeParameters = {
         name: "Output" + String(size),
         inputs: size, outputs: 0,
@@ -206,7 +210,7 @@ export function Output(size: number, otherParams: GateTypeParameters | undefined
     return params;
 }
 
-export function Decoder(bits:number, otherParams: GateTypeParameters | undefined = undefined) {
+export function Decoder(bits:number, otherParams: GateTypeParameters = {}) {
     const outSize = Math.pow(2, bits)
     const gridWidth = 3
     const gridHeight = outSize
@@ -237,7 +241,7 @@ export function Decoder(bits:number, otherParams: GateTypeParameters | undefined
 
 export const Decoder2t4 = Decoder(2)
 
-export function Encoder(bits:number, otherParams: GateTypeParameters | undefined = undefined) {
+export function Encoder(bits:number, otherParams: GateTypeParameters = {}) {
     const inSize = Math.pow(2, bits)
     const gridWidth = 3
     const gridHeight = inSize
