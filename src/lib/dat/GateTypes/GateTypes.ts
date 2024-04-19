@@ -56,7 +56,7 @@ export function getGateType(params:GateTypeParameters) {
     const c = new GateTypeController(params)
     registerGateType(c)
 
-    console.log("registered type", c.name, " registered list:",Array.from(all_gates.keys()))
+    console.log("registered type", c, " registered list:",Array.from(all_gates.keys()))
 
     return c
 }
@@ -130,6 +130,41 @@ export const drawGateTypeRect = (gridWidth:number, gridHeight:number) => {
     return `<rect width="${w - 4}" height="${h - 4}" x="${2}" y="${2}" />\n`;
 }
 
+export const drawGateTypeEncode = (s:GateState, gridWidth:number, gridHeight:number) => {
+    const result = [drawGateTypeRect(gridWidth, gridHeight)]
+    const v = s.override.indexOf(true)
+    result.push(
+`<text 
+    x="${gridWidth * 10 / 2 - 5}" 
+    y="${gridHeight * 10 / 2 + 5}" 
+    fill="black" stroke="none"
+    >
+    ${v === -1 ? "":v}
+</text>`
+    )
+    return result.join()
+}
+
+export const drawGateTypeDecode = (s:GateState, gridWidth:number, gridHeight:number) => {
+    const result = [drawGateTypeRect(gridWidth, gridHeight)]
+    let pow = 1
+    let sum = 0
+    for (let i = 0; i < s.override.length; i++) {
+        if (s.override[i]) sum += pow
+        pow *= 2
+    }
+    result.push(
+`<text 
+    x="${gridWidth * 10 / 2 - 5}" 
+    y="${gridHeight * 10 / 2 + 5}" 
+    fill="black" stroke="none"
+    >
+    ${sum}
+</text>`
+    )
+    return result.join()
+}
+
 export const wrapGateTypeViewInSvgHeader = (gridWidth:number, gridHeight:number, svg:string, extraParams?:string) => {
     return `
 <svg 
@@ -173,10 +208,12 @@ export function Output(size: number, otherParams: GateTypeParameters | undefined
 
 export function Decoder(bits:number, otherParams: GateTypeParameters | undefined = undefined) {
     const outSize = Math.pow(2, bits)
+    const gridWidth = 3
+    const gridHeight = outSize
     let params: GateTypeParameters = {
         name: `${bits}-${outSize} Decoder`,
         inputs: bits, outputs: outSize,
-        gridSize: [3, outSize],
+        gridSize: [gridWidth, gridHeight],
         f: (s) => {
             let result = Array(outSize).fill(false)
             let idx = 0
@@ -187,6 +224,9 @@ export function Decoder(bits:number, otherParams: GateTypeParameters | undefined
             }
             result[idx] = true
             return {override:result}
+        },
+        draw: (s) => {
+            return drawGateTypeDecode(s, gridWidth, gridHeight)
         }
     }
     if (otherParams) {
@@ -199,10 +239,12 @@ export const Decoder2t4 = Decoder(2)
 
 export function Encoder(bits:number, otherParams: GateTypeParameters | undefined = undefined) {
     const inSize = Math.pow(2, bits)
+    const gridWidth = 3
+    const gridHeight = inSize
     let params: GateTypeParameters = {
         name: `${inSize}-${bits} Encoder`,
         inputs: inSize, outputs: bits,
-        gridSize: [3, inSize],
+        gridSize: [gridWidth, gridHeight],
         f: (s) => {
             let idx = s.override.lastIndexOf(true)
             let result = new Array(bits).fill(false)
@@ -212,6 +254,9 @@ export function Encoder(bits:number, otherParams: GateTypeParameters | undefined
                 idx = Math.floor(idx / 2)
             }
             return {override:result}
+        },
+        draw: (s) => {
+            return drawGateTypeEncode(s, gridWidth, gridHeight)
         }
     }
     if (otherParams) {

@@ -1,6 +1,6 @@
 import { Connection } from "$lib/circuit_types/GateGraph";
 import { GateType, GateTypeController, type ConnectionValue } from "$lib/circuit_types/GateType";
-import { And, Buf, Decoder2t4, Encoder4t2, Input, Nand, Not, Or, Output, Xor, getGateType, type GateTypeParameters } from "$lib/dat/GateTypes/GateTypes";
+import { And, Buf, Decoder2t4, Encoder4t2, Input, Nand, Not, Or, Output, Xor, drawGateTypeDecode, getGateType, type GateTypeParameters } from "$lib/dat/GateTypes/GateTypes";
 import { ConnectionValueSignalSet, Signal, oscillator, repeater } from "$lib/signal_types/Signal";
 import type { OrganizedCircuitContents, SerializableGate } from "$lib/storage_types/CircuitStorage";
 import { ProgressStorage } from "$lib/storage_types/ProgressStore";
@@ -63,7 +63,7 @@ export const EncoderLevel = {
                     { outputLabels: ["0", "1", "2", "3"], gridSize: [2, 7] }
                 )),
                 getGateType(Output(2,
-                    { inputLabels: ["Output 1", "Output 2"], gridSize: [2, 3]}
+                    { inputLabels: ["Output 1", "Output 2"], gridSize: [2, 3], draw: (s) => {return drawGateTypeDecode(s, 2, 3)} }
                 ))
             ],
             gates: [
@@ -93,7 +93,7 @@ export const DecoderLevel = {
         {
             gateTypes: [
                 getGateType(Input(2,
-                    { outputLabels: ["Input 1", "Input 2"], gridSize: [2, 3] }
+                    { outputLabels: ["Input 1", "Input 2"], gridSize: [2, 3], draw: (s) => {return drawGateTypeDecode(s, 2, 3)} }
                 )),
                 getGateType(Output(4,
                     { inputLabels: ["0", "1", "2", "3"], gridSize: [2, 7]}
