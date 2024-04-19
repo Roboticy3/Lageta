@@ -41,6 +41,7 @@
     onMount(() => {
         signalSetView.createPlayer(100)
         signalSetView.sendPlayerToController(circuitController)
+        
         restart()
     })
 
@@ -81,6 +82,7 @@
 
         setPlayBarProgress()
         atStart = true
+        atEnd = false
     }
 
     /**
@@ -117,7 +119,7 @@
 
         if (atEnd) restart()
 
-        signalSetView.startPlayer(onSignalStep, false)
+        signalSetView.startPlayer(onSignalStep)
         playing = true
 
         document.querySelectorAll("input").forEach((n) => n.setAttribute('disabled','disabled'))
