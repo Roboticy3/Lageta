@@ -190,6 +190,7 @@ export function Input(size: number, otherParams: GateTypeParameters = {}) {
         moveable: false,
         draw: (s) => {return drawGateTypeRect(2, size)}
     };
+    params = combineGateTypeParameters(params, otherParams)
     return params;
 }
 

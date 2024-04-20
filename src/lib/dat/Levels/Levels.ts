@@ -63,12 +63,12 @@ export const EncoderLevel = {
                     { outputLabels: ["0", "1", "2", "3"], gridSize: [2, 7] }
                 )),
                 getGateType(Output(2,
-                    { inputLabels: ["Output 1", "Output 2"], gridSize: [2, 3], draw: (s) => {return drawGateTypeDecode(s, 2, 3)} }
+                    { name:"DecodeOutput2", inputLabels: ["Output 1", "Output 2"], gridSize: [2, 3], draw: (s) => {return drawGateTypeDecode(s, 2, 3)} }
                 ))
             ],
             gates: [
                 { x: 0, y: 2, type: "Input4", id: 0 } as SerializableGate,
-                { x: 18, y: 4, type: "Output2", id: 1 } as SerializableGate
+                { x: 18, y: 4, type: "DecodeOutput2", id: 1 } as SerializableGate
             ],
             size: [20, 11]
         },
@@ -93,14 +93,14 @@ export const DecoderLevel = {
         {
             gateTypes: [
                 getGateType(Input(2,
-                    { outputLabels: ["Input 1", "Input 2"], gridSize: [2, 3], draw: (s) => {return drawGateTypeDecode(s, 2, 3)} }
+                    { name:"DecodeInput2", outputLabels: ["Input 1", "Input 2"], gridSize: [2, 3], draw: (s) => {return drawGateTypeDecode(s, 2, 3)} }
                 )),
                 getGateType(Output(4,
                     { inputLabels: ["0", "1", "2", "3"], gridSize: [2, 7]}
                 ))
             ],
             gates: [
-                { x: 0, y: 4, type: "Input2", id: 0 } as SerializableGate,
+                { x: 0, y: 4, type: "DecodeInput2", id: 0 } as SerializableGate,
                 { x: 18, y: 2, type: "Output4", id: 1 } as SerializableGate
             ],
             size: [20, 11]
