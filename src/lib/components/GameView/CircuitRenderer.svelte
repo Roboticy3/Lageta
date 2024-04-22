@@ -470,10 +470,14 @@
      * @param {number} offsetX
      * @param {number} offsetY
      * @param {import("$lib/circuit_types/GateType").ConnectionValue} value
+     * @param {string} label
      */
-    function svgConnectionPoint(offsetX, offsetY, value = undefined) {
+    function svgConnectionPoint(offsetX, offsetY, value = undefined, label = "") {
         const color = connectionValueToColor(value)
-        return `<path d="M ${offsetX - 1} ${offsetY - 1} l 2 1 l -2 1 Z" stroke-width=".25px" ${color} />`
+        return `
+<path d="M ${offsetX - 1} ${offsetY - 1} l 2 1 l -2 1 Z" stroke-width=".25px" ${color} />
+<text x="${offsetX}" y="${offsetY}" stroke="none" fill="black">${label}</text>
+        `
     }
 
     /**
@@ -484,12 +488,12 @@
         const state = (typeof idOrState === "number" ? circuitController.getGateState(idOrState) : idOrState) || {override:[]}
 
         const inputs = rendererParams.showConnectionPoints === false ? [] : cType.view.inputOffsets.map((o, i) => {
-            return svgConnectionPoint(o[0], o[1], state.override[i])
+            return svgConnectionPoint(o[0], o[1], state.override[i], cType.view.inputLabels[i])
         })
 
         const outState = cType.model.f(state) //temp hack, state should store outputs too
         const outputs =  rendererParams.showConnectionPoints === false ? [] : cType.view.outputOffsets.map((o, i) => {
-            return svgConnectionPoint(o[0], o[1], outState.override[i])
+            return svgConnectionPoint(o[0], o[1], outState.override[i], cType.view.outputLabels[i])
         })
 
         switch (connectionPointDisplayMode) {
