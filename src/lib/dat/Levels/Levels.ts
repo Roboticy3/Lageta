@@ -17,10 +17,10 @@ export type LevelParameters = {
 }
 
 const MinCircuit:OrganizedCircuitContents = {
-    gateTypes: [getGateType(Input(1, { outputLabels: ["Input"] })), getGateType(Output(1, { inputLabels: ["Output"] }))],
+    gateTypes: [getGateType(Input(1, { name:"Input1Labelled", outputLabels: ["Input"] })), getGateType(Output(1, { name:"Output1Labelled", inputLabels: ["Output"] }))],
     gates: [
-        { x: 0, y: 2, id: 0, type: "Input1" } as SerializableGate,
-        { x: 8, y: 2, id: 1, type: "Output1" } as SerializableGate
+        { x: 0, y: 2, id: 0, type: "Input1Labelled" } as SerializableGate,
+        { x: 8, y: 2, id: 1, type: "Output1Labelled" } as SerializableGate
     ],
     size: [10, 5]
 }
@@ -28,15 +28,15 @@ const MinCircuit:OrganizedCircuitContents = {
 const In2Out1:OrganizedCircuitContents = {
     gateTypes: [
         getGateType(Input(2,
-            { outputLabels: ["Input 1", "Input 2"], gridSize: [2, 3] }
+            { name:"Input2Labelled", outputLabels: ["Input 1", "Input 2"], gridSize: [2, 3] }
         )),
         getGateType(Output(1,
-            { inputLabels: ["Output"] }
+            { name:"Output1Labelled", inputLabels: ["Output"] }
         ))
     ],
     gates: [
-        { x: 0, y: 1, type: "Input2", id: 0 } as SerializableGate,
-        { x: 8, y: 2, type: "Output1", id: 1 } as SerializableGate
+        { x: 0, y: 1, type: "Input2Labelled", id: 0 } as SerializableGate,
+        { x: 8, y: 2, type: "Output1Labelled", id: 1 } as SerializableGate
     ],
     size: [10, 5]
 };
@@ -60,15 +60,15 @@ export const EncoderLevel = {
         {
             gateTypes: [
                 getGateType(Input(4,
-                    { outputLabels: ["0", "1", "2", "3"], gridSize: [2, 7] }
+                    { name:"Input4Decoded", outputLabels: ["0", "1", "2", "3"], gridSize: [2, 7] }
                 )),
                 getGateType(Output(2,
-                    { name:"DecodeOutput2", inputLabels: ["Output 1", "Output 2"], gridSize: [2, 3], draw: (s) => {return drawGateTypeDecode(s, 2, 3)} }
+                    { name:"Output2LabelledEncoded", inputLabels: ["Output 1", "Output 2"], gridSize: [2, 3], draw: (s) => {return drawGateTypeDecode(s, 2, 3)} }
                 ))
             ],
             gates: [
-                { x: 0, y: 2, type: "Input4", id: 0 } as SerializableGate,
-                { x: 18, y: 4, type: "DecodeOutput2", id: 1 } as SerializableGate
+                { x: 0, y: 2, type: "Input4Decoded", id: 0 } as SerializableGate,
+                { x: 18, y: 4, type: "Output2LabelledDecode", id: 1 } as SerializableGate
             ],
             size: [20, 11]
         },
@@ -93,15 +93,15 @@ export const DecoderLevel = {
         {
             gateTypes: [
                 getGateType(Input(2,
-                    { name:"DecodeInput2", outputLabels: ["Input 1", "Input 2"], gridSize: [2, 3], draw: (s) => {return drawGateTypeDecode(s, 2, 3)} }
+                    { name:"Input2LabelledDecode", outputLabels: ["Input 1", "Input 2"], gridSize: [2, 3], draw: (s) => {return drawGateTypeDecode(s, 2, 3)} }
                 )),
                 getGateType(Output(4,
-                    { inputLabels: ["0", "1", "2", "3"], gridSize: [2, 7]}
+                    { name:"Output4Decoded", inputLabels: ["0", "1", "2", "3"], gridSize: [2, 7]}
                 ))
             ],
             gates: [
-                { x: 0, y: 4, type: "DecodeInput2", id: 0 } as SerializableGate,
-                { x: 18, y: 2, type: "Output4", id: 1 } as SerializableGate
+                { x: 0, y: 4, type: "Input2LabelledDecode", id: 0 } as SerializableGate,
+                { x: 18, y: 2, type: "Output4Decoded", id: 1 } as SerializableGate
             ],
             size: [20, 11]
         },
@@ -127,16 +127,16 @@ export const XorLevel = {
         {
             gateTypes: [
                 getGateType(Input(2,
-                    { outputLabels: ["Input 1", "Input 2"], gridSize: [2, 3] }
+                    { name:"Input2Labelled", outputLabels: ["Input 1", "Input 2"], gridSize: [2, 3] }
                 )),
                 getGateType(Output(1,
-                    { inputLabels: ["Output"] }
+                    { name:"Output1Labelled", inputLabels: ["Output"] }
                 )),
                 getGateType(Or)
             ],
             gates: [
-                { x: 0, y: 1, type: "Input2", id: 0 } as SerializableGate,
-                { x: 8, y: 2, type: "Output1", id: 1 } as SerializableGate,
+                { x: 0, y: 1, type: "Input2Labelled", id: 0 } as SerializableGate,
+                { x: 8, y: 2, type: "Output1Labelled", id: 1 } as SerializableGate,
                 { x: 4, y: 1, type: "Or", id: 2} as SerializableGate
             ],
             connections: [

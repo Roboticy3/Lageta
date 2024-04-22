@@ -46,13 +46,11 @@ export const LevelGateType:GateTypeParameters = { name: "LevelGateType", gridSiz
  * @returns 
  */
 export function getGateType(params:GateTypeParameters) {
-    if (params.name) {
-        const result = all_gates.get(params.name)
-        if (result) {
-            return result
-        }
+    const result = all_gates.get(params.name)
+    if (result) {
+        return result
     }
-    
+
     const c = new GateTypeController(params)
     registerGateType(c)
 
@@ -71,7 +69,7 @@ export const registerGateType = (gateType: GateTypeController) => {
  * Set of optional arguments for constructing a GateType
  */
 export type GateTypeParameters = {
-    name?:string,
+    name:string,
     inputs?:number | Array<[number, number]>,
     outputs?:number | Array<[number, number]>,
     gridSize?:[number, number],
@@ -92,11 +90,17 @@ export type GateTypeParameters = {
  */
 export function combineGateTypeParameters(a:GateTypeParameters, b:GateTypeParameters) {
     console.log("combining params: ", a, b)
-    let result = Object.create(a)
-    for (let e in Object.entries(b)) {
-        result[e[0]] = e[1]
+
+    let result = a as Object
+    type GateTypeParametersKeys = keyof typeof result
+    const entries = Object.entries(b as Object)
+    for (let i = 0; i < entries.length; i++) {
+        const [k,v] = entries[i]
+        const entry = k as GateTypeParametersKeys
+        result[entry] = v
     }
-    console.log(result)
+
+    console.log("combined parameters:", result)
     return result as GateTypeParameters
 }
 
@@ -181,7 +185,7 @@ export const wrapGateTypeViewInSvgHeader = (gridWidth:number, gridHeight:number,
 </svg>`
 }
 
-export function Input(size: number, otherParams: GateTypeParameters = {}) {
+export function Input(size: number, otherParams?: GateTypeParameters ) {
     let params: GateTypeParameters = {
         name: "Input" + String(size),
         inputs: 0, outputs: size,
@@ -190,11 +194,11 @@ export function Input(size: number, otherParams: GateTypeParameters = {}) {
         moveable: false,
         draw: (s) => {return drawGateTypeRect(2, size)}
     };
-    params = combineGateTypeParameters(params, otherParams)
+    if (otherParams) params = combineGateTypeParameters(params, otherParams)
     return params;
 }
 
-export function Output(size: number, otherParams: GateTypeParameters = {}) {
+export function Output(size: number, otherParams?: GateTypeParameters) {
     let params: GateTypeParameters = {
         name: "Output" + String(size),
         inputs: size, outputs: 0,
@@ -202,10 +206,11 @@ export function Output(size: number, otherParams: GateTypeParameters = {}) {
         moveable: false,
         draw: (s) => {return drawGateTypeRect(2, size)}
     };
+    if (otherParams) params = combineGateTypeParameters(params, otherParams)
     return params;
 }
 
-export function Decoder(bits:number, otherParams: GateTypeParameters = {}) {
+export function Decoder(bits:number, otherParams?: GateTypeParameters) {
     const outSize = Math.pow(2, bits)
     const gridWidth = 3
     const gridHeight = outSize
@@ -228,12 +233,13 @@ export function Decoder(bits:number, otherParams: GateTypeParameters = {}) {
             return drawGateTypeDecode(s, gridWidth, gridHeight)
         }
     }
+    if (otherParams) params = combineGateTypeParameters(params, otherParams)
     return params;
 }
 
 export const Decoder2t4 = Decoder(2)
 
-export function Encoder(bits:number, otherParams: GateTypeParameters = {}) {
+export function Encoder(bits:number, otherParams?: GateTypeParameters) {
     const inSize = Math.pow(2, bits)
     const gridWidth = 3
     const gridHeight = inSize
@@ -255,6 +261,7 @@ export function Encoder(bits:number, otherParams: GateTypeParameters = {}) {
             return drawGateTypeEncode(s, gridWidth, gridHeight)
         }
     }
+    if (otherParams) params = combineGateTypeParameters(params, otherParams)
     return params;
 }
 
