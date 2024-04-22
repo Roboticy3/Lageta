@@ -329,14 +329,14 @@
         }
 
         activeWire.setAttribute('stroke', 'gray')
+        let value = undefined
         if (target.type !== "" && target.type !== source.type && target.type !== "Gate") {
-            const v = circuitController.getConnectionValue(
+            value = circuitController.getConnectionValue(
                 {id:id || 0, index:index, type:source.type}
             )
-            activeWire.setAttribute('stroke',v?'var(--connection-color-on)':'var(--connection-color-off')
         }
 
-        activeWire.innerHTML = drawWire(fromOffset, circuitController.unprojectOffset(e.offsetX, e.offsetY))
+        activeWire.innerHTML = drawWire(fromOffset, circuitController.unprojectOffset(e.offsetX, e.offsetY), value)
     }
 
     export function clearActiveWire() {
@@ -457,10 +457,13 @@
         let color = ""
         switch (value) {
             case true: 
-                color = `stroke="var(--connection-color-on)"`
+                color = `var(--connection-color-on)`
                 break
             case false: 
-                color = `stroke="var(--connection-color-off)"`
+                color = `var(--connection-color-off)`
+                break
+            default:
+                color = `black`
                 break
         }
         return color
@@ -475,8 +478,8 @@
     function svgConnectionPoint(offsetX, offsetY, value = undefined, label = "") {
         const color = connectionValueToColor(value)
         return `
-<path d="M ${offsetX - 1} ${offsetY - 1} l 2 1 l -2 1 Z" stroke-width=".25px" ${color} />
-<text x="${offsetX}" y="${offsetY}" stroke="none" fill="black">${label}</text>
+<path d="M ${offsetX - 1} ${offsetY - 1} l 2 1 l -2 1 Z" stroke-width=".25px" stroke="${color}" />\n
+<text x="${offsetX + 4}" y="${offsetY}" stroke="none" fill="${color}" font-size="0.2em">${label}</text>
         `
     }
 
@@ -510,7 +513,7 @@
      */
     function drawWire(from, to, value = undefined) {
         const color = connectionValueToColor(value)
-        return `<path d="M ${from[0]} ${from[1]} L ${to[0]} ${to[1]}" ${color} />`
+        return `<path d="M ${from[0]} ${from[1]} L ${to[0]} ${to[1]}" stroke="${color}" />`
     }
 
 </script>
