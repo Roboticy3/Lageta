@@ -63,7 +63,7 @@ export const EncoderLevel = {
                     { name:"Input4Decoded", outputLabels: ["0", "1", "2", "3"], gridSize: [2, 7] }
                 )),
                 getGateType(Output(2,
-                    { name:"Output2LabelledEncoded", inputLabels: ["Output 1", "Output 2"], gridSize: [2, 3], draw: (s) => {return drawGateTypeDecode(s, 2, 3)} }
+                    { name:"Output2LabelledDecode", inputLabels: ["Output 1", "Output 2"], gridSize: [2, 3], draw: (s) => {return drawGateTypeDecode(s, 2, 3)} }
                 ))
             ],
             gates: [
@@ -174,16 +174,16 @@ export const NandLevel = {
         {
             gateTypes: [
                 getGateType(Input(2,
-                    { outputLabels: ["Input 1", "Input 2"], gridSize: [2, 3] }
+                    { name:"Input2Labelled", outputLabels: ["Input 1", "Input 2"], gridSize: [2, 3] }
                 )),
                 getGateType(Output(1,
-                    { inputLabels: ["Output"] }
+                    { name:"Output1Labelled", inputLabels: ["Output"] }
                 )),
                 getGateType(And)
             ],
             gates: [
-                { x: 0, y: 1, type: "Input2", id: 0 } as SerializableGate,
-                { x: 8, y: 2, type: "Output1", id: 1 } as SerializableGate,
+                { x: 0, y: 1, type: "Input2Labelled", id: 0 } as SerializableGate,
+                { x: 8, y: 2, type: "Output1Labelled", id: 1 } as SerializableGate,
                 { x: 4, y: 1, type: "And", id: 2} as SerializableGate
             ],
             connections: [

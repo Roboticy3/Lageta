@@ -104,21 +104,23 @@ export function combineGateTypeParameters(a:GateTypeParameters, b:GateTypeParame
     return result as GateTypeParameters
 }
 
-export function spreadVerticalConnections(gridX: number, gridHeight: number, size: number) {
-    const step = 10 * gridHeight / (size + 1);
-    let result = new Array<[number, number]>(size);
+export function spreadVerticalConnections(gridX: number, gridHeight: number, numPoints: number) {
+    const step = 10 * gridHeight / (numPoints + 1);
+    let result = new Array<[number, number]>(numPoints);
 
-    for (let i = 0; i < size; i++) {
+    for (let i = 0; i < numPoints; i++) {
         result[i] = [gridX, step * (i + 1)];
     }
 
+    console.log("spread points", result)
+
     return result;
 }
-export function spreadHorizontalConnections(gridY: number, gridWidth: number, size: number) {
-    const step = gridWidth / (size + 1);
-    let result = new Array<[number, number]>(size);
+export function spreadHorizontalConnections(gridY: number, gridWidth: number, numPoints: number) {
+    const step = gridWidth / (numPoints + 1);
+    let result = new Array<[number, number]>(numPoints);
 
-    for (let i = 0; i < size; i++) {
+    for (let i = 0; i < numPoints; i++) {
         result[i] = [step * (i + 1), gridY];
     }
 
