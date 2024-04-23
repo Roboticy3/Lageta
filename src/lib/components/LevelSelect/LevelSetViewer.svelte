@@ -31,6 +31,7 @@
     
     onMount(() => {
         circuitController.addGateAtCell(Input(1, {name:"LevelSelectInput1", inputLabels:[""]}), 1, 1)
+        console.log("Mounting level set: ",levelSet)
         resize()
     })
 
@@ -75,7 +76,7 @@
         {/each}
 
         <InputCheckBox 
-            circuitPanel={circuitPanel} 
+            
             gridController={circuitController} 
             from={[0,0]}
             onChangeListener={readInputCheckBox}
@@ -112,7 +113,5 @@
 </div>
 
 <style>
-    .level-panel {
 
-    }
 </style>

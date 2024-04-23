@@ -218,6 +218,46 @@ export function Output(size: number, otherParams?: GateTypeParameters) {
     return params;
 }
 
+export const InputLabelledPrebaked = [
+    Buf,
+    Input(1,{ name:"Input1Labelled", outputLabels: ["Input"], gridSize: [2, 1] }),
+    Input(2,{ name:"Input2Labelled", outputLabels: ["Input 1", "Input 2"], gridSize: [2, 2] }),
+    Input(3,{ name:"Input3Labelled", outputLabels: ["Input 1", "Input 2", "Input 3"], gridSize: [2, 3] }),
+    Input(4,{ name:"Input4Labelled", outputLabels: ["Input 1", "Input 2", "Input 3", "Input 4"], gridSize: [2, 4] })
+]
+
+export const InputDecodePrebaked = [
+    Buf,
+    Input(1,{ name:"Input1Decode", outputLabels: ["Input"], gridSize: [2, 2], draw:(s) => drawGateTypeDecode(s, 2, 1)}),
+    Input(2,{ name:"Input2Decode", outputLabels: ["Input 0", "Input 1"], gridSize: [2, 2], draw:(s) => drawGateTypeDecode(s, 2, 2)}),
+    Input(4,{ name:"Input4Decode", outputLabels: ["Input 0", "Input 1", "Input 2", "Input 3"], gridSize: [2, 4], draw:(s) => drawGateTypeDecode(s, 2, 4)}),
+]
+
+export const OutputLabelledPrebaked = [
+    Buf,
+    Output(1,{ name:"Output1Labelled", outputLabels: ["Output"], gridSize: [2, 1] }),
+    Output(2,{ name:"Output2Labelled", outputLabels: ["Output 1", "Output 2"], gridSize: [2, 2] }),
+    Output(3,{ name:"Output3Labelled", outputLabels: ["Output 1", "Output 2", "Output 3"], gridSize: [2, 3] }),
+    Output(4,{ name:"Output4Labelled", outputLabels: ["Output 1", "Output 2", "Output 3", "Output 4"], gridSize: [2, 4] })
+]
+
+export const OutputDecodePrebaked = [
+    Buf,
+    Output(1,{ name:"Output1Decode", outputLabels: ["Output"], gridSize: [2, 2], draw:(s) => drawGateTypeDecode(s, 2, 1)}),
+    Output(2,{ name:"Output2Decode", outputLabels: ["Output 0", "Output 1"], gridSize: [2, 2], draw:(s) => drawGateTypeDecode(s, 2, 2)}),
+    Output(4,{ name:"Output4Decode", outputLabels: ["Output 0", "Output 1", "Output 2", "Output 3"], gridSize: [2, 4], draw:(s) => drawGateTypeDecode(s, 2, 4)}),
+]
+
+function decodeInternal(s:GateState, bits:number) {
+    let idx = 0
+    let pow = 1
+    for (let i = 0; i < bits; i++) {
+        if (s.override[i] === true) idx += pow
+        pow *= 2
+    }
+    return idx
+}
+
 export function Decoder(bits:number, otherParams?: GateTypeParameters) {
     const outSize = Math.pow(2, bits)
     const otherSize = otherParams?.gridSize || [undefined, undefined]
@@ -228,13 +268,8 @@ export function Decoder(bits:number, otherParams?: GateTypeParameters) {
         inputs: bits, outputs: outSize,
         gridSize: [gridWidth, gridHeight],
         f: (s) => {
-            let result = Array(outSize).fill(false)
-            let idx = 0
-            let pow = 1
-            for (let i = 0; i < bits; i++) {
-                if (s.override[i] === true) idx += pow
-                pow *= 2
-            }
+            const idx = decodeInternal(s, bits)
+            let result = new Array(outSize).fill(false)
             result[idx] = true
             return {override:result}
         },
@@ -248,6 +283,16 @@ export function Decoder(bits:number, otherParams?: GateTypeParameters) {
 
 export const Decoder2t4 = Decoder(2)
 
+function encodeInternal(v:number, bits:number) {
+    let result = new Array(bits).fill(false)
+    for (let i = 0; i < bits; i++) {
+        const r = v % 2
+        result[i] = r === 1
+        v = Math.floor(v / 2)
+    }
+    return {override:result}
+}
+
 export function Encoder(bits:number, otherParams?: GateTypeParameters) {
     const inSize = Math.pow(2, bits)
     const otherSize = otherParams?.gridSize || [undefined, undefined]
@@ -258,14 +303,7 @@ export function Encoder(bits:number, otherParams?: GateTypeParameters) {
         inputs: inSize, outputs: bits,
         gridSize: [gridWidth, gridHeight],
         f: (s) => {
-            let idx = s.override.lastIndexOf(true)
-            let result = new Array(bits).fill(false)
-            for (let i = 0; i < bits; i++) {
-                const r = idx % 2
-                result[i] = r === 1
-                idx = Math.floor(idx / 2)
-            }
-            return {override:result}
+            return encodeInternal(s.override.lastIndexOf(true), bits)
         },
         draw: (s) => {
             return drawGateTypeEncode(s, gridWidth, gridHeight)
@@ -276,3 +314,31 @@ export function Encoder(bits:number, otherParams?: GateTypeParameters) {
 }
 
 export const Encoder4t2 = Encoder(2)
+
+export function Adder(bits:number, carry:boolean, otherParams?:GateTypeParameters) {
+    const otherSize = otherParams?.gridSize || [undefined, undefined]
+    const gridWidth = otherSize[0] || 4
+    const gridHeight = otherSize[1] || (bits + 1)
+    let params: GateTypeParameters = {
+        name: `Adder${bits}${carry ? "c":"nc"}`,
+        inputs: bits * 2, outputs: bits + (carry ? 1:0),
+        gridSize: [gridWidth, gridHeight],
+        f: carry ? (s) => {
+            const v1 = decodeInternal(s, bits)
+            const v2 = decodeInternal({override:s.override.slice(bits)},bits)
+            const sum = v1 + v2
+            const result = encodeInternal(sum, bits)
+            result.override.push((sum) >= Math.pow(2, bits))
+            console.log("added!", v1, v2, "=>", result)
+            return result
+        } : (s) => {
+            const v1 = decodeInternal(s, bits)
+            const v2 = decodeInternal({override:s.override.slice(bits)},bits)
+            return encodeInternal(v1 + v2, bits)
+        }
+    }
+    if (otherParams) params = combineGateTypeParameters(params, otherParams)
+    return params;
+}
+
+export const Adder2c = Adder(2, true)
