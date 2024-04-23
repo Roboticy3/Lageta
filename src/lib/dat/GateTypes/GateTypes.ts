@@ -188,25 +188,31 @@ export const wrapGateTypeViewInSvgHeader = (gridWidth:number, gridHeight:number,
 }
 
 export function Input(size: number, otherParams?: GateTypeParameters ) {
+    const otherSize = otherParams?.gridSize || [undefined, undefined]
+    const gridWidth = otherSize[0] || 2
+    const gridHeight = otherSize[1] || size
     let params: GateTypeParameters = {
         name: "Input" + String(size),
         inputs: 0, outputs: size,
-        gridSize: [2, size],
+        gridSize: [gridWidth, gridHeight],
         variant: "Flow",
         moveable: false,
-        draw: (s) => {return drawGateTypeRect(2, size)}
+        draw: (s) => {return drawGateTypeRect(gridWidth, gridHeight)}
     };
     if (otherParams) params = combineGateTypeParameters(params, otherParams)
     return params;
 }
 
 export function Output(size: number, otherParams?: GateTypeParameters) {
+    const otherSize = otherParams?.gridSize || [undefined, undefined]
+    const gridWidth = otherSize[0] || 2
+    const gridHeight = otherSize[1] || size
     let params: GateTypeParameters = {
         name: "Output" + String(size),
         inputs: size, outputs: 0,
-        gridSize: [2, size],
+        gridSize: [gridWidth, gridHeight],
         moveable: false,
-        draw: (s) => {return drawGateTypeRect(2, size)}
+        draw: (s) => {return drawGateTypeRect(gridWidth, gridHeight)}
     };
     if (otherParams) params = combineGateTypeParameters(params, otherParams)
     return params;
@@ -214,8 +220,9 @@ export function Output(size: number, otherParams?: GateTypeParameters) {
 
 export function Decoder(bits:number, otherParams?: GateTypeParameters) {
     const outSize = Math.pow(2, bits)
-    const gridWidth = 3
-    const gridHeight = outSize
+    const otherSize = otherParams?.gridSize || [undefined, undefined]
+    const gridWidth = otherSize[0] || 3
+    const gridHeight = otherSize[1] || outSize
     let params: GateTypeParameters = {
         name: `${bits}-${outSize} Decoder`,
         inputs: bits, outputs: outSize,
@@ -243,8 +250,9 @@ export const Decoder2t4 = Decoder(2)
 
 export function Encoder(bits:number, otherParams?: GateTypeParameters) {
     const inSize = Math.pow(2, bits)
-    const gridWidth = 3
-    const gridHeight = inSize
+    const otherSize = otherParams?.gridSize || [undefined, undefined]
+    const gridWidth = otherSize[0] || 3
+    const gridHeight = otherSize[1] || inSize
     let params: GateTypeParameters = {
         name: `${inSize}-${bits} Encoder`,
         inputs: inSize, outputs: bits,
