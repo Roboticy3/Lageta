@@ -46,6 +46,36 @@ const DecoderLevelSignal = new ConnectionValueSignalSet(
     getGateType(Decoder2t4)
 )
 
+/**
+ * Generate a signal to test all of the inputs of a solver
+ * @param solver the solver the inputs are generated for
+ * @param step the number of frames each input lasts
+ * @param repeat if given, the signal will be repeated this many times
+ * @returns 
+ */
+function countingSignal(solver:GateTypeController, step:number, repeat?:number) {
+    const bits = solver.model.sizeIn
+    let block = new Array<Signal<ConnectionValue>>(bits)
+    const permutations = Math.pow(2, bits)
+    //construct the signal from layered oscillators
+    //each permutation should occur exactly once, so the length of the signal is permutations * step
+    const length = permutations * step * (repeat || 1)
+    for (let i = 0; i < block.length; i++) {
+        //the step length of the oscillator at each layer should be twice as wide as the last
+        //meanwhile, each layer should repeat half as much as the last
+        //since an oscillator of n repeats creates a signal of step * 2 frames, the repeats should start at length / 2 and halve on each iteration
+        block[i] = new Signal<ConnectionValue>([{value:false,frame:0}]).push(oscillator(Math.pow(2, i) * step, Math.pow(2, bits - i - 1)))
+    }
+
+    if (repeat) {
+        block.forEach((s, i) => {block[i] = repeater(s, repeat)})
+    }
+
+    return new ConnectionValueSignalSet(
+        block, length, solver
+    )
+}
+
 export const AdderLevel = {
     params:new GameViewParameters(
         "Simple Calculator",
@@ -68,7 +98,7 @@ export const AdderLevel = {
             ],
             size:[20,11]
         },
-        new SignalSet<ConnectionValue>(),
+        countingSignal(getGateType(Adder2c), 5, 3),
         []
     ),
     x:16,y:2,
