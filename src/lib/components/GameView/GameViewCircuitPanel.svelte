@@ -9,6 +9,7 @@
     import { GameViewParameters } from '$lib/level_types/GameViewParameters';
     import { Buf, Input, getGateType } from '$lib/dat/GateTypes/GateTypes';
     import InputCheckBox from './InputCheckBox.svelte';
+    import { GateTypeController } from '$lib/circuit_types/GateType';
 
     /**
      * @type {GameViewParameters}
@@ -95,6 +96,25 @@
     export let canDragConnections = true
 
     /**
+     * 
+     * @param {MouseEvent} e
+     * @returns {"Already Dragging" | "Nothing Under Mouse" | CircuitControllerQueryResult}
+     */
+    function canDragStart(e) {
+        if (circuitDraggable.isDragging()) return "Already Dragging"
+
+        const query = gridController.query(e.offsetX, e.offsetY)     
+        console.log(query) 
+
+        if (query.type === "") {
+            return "Nothing Under Mouse"
+        }
+
+        return query
+        
+    }
+
+    /**
      * addDragEventListeners should hook this up so it starts when the user selects an object in the circuitContainer div.
      * Outside of that div, other components will be in charge of starting a drag.
      * 
@@ -103,19 +123,18 @@
     function onDragStart(e) {
         e.preventDefault()
 
-        if (circuitDraggable.isDragging()) return
+        const check = canDragStart(e)
+        if (!(check instanceof CircuitControllerQueryResult)) return
 
-        const query = gridController.query(e.offsetX, e.offsetY)     
-        console.log(query) 
-        switch (query.type) {
+        switch (check.type) {
             case "Input":
-                if (canDragConnections) onDragStartInput(e, query)
+                if (canDragConnections) onDragStartInput(e, check)
                 break
             case "Output":
-                if (canDragConnections) onDragStartOutput(e, query)
+                if (canDragConnections) onDragStartOutput(e, check)
                 break
             case "Gate":
-                if (canDragGates) onDragStartGate(e, query)
+                if (canDragGates) onDragStartGate(e, check)
         }
     }
 
@@ -202,31 +221,41 @@
     export let forceDragOnCircuitContainerOnly = true
 
     /**
+     * Check if a gate can be dragged, return a code depending on what goes wrong.
+     * 
+     * This works beautifully with the string codes from circuitDraggable.getController().getContentType(),
+     * creating a union of the error codes and the drag type codes.
+     * @param {MouseEvent} e
+     */
+    function canDrag(e) {
+        if (forceDragOnCircuitContainerOnly && e.target !== circuitContainer) {
+            return "Bad Target"
+        }
+
+        if (!gridController.isOffsetInGrid(e.offsetX, e.offsetY)) {
+            activeSvgGate = ""
+            return "Out of Bounds"
+        }
+
+        const controller = circuitDraggable.getController()
+        const dragType = controller.getContentType()
+
+        if (dragType === "") {
+            return "Nothing Under Mouse"
+        }
+
+        return dragType
+    }
+
+    /**
      * Called after the user has started a drag. 
      * Keeps activeSvgGate and activeSvgWire updated to preview the changes to user is trying to make.
      * 
      * @param {MouseEvent} e
      */
     function onDrag(e) {
-
-        if (forceDragOnCircuitContainerOnly && e.target !== circuitContainer) {
-            return
-        }
-
-        if (!gridController.isOffsetInGrid(e.offsetX, e.offsetY)) {
-            activeSvgGate = ""
-            return
-        }
-
-        const controller = circuitDraggable.getController()
-        const cType = controller.getContentType()
-
-        if (cType === "") {
-            onDrop(e)
-            return
-        }
         
-        switch(cType) {
+        switch(canDrag(e)) {
             case "Gate":
                 onDragGate(e)
                 break
@@ -236,12 +265,27 @@
             case "Output":
                 onDragOutput(e)
                 break
-
+            case "Nothing Under Mouse":
+                onDrop(e)
+                break
             default: return
         }
         
         
         console.log("Dragging...")
+    }
+
+    /**
+     * @returns {"No GateType" | [GateTypeController, number | undefined]}
+     */
+    function canDragGate() {
+        const controller = circuitDraggable.getController()
+        const cType = controller.getGateType()
+        if (cType === undefined) return "No GateType"
+
+        const id = controller.getId()
+
+        return [cType, id]
     }
 
     /**
@@ -252,11 +296,12 @@
      * @param {MouseEvent} e
      */
     function onDragGate(e) {
-        const controller = circuitDraggable.getController()
-        const cType = controller.getGateType()
-        if (cType === undefined) return
+        const check = canDragGate()
+        switch (check) {
+            case "No GateType": return
+        }
+        const [cType, id] = check;
         
-        const id = controller.getId()
         const result = id ? 
             gridController.previewMoveGate(
                 id,
