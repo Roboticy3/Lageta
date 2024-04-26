@@ -18,7 +18,6 @@
     */
     export let circuitController
     let labels = circuitController.getInputLabels().concat(circuitController.getOutputLabels())
-    console.log(circuitController.getInputLabels(), circuitController.getOutputLabels())
 
     /**
      * @type {CircuitSignalSetView}
@@ -39,6 +38,7 @@
     }
 
     onMount(() => {
+        console.log("labels: ",labels)
         signalSetView.createPlayer(100)
         signalSetView.sendPlayerToController(circuitController)
         
@@ -157,8 +157,8 @@
                     <g transform='translate({labelOffset}, {channelSvgHeight(index)})'>
                         {@html channel}
                     </g>
-                    <g font-size="10px" transform='translate(0, {channelSvgHeight(index)  + channelSvgHeight(1) / 2})'>
-                        <text>{labels[index]}</text>
+                    <g font-size="10px" stroke="none" fill="black" transform='translate(0, {channelSvgHeight(index)  + channelSvgHeight(1) / 2})'>
+                        <text >{labels[index]}</text>
                     </g>
                 {/each}
                 <g id="signal-svg-play-bar">
