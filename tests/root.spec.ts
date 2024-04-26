@@ -14,7 +14,7 @@ test('has title', async ({ page }) => {
 
 test('opening campaign', async ({ page }) => {
   await page.goto(root);
-  await safeClick(page, "Continue")
+  await safeClick(page, "[title=Continue]")
   await page.waitForURL(root + "campaign/")
 });
 

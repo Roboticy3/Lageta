@@ -79,5 +79,5 @@
     bind:this={container}
 >
     <p>{level.name()}</p>
-    <button on:click={playLevel} bind:this={button} data-testid={"Play " + level.name()} disabled>Play</button>
+    <button on:click={playLevel} bind:this={button} id={`level-${gateId}-play`} disabled>Play</button>
 </CircuitDiv>

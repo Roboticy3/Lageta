@@ -7,11 +7,28 @@ import type { Page } from "@playwright/test";
  * @param page 
  * @param title 
  */
-export const safeClick = async (page:Page, title:string) => {
-    await page.waitForLoadState('networkidle'); // <-  until there are no network connections for at least 500 ms.
-    const element = page.getByTitle(title)
-    await element.waitFor()
-    return element.click()
-  }
+export const safeClick = async (page:Page, selector:string) => {
+  await page.waitForLoadState('networkidle'); // <-  until there are no network connections for at least 500 ms.
+  const element = page.locator(selector)
+  await element.waitFor()
+  return element.click()
+}
+
+/**
+ * Try to draw a wire between two connection points in a circuit.
+ * 
+ * Assumes that both of the connection points have their own test cases to check that they exist. 
+ * If they do not, this function may produce undefined behavior.
+ * @param page 
+ * @param from 
+ * @param to 
+ */
+export const tryLayConnection = async (page:Page, from:[number, number], to:[number, number]) => {
+  const outputBounds = await page.locator('#gate-0-output-0')?.boundingBox()
+  await page.mouse.click(outputBounds?.x || 0, outputBounds?.y || 0)
+
+  const inputBounds = await page.locator('#gate-1-input-0')?.boundingBox()
+  await page.mouse.click(inputBounds?.x || 0, inputBounds?.y || 0)
+}
 
 export const root = 'http://localhost:5173/'
