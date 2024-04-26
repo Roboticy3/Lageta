@@ -21,8 +21,10 @@
      */
     export let circuitController
 
-    export let onActivate = () => {}
-    export let onDeactivate = () => {}
+    /**
+     * @type {HTMLDivElement}
+     */
+    let container
 
     let start = [0, 0]
     let end = [0, 0]
@@ -54,11 +56,11 @@
 
     export function activate() {
         active = true
-        onActivate()
+        container?.querySelectorAll("input").forEach((n) => n.setAttribute('disabled', 'disabled'))
     }
     export function deactivate() {
         active = false
-        onDeactivate()
+        container?.querySelectorAll("input").forEach((n) => n.removeAttribute('disabled'))
     }
 
     export function isActive() {
@@ -70,6 +72,7 @@
     title={title}
     class="circuit-div {active ? '':'unavailable'}" 
     style="left:{start[0]}px; top:{start[1]}px; width:{end[0] - start[0]}px; height:{end[1] - start[1]}px;" 
+    bind:this={container}
 >
     <slot/>
 </div>

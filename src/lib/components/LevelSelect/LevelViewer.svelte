@@ -76,8 +76,6 @@
     position={[level.x, level.y]} 
     size={[level.type.model.gridWidth, level.type.model.gridHeight]}
     title={level.name()}
-    onActivate={() => {button?.setAttribute("disabled", "disabled")}}
-    onDeactivate={() => {button?.removeAttribute("disabled")}}
     bind:this={container}
 >
     <p>{level.name()}</p>
