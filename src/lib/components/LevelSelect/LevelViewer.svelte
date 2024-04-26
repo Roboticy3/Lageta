@@ -68,14 +68,18 @@
     function playLevel() {
         goto(`/level/${level.name()}`)
     }
+
 </script>
 
 <CircuitDiv 
     circuitController={circuitController} 
     position={[level.x, level.y]} 
     size={[level.type.model.gridWidth, level.type.model.gridHeight]}
+    title={level.name()}
+    onActivate={() => {button?.setAttribute("disabled", "disabled")}}
+    onDeactivate={() => {button?.removeAttribute("disabled")}}
     bind:this={container}
 >
     <p>{level.name()}</p>
-    <button on:click={playLevel} bind:this={button}>Play</button>
+    <button on:click={playLevel} bind:this={button} title={"Play " + level.name()} disabled>Play</button>
 </CircuitDiv>

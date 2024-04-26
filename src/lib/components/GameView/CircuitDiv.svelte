@@ -3,7 +3,7 @@
     import { CircuitController } from "$lib/circuit_types/CircuitController";
     import { onMount, tick } from "svelte";
 
-    export let active = false
+    export let active = true
 
     export let position = [0, 0]
 
@@ -12,9 +12,17 @@
     export let margin = 0.5
 
     /**
+     * @type {string}
+     */
+    export let title
+
+    /**
      * @type {CircuitController}
      */
     export let circuitController
+
+    export let onActivate = () => {}
+    export let onDeactivate = () => {}
 
     let start = [0, 0]
     let end = [0, 0]
@@ -46,9 +54,11 @@
 
     export function activate() {
         active = true
+        onActivate()
     }
     export function deactivate() {
         active = false
+        onDeactivate()
     }
 
     export function isActive() {
@@ -57,6 +67,7 @@
 </script>
 
 <div 
+    title={title}
     class="circuit-div {active ? '':'unavailable'}" 
     style="left:{start[0]}px; top:{start[1]}px; width:{end[0] - start[0]}px; height:{end[1] - start[1]}px;" 
 >
@@ -74,6 +85,5 @@
 
     .unavailable {
         filter:blur(2px) brightness(50%);
-        pointer-events: none;
     }
 </style>

@@ -88,6 +88,7 @@
             position={[0, 0]} 
             size={[3, 1.5]} 
             active={true}
+            title={"Return to Menu"}
         >
             <button 
                 style="width:100%;height:100%;" 
@@ -104,6 +105,7 @@
             position={[0, 1.5]}
             size={[4, 4]}
             active={true}
+            title={"Read Me!"}
         >
             <p>Click on the <span style="color:{tutorialHighlightColor};">triangular connection point</span> to drag out a wire.</p>
             <p>Then, click on another connection point to connect the wire.</p>
