@@ -10,8 +10,8 @@
     </div>
     <div class="menu">
         <div class="options">
-            <MainMenuOption path={"campaign"}>Continue</MainMenuOption>
-            <MainMenuOption path={"level/Freeplay"} vType={getGateType(Or).view}>Options</MainMenuOption>
+            <MainMenuOption path={"campaign"} name="Continue">Continue</MainMenuOption>
+            <MainMenuOption path={"level/Freeplay"} vType={getGateType(Or).view} name="Options">Options</MainMenuOption>
         </div>
     </div>
 </div>

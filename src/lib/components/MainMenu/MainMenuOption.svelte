@@ -5,7 +5,15 @@
 
     export let vType = getGateType(Buf).view
 
-    export let path = ""
+    /**
+     * @type {string | URL}
+     */
+     export let path
+
+    /**
+     * @type {string}
+     */
+     export let name
 
     /**
      * @param {MouseEvent} e
@@ -15,7 +23,7 @@
     }
 </script>
 
-<button class="option" on:click={onClick}>
+<button class="option" on:click={onClick} name={name}>
     {@html wrapGateTypeViewInSvgHeader(vType.gridWidth, vType.gridHeight, vType.draw(), `height="20px"`)}
     
     <div class="option-text">
