@@ -329,14 +329,14 @@
         }
 
         activeWire.setAttribute('stroke', 'gray')
+        let value = undefined
         if (target.type !== "" && target.type !== source.type && target.type !== "Gate") {
-            const v = circuitController.getConnectionValue(
+            value = circuitController.getConnectionValue(
                 {id:id || 0, index:index, type:source.type}
             )
-            activeWire.setAttribute('stroke',v?'var(--connection-color-on)':'var(--connection-color-off')
         }
 
-        activeWire.innerHTML = drawWire(fromOffset, circuitController.unprojectOffset(e.offsetX, e.offsetY))
+        activeWire.innerHTML = drawWire(fromOffset, circuitController.unprojectOffset(e.offsetX, e.offsetY), value)
     }
 
     export function clearActiveWire() {
@@ -356,6 +356,7 @@
         const id = controller.getId()
         let gPos
         let svg = gateGroup.querySelector(`#gate-active`)
+        console.log("previewing ", cType, "with id", id)
         if (id && cType) {
             gPos = circuitController.previewMoveGate(id, e.offsetX, e.offsetY)
         } else if (cType) {
@@ -456,10 +457,13 @@
         let color = ""
         switch (value) {
             case true: 
-                color = `stroke="var(--connection-color-on)"`
+                color = `var(--connection-color-on)`
                 break
             case false: 
-                color = `stroke="var(--connection-color-off)"`
+                color = `var(--connection-color-off)`
+                break
+            default:
+                color = `black`
                 break
         }
         return color
@@ -469,10 +473,14 @@
      * @param {number} offsetX
      * @param {number} offsetY
      * @param {import("$lib/circuit_types/GateType").ConnectionValue} value
+     * @param {string} label
      */
-    function svgConnectionPoint(offsetX, offsetY, value = undefined) {
+    function svgConnectionPoint(offsetX, offsetY, value = undefined, label = "") {
         const color = connectionValueToColor(value)
-        return `<path d="M ${offsetX - 1} ${offsetY - 1} l 2 1 l -2 1 Z" stroke-width=".25px" ${color} />`
+        return `
+<path d="M ${offsetX - 1} ${offsetY - 1} l 2 1 l -2 1 Z" stroke-width=".25px" stroke="${color}" />\n
+<text x="${offsetX + 4}" y="${offsetY}" stroke="none" fill="${color}" font-size="0.2em">${label}</text>
+        `
     }
 
     /**
@@ -483,12 +491,12 @@
         const state = (typeof idOrState === "number" ? circuitController.getGateState(idOrState) : idOrState) || {override:[]}
 
         const inputs = rendererParams.showConnectionPoints === false ? [] : cType.view.inputOffsets.map((o, i) => {
-            return svgConnectionPoint(o[0], o[1], state.override[i])
+            return svgConnectionPoint(o[0], o[1], state.override[i], cType.view.inputLabels[i])
         })
 
         const outState = cType.model.f(state) //temp hack, state should store outputs too
         const outputs =  rendererParams.showConnectionPoints === false ? [] : cType.view.outputOffsets.map((o, i) => {
-            return svgConnectionPoint(o[0], o[1], outState.override[i])
+            return svgConnectionPoint(o[0], o[1], outState.override[i], cType.view.outputLabels[i])
         })
 
         switch (connectionPointDisplayMode) {
@@ -505,7 +513,7 @@
      */
     function drawWire(from, to, value = undefined) {
         const color = connectionValueToColor(value)
-        return `<path d="M ${from[0]} ${from[1]} L ${to[0]} ${to[1]}" ${color} />`
+        return `<path d="M ${from[0]} ${from[1]} L ${to[0]} ${to[1]}" stroke="${color}" />`
     }
 
 </script>

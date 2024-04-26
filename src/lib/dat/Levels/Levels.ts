@@ -1,7 +1,7 @@
 import { Connection } from "$lib/circuit_types/GateGraph";
 import { GateType, GateTypeController, type ConnectionValue } from "$lib/circuit_types/GateType";
-import { And, Buf, Decoder2t4, Encoder4t2, Input, Nand, Not, Or, Output, Xor, getGateType, type GateTypeParameters } from "$lib/dat/GateTypes/GateTypes";
-import { ConnectionValueSignalSet, Signal, oscillator, repeater } from "$lib/signal_types/Signal";
+import { Adder2c, And, Buf, Decoder2t4, Encoder4t2, Input, InputDecodePrebaked, InputLabelledPrebaked, Nand, Not, Or, Output, OutputDecodePrebaked, OutputLabelledPrebaked, Xor, drawGateTypeDecode, getGateType, type GateTypeParameters } from "$lib/dat/GateTypes/GateTypes";
+import { ConnectionValueSignalSet, Signal, SignalSet, oscillator, repeater } from "$lib/signal_types/Signal";
 import type { OrganizedCircuitContents, SerializableGate } from "$lib/storage_types/CircuitStorage";
 import { ProgressStorage } from "$lib/storage_types/ProgressStore";
 import { GameViewParameters } from "../../level_types/GameViewParameters";
@@ -17,26 +17,22 @@ export type LevelParameters = {
 }
 
 const MinCircuit:OrganizedCircuitContents = {
-    gateTypes: [getGateType(Input(1, { outputLabels: ["Input"] })), getGateType(Output(1, { inputLabels: ["Output"] }))],
+    gateTypes: [getGateType(InputLabelledPrebaked[1]), getGateType(OutputLabelledPrebaked[1])],
     gates: [
-        { x: 0, y: 2, id: 0, type: "Input1" } as SerializableGate,
-        { x: 8, y: 2, id: 1, type: "Output1" } as SerializableGate
+        { x: 0, y: 2, id: 0, type: "Input1Labelled" } as SerializableGate,
+        { x: 8, y: 2, id: 1, type: "Output1Labelled" } as SerializableGate
     ],
     size: [10, 5]
 }
 
 const In2Out1:OrganizedCircuitContents = {
     gateTypes: [
-        getGateType(Input(2,
-            { outputLabels: ["Input 1", "Input 2"], gridSize: [2, 3] }
-        )),
-        getGateType(Output(1,
-            { inputLabels: ["Output"] }
-        ))
+        getGateType(InputLabelledPrebaked[2]),
+        getGateType(OutputLabelledPrebaked[2])
     ],
     gates: [
-        { x: 0, y: 1, type: "Input2", id: 0 } as SerializableGate,
-        { x: 8, y: 2, type: "Output1", id: 1 } as SerializableGate
+        { x: 0, y: 1, type: "Input2Labelled", id: 0 } as SerializableGate,
+        { x: 8, y: 2, type: "Output1Labelled", id: 1 } as SerializableGate
     ],
     size: [10, 5]
 };
@@ -50,6 +46,66 @@ const DecoderLevelSignal = new ConnectionValueSignalSet(
     getGateType(Decoder2t4)
 )
 
+/**
+ * Generate a signal to test all of the inputs of a solver
+ * @param solver the solver the inputs are generated for
+ * @param step the number of frames each input lasts
+ * @param repeat if given, the signal will be repeated this many times
+ * @returns 
+ */
+function countingSignal(solver:GateTypeController, step:number, repeat?:number) {
+    const bits = solver.model.sizeIn
+    let block = new Array<Signal<ConnectionValue>>(bits)
+    const permutations = Math.pow(2, bits)
+    //construct the signal from layered oscillators
+    //each permutation should occur exactly once, so the length of the signal is permutations * step
+    const length = permutations * step * (repeat || 1)
+    for (let i = 0; i < block.length; i++) {
+        //the step length of the oscillator at each layer should be twice as wide as the last
+        //meanwhile, each layer should repeat half as much as the last
+        //since an oscillator of n repeats creates a signal of step * 2 frames, the repeats should start at length / 2 and halve on each iteration
+        block[i] = new Signal<ConnectionValue>([{value:false,frame:0}]).push(oscillator(Math.pow(2, i) * step, Math.pow(2, bits - i - 1)))
+    }
+
+    if (repeat) {
+        block.forEach((s, i) => {block[i] = repeater(s, repeat)})
+    }
+
+    return new ConnectionValueSignalSet(
+        block, length, solver
+    )
+}
+
+export const AdderLevel = {
+    params:new GameViewParameters(
+        "Simple Calculator",
+        `
+        <p>This is a calculator for adding two very small numbers, and even then the output doesn't have enough combinations to account for every possible sum!</p>
+        <p>So, this *very* simple calculator has a "carry" bit, a signal that should fire when the output doesn't have enough bits to display the answer.</p>
+        `,
+        {
+            gateTypes: [
+                getGateType(InputDecodePrebaked[2]),
+                getGateType(InputDecodePrebaked[2]),
+                getGateType(OutputDecodePrebaked[2]),
+                getGateType(Output(1, {name:"Carry",inputLabels:["Carry"]}))
+            ],
+            gates: [
+                { x:0, y:3, type:"Input2Decode", id:0} as SerializableGate,
+                { x:0, y:7, type:"Input2Decode", id:1} as SerializableGate,
+                { x:18, y:3, type:"Output2Decode", id:2} as SerializableGate,
+                { x:18, y:7, type:"Carry", id:3} as SerializableGate,
+            ],
+            size:[20,11]
+        },
+        countingSignal(getGateType(Adder2c), 5, 3),
+        []
+    ),
+    x:16,y:2,
+    type:Adder2c,
+    playCondition:[false, false, true]
+}
+
 export const EncoderLevel = {
     params:new GameViewParameters(
         "Counting Backwards",
@@ -60,21 +116,20 @@ export const EncoderLevel = {
         {
             gateTypes: [
                 getGateType(Input(4,
-                    { outputLabels: ["0", "1", "2", "3"], gridSize: [2, 7] }
+                    { name:"Input4Decoded", outputLabels: ["0", "1", "2", "3"], gridSize: [2, 7] }
                 )),
-                getGateType(Output(2,
-                    { inputLabels: ["Output 1", "Output 2"], gridSize: [2, 3]}
-                ))
+                getGateType(OutputDecodePrebaked[2])
             ],
             gates: [
-                { x: 0, y: 2, type: "Input4", id: 0 } as SerializableGate,
-                { x: 18, y: 4, type: "Output2", id: 1 } as SerializableGate
+                { x: 0, y: 2, type: "Input4Decoded", id: 0 } as SerializableGate,
+                { x: 18, y: 4, type: "Output2Decode", id: 1 } as SerializableGate
             ],
             size: [20, 11]
         },
         DecoderLevelSignal.inverted(),
         [
-            getGateType(Encoder4t2).name
+            getGateType(Encoder4t2).name,
+            AdderLevel.params.name
         ]
     ),
     x:13,y:3,
@@ -92,16 +147,14 @@ export const DecoderLevel = {
         `,
         {
             gateTypes: [
-                getGateType(Input(2,
-                    { outputLabels: ["Input 1", "Input 2"], gridSize: [2, 3] }
-                )),
+                getGateType(InputDecodePrebaked[2]),
                 getGateType(Output(4,
-                    { inputLabels: ["0", "1", "2", "3"], gridSize: [2, 7]}
+                    { name:"Output4Decoded", inputLabels: ["0", "1", "2", "3"], gridSize: [2, 7]}
                 ))
             ],
             gates: [
-                { x: 0, y: 4, type: "Input2", id: 0 } as SerializableGate,
-                { x: 18, y: 2, type: "Output4", id: 1 } as SerializableGate
+                { x: 0, y: 4, type: "Input2Decode", id: 0 } as SerializableGate,
+                { x: 18, y: 2, type: "Output4Decoded", id: 1 } as SerializableGate
             ],
             size: [20, 11]
         },
@@ -126,17 +179,13 @@ export const XorLevel = {
         `,
         {
             gateTypes: [
-                getGateType(Input(2,
-                    { outputLabels: ["Input 1", "Input 2"], gridSize: [2, 3] }
-                )),
-                getGateType(Output(1,
-                    { inputLabels: ["Output"] }
-                )),
+                getGateType(InputLabelledPrebaked[2]),
+                getGateType(OutputLabelledPrebaked[1]),
                 getGateType(Or)
             ],
             gates: [
-                { x: 0, y: 1, type: "Input2", id: 0 } as SerializableGate,
-                { x: 8, y: 2, type: "Output1", id: 1 } as SerializableGate,
+                { x: 0, y: 1, type: "Input2Labelled", id: 0 } as SerializableGate,
+                { x: 8, y: 2, type: "Output1Labelled", id: 1 } as SerializableGate,
                 { x: 4, y: 1, type: "Or", id: 2} as SerializableGate
             ],
             connections: [
@@ -173,17 +222,13 @@ export const NandLevel = {
         `,
         {
             gateTypes: [
-                getGateType(Input(2,
-                    { outputLabels: ["Input 1", "Input 2"], gridSize: [2, 3] }
-                )),
-                getGateType(Output(1,
-                    { inputLabels: ["Output"] }
-                )),
+                getGateType(InputLabelledPrebaked[2]),
+                getGateType(OutputLabelledPrebaked[1]),
                 getGateType(And)
             ],
             gates: [
-                { x: 0, y: 1, type: "Input2", id: 0 } as SerializableGate,
-                { x: 8, y: 2, type: "Output1", id: 1 } as SerializableGate,
+                { x: 0, y: 1, type: "Input2Labelled", id: 0 } as SerializableGate,
+                { x: 8, y: 2, type: "Output1Labelled", id: 1 } as SerializableGate,
                 { x: 4, y: 1, type: "And", id: 2} as SerializableGate
             ],
             connections: [
@@ -394,7 +439,8 @@ const all_params = new Map<string, LevelParameters>([
     [NandLevel.params.name, NandLevel],
     [XorLevel.params.name, XorLevel],
     [DecoderLevel.params.name, DecoderLevel],
-    [EncoderLevel.params.name, EncoderLevel]
+    [EncoderLevel.params.name, EncoderLevel],
+    [AdderLevel.params.name, AdderLevel]
 ])
 
 export function getLevel(name:string) {

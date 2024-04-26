@@ -46,17 +46,16 @@ export const LevelGateType:GateTypeParameters = { name: "LevelGateType", gridSiz
  * @returns 
  */
 export function getGateType(params:GateTypeParameters) {
-    if (params.name) {
-        const result = all_gates.get(params.name)
-        if (result) {
-            return result
-        }
+    const result = all_gates.get(params.name)
+    if (result) {
+        return result
     }
-    
+
     const c = new GateTypeController(params)
     registerGateType(c)
 
-    console.log("registered type", c.name, " registered list:",Array.from(all_gates.keys()))
+    console.log("registered ", JSON.stringify(params))
+    console.log("registered type", c, " registered list:",Array.from(all_gates.keys()))
 
     return c
 }
@@ -70,7 +69,7 @@ export const registerGateType = (gateType: GateTypeController) => {
  * Set of optional arguments for constructing a GateType
  */
 export type GateTypeParameters = {
-    name?:string,
+    name:string,
     inputs?:number | Array<[number, number]>,
     outputs?:number | Array<[number, number]>,
     gridSize?:[number, number],
@@ -91,26 +90,37 @@ export type GateTypeParameters = {
  */
 export function combineGateTypeParameters(a:GateTypeParameters, b:GateTypeParameters) {
     console.log("combining params: ", a, b)
-    const result = {...b, ...a} //blasphemy, sodomy, and possibly embezzlement were involved in the development of TypeScript
-    console.log(result)
+
+    let result = a as Object
+    type GateTypeParametersKeys = keyof typeof result
+    const entries = Object.entries(b as Object)
+    for (let i = 0; i < entries.length; i++) {
+        const [k,v] = entries[i]
+        const entry = k as GateTypeParametersKeys
+        result[entry] = v
+    }
+
+    console.log("combined parameters:", result)
     return result as GateTypeParameters
 }
 
-export function spreadVerticalConnections(gridX: number, gridHeight: number, size: number) {
-    const step = 10 * gridHeight / (size + 1);
-    let result = new Array<[number, number]>(size);
+export function spreadVerticalConnections(gridX: number, gridHeight: number, numPoints: number) {
+    const step = 10 * gridHeight / (numPoints + 1);
+    let result = new Array<[number, number]>(numPoints);
 
-    for (let i = 0; i < size; i++) {
+    for (let i = 0; i < numPoints; i++) {
         result[i] = [gridX, step * (i + 1)];
     }
 
+    console.log("spread points", result)
+
     return result;
 }
-export function spreadHorizontalConnections(gridY: number, gridWidth: number, size: number) {
-    const step = gridWidth / (size + 1);
-    let result = new Array<[number, number]>(size);
+export function spreadHorizontalConnections(gridY: number, gridWidth: number, numPoints: number) {
+    const step = gridWidth / (numPoints + 1);
+    let result = new Array<[number, number]>(numPoints);
 
-    for (let i = 0; i < size; i++) {
+    for (let i = 0; i < numPoints; i++) {
         result[i] = [step * (i + 1), gridY];
     }
 
@@ -130,6 +140,41 @@ export const drawGateTypeRect = (gridWidth:number, gridHeight:number) => {
     return `<rect width="${w - 4}" height="${h - 4}" x="${2}" y="${2}" />\n`;
 }
 
+export const drawGateTypeEncode = (s:GateState, gridWidth:number, gridHeight:number) => {
+    const result = [drawGateTypeRect(gridWidth, gridHeight)]
+    const v = s.override.indexOf(true)
+    result.push(
+`<text 
+    x="${gridWidth * 10 / 2 - 5}" 
+    y="${gridHeight * 10 / 2 + 5}" 
+    fill="black" stroke="none"
+    >
+    ${v === -1 ? "":v}
+</text>`
+    )
+    return result.join()
+}
+
+export const drawGateTypeDecode = (s:GateState, gridWidth:number, gridHeight:number) => {
+    const result = [drawGateTypeRect(gridWidth, gridHeight)]
+    let pow = 1
+    let sum = 0
+    for (let i = 0; i < s.override.length; i++) {
+        if (s.override[i]) sum += pow
+        pow *= 2
+    }
+    result.push(
+`<text 
+    x="${gridWidth * 10 / 2 - 5}" 
+    y="${gridHeight * 10 / 2 + 5}" 
+    fill="black" stroke="none"
+    >
+    ${sum}
+</text>`
+    )
+    return result.join()
+}
+
 export const wrapGateTypeViewInSvgHeader = (gridWidth:number, gridHeight:number, svg:string, extraParams?:string) => {
     return `
 <svg 
@@ -142,82 +187,158 @@ export const wrapGateTypeViewInSvgHeader = (gridWidth:number, gridHeight:number,
 </svg>`
 }
 
-export function Input(size: number, otherParams: GateTypeParameters | undefined = undefined) {
+export function Input(size: number, otherParams?: GateTypeParameters ) {
+    const otherSize = otherParams?.gridSize || [undefined, undefined]
+    const gridWidth = otherSize[0] || 2
+    const gridHeight = otherSize[1] || size
     let params: GateTypeParameters = {
         name: "Input" + String(size),
         inputs: 0, outputs: size,
-        gridSize: [2, size],
+        gridSize: [gridWidth, gridHeight],
         variant: "Flow",
         moveable: false,
-        draw: (s) => {return drawGateTypeRect(2, size)}
+        draw: (s) => {return drawGateTypeRect(gridWidth, gridHeight)}
     };
-    if (otherParams) {
-        params = combineGateTypeParameters(params, otherParams);
-    }
+    if (otherParams) params = combineGateTypeParameters(params, otherParams)
     return params;
 }
 
-export function Output(size: number, otherParams: GateTypeParameters | undefined = undefined) {
+export function Output(size: number, otherParams?: GateTypeParameters) {
+    const otherSize = otherParams?.gridSize || [undefined, undefined]
+    const gridWidth = otherSize[0] || 2
+    const gridHeight = otherSize[1] || size
     let params: GateTypeParameters = {
         name: "Output" + String(size),
         inputs: size, outputs: 0,
-        gridSize: [2, size],
+        gridSize: [gridWidth, gridHeight],
         moveable: false,
-        draw: (s) => {return drawGateTypeRect(2, size)}
+        draw: (s) => {return drawGateTypeRect(gridWidth, gridHeight)}
     };
-    if (otherParams) {
-        params = combineGateTypeParameters(params, otherParams);
-    }
+    if (otherParams) params = combineGateTypeParameters(params, otherParams)
     return params;
 }
 
-export function Decoder(bits:number, otherParams: GateTypeParameters | undefined = undefined) {
+export const InputLabelledPrebaked = [
+    Buf,
+    Input(1,{ name:"Input1Labelled", outputLabels: ["Input"], gridSize: [2, 1] }),
+    Input(2,{ name:"Input2Labelled", outputLabels: ["Input 1", "Input 2"], gridSize: [2, 2] }),
+    Input(3,{ name:"Input3Labelled", outputLabels: ["Input 1", "Input 2", "Input 3"], gridSize: [2, 3] }),
+    Input(4,{ name:"Input4Labelled", outputLabels: ["Input 1", "Input 2", "Input 3", "Input 4"], gridSize: [2, 4] })
+]
+
+export const InputDecodePrebaked = [
+    Buf,
+    Input(1,{ name:"Input1Decode", outputLabels: ["Input"], gridSize: [2, 2], draw:(s) => drawGateTypeDecode(s, 2, 1)}),
+    Input(2,{ name:"Input2Decode", outputLabels: ["Input 0", "Input 1"], gridSize: [2, 2], draw:(s) => drawGateTypeDecode(s, 2, 2)}),
+    Input(4,{ name:"Input4Decode", outputLabels: ["Input 0", "Input 1", "Input 2", "Input 3"], gridSize: [2, 4], draw:(s) => drawGateTypeDecode(s, 2, 4)}),
+]
+
+export const OutputLabelledPrebaked = [
+    Buf,
+    Output(1,{ name:"Output1Labelled", outputLabels: ["Output"], gridSize: [2, 1] }),
+    Output(2,{ name:"Output2Labelled", outputLabels: ["Output 1", "Output 2"], gridSize: [2, 2] }),
+    Output(3,{ name:"Output3Labelled", outputLabels: ["Output 1", "Output 2", "Output 3"], gridSize: [2, 3] }),
+    Output(4,{ name:"Output4Labelled", outputLabels: ["Output 1", "Output 2", "Output 3", "Output 4"], gridSize: [2, 4] })
+]
+
+export const OutputDecodePrebaked = [
+    Buf,
+    Output(1,{ name:"Output1Decode", outputLabels: ["Output"], gridSize: [2, 2], draw:(s) => drawGateTypeDecode(s, 2, 1)}),
+    Output(2,{ name:"Output2Decode", outputLabels: ["Output 0", "Output 1"], gridSize: [2, 2], draw:(s) => drawGateTypeDecode(s, 2, 2)}),
+    Output(4,{ name:"Output4Decode", outputLabels: ["Output 0", "Output 1", "Output 2", "Output 3"], gridSize: [2, 4], draw:(s) => drawGateTypeDecode(s, 2, 4)}),
+]
+
+function decodeInternal(s:GateState, bits:number) {
+    let idx = 0
+    let pow = 1
+    for (let i = 0; i < bits; i++) {
+        if (s.override[i] === true) idx += pow
+        pow *= 2
+    }
+    return idx
+}
+
+export function Decoder(bits:number, otherParams?: GateTypeParameters) {
     const outSize = Math.pow(2, bits)
+    const otherSize = otherParams?.gridSize || [undefined, undefined]
+    const gridWidth = otherSize[0] || 3
+    const gridHeight = otherSize[1] || outSize
     let params: GateTypeParameters = {
         name: `${bits}-${outSize} Decoder`,
         inputs: bits, outputs: outSize,
-        gridSize: [3, outSize],
+        gridSize: [gridWidth, gridHeight],
         f: (s) => {
-            let result = Array(outSize).fill(false)
-            let idx = 0
-            let pow = 1
-            for (let i = 0; i < bits; i++) {
-                if (s.override[i] === true) idx += pow
-                pow *= 2
-            }
+            const idx = decodeInternal(s, bits)
+            let result = new Array(outSize).fill(false)
             result[idx] = true
             return {override:result}
+        },
+        draw: (s) => {
+            return drawGateTypeDecode(s, gridWidth, gridHeight)
         }
     }
-    if (otherParams) {
-        params = combineGateTypeParameters(params, otherParams);
-    }
+    if (otherParams) params = combineGateTypeParameters(params, otherParams)
     return params;
 }
 
 export const Decoder2t4 = Decoder(2)
 
-export function Encoder(bits:number, otherParams: GateTypeParameters | undefined = undefined) {
+function encodeInternal(v:number, bits:number) {
+    let result = new Array(bits).fill(false)
+    for (let i = 0; i < bits; i++) {
+        const r = v % 2
+        result[i] = r === 1
+        v = Math.floor(v / 2)
+    }
+    return {override:result}
+}
+
+export function Encoder(bits:number, otherParams?: GateTypeParameters) {
     const inSize = Math.pow(2, bits)
+    const otherSize = otherParams?.gridSize || [undefined, undefined]
+    const gridWidth = otherSize[0] || 3
+    const gridHeight = otherSize[1] || inSize
     let params: GateTypeParameters = {
         name: `${inSize}-${bits} Encoder`,
         inputs: inSize, outputs: bits,
-        gridSize: [3, inSize],
+        gridSize: [gridWidth, gridHeight],
         f: (s) => {
-            let idx = s.override.lastIndexOf(true)
-            let result = new Array(bits).fill(false)
-            for (let i = 0; i < bits; i++) {
-                const r = idx % 2
-                result[i] = r === 1
-                idx = Math.floor(idx / 2)
-            }
-            return {override:result}
+            return encodeInternal(s.override.lastIndexOf(true), bits)
+        },
+        draw: (s) => {
+            return drawGateTypeEncode(s, gridWidth, gridHeight)
         }
     }
-    if (otherParams) {
-        params = combineGateTypeParameters(params, otherParams);
-    }
+    if (otherParams) params = combineGateTypeParameters(params, otherParams)
     return params;
 }
 
 export const Encoder4t2 = Encoder(2)
+
+export function Adder(bits:number, carry:boolean, otherParams?:GateTypeParameters) {
+    const otherSize = otherParams?.gridSize || [undefined, undefined]
+    const gridWidth = otherSize[0] || 4
+    const gridHeight = otherSize[1] || (bits + 1)
+    let params: GateTypeParameters = {
+        name: `Adder${bits}${carry ? "c":"nc"}`,
+        inputs: bits * 2, outputs: bits + (carry ? 1:0),
+        gridSize: [gridWidth, gridHeight],
+        f: carry ? (s) => {
+            const v1 = decodeInternal(s, bits)
+            const v2 = decodeInternal({override:s.override.slice(bits)},bits)
+            const sum = v1 + v2
+            const result = encodeInternal(sum, bits)
+            result.override.push((sum) >= Math.pow(2, bits))
+            console.log("added!", v1, v2, "=>", result)
+            return result
+        } : (s) => {
+            const v1 = decodeInternal(s, bits)
+            const v2 = decodeInternal({override:s.override.slice(bits)},bits)
+            return encodeInternal(v1 + v2, bits)
+        }
+    }
+    if (otherParams) params = combineGateTypeParameters(params, otherParams)
+    return params;
+}
+
+export const Adder2c = Adder(2, true)

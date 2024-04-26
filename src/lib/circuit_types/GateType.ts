@@ -108,8 +108,8 @@ export class GateTypeView {
         this.drawInternal = params.draw || d
     }
 
-    private spreadVerticalConnections(gridX: number, size: number) {
-        return spreadVerticalConnections(gridX, this.gridHeight, size);
+    private spreadVerticalConnections(gridX: number, numPoints: number) {
+        return spreadVerticalConnections(gridX, this.gridHeight, numPoints);
     }
 
     getConnectionPoint(type:ConnectionType, index:number) {
