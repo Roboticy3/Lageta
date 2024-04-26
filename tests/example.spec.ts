@@ -13,9 +13,11 @@ test('has title', async ({ page }) => {
   await expect(page).toHaveTitle(/Lageta/);
 });
 
-test('test', async ({ page }) => {
+test('opening campaign', async ({ page }) => {
   await page.goto(root);
-  await page.getByRole('button', { name: "Continue" }).click();
+  await page.waitForLoadState('networkidle'); // <-  until there are no network connections for at least 500 ms.
+  await page.getByTitle("Continue").waitFor()
+  await page.getByTitle("Continue").click()
 
   await page.waitForURL(root + "campaign/")
 });

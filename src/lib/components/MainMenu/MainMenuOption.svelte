@@ -23,7 +23,7 @@
     }
 </script>
 
-<button class="option" on:click={onClick} name={name}>
+<button class="option" on:click={onClick} title={name}>
     {@html wrapGateTypeViewInSvgHeader(vType.gridWidth, vType.gridHeight, vType.draw(), `height="20px"`)}
     
     <div class="option-text">
