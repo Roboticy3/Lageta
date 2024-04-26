@@ -30,7 +30,7 @@
     let circuitPanel
     
     onMount(() => {
-        circuitController.addGateAtCell(Input(1, {name:"LevelSelectInput1", inputLabels:[""]}), 1, 1)
+        circuitController.addGateAtCell(Input(1, {name:"LevelSelectInput1", outputLabels:["Click Me!"]}), 1, 1)
         console.log("Mounting level set: ",levelSet)
         resize()
     })

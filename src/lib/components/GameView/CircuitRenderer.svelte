@@ -479,7 +479,7 @@
         const color = connectionValueToColor(value)
         return `
 <path d="M ${offsetX - 1} ${offsetY - 1} l 2 1 l -2 1 Z" stroke-width=".25px" stroke="${color}" />\n
-<text x="${offsetX + 4}" y="${offsetY}" stroke="none" fill="${color}" font-size="0.2em">${label}</text>
+<text x="${offsetX + 4}" y="${offsetY}" stroke="none" fill="${color}">${label}</text>
         `
     }
 
@@ -516,6 +516,14 @@
         return `<path d="M ${from[0]} ${from[1]} L ${to[0]} ${to[1]}" stroke="${color}" />`
     }
 
+    /**
+     * @param {string} attr
+     * @param {string} value
+     */
+    export function setSvgHeadAttribute(attr, value) {
+        svgHead.setAttribute(attr, value)
+    }
+
 </script>
 
 <svg 
@@ -527,6 +535,8 @@
         {rendererState.scaleY * gridSize[1] * cellOffset + rendererState.translateY}
     " width="{rendererState.scaleX * gridSize[0] * cellOffset + rendererState.translateX}px"
     bind:this={svgHead}
+
+    font-size="0.2em"
 >
     <g transform="scale({rendererState.scaleX}, {rendererState.scaleY})">
         <g bind:this={gridGroup} id="circuit-svg-lines" stroke="var(--grid-color)" stroke-width="0.25px" fill="none"></g>

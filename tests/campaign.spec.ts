@@ -3,9 +3,7 @@ import { root, safeClick } from "./helpers";
 
 test('first level starts unlocked', async ({ page }) => {
     await page.goto(root);
-
     await page.evaluate(() => {localStorage.clear()})
-
     await safeClick(page, "Continue")
     await page.waitForURL(root + "campaign/")
 
@@ -19,11 +17,44 @@ test('first level starts unlocked', async ({ page }) => {
  */
 test('first level starts unavailable', async ({ page }) => {
     await page.goto(root);
-
     await page.evaluate(() => {localStorage.clear()})
-
     await safeClick(page, "Continue")
     await page.waitForURL(root + "campaign/")
 
-    await expect(page.getByTitle("Play A Simple Start")).toBeDisabled()
+    await expect(page.getByTestId("Play A Simple Start")).toBeDisabled()
 });
+
+test('first level visible', async ({ page }) => {
+    await page.goto(root);
+    await page.evaluate(() => {localStorage.clear()})
+    await safeClick(page, "Continue")
+    await page.waitForURL(root + "campaign/")
+
+    await expect(page.getByTitle("A Simple Start")).toBeVisible()
+});
+
+test('can find first connection point', async ({ page }) => {
+    await page.goto(root);
+    await page.evaluate(() => {localStorage.clear()})
+    await safeClick(page, "Continue")
+    await page.waitForURL(root + "campaign/")
+
+    const inputBounds = await page.locator('#gate-0>path').boundingBox()
+
+    await expect(inputBounds != null).toBeTruthy()
+})
+
+test('connecting first level makes it available', async ({ page }) => {
+    await page.goto(root);
+    await page.evaluate(() => {localStorage.clear()})
+    await safeClick(page, "Continue")
+    await page.waitForURL(root + "campaign/")
+
+    const inputBounds = await page.locator('#gate-0>path').boundingBox()
+
+    //inputBounds tested to exist by "can find first connection point"
+    await page.mouse.click(inputBounds?.x || 0, inputBounds?.y || 0)
+
+    
+})
+
