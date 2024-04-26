@@ -200,7 +200,7 @@
         if (rendererParams.showWires === false) return
 
         //if a list of outputs is missing, try to retrieve one from the controller
-        if (outputs === undefined) outputs = circuitController.getGateOutputs(index[0])?.override
+        if (outputs === undefined) outputs = circuitController.getGateOutputs(index[0])
 
         const idString = wireIdString(index)
         let svg = document.querySelector(`#${wireIdString(index)}`)
@@ -443,11 +443,13 @@
      * @param {number | import("$lib/circuit_types/Gate").GateState | undefined} idOrState
      */
     function svgGate(cType, idOrState=undefined) {
-        let state = typeof idOrState === "number" ? circuitController.getGateState(idOrState) : idOrState
-        if (state === undefined) state = cType.generateDefaultState()
+        const [id, state] = typeof idOrState === "number" ? 
+            [idOrState, circuitController.getGateState(idOrState) || cType.generateDefaultState()] 
+            : 
+            [-1, idOrState]
         const body = rendererParams.showGates === false ? "" : cType.view.draw(state)
 
-        return body + svgConnectionPoints(cType, state)
+        return body + svgConnectionPoints(cType, id)
     }
 
     /**
@@ -470,39 +472,47 @@
     }
 
     /**
+     * @param {import("$lib/circuit_types/CircuitController").ConnectionIndex} index
      * @param {number} offsetX
      * @param {number} offsetY
      * @param {import("$lib/circuit_types/GateType").ConnectionValue} value
      * @param {string} label
      */
-    function svgConnectionPoint(offsetX, offsetY, value = undefined, label = "") {
+    function svgConnectionPoint(index, offsetX, offsetY, value, label = "") {
         const color = connectionValueToColor(value)
         return `
-<path d="M ${offsetX - 1} ${offsetY - 1} l 2 1 l -2 1 Z" stroke-width=".25px" stroke="${color}" />\n
+<path d="M ${offsetX - 1} ${offsetY - 1} l 2 1 l -2 1 Z" stroke-width=".25px" stroke="${color}" id="${connectionPointIdString(index)}" />\n
 <text x="${offsetX + 4}" y="${offsetY}" stroke="none" fill="${color}">${label}</text>
         `
     }
 
     /**
-     * @param {GateTypeController} cType
-     * @param {number | import("$lib/circuit_types/Gate").GateState} idOrState
+     * @param {import("$lib/circuit_types/CircuitController").ConnectionIndex} index
      */
-    function svgConnectionPoints(cType, idOrState) { 
-        const state = (typeof idOrState === "number" ? circuitController.getGateState(idOrState) : idOrState) || {override:[]}
+    function connectionPointIdString(index) {
+        return `gate-${index.id}-${index.type.toLowerCase()}-${index.index}`
+    }
 
-        const inputs = rendererParams.showConnectionPoints === false ? [] : cType.view.inputOffsets.map((o, i) => {
-            return svgConnectionPoint(o[0], o[1], state.override[i], cType.view.inputLabels[i])
-        })
+    /**
+     * @param {GateTypeController} cType
+     * @param {number} id
+     */
+    function svgConnectionPoints(cType, id) { 
+        const inputs = circuitController.getGateInputs(id)
+        const outputs = circuitController.getGateOutputs(id)
 
-        const outState = cType.model.f(state) //temp hack, state should store outputs too
-        const outputs =  rendererParams.showConnectionPoints === false ? [] : cType.view.outputOffsets.map((o, i) => {
-            return svgConnectionPoint(o[0], o[1], outState.override[i], cType.view.outputLabels[i])
-        })
+        const inputPoints = inputs && rendererParams.showConnectionPoints !== false ? cType.view.inputOffsets.map((o, i) => {
+            return svgConnectionPoint({id:id, type:"Input", index:i}, o[0], o[1], inputs[i], cType.view.inputLabels[i])
+        }) : []
+
+        const outputPoints = outputs && rendererParams.showConnectionPoints !== false ? cType.view.outputOffsets.map((o, i) => {
+            return svgConnectionPoint({id:id, type:"Output", index:i}, o[0], o[1], outputs[i], cType.view.outputLabels[i])
+        }) : []
 
         switch (connectionPointDisplayMode) {
-            case "": return inputs.join() + outputs.join()
-            case "Input": return inputs.join()
-            case "Output": return outputs.join()
+            case "": return inputPoints.join() + outputPoints.join()
+            case "Input": return inputPoints.join()
+            case "Output": return outputPoints.join()
         }
     }
 

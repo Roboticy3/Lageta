@@ -50,7 +50,7 @@
 
     function updateAvailability() {
         if (gateId === undefined) return
-        const value = circuitController.getGateOutputs(gateId)?.override
+        const value = circuitController.getGateOutputs(gateId)
         if (value === undefined) return
 
         let activate = true

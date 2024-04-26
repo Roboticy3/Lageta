@@ -561,7 +561,7 @@ export class CircuitController {
             case "Output":
                 const outputs = this.getGateOutputs(gateId)
                 if (outputs === undefined) return
-                return outputs.override[index.index]
+                return outputs[index.index]
         }
     }
 
@@ -671,7 +671,7 @@ export class CircuitController {
         id:number
     ) {
         const gate = this.gateGrid.gates[id]
-        return gate?.execute(undefined)
+        return gate?.execute(undefined).override
     }
 
     getGateOutputLabels(gate:Gate) {
