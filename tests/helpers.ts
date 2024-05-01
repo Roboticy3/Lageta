@@ -1,4 +1,4 @@
-import type { Page } from "@playwright/test";
+import { expect, type Page } from "@playwright/test";
 
 /**
  * Click a button... safely. Fixes main menu Continue test not working on chromium, and hopefully stabilizes other button tests too
@@ -24,10 +24,10 @@ export const safeClick = async (page:Page, selector:string) => {
  * @param to 
  */
 export const tryLayConnection = async (page:Page, from:[number, number], to:[number, number]) => {
-  const outputBounds = await page.locator('#gate-0-output-0')?.boundingBox()
+  const outputBounds = await page.locator(`#gate-${from[0]}-output-${from[1]}`)?.boundingBox()
   await page.mouse.click(outputBounds?.x || 0, outputBounds?.y || 0)
 
-  const inputBounds = await page.locator('#gate-1-input-0')?.boundingBox()
+  const inputBounds = await page.locator(`#gate-${to[0]}-input-${to[1]}`)?.boundingBox()
   await page.mouse.click(inputBounds?.x || 0, inputBounds?.y || 0)
 }
 

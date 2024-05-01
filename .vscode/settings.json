@@ -1,3 +1,3 @@
 {
-    "playwright.reuseBrowser": false
+    "playwright.reuseBrowser": true
 }
