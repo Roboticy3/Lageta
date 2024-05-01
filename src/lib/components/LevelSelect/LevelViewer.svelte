@@ -50,7 +50,7 @@
 
     function updateAvailability() {
         if (gateId === undefined) return
-        const value = circuitController.getGateOutputs(gateId)?.override
+        const value = circuitController.getGateOutputs(gateId)
         if (value === undefined) return
 
         let activate = true
@@ -68,14 +68,16 @@
     function playLevel() {
         goto(`/level/${level.name()}`)
     }
+
 </script>
 
 <CircuitDiv 
     circuitController={circuitController} 
     position={[level.x, level.y]} 
     size={[level.type.model.gridWidth, level.type.model.gridHeight]}
+    title={level.name()}
     bind:this={container}
 >
     <p>{level.name()}</p>
-    <button on:click={playLevel} bind:this={button}>Play</button>
+    <button on:click={playLevel} bind:this={button} id={`level-${gateId}-play`} disabled>Play</button>
 </CircuitDiv>

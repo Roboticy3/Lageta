@@ -122,6 +122,7 @@
     bind:this={checkbox} 
     on:change={onChange}
     style="left:{margin[0] + offset[0]}px; top:{margin[1] + offset[1]}px;"
+    title={from ? `Select(${from[0]}-${from[1]})` : ''}
 />
 
 <style>
