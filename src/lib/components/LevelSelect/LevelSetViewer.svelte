@@ -13,6 +13,7 @@
     import CircuitDiv from "../GameView/CircuitDiv.svelte";
     import { goto } from "$app/navigation";
     import { Input } from "$lib/dat/GateTypes/GateTypes";
+    import { browser } from "$app/environment";
 
     const gridWidth = 20
     const gridHeight = 10
@@ -21,8 +22,8 @@
         {size:[gridWidth, gridHeight] }, undefined, [], 
         {showGates:false, showGrid:false, initialScale:[8, 8]})
 
-    let progress = new ProgressStorage()
-    let levelSet = progress.levels()
+    let progress = browser ? new ProgressStorage() : undefined
+    let levelSet = progress?.levels() || []
 
     /**
      * @type {GameViewCircuitPanel}
@@ -32,7 +33,10 @@
     onMount(() => {
         circuitController.addGateAtCell(Input(1, {name:"LevelSelectInput1", inputLabels:[""]}), 1, 1)
         console.log("Mounting level set: ",levelSet)
-        resize()
+        if (browser) {
+            resize()
+            window.addEventListener('resize', resize)
+        }
     })
 
     async function resize() {
@@ -41,8 +45,6 @@
         const cellOffset = width / gridWidth
         
     }
-
-    window.addEventListener('resize', resize)
 
     let circuitController = params.initializeGrid()
     

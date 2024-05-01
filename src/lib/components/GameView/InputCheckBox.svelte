@@ -1,4 +1,6 @@
 <script>
+    import { browser } from "$app/environment";
+
     //@ts-ignore
     import { CircuitController } from "$lib/circuit_types/CircuitController";
     import { onMount, tick } from "svelte";
@@ -80,14 +82,17 @@
         }
     }
     onMount(async () => {
-        await tick()
-        setOffset()
-        checkbox.checked = startChecked
-        onChange()
-    })
-
-    window.addEventListener('resize', (e) => {
-        setOffset()
+        if (browser) {
+            await tick()
+            setOffset()
+            checkbox.checked = startChecked
+            onChange()
+            window.addEventListener('resize', (e) => {})
+            setOffset()
+        }
+        else {
+            checkbox.setAttribute("hidden","hidden")
+        }
     })
 
     export let onChangeListener = () => {}
