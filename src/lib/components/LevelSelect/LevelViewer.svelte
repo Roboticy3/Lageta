@@ -66,7 +66,7 @@
     }
 
     function playLevel() {
-        goto(`/level/${level.name()}`)
+        window.location.href = '/level/' + level.name()
     }
 </script>
 
