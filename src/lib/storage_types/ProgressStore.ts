@@ -2,6 +2,7 @@ import { Buf, all_gates, getGateType } from "$lib/dat/GateTypes/GateTypes"
 import { all_levels } from "$lib/level_types/Level"
 import { Freeplay, NotLevel, getLevel, getLevelParams, type LevelParameters } from "$lib/dat/Levels/Levels"
 import { parseStorage } from "./ParseStorage"
+import { browser } from "$app/environment"
 //storage format
 /*
     {
@@ -35,12 +36,18 @@ export class ProgressStorage {
         storageKey:string | undefined = undefined
     ) {
 
-        this.storageKey = storageKey || this.storageKey
-        this.progressStorage = parseStorage(
-            localStorage, this.storageKey,
-            () => {return new ProgressStorageObject()}
-        )
-        this.commit()
+        if (browser) {
+
+            this.storageKey = storageKey || this.storageKey
+            this.progressStorage = parseStorage(
+                localStorage, this.storageKey,
+                () => {return new ProgressStorageObject()}
+            )
+            this.commit()
+        }
+        else {
+            throw Error("Cant instantiate ProgressStorage without localStorage!")
+        }
     }
 
     private commit(storage = this.progressStorage) {
