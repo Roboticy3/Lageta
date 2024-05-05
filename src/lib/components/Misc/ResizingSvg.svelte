@@ -8,9 +8,9 @@
     export let [minHeight, minWidth] = [0, 0]
 
     /**
-     * @type {SVGSVGElement}
+     * @type {SVGElement}
      */
-    let svg
+    export let svg
     /**
      * @type {SVGGraphicsElement}
      */

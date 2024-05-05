@@ -362,6 +362,7 @@ export class CircuitController {
     ) {
         const [localX, localY] = this.unprojectOffset(offsetX, offsetY)
         const [x, y] = this.gateGrid.offsetToIndex(localX, localY)
+        console.log("previewing gate ", cType.name, " at ", [x, y])
         const gate = new Gate(cType.model)
         if (this.gateGrid.canAddGate(x, y, gate)) return [x, y]
         return

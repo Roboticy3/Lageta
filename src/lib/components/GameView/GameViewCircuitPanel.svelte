@@ -228,7 +228,7 @@
      * @param {MouseEvent} e
      */
     function canDrag(e) {
-        if (forceDragOnCircuitContainerOnly && e.target !== circuitContainer) {
+    if (forceDragOnCircuitContainerOnly && e.target !== circuitRenderer.getSvgHead()) {
             return "Bad Target"
         }
 
@@ -297,9 +297,9 @@
      */
     function onDragGate(e) {
         const check = canDragGate()
-        switch (check) {
-            case "No GateType": return
-        }
+
+        console.log("trying to drag gate ", check)
+        if (check === "No GateType") return
         const [cType, id] = check;
         
         const result = id ? 

@@ -6,6 +6,7 @@
     import { onMount, tick } from "svelte";
     import { compose, fromString, identity, scale, toSVG, transform, translate } from "transformation-matrix";
     import { draw } from "svelte/transition";
+    import ResizingSvg from "../Misc/ResizingSvg.svelte";
 
     /**
      * @type {CircuitController}
@@ -41,6 +42,9 @@
      * @type {SVGElement}
      */
     let svgHead
+    export function getSvgHead() {
+        return svgHead
+    }
 
     /**
      * @param {number} tX
@@ -518,22 +522,20 @@
 
 </script>
 
-<svg 
-    class="circuit-svg" 
-    viewBox="
-        {-rendererState.translateX} 
-        {-rendererState.translateY} 
-        {rendererState.scaleX * gridSize[0] * cellOffset + rendererState.translateX} 
-        {rendererState.scaleY * gridSize[1] * cellOffset + rendererState.translateY}
-    " width="{rendererState.scaleX * gridSize[0] * cellOffset + rendererState.translateX}px"
-    bind:this={svgHead}
+<ResizingSvg 
+    
+    offsetX={0} 
+    offsetY={0}
+    minWidth={gridSize[0] * cellOffset}
+    minHeight={gridSize[0] * cellOffset}
+    bind:svg={svgHead}
 >
     <g transform="scale({rendererState.scaleX}, {rendererState.scaleY})">
         <g bind:this={gridGroup} id="circuit-svg-lines" stroke="var(--grid-color)" stroke-width="0.25px" fill="none"></g>
         <g bind:this={gateGroup} id="circuit-svg-gates" stroke="var(--gate-color)" stroke-width="0.5px" fill="none"></g>
         <g bind:this={connectionGroup} id="circuit-svg-connections" stroke="var(--gate-color)" stroke-width="0.5px" fill="none"></g>
     </g>  
-</svg>
+</ResizingSvg>
 
 <style>
     .circuit-svg {
