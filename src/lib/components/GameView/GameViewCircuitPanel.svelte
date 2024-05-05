@@ -88,7 +88,7 @@
      */
     let mountCircuit = () => {
         addDragEventListeners()
-        if (!gridController.getRenderer() && circuitRenderer) gridController.giveRenderer(circuitRenderer)
+        gridController.giveRenderer(circuitRenderer)
     }
     onMount(mountCircuit)
 
@@ -227,8 +227,8 @@
      * creating a union of the error codes and the drag type codes.
      * @param {MouseEvent} e
      */
-    function canDrag(e) {
-    if (forceDragOnCircuitContainerOnly && e.target !== circuitRenderer.getSvgHead()) {
+    export function canDrag(e) {
+        if (e.target !== circuitRenderer.getSvgHead()) {
             return "Bad Target"
         }
 
@@ -298,7 +298,6 @@
     function onDragGate(e) {
         const check = canDragGate()
 
-        console.log("trying to drag gate ", check)
         if (check === "No GateType") return
         const [cType, id] = check;
         
@@ -313,13 +312,10 @@
                 e.offsetX,
                 e.offsetY
             )
-        
 
-        if (result !== undefined) {
-            activeSvgGate = `<g ${gridController.getGateSvgTransform(
-                {type:cType.model, x:result[0], y:result[1]}
-            )}>${cType.view.draw()}</g>`
-        }
+        activeSvgGate = `<g ${gridController.getGateSvgTransform(
+            {type:cType.model, x:result.at[0], y:result.at[1]}
+        )}>${cType.view.draw()}</g>`
     }
 
     /**

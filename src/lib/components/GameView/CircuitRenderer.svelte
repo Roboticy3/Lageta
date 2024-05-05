@@ -126,6 +126,8 @@
         const [tX, tY] = rendererParams.initialTranslate || [rendererState.translateX, rendererState.translateY]
         const [sX, sY] = rendererParams.initialScale || [rendererState.scaleX, rendererState.scaleY]
         setTransformMatrix(tX, tY, sX, sY)
+
+        resizer.correct()
     }
 
     export function drawGrid() {
@@ -318,7 +320,7 @@
      * @param {MouseEvent} e
      */
     export function drawActiveWire(e) {
-        if (e.target !== svgHead.parentElement) return
+        if (e.target !== getSvgHead()) return
 
         const controller = circuitDraggable.getController()
 
@@ -371,25 +373,25 @@
      * @param {MouseEvent} e
      */
     export function drawActiveGate(e) {
-        if (e.target !== svgHead.parentElement) return
+        if (e.target !== getSvgHead()) return
+
         const controller = circuitDraggable.getController()
         const cType = controller.getGateType()
         const id = controller.getId()
-        let gPos
+        let previewResult
         let svg = gateGroup.querySelector(`#gate-active`)
         console.log("previewing ", cType, "with id", id)
         if (id && cType) {
-            gPos = circuitController.previewMoveGate(id, e.offsetX, e.offsetY)
+            previewResult = circuitController.previewMoveGate(id, e.offsetX, e.offsetY)
         } else if (cType) {
-            gPos = circuitController.previewAddGate(cType, e.offsetX, e.offsetY)
+            previewResult = circuitController.previewAddGate(cType, e.offsetX, e.offsetY)
         }
         else return
 
         if (svg) {
             svg.setAttribute('stroke','black')
-            if (!gPos) {
-                const localOffset = circuitController.unprojectOffset(e.offsetX, e.offsetY)
-                gPos = circuitController.offsetToIndex(localOffset[0], localOffset[1])
+            let gPos = previewResult.at
+            if (previewResult.error != "") {
                 svg.setAttribute('stroke','gray')
             }
             const transform = svgGridTransform(gPos[0], gPos[1])

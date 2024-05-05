@@ -27,7 +27,7 @@
      */
     let parent
 
-    function correct() {
+    export function correct() {
         if (svg) {
             parent = svg.parentElement
             for (let i = 1; i < ancestry; i++) {
@@ -67,7 +67,7 @@
     /**
      * @param {[number, number]} offset
      */
-     export function innerOffsetToOuter(offset) {
+    export function innerOffsetToOuter(offset) {
         const scale = getCurrentScale()
         const normalized = [offset[0] * scale, offset[1] * scale]
         const translated = [normalized[0] - offsetX, normalized[1] - offsetY]
