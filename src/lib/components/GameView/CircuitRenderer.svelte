@@ -47,6 +47,23 @@
     }
 
     /**
+     * @type {ResizingSvg}
+     */
+    let resizer
+    /**
+     * @param {[number, number]} offset
+     */
+    export function toLocal(offset) {
+        return resizer.outerOffsetToInner(offset)
+    }
+    /**
+     * @param {[number, number]} offset
+     */
+     export function toGlobal(offset) {
+        return resizer.innerOffsetToOuter(offset)
+    }
+
+    /**
      * @param {number} tX
      * @param {number} tY
      * @param {number} sX
@@ -529,6 +546,7 @@
     minWidth={gridSize[0] * cellOffset}
     minHeight={gridSize[0] * cellOffset}
     bind:svg={svgHead}
+    bind:this={resizer}
 >
     <g transform="scale({rendererState.scaleX}, {rendererState.scaleY})">
         <g bind:this={gridGroup} id="circuit-svg-lines" stroke="var(--grid-color)" stroke-width="0.25px" fill="none"></g>

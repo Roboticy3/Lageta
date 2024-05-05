@@ -100,7 +100,7 @@ export class CircuitController {
     projectOffset(offsetX:number, offsetY:number) {
         const p:[number, number] = [offsetX, offsetY]
         const m = this.getMatrix()
-        return m ? applyToPoint(m, p) : p
+        return this.renderer.toGlobal(applyToPoint(m, p))
     }
 
     /**
@@ -110,9 +110,9 @@ export class CircuitController {
      * @returns 
      */
     unprojectOffset(offsetX:number, offsetY:number) {
-        const p:[number, number] = [offsetX, offsetY]
+        const p:[number, number] = this.renderer.toLocal([offsetX, offsetY])
         const m = this.getMatrix()
-        return m ? applyToPoint(inverse(m), p) : p
+        return applyToPoint(inverse(m), p)
     }
 
     getMatrix() {

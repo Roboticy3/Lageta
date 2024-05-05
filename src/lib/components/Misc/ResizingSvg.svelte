@@ -41,15 +41,37 @@
         outerHeight = Math.max(outer.height, minHeight)
         outerWidth = Math.max(outer.width, minWidth)
 
-        const inner = contentGroup.getBBox()
-        const scale = outerHeight / inner.height
-
-        console.log(outer, inner)
+        const scale = getCurrentScale()
 
         scaleGroup.setAttribute(
             "transform",
             `scale(${scale} ${scale})`
         )
+    }
+
+    function getCurrentScale() {
+        const inner = contentGroup.getBBox()
+        return outerHeight / inner.height
+    }
+
+    /**
+     * @param {[number, number]} offset
+     */
+    export function outerOffsetToInner(offset) {
+        const scale = getCurrentScale()
+        const normalized = [offset[0] / scale, offset[1] / scale]
+        const translated = [normalized[0] + offsetX, normalized[1] + offsetY]
+        return translated
+    }
+
+    /**
+     * @param {[number, number]} offset
+     */
+     export function innerOffsetToOuter(offset) {
+        const scale = getCurrentScale()
+        const normalized = [offset[0] * scale, offset[1] * scale]
+        const translated = [normalized[0] - offsetX, normalized[1] - offsetY]
+        return translated
     }
 
     onMount(() => {
