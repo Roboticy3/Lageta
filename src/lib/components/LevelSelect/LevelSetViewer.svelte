@@ -15,7 +15,7 @@
     import { Input } from "$lib/dat/GateTypes/GateTypes";
     import { browser } from "$app/environment";
 
-    const gridWidth = 20
+    const gridWidth = 15
     const gridHeight = 10
     const params = new GameViewParameters(
         "LevelSelect", "", 
@@ -115,5 +115,8 @@
 </div>
 
 <style>
-
+    .level-panel {
+        width:100%;
+        height:100%;
+    }
 </style>

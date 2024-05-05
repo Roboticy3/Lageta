@@ -551,6 +551,16 @@
     bind:this={resizer}
 >
     <g transform="scale({rendererState.scaleX}, {rendererState.scaleY})">
+        <g id="circuit-bounding-box">
+            <rect 
+                stroke="white"
+                fill="none"
+                width="{gridSize[0] * cellOffset}" 
+                height="{gridSize[1] * cellOffset}"
+                x="{rendererState.translateX}"
+                y="{rendererState.translateY}"
+            >
+        </g>
         <g bind:this={gridGroup} id="circuit-svg-lines" stroke="var(--grid-color)" stroke-width="0.25px" fill="none"></g>
         <g bind:this={gateGroup} id="circuit-svg-gates" stroke="var(--gate-color)" stroke-width="0.5px" fill="none"></g>
         <g bind:this={connectionGroup} id="circuit-svg-connections" stroke="var(--gate-color)" stroke-width="0.5px" fill="none"></g>
