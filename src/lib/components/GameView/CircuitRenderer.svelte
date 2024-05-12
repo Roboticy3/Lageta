@@ -502,7 +502,7 @@
         const color = connectionValueToColor(value)
         return `
 <path d="M ${offsetX - 1} ${offsetY - 1} l 2 1 l -2 1 Z" stroke-width=".25px" stroke="${color}" />\n
-<text x="${offsetX + 4}" y="${offsetY}" stroke="none" fill="${color}" font-size="0.2em">${label}</text>
+<text x="${offsetX + 4}" y="${offsetY}" stroke="none" fill="${color}" font-size="0.2em" style="pointer-events:none;">${label}</text>
         `
     }
 

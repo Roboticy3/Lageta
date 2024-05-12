@@ -11,6 +11,7 @@
     import GameViewShelfButton from "./GameViewShelfButton.svelte";
     import SignalViewer from "./SignalViewer.svelte";
     import CompletionPopup from "./CompletionPopup.svelte";
+    import CircuitEditorComponent from "./CircuitEditorComponent.svelte";
 
 
     /**
@@ -47,29 +48,12 @@
 </script>
 
 <div class="base-vertical">
-    <CircuitDraggable 
-        circuitController={circuitController} 
-        bind:this={circuitDraggable}
-    />
     <div class="nav">
 
     </div>
     <div class="sandbox-horizontal">
         <div class="circuit-editor">
-            <div class="shelf">
-                {#each progressStorage.gates() as gateTypeController}
-                    <GameViewShelfButton circuitDraggable={circuitDraggable} gateType={gateTypeController}/>
-                {/each}
-            </div>
-            <div class="circuit-panel">
-                <GameViewCircuitPanel 
-                    params={params}
-                    gridController={circuitController}
-                    circuitDraggable={circuitDraggable}
-                >
-
-                </GameViewCircuitPanel>
-            </div>
+            <CircuitEditorComponent circuitController={circuitController} params={params} shelf={progressStorage.gates()}/>
         </div>
         <div class="instructions">
             {@html params.directions}
@@ -110,23 +94,6 @@
 
         display: flex;
         flex-direction: column;
-    }
-
-    .circuit-editor .shelf {
-        flex: 1;
-        background-color: var(--tertiary-bg-color);
-
-        display: flex;
-        flex-direction: row;
-    }
-
-    .circuit-editor .circuit-panel {
-        flex: 7;
-        background-color: var(--main-bg-color);
-        min-height: 0;
-
-        border: thick double;
-        color: var(--grid-color);
     }
 
     .sandbox-horizontal .instructions {

@@ -1,0 +1,75 @@
+
+<script>
+    import { CircuitController } from "$lib/circuit_types/CircuitController";
+    import { onMount } from "svelte";
+    import CircuitDraggable from "./CircuitDraggable.svelte";
+    import GameViewShelfButton from "./GameViewShelfButton.svelte";
+    import GameViewCircuitPanel from "./GameViewCircuitPanel.svelte";
+    import { GameViewParameters } from "$lib/level_types/GameViewParameters";
+    import { GateTypeController } from "$lib/circuit_types/GateType";
+
+    /**
+     * @type {CircuitController | null}
+     */
+    export let circuitController = null
+
+    /**
+     * @type {GameViewParameters}
+     */
+    export let params
+
+    /**
+     * @type {GateTypeController[]}
+     */
+     export let shelf = []
+
+    onMount(() => {
+        if (circuitController === null) {
+            circuitController = new CircuitController()
+        }
+    })
+
+    let circuitDraggable
+</script>
+
+{#if circuitController}
+    <CircuitDraggable 
+        circuitController={circuitController} 
+        bind:this={circuitDraggable}
+    />
+    {#if shelf.length > 0}
+        <div class="shelf">
+            {#each shelf as gateTypeController}
+                <GameViewShelfButton circuitDraggable={circuitDraggable} gateType={gateTypeController}/>
+            {/each}
+        </div>
+    {/if}
+    <div class="circuit-panel">
+        <GameViewCircuitPanel 
+            params={params}
+            gridController={circuitController}
+            circuitDraggable={circuitDraggable}
+        >
+
+        </GameViewCircuitPanel>
+    </div>
+{/if}
+
+<style>
+    .shelf {
+        flex: 1;
+        background-color: var(--tertiary-bg-color);
+
+        display: flex;
+        flex-direction: row;
+    }
+
+    .circuit-panel {
+        flex: 7;
+        background-color: var(--main-bg-color);
+        min-height: 0;
+
+        border: thick double;
+        color: var(--grid-color);
+    }
+</style>
