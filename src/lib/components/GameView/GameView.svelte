@@ -6,12 +6,12 @@
     import { CircuitSignalSetView, SignalSetView } from "$lib/signal_types/SignalSetView";
     import { ProgressStorage } from "$lib/storage_types/ProgressStore";
     import CircuitDiv from "./CircuitDiv.svelte";
-    import CircuitDraggable from "./CircuitDraggable.svelte";
-    import GameViewCircuitPanel from "./GameViewCircuitPanel.svelte";
-    import GameViewShelfButton from "./GameViewShelfButton.svelte";
+    import CircuitDraggable from "$lib/components/GameView/CircuitEditor/CircuitDraggable.svelte";
+    import GameViewCircuitPanel from "$lib/components/GameView/CircuitEditor//GameViewCircuitPanel.svelte";
+    import GameViewShelfButton from "./CircuitEditor/GameViewShelfButton.svelte";
     import SignalViewer from "./SignalViewer.svelte";
     import CompletionPopup from "./CompletionPopup.svelte";
-    import CircuitEditorComponent from "./CircuitEditorComponent.svelte";
+    import CircuitEditorComponent from "./CircuitEditor/CircuitEditorComponent.svelte";
 
 
     /**

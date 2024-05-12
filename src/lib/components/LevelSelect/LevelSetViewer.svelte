@@ -5,11 +5,11 @@
     import { AndLevel, Freeplay, NotLevel, OrLevel } from "$lib/dat/Levels/Levels";
     import { ProgressStorage } from "$lib/storage_types/ProgressStore";
     import { onMount, tick } from "svelte";
-    import GameViewCircuitPanel from "../GameView/GameViewCircuitPanel.svelte";
+    import GameViewCircuitPanel from "$lib/components/GameView/CircuitEditor/GameViewCircuitPanel.svelte";
     import { CircuitController } from "$lib/circuit_types/CircuitController";
-    import CircuitDraggable from "../GameView/CircuitDraggable.svelte";
+    import CircuitDraggable from "$lib/components/GameView/CircuitEditor/CircuitDraggable.svelte";
     import LevelViewer from "./LevelViewer.svelte";
-    import InputCheckBox from "../GameView/InputCheckBox.svelte";
+    import InputCheckBox from "$lib/components/GameView/CircuitEditor/InputCheckBox.svelte";
     import CircuitDiv from "../GameView/CircuitDiv.svelte";
     import { goto } from "$app/navigation";
     import { Input } from "$lib/dat/GateTypes/GateTypes";

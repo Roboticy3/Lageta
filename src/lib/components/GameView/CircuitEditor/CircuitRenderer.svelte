@@ -6,7 +6,7 @@
     import { onMount, tick } from "svelte";
     import { compose, fromString, identity, scale, toSVG, transform, translate } from "transformation-matrix";
     import { draw } from "svelte/transition";
-    import ResizingSvg from "../Misc/ResizingSvg.svelte";
+    import ResizingSvg from "$lib/components/Misc/ResizingSvg.svelte";
 
     /**
      * @type {CircuitController}

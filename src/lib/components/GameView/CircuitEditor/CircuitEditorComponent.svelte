@@ -2,9 +2,9 @@
 <script>
     import { CircuitController } from "$lib/circuit_types/CircuitController";
     import { onMount } from "svelte";
-    import CircuitDraggable from "./CircuitDraggable.svelte";
-    import GameViewShelfButton from "./GameViewShelfButton.svelte";
-    import GameViewCircuitPanel from "./GameViewCircuitPanel.svelte";
+    import CircuitDraggable from "$lib/components/GameView/CircuitEditor/CircuitDraggable.svelte";
+    import GameViewShelfButton from "$lib/components/GameView/CircuitEditor/GameViewShelfButton.svelte";
+    import GameViewCircuitPanel from "$lib/components/GameView/CircuitEditor/GameViewCircuitPanel.svelte";
     import { GameViewParameters } from "$lib/level_types/GameViewParameters";
     import { GateTypeController } from "$lib/circuit_types/GateType";
 

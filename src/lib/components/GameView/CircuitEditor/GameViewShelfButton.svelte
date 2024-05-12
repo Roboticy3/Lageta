@@ -1,7 +1,7 @@
 <script>
     import { onMount } from "svelte";
     
-    import CircuitDraggable from "./CircuitDraggable.svelte";
+    import CircuitDraggable from "$lib/components/GameView/CircuitEditor/CircuitDraggable.svelte";
     import { Buf, getGateType, wrapGateTypeViewInSvgHeader } from "$lib/dat/GateTypes/GateTypes";
     import { GateType, GateTypeController, GateTypeView } from "$lib/circuit_types/GateType";
 
