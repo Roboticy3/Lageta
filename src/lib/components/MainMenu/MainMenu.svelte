@@ -1,6 +1,10 @@
 <script>
-    import { Or, getGateType } from "$lib/dat/GateTypes/GateTypes";
+    import { browser } from "$app/environment";
+    import { Decoder2t4, Or, getGateType } from "$lib/dat/GateTypes/GateTypes";
+    import { ProgressStorage } from "$lib/storage_types/ProgressStore";
     import MainMenuOption from "./MainMenuOption.svelte";
+
+    let currentTutorial = browser ? new ProgressStorage().getCurrentTutorial() : ""
 
 </script>
 
@@ -10,7 +14,13 @@
     </div>
     <div class="menu">
         <div class="options">
-            <MainMenuOption path={"campaign"}>Continue</MainMenuOption>
+            
+            {#if currentTutorial !== ""}
+                <MainMenuOption path={`tutorial/${currentTutorial}`}>Continue</MainMenuOption>
+            {:else}
+                <MainMenuOption path={`campaign`}>Continue</MainMenuOption>
+                <MainMenuOption path={`tutorial/`} vType={getGateType(Decoder2t4).view}>Tutorials</MainMenuOption>
+            {/if}
             <MainMenuOption path={"level/Freeplay"} vType={getGateType(Or).view}>Options</MainMenuOption>
         </div>
     </div>
