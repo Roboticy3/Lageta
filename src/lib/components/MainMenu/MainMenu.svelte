@@ -1,10 +1,20 @@
 <script>
     import { browser } from "$app/environment";
-    import { Decoder2t4, Or, getGateType } from "$lib/dat/GateTypes/GateTypes";
+    import { And, Decoder2t4, Or, getGateType } from "$lib/dat/GateTypes/GateTypes";
     import { ProgressStorage } from "$lib/storage_types/ProgressStore";
+    import { onMount } from "svelte";
     import MainMenuOption from "./MainMenuOption.svelte";
 
-    let currentTutorial = browser ? new ProgressStorage().getCurrentTutorial() : ""
+    /**
+     * @type {string | null}
+     */
+    let currentTutorial = null
+
+    onMount(() => {
+        if (browser) {
+            currentTutorial = new ProgressStorage().getCurrentTutorial()
+        }
+    })
 
 </script>
 
@@ -15,13 +25,19 @@
     <div class="menu">
         <div class="options">
             
-            {#if currentTutorial !== ""}
-                <MainMenuOption path={`tutorial/${currentTutorial}`}>Continue</MainMenuOption>
-            {:else}
-                <MainMenuOption path={`campaign`}>Continue</MainMenuOption>
-                <MainMenuOption path={`tutorial/`} vType={getGateType(Decoder2t4).view}>Tutorials</MainMenuOption>
+            {#if currentTutorial !== null}
+                <!--If there's an avilable tutorial, force the user to go through it--> 
+                {#if currentTutorial !== ""}
+                    <MainMenuOption path={`tutorial/${currentTutorial}`}>Tutorial</MainMenuOption>
+                <!--If there's no tutorial, let the user browse old ones-->
+                {:else}
+                    <MainMenuOption path={`campaign`}>Continue</MainMenuOption>
+                    <MainMenuOption path={`tutorial/`} vType={getGateType(And).view}>Tutorials</MainMenuOption>
+                {/if}
+
+                <MainMenuOption path={"level/Freeplay"} vType={getGateType(Or).view}>Options</MainMenuOption>
             {/if}
-            <MainMenuOption path={"level/Freeplay"} vType={getGateType(Or).view}>Options</MainMenuOption>
+
         </div>
     </div>
 </div>

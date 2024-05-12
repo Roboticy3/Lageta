@@ -133,7 +133,7 @@ class ProgressStorageObject {
         
     ]
     levels:Array<string> = []
-    currentTutorial:String = "Tutorial"
+    currentTutorial:string = "Tutorial"
     passedTutorials:Array<string> = []
 
     push(p:ProgressStorageObject) {
