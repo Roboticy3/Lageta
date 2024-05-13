@@ -14,6 +14,7 @@
     import { goto } from "$app/navigation";
     import { Input } from "$lib/dat/GateTypes/GateTypes";
     import { browser } from "$app/environment";
+    import CircuitEditorComponent from "../GameView/CircuitEditor/CircuitEditorComponent.svelte";
 
     const gridWidth = 15
     const gridHeight = 10
@@ -32,23 +33,9 @@
     
     onMount(() => {
         circuitController.addGateAtCell(Input(1, {name:"LevelSelectInput1", inputLabels:[""]}), 1, 1)
-        console.log("Mounting level set: ",levelSet)
-        if (browser) {
-            resize()
-            window.addEventListener('resize', resize)
-        }
     })
 
-    async function resize() {
-        const width = window.innerWidth
-        const height = window.innerHeight
-        const cellOffset = width / gridWidth
-        
-    }
-
     let circuitController = params.initializeGrid()
-    
-    let circuitDraggable
 
     /**
      * @type {InputCheckBox}
@@ -61,16 +48,10 @@
     }
 
 </script>
-<CircuitDraggable 
-    bind:this={circuitDraggable}
-    circuitController={circuitController}  
-/>
-<div class="level-panel">
-    <GameViewCircuitPanel 
-        bind:this={circuitPanel} 
+<div class="level-panel" data-sveltekit-noscroll>
+    <CircuitEditorComponent
         params={params}
-        gridController={circuitController}
-        circuitDraggable={circuitDraggable}
+        circuitController={circuitController}
         canDragGates={false}
     >
         {#each levelSet as params}
@@ -78,7 +59,6 @@
         {/each}
 
         <InputCheckBox 
-            
             gridController={circuitController} 
             from={[0,0]}
             onChangeListener={readInputCheckBox}
@@ -111,7 +91,7 @@
             <p>Then, click on another connection point to connect the wire.</p>
             <p>If power is flowing through the wire, the wire will <span style="color:var(--connection-color-on);">glow</span>.</p>
         </CircuitDiv>
-    </GameViewCircuitPanel>
+    </CircuitEditorComponent>
 </div>
 
 <style>

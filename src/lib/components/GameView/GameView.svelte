@@ -47,7 +47,7 @@
 
 </script>
 
-<div class="base-vertical">
+<div class="base-vertical" data-sveltekit-noscroll>
     <div class="nav">
 
     </div>

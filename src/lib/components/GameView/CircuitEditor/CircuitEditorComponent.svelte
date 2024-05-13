@@ -13,10 +13,17 @@
      */
     export let circuitController = null
 
+    export function getController() {
+        return circuitController
+    }
+
     /**
      * @type {GameViewParameters}
      */
     export let params
+
+    export let canDragGates = true
+    export let canDragConnections = true
 
     /**
      * @type {GateTypeController[]}
@@ -24,7 +31,7 @@
      export let shelf = []
 
     onMount(() => {
-        if (circuitController === null) {
+        if (!circuitController) {
             circuitController = new CircuitController()
         }
     })
@@ -47,10 +54,12 @@
     <div class="circuit-panel">
         <GameViewCircuitPanel 
             params={params}
-            gridController={circuitController}
+            circuitController={circuitController}
             circuitDraggable={circuitDraggable}
+            canDragGates={canDragGates}
+            canDragConnections={canDragConnections}
         >
-
+            <slot />
         </GameViewCircuitPanel>
     </div>
 {/if}
@@ -62,6 +71,8 @@
 
         display: flex;
         flex-direction: row;
+
+        
     }
 
     .circuit-panel {
@@ -71,5 +82,8 @@
 
         border: thick double;
         color: var(--grid-color);
+
+        height:100%;
+        width:100%;
     }
 </style>

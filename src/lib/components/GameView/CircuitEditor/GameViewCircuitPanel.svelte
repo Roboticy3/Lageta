@@ -19,7 +19,7 @@
     /**
      * @type {CircuitController}
      */
-    export let gridController
+    export let circuitController
 
     /**
      * @type {CircuitDraggable}
@@ -88,7 +88,7 @@
      */
     let mountCircuit = () => {
         addDragEventListeners()
-        gridController.giveRenderer(circuitRenderer)
+        circuitController.giveRenderer(circuitRenderer)
     }
     onMount(mountCircuit)
 
@@ -103,7 +103,7 @@
     function canDragStart(e) {
         if (circuitDraggable.isDragging()) return "Already Dragging"
 
-        const query = gridController.query(e.offsetX, e.offsetY)     
+        const query = circuitController.query(e.offsetX, e.offsetY)     
         console.log(query) 
 
         if (query.type === "") {
@@ -151,7 +151,7 @@
     function onDragStartInput(e, query) {
         //check if an input wire is already there
         const index = [query.getId() || 0, query.connectionIndex || 0]
-        const connected = gridController.getConnectedTo(
+        const connected = circuitController.getConnectedTo(
             index[0], index[1]
         )
 
@@ -162,10 +162,10 @@
         if (connected) {
 
             //we can coerce the onDrag functions to do this by simply switching out the query for one originating from the output
-            q = gridController.toQuery(connected[0], "Output", connected[1])   
+            q = circuitController.toQuery(connected[0], "Output", connected[1])   
             console.log(q)
             //then we can delete the old connection
-            gridController.removeConnection(
+            circuitController.removeConnection(
                 {id:index[0], type:"Input", index:index[1]}
             )
 
@@ -232,7 +232,7 @@
             return "Bad Target"
         }
 
-        if (!gridController.isOffsetInGrid(e.offsetX, e.offsetY)) {
+        if (!circuitController.isOffsetInGrid(e.offsetX, e.offsetY)) {
             activeSvgGate = ""
             return "Out of Bounds"
         }
@@ -302,18 +302,18 @@
         const [cType, id] = check;
         
         const result = id ? 
-            gridController.previewMoveGate(
+            circuitController.previewMoveGate(
                 id,
                 e.offsetX,
                 e.offsetY
             ) :
-            gridController.previewAddGate(
+            circuitController.previewAddGate(
                 cType,
                 e.offsetX,
                 e.offsetY
             )
 
-        activeSvgGate = `<g ${gridController.getGateSvgTransform(
+        activeSvgGate = `<g ${circuitController.getGateSvgTransform(
             {type:cType.model, x:result.at[0], y:result.at[1]}
         )}>${cType.view.draw()}</g>`
     }
@@ -357,7 +357,7 @@
                 break
             case "Input":
             case "Output":
-                const query = gridController.query(e.offsetX, e.offsetY)
+                const query = circuitController.query(e.offsetX, e.offsetY)
                 console.log(query)
                 dropConnection(result, query)
                 break
@@ -379,19 +379,19 @@
     function dropGate(result, e) {
         const id = result.getId()
 
-        if (!gridController.isOffsetInGrid(e.offsetX, e.offsetY)) {
+        if (!circuitController.isOffsetInGrid(e.offsetX, e.offsetY)) {
             if (id !== undefined) {
-                gridController.removeGate(id)
+                circuitController.removeGate(id)
             }
             return
         }
 
         const cType = result.gateTypeController || getGateType(Buf)
         if (id === undefined) {
-            gridController.addGate(cType, e.offsetX, e.offsetY)
+            circuitController.addGate(cType, e.offsetX, e.offsetY)
         }
         else {
-            gridController.moveGate(id, e.offsetX, e.offsetY)
+            circuitController.moveGate(id, e.offsetX, e.offsetY)
         }
     }
 
@@ -407,14 +407,14 @@
         switch (qa.type + qb.type) {
             case "OutputInput":
                 console.log("laying connection from ", qa, qb)
-                gridController.addConnection(
+                circuitController.addConnection(
                     qa.getId() || 0, qa.connectionIndex || 0, 
                     qb.getId() || 0, qb.connectionIndex || 0
                 );
                 break
             case "InputOutput":
                 console.log("laying connection from ", qb, qa)
-                gridController.addConnection(
+                circuitController.addConnection(
                     qb.getId() || 0, qb.connectionIndex || 0, 
                     qa.getId() || 0, qa.connectionIndex || 0
                 );
@@ -433,13 +433,13 @@
 
     <CircuitRenderer 
         bind:this={circuitRenderer} 
-        circuitController={gridController} 
+        circuitController={circuitController} 
         circuitDraggable={circuitDraggable} 
         rendererParams={params.rendererParams || {}}
     />
 
-    {#each gridController.getInputIds() as id}
-        <InputCheckBox gridController={gridController} from={id}/>
+    {#each circuitController.getInputIds() as id}
+        <InputCheckBox gridController={circuitController} from={id}/>
     {/each}
 
     {#if showSlot}

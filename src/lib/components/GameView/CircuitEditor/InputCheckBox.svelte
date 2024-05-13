@@ -87,8 +87,8 @@
             setOffset()
             checkbox.checked = startChecked
             onChange()
-            window.addEventListener('resize', (e) => {})
-            setOffset()
+            window.addEventListener('resize', setOffset)
+            
         }
         else {
             checkbox.setAttribute("hidden","hidden")

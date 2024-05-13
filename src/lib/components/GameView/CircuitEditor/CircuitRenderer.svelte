@@ -63,6 +63,10 @@
         return resizer.innerOffsetToOuter(offset)
     }
 
+    export function triggerResize() {
+        resizer.correct()
+    }
+
     /**
      * @param {number} tX
      * @param {number} tY
@@ -126,8 +130,6 @@
         const [tX, tY] = rendererParams.initialTranslate || [rendererState.translateX, rendererState.translateY]
         const [sX, sY] = rendererParams.initialScale || [rendererState.scaleX, rendererState.scaleY]
         setTransformMatrix(tX, tY, sX, sY)
-
-        resizer.correct()
     }
 
     export function drawGrid() {
