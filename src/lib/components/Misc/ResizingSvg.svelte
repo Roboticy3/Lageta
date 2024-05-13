@@ -77,7 +77,6 @@
     onMount(() => {
         window.addEventListener('resize', correct)
         window.addEventListener('load', correct)
-        correct()
     })
 </script>
 
