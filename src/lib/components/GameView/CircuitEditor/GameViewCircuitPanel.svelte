@@ -440,11 +440,9 @@
 
     {#each circuitController.getInputIds() as id}
         <InputCheckBox gridController={circuitController} from={id}/>
-    {/each}
+    {/each} 
 
-    {#if showSlot}
-        <slot />
-    {/if}
+    <slot />
 </div>
 
 <style>

@@ -537,16 +537,17 @@ export class CircuitController {
      */
     getConnectionPoint(
         index:ConnectionIndex
-    ) {
+    ): [number, number] | undefined{
         const gateId = index.id
         const vType = this.getGateTypeView(gateId)
         if (vType === undefined) return undefined
         switch (index.type) {
             default:
+                return [0, 0]
             case "Input":
                 return vType.inputOffsets[index.index]
             case "Output":
-                return vType.outputLabels[index.index]
+                return vType.outputOffsets[index.index]
         }
     }
 
