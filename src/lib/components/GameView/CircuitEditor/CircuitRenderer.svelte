@@ -528,10 +528,3 @@
         <g bind:this={connectionGroup} id="circuit-svg-connections" stroke="var(--gate-color)" stroke-width="0.5px" fill="none"></g>
     </g>
 </ResizingSvg>
-
-<style>
-    .circuit-svg {
-        pointer-events: none;
-        display: flex;
-    }
-</style>

@@ -148,6 +148,7 @@ export const drawGateTypeEncode = (s:GateState, gridWidth:number, gridHeight:num
     x="${gridWidth * 10 / 2 - 5}" 
     y="${gridHeight * 10 / 2 + 5}" 
     fill="black" stroke="none"
+    style="pointer-events:none;"
     >
     ${v === -1 ? "":v}
 </text>`
@@ -168,6 +169,7 @@ export const drawGateTypeDecode = (s:GateState, gridWidth:number, gridHeight:num
     x="${gridWidth * 10 / 2 - 5}" 
     y="${gridHeight * 10 / 2 + 5}" 
     fill="black" stroke="none"
+    style="pointer-events:none;"
     >
     ${sum}
 </text>`
