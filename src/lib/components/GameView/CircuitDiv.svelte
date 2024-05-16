@@ -20,7 +20,6 @@
     let end = [0, 0]
 
     export function setOffset() {
-        console.log("circuitdiv: movin")
 
         const localStart = circuitController.indexToOffset(position[0], position[1])
         const transform = circuitController.getMatrix()
@@ -41,7 +40,6 @@
     }
 
     onMount(() => {
-        console.log("circuitdiv: mount")
         window.addEventListener('load',setOffset)
         window.addEventListener('resize',setOffset)
     })

@@ -17,21 +17,13 @@
      * @type {CircuitDraggable}
      */
     export let circuitDraggable
-    
-    /**
-     * @type {import("$lib/renderer_types/RendererState").RendererState}
-     */
-    export let rendererState = {
-        translateX:0,
-        translateY:0,
-        scaleX:4,
-        scaleY:4
+
+    export let rendererParams = {
+        showGrid:true,
+        showWires:true,
+        showGates:true,
+        showConnectionPoints:true,
     }
-    
-    /**
-     * @type {import("$lib/renderer_types/RendererParameters").RendererParameters}
-     */
-    export let rendererParams = {}
 
     /**
      * @type {import("$lib/circuit_types/GateGraph").ConnectionType}
@@ -63,36 +55,12 @@
         return resizer.innerOffsetToOuter(offset)
     }
 
+    export function getMatrix() {
+        return resizer.getMatrix()
+    }
+
     export function triggerResize() {
         resizer.correct()
-    }
-
-    /**
-     * @param {number} tX
-     * @param {number} tY
-     * @param {number} sX
-     * @param {number} sY
-     */
-    export function setTransformMatrix(tX, tY, sX, sY) {
-        rendererState.translateX = tX
-        rendererState.translateY = tY
-        rendererState.scaleX = sX
-        rendererState.scaleY = sY
-        rendererState = rendererState
-        return compose(translate(tX, tY), scale(sX, sY))
-    }
-
-    export function updateTransformMatrix() {
-        return setTransformMatrix(
-            rendererState.translateX,
-            rendererState.translateY,
-            rendererState.scaleX,
-            rendererState.scaleY
-        )
-    }
-
-    export function getTransformString() {
-        return toSVG(updateTransformMatrix())
     }
 
     /**
@@ -122,15 +90,7 @@
         drawGates()
 
         linkDraggable()
-
-        applyInitialTransformParams()
     })
-
-    function applyInitialTransformParams() {
-        const [tX, tY] = rendererParams.initialTranslate || [rendererState.translateX, rendererState.translateY]
-        const [sX, sY] = rendererParams.initialScale || [rendererState.scaleX, rendererState.scaleY]
-        setTransformMatrix(tX, tY, sX, sY)
-    }
 
     export function drawGrid() {
 
@@ -552,15 +512,15 @@
     bind:svg={svgHead}
     bind:this={resizer}
 >
-    <g transform="scale({rendererState.scaleX}, {rendererState.scaleY})">
+    <g transform="scale(1, 1)">
         <g id="circuit-bounding-box">
             <rect 
                 stroke="white"
                 fill="none"
                 width="{gridSize[0] * cellOffset}" 
                 height="{gridSize[1] * cellOffset}"
-                x="{rendererState.translateX}"
-                y="{rendererState.translateY}"
+                x="0"
+                y="0"
             >
         </g>
         <g bind:this={gridGroup} id="circuit-svg-lines" stroke="var(--grid-color)" stroke-width="0.25px" fill="none"></g>

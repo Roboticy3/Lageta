@@ -20,10 +20,11 @@
     /**
      * @type {GameViewParameters}
      */
-    export let params
+    export let gameParams
+    
+    export let editorParams = {}
 
-    export let canDragGates = true
-    export let canDragConnections = true
+    export let rendererParams = {}
 
     /**
      * @type {GateTypeController[]}
@@ -53,11 +54,11 @@
     {/if}
     <div class="circuit-panel">
         <GameViewCircuitPanel 
-            params={params}
+            gameParams={gameParams}
             circuitController={circuitController}
             circuitDraggable={circuitDraggable}
-            canDragGates={canDragGates}
-            canDragConnections={canDragConnections}
+            editorParams={editorParams}
+            rendererParams={rendererParams}
         >
             <slot />
         </GameViewCircuitPanel>

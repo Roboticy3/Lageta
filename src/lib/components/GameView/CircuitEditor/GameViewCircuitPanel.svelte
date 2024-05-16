@@ -14,7 +14,9 @@
     /**
      * @type {GameViewParameters}
     */
-    export let params
+    export let gameParams
+
+    export let rendererParams
 
     /**
      * @type {CircuitController}
@@ -92,8 +94,10 @@
     }
     onMount(mountCircuit)
 
-    export let canDragGates = true
-    export let canDragConnections = true
+    /**
+     * @type {any}
+     */
+    export let editorParams = {}
 
     /**
      * 
@@ -123,18 +127,20 @@
     function onDragStart(e) {
         e.preventDefault()
 
+        console.log(editorParams)
+
         const check = canDragStart(e)
         if (!(check instanceof CircuitControllerQueryResult)) return
 
         switch (check.type) {
             case "Input":
-                if (canDragConnections) onDragStartInput(e, check)
+                if (editorParams.canDragConnections !== false) onDragStartInput(e, check)
                 break
             case "Output":
-                if (canDragConnections) onDragStartOutput(e, check)
+                if (editorParams.canDragConnections !== false) onDragStartOutput(e, check)
                 break
             case "Gate":
-                if (canDragGates) onDragStartGate(e, check)
+                if (editorParams.canDragGates !== false) onDragStartGate(e, check)
         }
     }
 
@@ -435,7 +441,7 @@
         bind:this={circuitRenderer} 
         circuitController={circuitController} 
         circuitDraggable={circuitDraggable} 
-        rendererParams={params.rendererParams || {}}
+        rendererParams={rendererParams}
     />
 
     {#each circuitController.getInputIds() as id}

@@ -1,5 +1,6 @@
 <script>
     import { onMount } from "svelte";
+    import { compose, scale, translate } from "transformation-matrix";
 
     export let [offsetX, offsetY] = [0, 0]
 
@@ -78,6 +79,11 @@
         window.addEventListener('resize', correct)
         window.addEventListener('load', correct)
     })
+
+    export function getMatrix() {
+        const s = getCurrentScale()
+        return compose(translate(offsetX, offsetY),scale(s))
+    }
 </script>
 
 <svg 

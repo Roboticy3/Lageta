@@ -17,12 +17,14 @@
     /**
      * @type {import("$lib/level_types/GameViewParameters").GameViewParameters}
      */
-    export let params
+    export let gameParams
+    export let editorParams = {}
+    export let rendererParams = {}
 
-    console.log("initializing GameView with params: ",params)
+    console.log("initializing GameView with params: ",gameParams)
     
-    const signalSetView = params.completeCondition ? 
-        new CircuitSignalSetView(params.completeCondition) : undefined
+    const signalSetView = gameParams.completeCondition ? 
+        new CircuitSignalSetView(gameParams.completeCondition) : undefined
 
     let circuitDraggable
 
@@ -35,15 +37,15 @@
     let completionPopup
 
     function onComplete() {
-        const rewards = params.completeRewards
-        progressStorage.addGate(params.name)
+        const rewards = gameParams.completeRewards
+        progressStorage.addGate(gameParams.name)
         rewards.map(progressStorage.addLevel.bind(progressStorage))
         rewards.map(progressStorage.addGate.bind(progressStorage))
         
         completionPopup.show()
     }
 
-    const circuitController = new CircuitController(params.grid, onComplete)
+    const circuitController = new CircuitController(gameParams.grid, onComplete)
 
 </script>
 
@@ -53,10 +55,16 @@
     </div>
     <div class="sandbox-horizontal">
         <div class="circuit-editor">
-            <CircuitEditorComponent circuitController={circuitController} params={params} shelf={progressStorage.gates()}/>
+            <CircuitEditorComponent 
+                circuitController={circuitController} 
+                gameParams={gameParams} 
+                editorParams={editorParams}
+                rendererParams={rendererParams}
+                shelf={progressStorage.gates()}
+            />
         </div>
         <div class="instructions">
-            {@html params.directions}
+            {@html gameParams.directions}
         </div>
     </div>
     {#if signalSetView}
@@ -66,7 +74,7 @@
     {/if}
 </div>
 
-<CompletionPopup bind:this={completionPopup} unlocks={params.completeRewards} />
+<CompletionPopup bind:this={completionPopup} unlocks={gameParams.completeRewards} />
 
 <style>
     

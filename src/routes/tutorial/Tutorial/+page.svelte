@@ -6,23 +6,32 @@
     import CircuitEditorComponent from "$lib/components/GameView/CircuitEditor/CircuitEditorComponent.svelte";
     import { NotLevel } from "$lib/dat/Levels/Levels";
     import { CircuitController } from "$lib/circuit_types/CircuitController";
+    import { browser } from "$app/environment";
 
     let editor
 
-    const params = NotLevel.params
-    const circuitController = params.initializeGrid()
+    let params = undefined
+    $: params = browser ? NotLevel.params : undefined
+    $: circuitController = params?.initializeGrid()
 
 </script>
 
-<div class="level-panel" data-sveltekit-noscroll>
-    <CircuitEditorComponent
-        params={NotLevel.params}
-        circuitController={circuitController}
-        canDragGates={false}
-        
-    >
-    </CircuitEditorComponent>
-</div>
+{#if params && circuitController}
+    <div class="level-panel" data-sveltekit-noscroll>
+        <CircuitEditorComponent
+            gameParams={NotLevel.params}
+            circuitController={circuitController}
+            editorParams={{
+                canDragGates:false
+            }}  
+        >
+        </CircuitEditorComponent>
+    </div>
+{:else if browser}
+<h1 class="fullscreen-message">
+    Loading
+</h1>
+{/if}
 
 <style>
     .level-panel {

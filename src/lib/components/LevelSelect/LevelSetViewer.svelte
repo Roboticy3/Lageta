@@ -18,10 +18,10 @@
 
     const gridWidth = 15
     const gridHeight = 10
-    const params = new GameViewParameters(
+    const gameParams = new GameViewParameters(
         "LevelSelect", "", 
-        {size:[gridWidth, gridHeight] }, undefined, [], 
-        {showGates:false, showGrid:false, initialScale:[8, 8]})
+        {size:[gridWidth, gridHeight] }, undefined, [])
+    const editorParams = {showGates:false, showGrid:false, initialScale:[8, 8]}
 
     let progress = browser ? new ProgressStorage() : undefined
     let levelSet = progress?.levels() || []
@@ -35,7 +35,7 @@
         circuitController.addGateAtCell(Input(1, {name:"LevelSelectInput1", inputLabels:[""]}), 1, 1)
     })
 
-    let circuitController = params.initializeGrid()
+    let circuitController = gameParams.initializeGrid()
 
     /**
      * @type {InputCheckBox}
@@ -50,9 +50,9 @@
 </script>
 <div class="level-panel" data-sveltekit-noscroll>
     <CircuitEditorComponent
-        params={params}
+        gameParams={gameParams}
         circuitController={circuitController}
-        canDragGates={false}
+        editorParams={editorParams}
     >
         {#each levelSet as params}
             <LevelViewer params={params} circuitController={circuitController} />
