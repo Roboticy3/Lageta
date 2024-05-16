@@ -1,5 +1,5 @@
 <script>
-    import { goto } from "$app/navigation";
+    import { goto, invalidateAll } from "$app/navigation";
     import { Buf, getGateType, wrapGateTypeViewInSvgHeader } from "$lib/dat/GateTypes/GateTypes";
     import ResizingSvg from "../Misc/ResizingSvg.svelte";
 
@@ -11,7 +11,7 @@
      * @param {MouseEvent} e
      */
     function onClick(e) {
-        goto(path)
+        window.location.pathname = path
     }
 </script>
 
