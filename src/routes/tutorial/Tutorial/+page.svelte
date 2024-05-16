@@ -24,7 +24,7 @@
             circuitController={circuitController}
             editorParams={{
                 canDragGates:false,
-                inputCheckboxes:false
+                inputCheckBoxes:false
             }}  
             rendererParams={{
                 showGrid:false,

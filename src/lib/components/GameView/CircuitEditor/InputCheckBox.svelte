@@ -55,7 +55,7 @@
         const gateOffset = gridController.getGatePosition(from[0])
         const connectionOffset = gridController.getConnectionPoint({id:from[0], index:from[1], type:"Output"})
         if (connectionOffset === undefined || gateOffset === undefined) return [0, 0]
-        return [gateOffset[0] + connectionOffset[0] / 10 - 1.5, gateOffset[1] + connectionOffset[1] / 10 + 0.5]
+        return [gateOffset[0] + connectionOffset[0] / 10 - 1.25, gateOffset[1] + connectionOffset[1] / 10 - 0.75]
     }
 
 </script>

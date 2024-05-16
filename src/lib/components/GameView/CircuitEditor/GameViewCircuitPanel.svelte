@@ -442,9 +442,10 @@
         circuitController={circuitController} 
         circuitDraggable={circuitDraggable} 
         rendererParams={rendererParams}
-    />
+    >
+    </CircuitRenderer>
 
-    {#if editorParams.inputCheckBoxes}
+    {#if editorParams.inputCheckBoxes !== false}
         {#each circuitController.getInputIds() as id}
             <InputCheckBox gridController={circuitController} from={id}/>
         {/each} 
@@ -457,5 +458,6 @@
     .circuit-container {
         height:100%;
         overflow: hidden;
+        position:relative;
     }
 </style>
