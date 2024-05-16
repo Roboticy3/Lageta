@@ -444,9 +444,11 @@
         rendererParams={rendererParams}
     />
 
-    {#each circuitController.getInputIds() as id}
-        <InputCheckBox gridController={circuitController} from={id}/>
-    {/each} 
+    {#if editorParams.inputCheckBoxes}
+        {#each circuitController.getInputIds() as id}
+            <InputCheckBox gridController={circuitController} from={id}/>
+        {/each} 
+    {/if}
 
     <slot />
 </div>

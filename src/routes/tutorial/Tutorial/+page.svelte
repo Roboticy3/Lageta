@@ -7,6 +7,7 @@
     import { NotLevel } from "$lib/dat/Levels/Levels";
     import { CircuitController } from "$lib/circuit_types/CircuitController";
     import { browser } from "$app/environment";
+    import { onMount } from "svelte";
 
     let editor
 
@@ -22,8 +23,14 @@
             gameParams={NotLevel.params}
             circuitController={circuitController}
             editorParams={{
-                canDragGates:false
+                canDragGates:false,
+                inputCheckboxes:false
             }}  
+            rendererParams={{
+                showGrid:false,
+                showGates:false,
+                showLabels:false
+            }}
         >
         </CircuitEditorComponent>
     </div>
