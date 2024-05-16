@@ -1,13 +1,9 @@
 <script>
-
-    import GameView from "$lib/components/GameView/GameView.svelte";
-    import GameViewCircuitPanel from "$lib/components/GameView/CircuitEditor/GameViewCircuitPanel.svelte";
-    import { GameViewParameters } from "$lib/level_types/GameViewParameters";
     import CircuitEditorComponent from "$lib/components/GameView/CircuitEditor/CircuitEditorComponent.svelte";
     import { NotLevel } from "$lib/dat/Levels/Levels";
     import { CircuitController } from "$lib/circuit_types/CircuitController";
     import { browser } from "$app/environment";
-    import { onMount } from "svelte";
+    import TutorialIndicator from "$lib/components/GameView/CircuitEditor/TutorialIndicator.svelte";
 
     let editor
 
@@ -25,13 +21,18 @@
             editorParams={{
                 canDragGates:false,
                 inputCheckBoxes:false
-            }}  
+            }}
             rendererParams={{
                 showGrid:false,
                 showGates:false,
                 showLabels:false
             }}
         >
+            <TutorialIndicator 
+                circuitController={circuitController}
+                position={[1.35, 1.25]}
+            />
+            
         </CircuitEditorComponent>
     </div>
 {:else if browser}

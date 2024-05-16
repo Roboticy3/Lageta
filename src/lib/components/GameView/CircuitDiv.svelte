@@ -5,11 +5,17 @@
 
     export let active = false
 
-    export let position = [0, 0]
+    /**
+     * @type {[number, number]}
+     */
+    export let position
 
-    export let size = [1, 1]
+    /**
+     * @type {[number, number]}
+     */
+    export let size
 
-    export let margin = 0.5
+    export let bob = false
 
     /**
      * @type {CircuitController}
@@ -26,16 +32,16 @@
         if (!transform) return
 
         start = circuitController.projectOffset(
-            localStart[0] + margin * 10,
-            localStart[1] + margin * 10
+            localStart[0],
+            localStart[1]
         )
 
         const gridEnd = [position[0] + size[0], position[1] + size[1]]
         const localEnd = circuitController.indexToOffset(gridEnd[0], gridEnd[1])
 
         end = circuitController.projectOffset(
-            localEnd[0] - margin * 10,
-            localEnd[1] - margin * 10
+            localEnd[0],
+            localEnd[1]
         )
     }
 
@@ -57,7 +63,7 @@
 </script>
 
 <div 
-    class="circuit-div {active ? '':'unavailable'}" 
+    class="circuit-div {active ? '':'unavailable'} {bob ? 'bobbing-circuit-div':''}" 
     style="left:{start[0]}px; top:{start[1]}px; width:{end[0] - start[0]}px; height:{end[1] - start[1]}px;" 
 >
     <slot/>
@@ -70,11 +76,29 @@
         border-radius: 10%;
         border: 4px ridge black;
         text-align:center;
+        font-size: min(2vh, 2vw);
         color:black;
     }
 
     .unavailable {
         filter:blur(2px) brightness(50%);
         pointer-events: none;
+    }
+
+    .bobbing-circuit-div {
+        animation-name:bob-y;
+        animation-duration: 1s;
+        animation-iteration-count:infinite;
+        animation-direction: alternate;
+        animation-timing-function: ease-in-out;
+    }
+
+    @keyframes bob-y {
+        0% {
+            transform:translateY(0%);
+        }
+        100% {
+            transform:translateY(10%);
+        }
     }
 </style>

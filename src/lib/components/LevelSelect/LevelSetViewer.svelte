@@ -67,8 +67,8 @@
 
         <CircuitDiv 
             circuitController={circuitController} 
-            position={[0, 0]} 
-            size={[3, 1.5]} 
+            position={[0.5, 0.5]} 
+            size={[2, 0.5]} 
             active={true}
         >
             <button 
@@ -83,8 +83,8 @@
 
         <CircuitDiv
             circuitController={circuitController}
-            position={[0, 1.5]}
-            size={[4, 4]}
+            position={[0.5, 2]}
+            size={[3, 3]}
             active={true}
         >
             <p>Click on the <span style="color:{tutorialHighlightColor};">triangular connection point</span> to drag out a wire.</p>

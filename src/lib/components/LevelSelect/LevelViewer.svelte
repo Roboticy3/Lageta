@@ -72,8 +72,8 @@
 
 <CircuitDiv 
     circuitController={circuitController} 
-    position={[level.x, level.y]} 
-    size={[level.type.model.gridWidth, level.type.model.gridHeight]}
+    position={[level.x + 0.25, level.y + 0.25]} 
+    size={[level.type.model.gridWidth - 0.75, level.type.model.gridHeight - 0.75]}
     bind:this={container}
 >
     <p>{level.name()}</p>

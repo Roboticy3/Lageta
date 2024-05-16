@@ -50,12 +50,15 @@
     export function isChecked() {
         return checkbox.checked
     }
-
+    
+    /**
+     * @returns {[number, number]}
+     */
     export function getPosition() {
         const gateOffset = gridController.getGatePosition(from[0])
         const connectionOffset = gridController.getConnectionPoint({id:from[0], index:from[1], type:"Output"})
         if (connectionOffset === undefined || gateOffset === undefined) return [0, 0]
-        return [gateOffset[0] + connectionOffset[0] / 10 - 1.25, gateOffset[1] + connectionOffset[1] / 10 - 0.75]
+        return [gateOffset[0] + connectionOffset[0] / 10 - 1, gateOffset[1] + connectionOffset[1] / 10 - 0.75]
     }
 
 </script>
@@ -63,6 +66,7 @@
 <CircuitDiv
     circuitController={gridController}
     position={getPosition()}
+    size={[0.5, 0.5]}
     active={true}
     >
     <div>
