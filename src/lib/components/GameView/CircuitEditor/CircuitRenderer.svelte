@@ -1,6 +1,7 @@
 <svelte:options accessors={true}/>
 <script>
-    import { CircuitController, CircuitControllerQueryResult } from "$lib/circuit_types/CircuitController";
+    import { CircuitController } from "$lib/circuit_types/CircuitController";
+import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControllerQueryResult";
     import CircuitDraggable from './CircuitDraggable.svelte';
     import { GateType, GateTypeController, GateTypeView } from "$lib/circuit_types/GateType";
     import { onMount, tick } from "svelte";

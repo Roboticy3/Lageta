@@ -1,6 +1,7 @@
 
 <script>
-    import { CircuitController, CircuitControllerQueryResult } from "$lib/circuit_types/CircuitController";
+    import { CircuitController } from "$lib/circuit_types/CircuitController";
+import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControllerQueryResult";
     import { CircuitDragDropController } from "$lib/circuit_types/CircuitDragDropController";
     import { onMount } from 'svelte';
     import { GateType, GateTypeController } from '$lib/circuit_types/GateType';

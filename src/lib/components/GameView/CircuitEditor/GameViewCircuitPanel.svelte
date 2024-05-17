@@ -5,7 +5,8 @@
 
     import CircuitRenderer from './CircuitRenderer.svelte';
     
-    import { CircuitController, CircuitControllerQueryResult } from '$lib/circuit_types/CircuitController';
+    import { CircuitController } from '$lib/circuit_types/CircuitController';
+import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControllerQueryResult";
     import { GameViewParameters } from '$lib/level_types/GameViewParameters';
     import { Buf, Input, all_gates, getGateType } from '$lib/dat/GateTypes/GateTypes';
     import InputCheckBox from './InputCheckBox.svelte';

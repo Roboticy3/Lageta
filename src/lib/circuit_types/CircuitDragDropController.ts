@@ -1,5 +1,6 @@
 
-import { CircuitControllerQueryResult, type CircuitController } from "./CircuitController";
+import { type CircuitController } from "./CircuitController";
+import { CircuitControllerQueryResult } from "./CircuitControllerQueryResult";
 import type { ConnectionType } from "./GateGraph";
 import { GateType, GateTypeController } from "./GateType";
 
