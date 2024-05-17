@@ -53,7 +53,7 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
     export function query(
         offsetX,
         offsetY,
-        controller
+        controller = circuitController
     )
     {
         const [localX, localY] = controller.unprojectOffset(offsetX, offsetY)
@@ -182,7 +182,7 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
      * @param {MouseEvent} e
      */
     function moveDraggable(e) {
-        circuitDraggable.onMouseMove(e, query(e.offsetX, e.offsetY, circuitController))
+        circuitDraggable.onMouseMove(e, query(e.offsetX, e.offsetY))
     }
     
     /**
@@ -208,7 +208,7 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
     function canDragStart(e) {
         if (circuitDraggable.isDragging()) return "Already Dragging"
 
-        const q = query(e.offsetX, e.offsetY, circuitController)     
+        const q = query(e.offsetX, e.offsetY)     
         console.log(q) 
 
         if (q.type === "") {
@@ -452,7 +452,7 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
      */
     function onDrop(e) {
 
-        const q = query(e.offsetX, e.offsetY, circuitController)
+        const q = query(e.offsetX, e.offsetY)
         const result = circuitDraggable.drop(e, q)
 
         const cType = result.type
@@ -527,6 +527,7 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
         }
 
     }
+
 
 </script>
 
