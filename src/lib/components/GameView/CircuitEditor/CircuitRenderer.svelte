@@ -319,15 +319,15 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
 
         activeWire.setAttribute('stroke', 'gray')
         let value = undefined
-        switch (target.type) {
+        switch (source.type) {
             case "Input":
-                if (source.type === "Input") break
-                value = circuitController.getConnectionValue({id:target.getId() || 0, type:"Input", index:target.connectionIndex || 0})
-            case "Output":
-                if (source.type === "Input")
-                    value = circuitController.getConnectionValue({id:source.getId() || 0, type:"Input", index:source.connectionIndex || 0})
+                if (target.type === "Output")
+                    value = circuitController.getConnectionValue({id:target.getId() || 0, type:"Output", index:target.connectionIndex || 0})
                 break
+            case "Output":
+                value = circuitController.getConnectionValue({id:source.getId() || 0, type:"Output", index:source.connectionIndex || 0})
         }
+        console.log("active wire value: ", value)
 
         activeWire.innerHTML = drawWire(fromOffset, circuitController.unprojectOffset(e.offsetX, e.offsetY), value)
     }
