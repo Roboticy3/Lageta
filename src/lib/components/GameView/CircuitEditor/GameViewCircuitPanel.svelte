@@ -146,6 +146,7 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
 
         circuitContainer.addEventListener("mousedown", onDragStart)
         circuitContainer.addEventListener("mouseup", onDrop)
+        circuitContainer.addEventListener("mousemove", onMouseMove)
 
         await tick()
 
@@ -209,7 +210,6 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
         if (circuitDraggable.isDragging()) return "Already Dragging"
 
         const q = query(e.offsetX, e.offsetY)     
-        console.log(q) 
 
         if (q.type === "") {
             return "Nothing Under Mouse"
@@ -217,6 +217,13 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
 
         return q
         
+    }
+
+    /**
+     * @param {CircuitControllerQueryResult} q
+     */
+    function canDragStartGate(q) {
+        return editorParams.canDragGates !== false && circuitController.getGateTypeView(q.getId() || -1)?.moveable === true
     }
 
     /**
@@ -239,7 +246,7 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
                 if (editorParams.canDragConnections !== false) onDragStartOutput(e, check)
                 break
             case "Gate":
-                if (editorParams.canDragGates !== false) onDragStartGate(e, check)
+                if (canDragStartGate(check)) onDragStartGate(e, check)
         }
     }
 
@@ -314,7 +321,7 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
      * @param {CircuitControllerQueryResult} query
      */
     function onDragStartGate(e, query) {
-        if (query.gateTypeController?.view.moveable === true) circuitDraggable.drag(e, query, circuitContainer)
+        circuitDraggable.drag(e, query, circuitContainer)
     }
 
     /**
@@ -383,7 +390,7 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
     /**
      * @returns {"No GateType" | [GateTypeController, number | undefined]}
      */
-    function canDragGate() {
+    function getDraggedGateData() {
         const controller = circuitDraggable.getController()
         const cType = controller.getGateType()
         if (cType === undefined) return "No GateType"
@@ -401,7 +408,7 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
      * @param {MouseEvent} e
      */
     function onDragGate(e) {
-        const check = canDragGate()
+        const check = getDraggedGateData()
 
         if (check === "No GateType") return
         const [cType, id] = check;
@@ -528,6 +535,33 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
 
     }
 
+
+    let currentQuery = new CircuitControllerQueryResult()
+    /**
+     * @param {MouseEvent} e
+     */
+    function onMouseMove(e) {
+        const newQ = query(e.offsetX, e.offsetY)
+        let good = true
+        switch (newQ.type) {
+            case "Gate": good = canDragStartGate(newQ)
+        }
+        if (good) {
+            checkEntered(newQ)
+            currentQuery = newQ
+        }
+    }
+
+    /**
+     * @param {CircuitControllerQueryResult} q
+     */
+    function checkEntered(q) {     
+        const [ta, tb] = [currentQuery.type, q.type] 
+        if (ta !== tb) {
+            circuitRenderer.onEntered(q)
+            circuitRenderer.onExited(currentQuery)
+        }
+    }
 
 </script>
 

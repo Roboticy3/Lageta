@@ -25,6 +25,7 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
         showGates:true,
         showConnectionPoints:true,
         showLabels:true,
+        hoverGrowFactor:1.1
     }
 
     /**
@@ -115,6 +116,7 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
 
     /**
      * @param {number} id
+     * @returns {{svg:SVGElement | null, cType:GateTypeController, gPos:[number,number]} | undefined}
      */
     function getGateElementAndTypeAndClean(id) {
         const cType = circuitController.getGateTypeController(id)
@@ -133,7 +135,7 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
         }
         //if everything exists, return all the needed data
         else {
-            return {svg:svg, cType:cType, gPos:gPos}
+            return {svg: (svg instanceof SVGElement ? svg:null), cType:cType, gPos:gPos}
         }
     }
     
@@ -204,7 +206,6 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
         const value = outputs[index[1]]
         const fVType = result.cType.view
         let localOffset = fVType.outputOffsets[index[1]]
-        console.log(fVType, index)
         /**
          * @type {[number, number]}
          */
@@ -375,7 +376,6 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
     }
 
     export function clearActives() {
-        console.log("dropping")
         clearActiveGate()
         clearActiveWire()
     }
@@ -396,15 +396,23 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
     }
 
     /**
+     * 
+     * @param {import("$lib/circuit_types/CircuitController").ConnectionIndex} index
+     */
+    function connectionPointIdString(index) {
+        return `point-${index.type}-${index.id}-${index.index}`
+    }
+
+    /**
      * Return an svg transform group containing the string inner
      * @param {string} inner the svg being wrapped
-     * @param {string} transform the transform of the group
-     * @param {string} id the element id of the group
+     * @param {string | undefined} transform the transform of the group
+     * @param {string | undefined} id the element id of the group
      */
-    function svgWrapGroup(inner, transform, id) {
+    function svgWrapGroup(inner, transform = undefined, id = undefined) {
         const elem = document.createElementNS("http://www.w3.org/2000/svg","g")
-        elem.setAttribute("transform", transform)
-        elem.setAttribute("id", id)
+        if (transform) elem.setAttribute("transform", transform)
+        if (id) elem.setAttribute("id", id)
         elem.innerHTML = inner
         return elem
     }
@@ -433,11 +441,12 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
      * @param {number | import("$lib/circuit_types/Gate").GateState | undefined} idOrState
      */
     function svgGate(cType, idOrState=undefined) {
-        let state = typeof idOrState === "number" ? circuitController.getGateState(idOrState) : idOrState
-        if (state === undefined) state = cType.generateDefaultState()
-        const body = rendererParams.showGates === false ? "" : cType.view.draw(state)
+        const [id, state] = typeof idOrState === "number" ? 
+            [idOrState, circuitController.getGateState(idOrState) ||  cType.generateDefaultState()] :
+            [undefined, idOrState]
+        const body = rendererParams.showGates === false ? "" : `<g>${cType.view.draw(state)}</g>`
 
-        return body + svgConnectionPoints(cType, state)
+        return body + (id ? `<g>${svgConnectionPoints(cType, id, state)}</g>` : '')
     }
 
     /**
@@ -460,33 +469,41 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
     }
 
     /**
+     * @param {import("$lib/circuit_types/CircuitController").ConnectionIndex} index
      * @param {number} offsetX
      * @param {number} offsetY
      * @param {import("$lib/circuit_types/GateType").ConnectionValue} value
      * @param {string} label
      */
-    function svgConnectionPoint(offsetX, offsetY, value = undefined, label = "") {
+    function svgConnectionPoint(index, offsetX, offsetY, value = undefined, label = "") {
         const color = connectionValueToColor(value)
         return `
-<path d="M ${offsetX - 1} ${offsetY - 1} l 2 1 l -2 1 Z" stroke-width=".25px" stroke="${color}" />\n
+<g id=${connectionPointIdString(index)}><path d="M ${offsetX - 1} ${offsetY - 1} l 2 1 l -2 1 Z" stroke-width=".25px" stroke="${color}" /></g>\n
 ${rendererParams.showLabels ? `<text x="${offsetX + 4}" y="${offsetY}" stroke="none" fill="${color}" font-size="0.2em" style="pointer-events:none;">${label}</text>`:""}
         `
     }
 
     /**
      * @param {GateTypeController} cType
-     * @param {number | import("$lib/circuit_types/Gate").GateState} idOrState
+     * @param {number} id
+     * @param {import("$lib/circuit_types/Gate").GateState} state
      */
-    function svgConnectionPoints(cType, idOrState) { 
-        const state = (typeof idOrState === "number" ? circuitController.getGateState(idOrState) : idOrState) || {override:[]}
-
+    function svgConnectionPoints(cType, id, state) { 
         const inputs = rendererParams.showConnectionPoints === false ? [] : cType.view.inputOffsets.map((o, i) => {
-            return svgConnectionPoint(o[0], o[1], state.override[i], cType.view.inputLabels[i])
+            return svgConnectionPoint(
+                {id:id, type:"Input", index:i},
+                o[0], o[1], 
+                state.override[i], cType.view.inputLabels[i]
+            )
         })
 
         const outState = cType.model.f(state) //temp hack, state should store outputs too
         const outputs =  rendererParams.showConnectionPoints === false ? [] : cType.view.outputOffsets.map((o, i) => {
-            return svgConnectionPoint(o[0], o[1], outState.override[i], cType.view.outputLabels[i])
+            return svgConnectionPoint(
+                {id:id, type:"Output", index:i},
+                o[0], o[1], 
+                outState.override[i], cType.view.outputLabels[i]
+            )
         })
 
         switch (connectionPointDisplayMode) {
@@ -504,6 +521,38 @@ ${rendererParams.showLabels ? `<text x="${offsetX + 4}" y="${offsetY}" stroke="n
     function drawWire(from, to, value = undefined) {
         const color = connectionValueToColor(value)
         return `<path d="M ${from[0]} ${from[1]} L ${to[0]} ${to[1]}" stroke="${color}" />`
+    }
+    
+    /**
+     * 
+     * @param {CircuitControllerQueryResult} q
+     * @returns {SVGElement | null}
+     */
+    function queryToElement(q) {
+        switch (q.type) {
+            case "Gate":
+                return svgHead.querySelector(`#${gateIdString(q.getId() || 0)}`)
+        }
+
+        return null
+    }
+
+    /**
+     * @param {CircuitControllerQueryResult} q
+     */
+    export function onEntered(q) {
+        const svg = queryToElement(q)
+        const factor = rendererParams.hoverGrowFactor || 1.1
+        svg?.children[0]?.setAttribute('transform', `scale(${factor}, ${factor})`)
+    }
+
+    /**
+     * 
+     * @param {CircuitControllerQueryResult} q
+     */
+    export function onExited(q) {
+        const svg = queryToElement(q)
+        svg?.children[0]?.setAttribute('transform', `scale(1, 1)`)
     }
 
 </script>
