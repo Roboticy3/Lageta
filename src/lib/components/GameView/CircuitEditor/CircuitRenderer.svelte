@@ -327,7 +327,6 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
             case "Output":
                 value = circuitController.getConnectionValue({id:source.getId() || 0, type:"Output", index:source.connectionIndex || 0})
         }
-        console.log("active wire value: ", value)
 
         activeWire.innerHTML = drawWire(fromOffset, circuitController.unprojectOffset(e.offsetX, e.offsetY), value)
     }
