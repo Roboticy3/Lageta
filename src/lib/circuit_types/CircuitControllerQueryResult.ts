@@ -36,4 +36,12 @@ export class CircuitControllerQueryResult {
     getId() { return this.gate?.id; }
 
     getPos() { return this.gate ? [this.gate.x, this.gate.y] : undefined; }
+
+    contentEquals(other:CircuitControllerQueryResult ) {
+        return (
+            other.type === this.type &&
+            other.connectionIndex === this.connectionIndex &&
+            other.gate === this.gate
+        )
+    }
 }

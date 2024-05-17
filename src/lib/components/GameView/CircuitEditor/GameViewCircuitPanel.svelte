@@ -556,8 +556,7 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
      * @param {CircuitControllerQueryResult} q
      */
     function checkEntered(q) {     
-        const [ta, tb] = [currentQuery.type, q.type] 
-        if (ta !== tb) {
+        if (!currentQuery.contentEquals(q)) {
             circuitRenderer.onEntered(q)
             circuitRenderer.onExited(currentQuery)
         }

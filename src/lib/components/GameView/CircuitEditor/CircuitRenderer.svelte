@@ -25,7 +25,6 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
         showGates:true,
         showConnectionPoints:true,
         showLabels:true,
-        hoverGrowFactor:1.1
     }
 
     /**
@@ -320,10 +319,14 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
 
         activeWire.setAttribute('stroke', 'gray')
         let value = undefined
-        if (target.type !== "" && target.type !== source.type && target.type !== "Gate") {
-            value = circuitController.getConnectionValue(
-                {id:id || 0, index:index, type:source.type}
-            )
+        switch (target.type) {
+            case "Input":
+                if (source.type === "Input") break
+                value = circuitController.getConnectionValue({id:target.getId() || 0, type:"Input", index:target.connectionIndex || 0})
+            case "Output":
+                if (source.type === "Input")
+                    value = circuitController.getConnectionValue({id:source.getId() || 0, type:"Input", index:source.connectionIndex || 0})
+                break
         }
 
         activeWire.innerHTML = drawWire(fromOffset, circuitController.unprojectOffset(e.offsetX, e.offsetY), value)
@@ -400,7 +403,7 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
      * @param {import("$lib/circuit_types/CircuitController").ConnectionIndex} index
      */
     function connectionPointIdString(index) {
-        return `point-${index.type}-${index.id}-${index.index}`
+        return `point-${index.type.toLowerCase()}-${index.id}-${index.index}`
     }
 
     /**
@@ -452,7 +455,7 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
         const id = typeof idOrState === "number" ? idOrState : undefined
         console.log("gate data: ", state, id)
             
-        const body = rendererParams.showGates === false ? "" : `<g>${cType.view.draw(state)}</g>`
+        const body = rendererParams.showGates === false ? "" : `<g ${id !== undefined ? `id="${gateIdString(id)}-body` : ''}">${cType.view.draw(state)}</g>`
         const connectionPoints = (id !== undefined ? `<g>${svgConnectionPoints(cType, id, state)}</g>`:'')
 
         return body + connectionPoints
@@ -540,7 +543,14 @@ ${rendererParams.showLabels ? `<text x="${offsetX + 4}" y="${offsetY}" stroke="n
     function queryToElement(q) {
         switch (q.type) {
             case "Gate":
-                return svgHead.querySelector(`#${gateIdString(q.getId() || 0)}`)
+                return svgHead.querySelector(
+                    `#${gateIdString(q.getId() || 0)}-body`
+                )
+            case "Input":
+            case "Output":
+                return svgHead.querySelector(
+                    `#${connectionPointIdString({id:q.getId() || 0, type:q.type, index:q.connectionIndex || 0})}`
+                )
         }
 
         return null
@@ -550,9 +560,9 @@ ${rendererParams.showLabels ? `<text x="${offsetX + 4}" y="${offsetY}" stroke="n
      * @param {CircuitControllerQueryResult} q
      */
     export function onEntered(q) {
+        console.log("entered", q)
         const svg = queryToElement(q)
-        const factor = rendererParams.hoverGrowFactor || 1.1
-        svg?.children[0]?.setAttribute('transform', `scale(${factor}, ${factor})`)
+        svg?.children[0]?.setAttribute('transform', `scale(1.05, 1.05)`)
     }
 
     /**
@@ -560,8 +570,9 @@ ${rendererParams.showLabels ? `<text x="${offsetX + 4}" y="${offsetY}" stroke="n
      * @param {CircuitControllerQueryResult} q
      */
     export function onExited(q) {
+        console.log("exited", q)
         const svg = queryToElement(q)
-        svg?.children[0]?.setAttribute('transform', `scale(1, 1)`)
+        svg?.children[0]?.removeAttribute('transform')
     }
 
 </script>
