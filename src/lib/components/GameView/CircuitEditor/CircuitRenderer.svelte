@@ -441,12 +441,21 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
      * @param {number | import("$lib/circuit_types/Gate").GateState | undefined} idOrState
      */
     function svgGate(cType, idOrState=undefined) {
-        const [id, state] = typeof idOrState === "number" ? 
-            [idOrState, circuitController.getGateState(idOrState) ||  cType.generateDefaultState()] :
-            [undefined, idOrState]
+        console.log("drawing gate", cType.name, " with data ", idOrState)
+        const state = (typeof idOrState === "object" ? 
+            idOrState : 
+            (idOrState === undefined ?  
+                cType.generateDefaultState() : 
+                (circuitController.getGateState(idOrState) || cType.generateDefaultState())
+            )
+        )
+        const id = typeof idOrState === "number" ? idOrState : undefined
+        console.log("gate data: ", state, id)
+            
         const body = rendererParams.showGates === false ? "" : `<g>${cType.view.draw(state)}</g>`
+        const connectionPoints = (id !== undefined ? `<g>${svgConnectionPoints(cType, id, state)}</g>`:'')
 
-        return body + (id ? `<g>${svgConnectionPoints(cType, id, state)}</g>` : '')
+        return body + connectionPoints
     }
 
     /**
