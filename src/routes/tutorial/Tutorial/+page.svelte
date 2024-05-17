@@ -9,7 +9,14 @@
 
     let params = undefined
     $: params = browser ? NotLevel.params : undefined
-    $: circuitController = params?.initializeGrid()
+    /**
+     * @type {CircuitController | undefined}
+     */
+    let circuitController = undefined
+    $: {
+        circuitController = params?.initializeGrid()
+        circuitController?.setInput([0, 0], true)
+    }
 
 </script>
 
