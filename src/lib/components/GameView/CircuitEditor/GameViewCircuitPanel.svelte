@@ -7,7 +7,7 @@
     
     import { CircuitController, CircuitControllerQueryResult } from '$lib/circuit_types/CircuitController';
     import { GameViewParameters } from '$lib/level_types/GameViewParameters';
-    import { Buf, Input, getGateType } from '$lib/dat/GateTypes/GateTypes';
+    import { Buf, Input, all_gates, getGateType } from '$lib/dat/GateTypes/GateTypes';
     import InputCheckBox from './InputCheckBox.svelte';
     import { GateTypeController } from '$lib/circuit_types/GateType';
 
@@ -42,7 +42,98 @@
         return circuitRenderer
     }
     
-    let showSlot = true
+    /**
+     * 
+     * @param {number} offsetX 
+     * @param {number} offsetY 
+     * @param {CircuitController} controller
+     * @returns {CircuitControllerQueryResult} A CircuitControllerQueryResult that may contain a gate, as well as a connection.
+     */
+    export function query(
+        offsetX,
+        offsetY,
+        controller
+    )
+    {
+        const [localX, localY] = controller.unprojectOffset(offsetX, offsetY)
+        
+        const [x, y] = controller.gateGrid.offsetToIndex(localX, localY)
+        const gate = controller.gateGrid.get(x, y)
+        if (gate === undefined) {
+            return new CircuitControllerQueryResult()
+        }
+        const [gridOffsetX, gridOffsetY] = [gate.x * 10, gate.y * 10]
+        const gType = gate.type
+        const cType = all_gates.get(gType.name)
+        if (cType === undefined) {
+            return new CircuitControllerQueryResult()
+        }
+        const vType = cType.view
+
+        const inputOffsets = vType.inputOffsets
+        let i = 0;
+        for (; i < gType.sizeIn; i++) {
+            const offset = [inputOffsets[i][0] + gridOffsetX, inputOffsets[i][1] + gridOffsetY]
+            const dX = localX - offset[0]
+            const dY = localY - offset[1]
+
+            const d = circuitController.gridEuclidDistance(dX, dY)
+            if (d < 5) {
+                break
+            }
+        }
+
+        if (i != gType.sizeIn) {
+            return new CircuitControllerQueryResult(
+                gate,
+                "Input",
+                i,
+                cType
+            ) 
+        }
+
+        const outputOffsets = vType.outputOffsets
+        i = 0
+        for (; i < gType.sizeOut; i++) {
+            const offset = [outputOffsets[i][0] + gridOffsetX, outputOffsets[i][1] + gridOffsetY]
+            const dX = localX - offset[0]
+            const dY = localY - offset[1]
+
+            const d = circuitController.gridEuclidDistance(dX, dY)
+            if (d < 5) {
+                break
+            }
+        }
+
+        if (i != gType.sizeOut) {
+            return new CircuitControllerQueryResult(
+                gate,
+                "Output",
+                i,
+                cType
+            ) 
+        }
+
+        return new CircuitControllerQueryResult(
+            gate,
+            "Gate",
+            undefined,
+            cType
+        ) 
+    }
+
+    /**
+     * @param {number | undefined} id
+     * @param {"" | "Gate" | "Input" | "Output" | undefined} type
+     * @param {number | undefined} connectionIndex
+     * @param {CircuitController} controller
+     */
+     export function toQuery(id, type, connectionIndex, controller) {
+        const gate = controller.gateGrid.gates[id || 0]
+        return new CircuitControllerQueryResult(
+            gate, type || "", connectionIndex, controller.getGateTypeController(id || 0)
+        )
+    }
 
     /**
      * Add all events needed to edit the circuit, name is a hold-over from when the project used the drag and drop api
@@ -71,6 +162,7 @@
         }
 
         circuitContainer.addEventListener("mousemove", onDrag)
+        window.addEventListener("mousemove", moveDraggable)
     }
 
     /**
@@ -82,6 +174,14 @@
         }
 
         circuitContainer.removeEventListener("mousemove", onDrag)
+        window.removeEventListener("mousemove", moveDraggable)
+    }
+
+    /**
+     * @param {MouseEvent} e
+     */
+    function moveDraggable(e) {
+        circuitDraggable.onMouseMove(e, query(e.offsetX, e.offsetY, circuitController))
     }
     
     /**
@@ -107,27 +207,25 @@
     function canDragStart(e) {
         if (circuitDraggable.isDragging()) return "Already Dragging"
 
-        const query = circuitController.query(e.offsetX, e.offsetY)     
-        console.log(query) 
+        const q = query(e.offsetX, e.offsetY, circuitController)     
+        console.log(q) 
 
-        if (query.type === "") {
+        if (q.type === "") {
             return "Nothing Under Mouse"
         }
 
-        return query
+        return q
         
     }
 
     /**
-     * addDragEventListeners should hook this up so it starts when the user selects an object in the circuitContainer div.
+     * addDragEventListeners should hook circuitController up so it starts when the user selects an object in the circuitContainer div.
      * Outside of that div, other components will be in charge of starting a drag.
      * 
      * @param {MouseEvent} e
      */
     function onDragStart(e) {
         e.preventDefault()
-
-        console.log(editorParams)
 
         const check = canDragStart(e)
         if (!(check instanceof CircuitControllerQueryResult)) return
@@ -145,7 +243,7 @@
     }
 
     /**
-     * onDragStart calls this when the event passed to it selected an input connection.
+     * onDragStart calls circuitController when the event passed to it selected an input connection.
      * It also needs a query referencing the id of the gate and the index of the connection to proceed.
      * 
      * Dragging from an empty input should create a new wire, 
@@ -167,15 +265,15 @@
         //if so, "consume" the wire, deleting its connection and starting an active wire from the same output as the original
         if (connected) {
 
-            //we can coerce the onDrag functions to do this by simply switching out the query for one originating from the output
-            q = circuitController.toQuery(connected[0], "Output", connected[1])   
+            //we can coerce the onDrag functions to do circuitController by simply switching out the query for one originating from the output
+            q = toQuery(connected[0], "Output", connected[1], circuitController)   
             console.log(q)
             //then we can delete the old connection
             circuitController.removeConnection(
                 {id:index[0], type:"Input", index:index[1]}
             )
 
-            //tell onDragStartOutput it's business as usual and pretend we didn't do any of this nonsense behind its back
+            //tell onDragStartOutput it's business as usual and pretend we didn't do any of circuitController nonsense behind its back
             onDragStartOutput(e, q)
 
             return
@@ -192,7 +290,7 @@
     }
 
     /**
-     * onDragStart calls this when the event passed to it selected an input connection.
+     * onDragStart calls circuitController when the event passed to it selected an input connection.
      * It also needs a query referencing the id of the gate and the index of the connection to proceed.
      * 
      * @param {MouseEvent} e
@@ -208,7 +306,7 @@
     }
 
     /**
-     * onDragStart calls this when the event passed to it selected an input connection.
+     * onDragStart calls circuitController when the event passed to it selected an input connection.
      * It also needs a query referencing the id of the gate and the index of the connection to proceed.
      * 
      * @param {MouseEvent} e
@@ -295,7 +393,7 @@
     }
 
     /**
-     * onDrag calls this whenever the mouse moves and the user is dragging a gate.
+     * onDrag calls circuitController whenever the mouse moves and the user is dragging a gate.
      * Handles displaying a gate, invoking different functions for adding a gate versus moving an existing one,
      * since moving a gate won't collide with itself and so shouldn't appear as it does, but adding a new gate will collide with any other.
      * 
@@ -325,7 +423,7 @@
     }
 
     /**
-     * onDrag calls this whenever the mouse moves and the user is dragging a wire from an input.
+     * onDrag calls circuitController whenever the mouse moves and the user is dragging a wire from an input.
      * 
      * @param {MouseEvent} e
      */
@@ -335,7 +433,7 @@
     }
 
     /**
-     * onDrag calls this whenever the mouse moves and the user is dragging a wire from an output.
+     * onDrag calls circuitController whenever the mouse moves and the user is dragging a wire from an output.
      * 
      * @param {MouseEvent} e
      */
@@ -353,7 +451,8 @@
      */
     function onDrop(e) {
 
-        const result = circuitDraggable.drop(e)
+        const q = query(e.offsetX, e.offsetY, circuitController)
+        const result = circuitDraggable.drop(e, q)
 
         const cType = result.type
 
@@ -363,9 +462,8 @@
                 break
             case "Input":
             case "Output":
-                const query = circuitController.query(e.offsetX, e.offsetY)
-                console.log(query)
-                dropConnection(result, query)
+                console.log(q)
+                dropConnection(result, q)
                 break
             default: return
         }
@@ -374,7 +472,7 @@
     }
 
     /**
-     * onDrop calls this when dropping a Gate.
+     * onDrop calls circuitController when dropping a Gate.
      * 
      * The circuitpanel-overhaul branch should have fully isolated the Gate class from the view, making it a proper model class.
      * While we can technically still reference it here, there's no need. Gates are added via their readonly gateType, and moved/removed via their id.
@@ -402,7 +500,7 @@
     }
 
     /**
-     * onDrop calls this when dropping a connection, passing two queries for a start and end.
+     * onDrop calls circuitController when dropping a connection, passing two queries for a start and end.
      * 
      * Only does stuff when the queries have opposite connection types, evading any undefined behavior from connecting two inputs or trying to connect a wire to nothing.
      * 
@@ -438,7 +536,7 @@
     >
 
     <CircuitRenderer 
-        bind:this={circuitRenderer} 
+        bind:this={circuitRenderer}
         circuitController={circuitController} 
         circuitDraggable={circuitDraggable} 
         rendererParams={rendererParams}

@@ -17,9 +17,9 @@ export class CircuitDragDropController {
 
     private contents:CircuitControllerQueryResult = new CircuitControllerQueryResult()
 
-    dragStartHandler=(e:MouseEvent) => {}
-    dragEndHandler=(e:MouseEvent) => {}
-    dragCircuitHandler=(e:MouseEvent) => {}
+    dragStartHandler=(e:MouseEvent, q:CircuitControllerQueryResult) => {}
+    dragEndHandler=(e:MouseEvent, q:CircuitControllerQueryResult) => {}
+    dragCircuitHandler=(e:MouseEvent, q:CircuitControllerQueryResult) => {}
 
     dragStartGateType(
         type:GateTypeController,
@@ -33,7 +33,7 @@ export class CircuitDragDropController {
 
         this.lastDragEvent = e
 
-        this.dragStartHandler(e)
+        this.dragStartHandler(e, this.contents)
     }
 
     dragStart(
@@ -46,13 +46,13 @@ export class CircuitDragDropController {
 
         this.lastDragEvent = e
 
-        this.dragStartHandler(e)
+        this.dragStartHandler(e, from)
     }
 
     private canDrop = false
     private lastDragEvent:MouseEvent | null = null
 
-    dragEnd(e:MouseEvent) {
+    dragEnd(e:MouseEvent, q:CircuitControllerQueryResult) {
         if (this.canDrop) {
             const result = this.contents
 
@@ -62,7 +62,7 @@ export class CircuitDragDropController {
             this.lastDragEvent = null
             this.canDrop = false
 
-            this.dragEndHandler(e)
+            this.dragEndHandler(e, q)
 
             return result
         }
@@ -75,12 +75,12 @@ export class CircuitDragDropController {
         return Math.pow(Math.pow(a.pageX - b.pageX, 2) + Math.pow(a.pageY - b.pageY, 2), 0.5)
     }
 
-    dragCircuit(e:MouseEvent) {
+    dragCircuit(e:MouseEvent, q:CircuitControllerQueryResult) {
         if (this.lastDragEvent === null || this.mouseEventDistance(this.lastDragEvent, e) > 3) {
             this.canDrop = true
             this.lastDragEvent = null
         }
-        this.dragCircuitHandler(e)
+        this.dragCircuitHandler(e, q)
     }
 
     getGateType() {

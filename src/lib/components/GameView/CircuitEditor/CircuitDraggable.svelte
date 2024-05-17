@@ -1,7 +1,5 @@
 
 <script>
-    import GameViewCircuitPanel from './GameViewCircuitPanel.svelte';
-
     import { CircuitController, CircuitControllerQueryResult } from "$lib/circuit_types/CircuitController";
     import { CircuitDragDropController } from "$lib/circuit_types/CircuitDragDropController";
     import { onMount } from 'svelte';
@@ -10,9 +8,12 @@
 
     let contents = ""
 
+    /*
+    //Since GameViewCircuitPanel is now responsible for queries, it will call onMouseMove and feed it query data remotely
     onMount(() => {
         window.addEventListener("mousemove", onMouseMove)
     })
+    */
 
     /**
      * @type {CircuitController}
@@ -29,7 +30,7 @@
     export function dragGateType(e, type, element=null) {
         circuitDragDropController.dragStartGateType(type, e, element) 
         resolveContents()
-        onMouseMove(e)
+        onMouseMove(e, circuitDragDropController.getContents())
     }
 
     function resolveContents() {
@@ -52,28 +53,29 @@
      export function drag(e, query, element=null) {
         circuitDragDropController.dragStart(query, e, element)
         resolveContents()
-        onMouseMove(e)
+        onMouseMove(e, query)
     }
 
     /**
      * @param {MouseEvent} e
-     */
-    function onMouseMove(e) {
+     * @param {CircuitControllerQueryResult} q
+      */
+    export function onMouseMove(e, q) {
         posX = e.pageX
         posY = e.pageY
         const controller = getController()
         if (isDragging()) {
             const type = controller.getContentType()
-            controller.dragCircuit(e)
+            controller.dragCircuit(e, q)
         }
     }
 
     /**
-     * 
      * @param {MouseEvent} e
+     * @param {CircuitControllerQueryResult} q
      */
-    export function drop(e) {
-        const result = circuitDragDropController.dragEnd(e)
+     export function drop(e, q) {
+        const result = circuitDragDropController.dragEnd(e, q)
         resolveContents()
         return result
     }

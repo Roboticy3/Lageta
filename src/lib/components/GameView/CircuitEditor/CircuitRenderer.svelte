@@ -1,6 +1,6 @@
 <svelte:options accessors={true}/>
 <script>
-    import { CircuitController } from "$lib/circuit_types/CircuitController";
+    import { CircuitController, CircuitControllerQueryResult } from "$lib/circuit_types/CircuitController";
     import CircuitDraggable from './CircuitDraggable.svelte';
     import { GateType, GateTypeController, GateTypeView } from "$lib/circuit_types/GateType";
     import { onMount, tick } from "svelte";
@@ -266,23 +266,25 @@
 
     /**
      * @param {MouseEvent} e
+     * @param {CircuitControllerQueryResult} q
      */
-    function onDragCircuit(e) {
+    function onDragCircuit(e, q) {
         switch (circuitDraggable.getController().getContentType()) {
             case "Input":
             case "Output":
-                drawActiveWire(e)
+                drawActiveWire(e, q)
                 break
             case "Gate":
-                drawActiveGate(e)
+                drawActiveGate(e, q)
                 break
         }
     }
 
     /**
      * @param {MouseEvent} e
+     * @param {CircuitControllerQueryResult} q
      */
-    export function drawActiveWire(e) {
+     export function drawActiveWire(e, q) {
         if (e.target !== getSvgHead()) return
 
         const controller = circuitDraggable.getController()
@@ -293,7 +295,7 @@
         const id = source.getId()
         const index = source.connectionIndex
 
-        const target = circuitController.query(e.offsetX, e.offsetY)
+        const target = q
         const activeWire = connectionGroup.querySelector("#wire-active")
         
         if (activeWire === null || gPos === undefined || index === undefined || cType === undefined) return
@@ -334,8 +336,9 @@
 
     /**
      * @param {MouseEvent} e
+     * @param {CircuitControllerQueryResult} _q
      */
-    export function drawActiveGate(e) {
+     export function drawActiveGate(e, _q) {
         if (e.target !== getSvgHead()) return
 
         const controller = circuitDraggable.getController()
