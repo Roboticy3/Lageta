@@ -489,8 +489,8 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
     function svgConnectionPoint(index, offsetX, offsetY, value = undefined, label = "") {
         const color = connectionValueToColor(value)
         return `
-<g id=${connectionPointIdString(index)}><path d="M ${offsetX - 1} ${offsetY - 1} l 2 1 l -2 1 Z" stroke-width=".25px" stroke="${color}" /></g>\n
-${rendererParams.showLabels ? `<text x="${offsetX + 4}" y="${offsetY}" stroke="none" fill="${color}" font-size="0.2em" style="pointer-events:none;">${label}</text>`:""}
+<g id=${connectionPointIdString(index)} transform="translate(${offsetX} ${offsetY})"><path d="M -1 -1 l 2 1 l -2 1 Z" stroke-width=".25px" stroke="${color}" /></g>\n
+${rendererParams.showLabels ? `<text x="${4}" y="0" stroke="none" fill="${color}" font-size="0.2em" style="pointer-events:none;">${label}</text>`:""}
         `
     }
 
@@ -543,7 +543,7 @@ ${rendererParams.showLabels ? `<text x="${offsetX + 4}" y="${offsetY}" stroke="n
         switch (q.type) {
             case "Gate":
                 return svgHead.querySelector(
-                    `#${gateIdString(q.getId() || 0)}-body`
+                    `#${gateIdString(q.getId() || 0)}`
                 )
             case "Input":
             case "Output":
@@ -555,13 +555,20 @@ ${rendererParams.showLabels ? `<text x="${offsetX + 4}" y="${offsetY}" stroke="n
         return null
     }
 
+    const highlightTransformEffect = 'scale(1.25, 1.25) rotate(3)'
+
     /**
      * @param {CircuitControllerQueryResult} q
      */
     export function onEntered(q) {
         console.log("entered", q)
+        if (q.type === "Gate") return
         const svg = queryToElement(q)
-        svg?.children[0]?.setAttribute('transform', `scale(1.05, 1.05)`)
+        const g = svg?.children[0]
+        if (g) {
+            const existing = g.getAttribute('transform')
+            g.setAttribute('transform', (existing || '') + highlightTransformEffect )
+        }   
     }
 
     /**
@@ -570,8 +577,16 @@ ${rendererParams.showLabels ? `<text x="${offsetX + 4}" y="${offsetY}" stroke="n
      */
     export function onExited(q) {
         console.log("exited", q)
+        if (q.type === "Gate") return
         const svg = queryToElement(q)
-        svg?.children[0]?.removeAttribute('transform')
+        const g = svg?.children[0]
+        if (g) {
+            const existing = g.getAttribute('transform')
+            if (existing) {
+                const i = existing.lastIndexOf(highlightTransformEffect)
+                g.setAttribute('transform', existing.substring(0, i) + existing.substring(i + highlightTransformEffect.length))
+            }
+        }
     }
 
 </script>

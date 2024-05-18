@@ -477,6 +477,9 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
         }
         
         removeMouseMoveListener()
+        currentQuery = new CircuitControllerQueryResult()
+        checkEntered(q)
+        console.log("dropped ", q, currentQuery)
     }
 
     /**
@@ -542,14 +545,8 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
      */
     function onMouseMove(e) {
         const newQ = query(e.offsetX, e.offsetY)
-        let good = true
-        switch (newQ.type) {
-            case "Gate": good = canDragStartGate(newQ)
-        }
-        if (good) {
-            checkEntered(newQ)
-            currentQuery = newQ
-        }
+        checkEntered(newQ)
+        currentQuery = newQ
     }
 
     /**
