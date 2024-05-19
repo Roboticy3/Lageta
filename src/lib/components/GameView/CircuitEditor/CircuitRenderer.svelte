@@ -589,6 +589,14 @@ ${rendererParams.showLabels ? `<text x="${4}" y="0" stroke="none" fill="${color}
         }
     }
 
+    /**
+     * select an element from the renderer's output
+     * @param {string} qs
+     */
+     export function getElement(qs) {
+        return svgHead.querySelector(qs)
+    } 
+
 </script>
 
 <ResizingSvg 

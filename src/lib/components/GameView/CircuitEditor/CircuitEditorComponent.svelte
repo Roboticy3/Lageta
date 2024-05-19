@@ -37,6 +37,18 @@
         }
     })
 
+    /**
+     * @type {GameViewCircuitPanel}
+     */
+    let circuitPanel
+
+    /**
+     * @param {string} qs
+     */
+     export function getElement(qs) {
+        return circuitPanel?.getElement(qs) || null
+    }
+
     let circuitDraggable
 </script>
 
@@ -54,6 +66,7 @@
     {/if}
     <div class="circuit-panel">
         <GameViewCircuitPanel 
+            bind:this={circuitPanel}
             gameParams={gameParams}
             circuitController={circuitController}
             circuitDraggable={circuitDraggable}

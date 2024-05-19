@@ -14,12 +14,12 @@ export class CircuitControllerQueryResult {
 
     readonly gateTypeController: GateTypeController | undefined;
 
-    readonly type: "Gate" | "Input" | "Output" | "";
+    readonly type: CircuitControllerQueryResultContentType;
     readonly connectionIndex: number | undefined;
 
     constructor(
         gate: Gate | undefined = undefined,
-        type: "Gate" | "Input" | "Output" | "" = "",
+        type: CircuitControllerQueryResultContentType = "",
         connectionIndex: number | undefined = undefined,
         gateTypeController: GateTypeController | undefined = undefined
     ) {
@@ -45,3 +45,5 @@ export class CircuitControllerQueryResult {
         )
     }
 }
+
+export type CircuitControllerQueryResultContentType = "Gate" | "Input" | "Output" | ""

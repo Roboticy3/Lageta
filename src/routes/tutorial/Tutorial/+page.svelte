@@ -4,7 +4,11 @@
     import { CircuitController } from "$lib/circuit_types/CircuitController";
     import { browser } from "$app/environment";
     import TutorialIndicator from "$lib/components/GameView/CircuitEditor/TutorialIndicator.svelte";
+    import { onMount } from "svelte";
 
+    /**
+     * @type {CircuitEditorComponent}
+     */
     let editor
 
     let params = undefined
@@ -18,11 +22,31 @@
         circuitController?.setInput([0, 0], true)
     }
 
+    /**
+     * @type {{qs:string, eventName:string, f:() => void}[]}
+     */
+    const eventStages = [
+        {qs:"#point-output-0-0",eventName:"hover",f:() => {console.log("clicked first connection point!")}}
+    ]
+    let currentEvent = 0
+
+    function prepareNextEvent(idx=currentEvent) {
+        const data = eventStages[idx]
+        let element = editor?.getElement(data.qs)
+        if (element) {
+            console.log("found ", data.qs, "! Adding ", data.eventName, " event")
+            element.addEventListener(data.eventName, data.f)
+        }
+    }
+
+    onMount(prepareNextEvent)
+
 </script>
 
 {#if params && circuitController}
     <div class="level-panel" data-sveltekit-noscroll>
         <CircuitEditorComponent
+            bind:this={editor}
             gameParams={NotLevel.params}
             circuitController={circuitController}
             editorParams={{

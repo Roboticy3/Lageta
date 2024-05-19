@@ -11,6 +11,7 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
     import { Buf, Input, all_gates, getGateType } from '$lib/dat/GateTypes/GateTypes';
     import InputCheckBox from './InputCheckBox.svelte';
     import { GateTypeController } from '$lib/circuit_types/GateType';
+    import { GameViewcircuitPanelEventTarget, createGameViewCircuitPanelEvent } from '$lib/circuit_types/GameViewCircuitPanelEvent';
 
     /**
      * @type {GameViewParameters}
@@ -34,6 +35,24 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
      */
     let circuitContainer = null;
 
+    let circuitEventTarget = new GameViewcircuitPanelEventTarget()
+
+    /**
+     * @param {keyof import('$lib/circuit_types/GameViewCircuitPanelEvent').GameViewCircuitPanelEventKeys} type
+     * @param {EventListener} listener
+     */
+    export function addEventListener(type, listener) {
+        circuitEventTarget.addEventListener(type, listener)
+    }
+
+    /**
+     * @param {keyof import('$lib/circuit_types/GameViewCircuitPanelEvent').GameViewCircuitPanelEventKeys} type
+     * @param {EventListener} listener
+     */
+    export function removeEventListener(type, listener) {
+        circuitEventTarget.addEventListener(type, listener)
+    }
+
     /**
      * @type {CircuitRenderer}
     */
@@ -41,6 +60,13 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
 
     export function getRenderer() {
         return circuitRenderer
+    }
+
+    /**
+     * @param {string} qs
+     */
+    export function getElement(qs) {
+        return getRenderer()?.getElement(qs) || null
     }
     
     /**
@@ -248,6 +274,11 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
             case "Gate":
                 if (canDragStartGate(check)) onDragStartGate(e, check)
         }
+
+        if (circuitContainer) {
+            const evt = createGameViewCircuitPanelEvent("dragstart", check, check, circuitContainer)
+            circuitEventTarget.dispatchEvent(evt)
+        }
     }
 
     /**
@@ -379,11 +410,20 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
                 break
             case "Nothing Under Mouse":
                 onDrop(e)
-                break
+                return //skip the drag event if dropping
             default: return
         }
         
-        
+        if (circuitContainer) {
+            const evt = createGameViewCircuitPanelEvent(
+                "drag", 
+                circuitDraggable.getController().getContents(), 
+                query(e.offsetX, e.offsetY), 
+                circuitContainer
+            )
+            circuitEventTarget.dispatchEvent(evt)
+        }
+
         console.log("Dragging...")
     }
 
@@ -459,6 +499,7 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
      */
     function onDrop(e) {
 
+        const source = circuitDraggable.getController().getContents()
         const q = query(e.offsetX, e.offsetY)
         const result = circuitDraggable.drop(e, q)
 
@@ -474,6 +515,13 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
                 dropConnection(result, q)
                 break
             default: return
+        }
+
+        if (circuitContainer) {
+            const evt = createGameViewCircuitPanelEvent(
+                "drop", source, q, circuitContainer
+            )
+            circuitEventTarget.dispatchEvent(evt)
         }
         
         removeMouseMoveListener()
@@ -558,7 +606,7 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
             circuitRenderer.onExited(currentQuery)
         }
     }
-
+ 
 </script>
 
 <div
