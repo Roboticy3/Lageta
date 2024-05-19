@@ -25,22 +25,22 @@
 
     /**
      * @type {{
-     *  q:CircuitControllerQueryResult, 
+     *  index:import("$lib/circuit_types/CircuitController").ConnectionIndex, 
      *  eventName:import("$lib/circuit_types/GameViewCircuitPanelEvent").GameViewCircuitPanelEventKey, 
      *  f:() => void}[]}}
      */
     const eventStages = [
-        {qs:"#point-output-0-0",eventName:"dragstart",f:() => {console.log("clicked first connection point!")}}
+        {index:{id:0,type:"Output",index:0} ,eventName:"dragstart",f:() => {console.log("clicked first connection point!")}}
     ]
     let currentEvent = 0
 
     function prepareNextEvent(idx=currentEvent) {
-        const data = eventStages[idx]
-        let element = editor?.getElement(data.qs)
-        if (element) {
-            console.log("found ", data.qs, "! Adding ", data.eventName, " event")
-            element.addEventListener(data.eventName, data.f)
-        }
+        const stage = eventStages[idx]
+        editor.addEventListener(stage.eventName, (evt) => {
+            // @ts-ignore bc types are wild
+            const q = evt.to
+            if (q?.contentEquals(stage.index)) stage.f()
+        })
     }
 
     onMount(prepareNextEvent)

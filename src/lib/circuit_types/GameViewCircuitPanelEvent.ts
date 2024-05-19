@@ -13,6 +13,7 @@ export interface GameViewCircuitPanelEvent extends Event {
     to:CircuitControllerQueryResult
 }
 
+
 /**
  * My earnest attempt to extend the existing dom events system to fit the circuit editor
  * 
@@ -30,7 +31,8 @@ export class GameViewcircuitPanelEventTarget extends EventTarget {
     ) {
         const set = this.eventMap.get(type)
         if (set) set.add(listener)
-        else this.eventMap.set(type, new Set())
+        else this.eventMap.set(type, new Set([listener]))
+        console.log(this.eventMap)
     }
     dispatchEvent(event: Event) {
         const set = this.eventMap.get(event.type)

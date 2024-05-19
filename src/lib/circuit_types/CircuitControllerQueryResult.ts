@@ -1,3 +1,4 @@
+import type { ConnectionIndex } from "./CircuitController";
 import { Gate } from "./Gate";
 import { GateTypeController } from "./GateType";
 
@@ -37,12 +38,19 @@ export class CircuitControllerQueryResult {
 
     getPos() { return this.gate ? [this.gate.x, this.gate.y] : undefined; }
 
-    contentEquals(other:CircuitControllerQueryResult ) {
-        return (
-            other.type === this.type &&
-            other.connectionIndex === this.connectionIndex &&
-            other.gate === this.gate
-        )
+    contentEquals(other:CircuitControllerQueryResult | ConnectionIndex) {
+        if (other instanceof CircuitControllerQueryResult)
+            return (
+                other.type === this.type &&
+                other.connectionIndex === this.connectionIndex &&
+                other.gate === this.gate
+            )
+        else
+            return (
+                other.type === this.type &&
+                other.index === this.connectionIndex &&
+                other.id === this.gate?.id
+            )
     }
 }
 
