@@ -29,7 +29,7 @@
     /**
      * @type {GateTypeController[]}
      */
-     export let shelf = []
+    export let shelf = []
 
     onMount(() => {
         if (!circuitController) {
@@ -45,8 +45,24 @@
     /**
      * @param {string} qs
      */
-     export function getElement(qs) {
+    export function getElement(qs) {
         return circuitPanel?.getElement(qs) || null
+    }
+
+    /**
+     * @param {import("$lib/circuit_types/GameViewCircuitPanelEvent").GameViewCircuitPanelEventKey} type
+     * @param {EventListener} listener
+     */
+     export function addEventListener(type, listener) {
+        circuitPanel.addEventListener(type, listener)
+    }
+
+    /**
+     * @param {import("$lib/circuit_types/GameViewCircuitPanelEvent").GameViewCircuitPanelEventKey} type
+     * @param {EventListener} listener
+     */
+    export function removeEventListener(type, listener) {
+        circuitPanel.addEventListener(type, listener)
     }
 
     let circuitDraggable

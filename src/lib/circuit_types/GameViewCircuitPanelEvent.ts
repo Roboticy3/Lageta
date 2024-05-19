@@ -6,6 +6,8 @@ export interface GameViewCircuitPanelEventKeys {
     "drop": GameViewCircuitPanelEvent
 }
 
+export type GameViewCircuitPanelEventKey = keyof GameViewCircuitPanelEventKeys
+
 export interface GameViewCircuitPanelEvent extends Event {
     from:CircuitControllerQueryResult
     to:CircuitControllerQueryResult
@@ -21,8 +23,8 @@ export interface GameViewCircuitPanelEvent extends Event {
 export class GameViewcircuitPanelEventTarget extends EventTarget {
     private eventMap:Map<string, Set<EventListener>> = new Map()
 
-    addEventListener<K extends keyof GameViewCircuitPanelEventKeys>(
-        type: K,
+    addEventListener(
+        type: GameViewCircuitPanelEventKey,
         listener: EventListener,
         options?: AddEventListenerOptions | boolean,
     ) {
@@ -38,8 +40,8 @@ export class GameViewcircuitPanelEventTarget extends EventTarget {
         }
         return true
     }
-    removeEventListener<K extends keyof GameViewCircuitPanelEventKeys>(
-        type: K,
+    removeEventListener(
+        type: GameViewCircuitPanelEventKey,
         listener: EventListener,
         options?: EventListenerOptions | boolean,
     ) {
@@ -50,8 +52,8 @@ export class GameViewcircuitPanelEventTarget extends EventTarget {
 }
 
 //pain
-export function createGameViewCircuitPanelEvent<K extends keyof GameViewCircuitPanelEventKeys>(
-    type:K, 
+export function createGameViewCircuitPanelEvent(
+    type:GameViewCircuitPanelEventKey, 
     from:CircuitControllerQueryResult, 
     to:CircuitControllerQueryResult, 
     circuitContainer:HTMLElement) 

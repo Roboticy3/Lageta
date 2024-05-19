@@ -5,6 +5,7 @@
     import { browser } from "$app/environment";
     import TutorialIndicator from "$lib/components/GameView/CircuitEditor/TutorialIndicator.svelte";
     import { onMount } from "svelte";
+    import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControllerQueryResult";
 
     /**
      * @type {CircuitEditorComponent}
@@ -23,10 +24,13 @@
     }
 
     /**
-     * @type {{qs:string, eventName:string, f:() => void}[]}
+     * @type {{
+     *  q:CircuitControllerQueryResult, 
+     *  eventName:import("$lib/circuit_types/GameViewCircuitPanelEvent").GameViewCircuitPanelEventKey, 
+     *  f:() => void}[]}}
      */
     const eventStages = [
-        {qs:"#point-output-0-0",eventName:"hover",f:() => {console.log("clicked first connection point!")}}
+        {qs:"#point-output-0-0",eventName:"dragstart",f:() => {console.log("clicked first connection point!")}}
     ]
     let currentEvent = 0
 

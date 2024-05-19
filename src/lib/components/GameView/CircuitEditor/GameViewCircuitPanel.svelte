@@ -38,7 +38,7 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
     let circuitEventTarget = new GameViewcircuitPanelEventTarget()
 
     /**
-     * @param {keyof import('$lib/circuit_types/GameViewCircuitPanelEvent').GameViewCircuitPanelEventKeys} type
+     * @param {import("$lib/circuit_types/GameViewCircuitPanelEvent").GameViewCircuitPanelEventKey} type
      * @param {EventListener} listener
      */
     export function addEventListener(type, listener) {
@@ -46,7 +46,7 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
     }
 
     /**
-     * @param {keyof import('$lib/circuit_types/GameViewCircuitPanelEvent').GameViewCircuitPanelEventKeys} type
+     * @param {import("$lib/circuit_types/GameViewCircuitPanelEvent").GameViewCircuitPanelEventKey} type
      * @param {EventListener} listener
      */
     export function removeEventListener(type, listener) {
@@ -82,71 +82,7 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
         controller = circuitController
     )
     {
-        const [localX, localY] = controller.unprojectOffset(offsetX, offsetY)
-        
-        const [x, y] = controller.gateGrid.offsetToIndex(localX, localY)
-        const gate = controller.gateGrid.get(x, y)
-        if (gate === undefined) {
-            return new CircuitControllerQueryResult()
-        }
-        const [gridOffsetX, gridOffsetY] = [gate.x * 10, gate.y * 10]
-        const gType = gate.type
-        const cType = all_gates.get(gType.name)
-        if (cType === undefined) {
-            return new CircuitControllerQueryResult()
-        }
-        const vType = cType.view
-
-        const inputOffsets = vType.inputOffsets
-        let i = 0;
-        for (; i < gType.sizeIn; i++) {
-            const offset = [inputOffsets[i][0] + gridOffsetX, inputOffsets[i][1] + gridOffsetY]
-            const dX = localX - offset[0]
-            const dY = localY - offset[1]
-
-            const d = circuitController.gridEuclidDistance(dX, dY)
-            if (d < 5) {
-                break
-            }
-        }
-
-        if (i != gType.sizeIn) {
-            return new CircuitControllerQueryResult(
-                gate,
-                "Input",
-                i,
-                cType
-            ) 
-        }
-
-        const outputOffsets = vType.outputOffsets
-        i = 0
-        for (; i < gType.sizeOut; i++) {
-            const offset = [outputOffsets[i][0] + gridOffsetX, outputOffsets[i][1] + gridOffsetY]
-            const dX = localX - offset[0]
-            const dY = localY - offset[1]
-
-            const d = circuitController.gridEuclidDistance(dX, dY)
-            if (d < 5) {
-                break
-            }
-        }
-
-        if (i != gType.sizeOut) {
-            return new CircuitControllerQueryResult(
-                gate,
-                "Output",
-                i,
-                cType
-            ) 
-        }
-
-        return new CircuitControllerQueryResult(
-            gate,
-            "Gate",
-            undefined,
-            cType
-        ) 
+        return controller.query(offsetX, offsetY)
     }
 
     /**
@@ -154,12 +90,10 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
      * @param {"" | "Gate" | "Input" | "Output" | undefined} type
      * @param {number | undefined} connectionIndex
      * @param {CircuitController} controller
+     * @return {CircuitControllerQueryResult}
      */
      export function toQuery(id, type, connectionIndex, controller) {
-        const gate = controller.gateGrid.gates[id || 0]
-        return new CircuitControllerQueryResult(
-            gate, type || "", connectionIndex, controller.getGateTypeController(id || 0)
-        )
+        return controller.toQuery(id, type, connectionIndex)
     }
 
     /**

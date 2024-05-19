@@ -5,6 +5,7 @@ import { GateGrid } from "./GateGrid";
 import { identity, transform, type Matrix, type Transform, applyToPoint, inverse, toSVG, fromObject, translate, rotateDEG, rotate, scale} from "transformation-matrix";
 import { GateType, GateTypeController, GateTypeView, type ConnectionValue } from "./GateType";
 import { all_gates, getGateType, type GateTypeParameters } from "$lib/dat/GateTypes/GateTypes";
+import { CircuitControllerQueryResult, type CircuitControllerQueryResultContentType } from "./CircuitControllerQueryResult";
 
 export type ConnectionIndex = {id:number, type:ConnectionType, index:number}
 
@@ -90,6 +91,81 @@ export class CircuitController {
 
     getGridSize() {
         return [this.gateGrid.sizeX, this.gateGrid.sizeY]
+    }
+
+    query(offsetX:number, offsetY:number) {
+        const [localX, localY] = this.unprojectOffset(offsetX, offsetY)
+        
+        const [x, y] = this.gateGrid.offsetToIndex(localX, localY)
+        const gate = this.gateGrid.get(x, y)
+        if (gate === undefined) {
+            return new CircuitControllerQueryResult()
+        }
+        const [gridOffsetX, gridOffsetY] = [gate.x * 10, gate.y * 10]
+        const gType = gate.type
+        const cType = all_gates.get(gType.name)
+        if (cType === undefined) {
+            return new CircuitControllerQueryResult()
+        }
+        const vType = cType.view
+
+        const inputOffsets = vType.inputOffsets
+        let i = 0;
+        for (; i < gType.sizeIn; i++) {
+            const offset = [inputOffsets[i][0] + gridOffsetX, inputOffsets[i][1] + gridOffsetY]
+            const dX = localX - offset[0]
+            const dY = localY - offset[1]
+
+            const d = this.gridEuclidDistance(dX, dY)
+            if (d < 5) {
+                break
+            }
+        }
+
+        if (i != gType.sizeIn) {
+            return new CircuitControllerQueryResult(
+                gate,
+                "Input",
+                i,
+                cType
+            ) 
+        }
+
+        const outputOffsets = vType.outputOffsets
+        i = 0
+        for (; i < gType.sizeOut; i++) {
+            const offset = [outputOffsets[i][0] + gridOffsetX, outputOffsets[i][1] + gridOffsetY]
+            const dX = localX - offset[0]
+            const dY = localY - offset[1]
+
+            const d = this.gridEuclidDistance(dX, dY)
+            if (d < 5) {
+                break
+            }
+        }
+
+        if (i != gType.sizeOut) {
+            return new CircuitControllerQueryResult(
+                gate,
+                "Output",
+                i,
+                cType
+            ) 
+        }
+
+        return new CircuitControllerQueryResult(
+            gate,
+            "Gate",
+            undefined,
+            cType
+        ) 
+    }
+
+    toQuery(id:number | undefined, type:CircuitControllerQueryResultContentType | undefined, connectionIndex:number | undefined) {
+        const gate = this.gateGrid.gates[id || 0]
+        return new CircuitControllerQueryResult(
+            gate, type, connectionIndex, this.getGateTypeController(id || 0)
+        )
     }
 
     /**
