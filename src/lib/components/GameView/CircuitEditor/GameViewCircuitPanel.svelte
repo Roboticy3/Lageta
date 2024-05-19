@@ -275,7 +275,7 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
                 if (canDragStartGate(check)) onDragStartGate(e, check)
         }
 
-        if (circuitContainer) {
+        if (circuitContainer && editorParams.dispatchEvents !== false) {
             const evt = createGameViewCircuitPanelEvent("dragstart", check, check, circuitContainer)
             circuitEventTarget.dispatchEvent(evt)
         }
@@ -414,7 +414,7 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
             default: return
         }
         
-        if (circuitContainer) {
+        if (circuitContainer && editorParams.dispatchEvents !== false) {
             const evt = createGameViewCircuitPanelEvent(
                 "drag", 
                 circuitDraggable.getController().getContents(), 
@@ -517,7 +517,7 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
             default: return
         }
 
-        if (circuitContainer) {
+        if (circuitContainer && editorParams.dispatchEvents !== false) {
             const evt = createGameViewCircuitPanelEvent(
                 "drop", source, q, circuitContainer
             )
