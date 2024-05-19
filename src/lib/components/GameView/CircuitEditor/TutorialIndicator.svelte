@@ -14,8 +14,21 @@
      */
     export let position
 
+    /**
+     * @type {CircuitDiv}
+     */
+    let container
+
+    /**
+     */
+     export function setPosition(newPosition) {
+        position = newPosition
+        container.setPosition(newPosition)
+    } 
+
 </script>
 <CircuitDiv
+    bind:this={container}
     circuitController={circuitController}
     position={position}
     size={[0.75, 0.75]}

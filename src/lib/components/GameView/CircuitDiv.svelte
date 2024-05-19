@@ -60,6 +60,20 @@
     export function isActive() {
         return active
     }
+
+    export function getPosition() {
+        return position
+    }
+
+    /**
+     * @param {[number, number]} newPosition
+     */
+    export function setPosition(newPosition) {
+        console.log("REPOSITIONING", position, newPosition)
+        position = newPosition
+        setOffset()
+        console.log(start, end)
+    }
 </script>
 
 <div 

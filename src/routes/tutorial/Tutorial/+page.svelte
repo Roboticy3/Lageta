@@ -12,6 +12,11 @@
      */
     let editor
 
+    /**
+     * @type {TutorialIndicator}
+     */
+    let indicator
+
     let params = undefined
     $: params = browser ? NotLevel.params : undefined
     /**
@@ -30,7 +35,7 @@
      *  f:() => void}[]}}
      */
     const eventStages = [
-        {index:{id:0,type:"Output",index:0} ,eventName:"dragstart",f:() => {console.log("clicked first connection point!")}}
+        {index:{id:0,type:"Output",index:0} ,eventName:"dragstart",f:() => {indicator.setPosition([7.75, 1.25])}}
     ]
     let currentEvent = 0
 
@@ -64,6 +69,7 @@
             }}
         >
             <TutorialIndicator 
+                bind:this={indicator}
                 circuitController={circuitController}
                 position={[1.35, 1.25]}
             />
