@@ -98,8 +98,6 @@
             //send input channels to circuit inputs
             circuitController.setInputs(currentValue)
 
-            //check that the circuit is valid against the outputs
-
             //send circuit outputs to output channels
             outputSignalSetView.push(circuitController.getOutputs(), currentFrame - 1);
             console.log(signalSetView)
@@ -110,7 +108,7 @@
         if (done) {
             atEnd = true
             pause()
-            //check to finish the level
+            if (signalSetView.isCircuitValid()) circuitController.complete()
         }  
     }
 

@@ -244,6 +244,8 @@ export class CircuitSignalSetView extends SignalSetView<ConnectionValue> impleme
        this.signalChangeListeners.forEach((l) => {l(cond)})     
     }
 
+    isCircuitValid() { return this.circuitIsValid }
+
     private validateWithOutputs(outputs:ConnectionValue[]) {
         if (this.circuitIsValid === false) return
 
