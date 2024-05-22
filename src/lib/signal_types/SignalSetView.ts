@@ -270,7 +270,7 @@ export class CircuitSignalSetView extends SignalSetView<ConnectionValue> impleme
         iter(currentValue, currentFrame, update, done)
         if (update) {
             this.validateWithOutputs(circuitController.getOutputs())
-            this.dispatch(currentValue)
+            this.dispatch(currentValue.slice(this.getInputSize()))
         }
         console.log("playing signal, valid: ", this.circuitIsValid)
     }

@@ -230,12 +230,12 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
 
         //check if the connection is already rendered
         if (svg instanceof SVGElement) {
-            svg.innerHTML = wires.join()
+            svg.innerHTML = wires.join('')
         }
         else {
             const svg = document.createElementNS("http://www.w3.org/2000/svg", 'g')
             svg.setAttribute('id', idString)
-            svg.innerHTML = wires.join()
+            svg.innerHTML = wires.join('')
             connectionGroup.appendChild(svg)
         }
 
@@ -406,6 +406,13 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
     }
 
     /**
+     * @param {import("$lib/circuit_types/CircuitController").ConnectionIndex} index
+     */
+    function connectionPointDesiredValueIdString(index) {
+        return `point-target-${index.type.toLowerCase()}-${index.id}-${index.index}`
+    }
+
+    /**
      * Return an svg transform group containing the string inner
      * @param {string} inner the svg being wrapped
      * @param {string | undefined} transform the transform of the group
@@ -495,6 +502,33 @@ ${rendererParams.showLabels ? `<text x="${4}" y="0" stroke="none" fill="${color}
     }
 
     /**
+     * @param {import("$lib/circuit_types/CircuitController").ConnectionIndex} index
+     * @param {import("$lib/circuit_types/GateType").ConnectionValue} value
+    */
+    export function setConnectionPointDesiredValue(index, value) {
+        const connectionPointGroup = svgHead.querySelector(`#${connectionPointIdString(index)}`)
+        if (connectionPointGroup) {
+            const idString = connectionPointDesiredValueIdString(index)
+            const newIndicator = svgWrapGroup(svgConnectionPointDesiredValue(value), '', idString)
+
+            const existing = connectionPointGroup.querySelector(`#${connectionPointDesiredValueIdString(index)}`)
+            if (existing) connectionPointGroup.removeChild(existing)
+            connectionPointGroup.appendChild(newIndicator)
+        }
+    }
+
+    /**
+     * 
+     * @param {import("$lib/circuit_types/GateType").ConnectionValue} value
+     */
+    function svgConnectionPointDesiredValue(value) {
+        let color = `var(--connection-color-x)`
+        if (value === true) color = `var(--connection-color-on)`
+        else if (value === false) color = `var(--connection-color-off)`
+        return `<circle r="2.5" stroke="${color}" stroke-dasharray="1" fill="none"/>`
+    }
+
+    /**
      * @param {GateTypeController} cType
      * @param {number} id
      * @param {import("$lib/circuit_types/Gate").GateState} state
@@ -518,9 +552,9 @@ ${rendererParams.showLabels ? `<text x="${4}" y="0" stroke="none" fill="${color}
         })
 
         switch (connectionPointDisplayMode) {
-            case "": return inputs.join() + outputs.join()
-            case "Input": return inputs.join()
-            case "Output": return outputs.join()
+            case "": return inputs.join('') + outputs.join('')
+            case "Input": return inputs.join('')
+            case "Output": return outputs.join('')
         }
     }
 
@@ -593,9 +627,11 @@ ${rendererParams.showLabels ? `<text x="${4}" y="0" stroke="none" fill="${color}
      * select an element from the renderer's output
      * @param {string} qs
      */
-     export function getElement(qs) {
+    export function getElement(qs) {
         return svgHead.querySelector(qs)
     } 
+
+
 
 </script>
 

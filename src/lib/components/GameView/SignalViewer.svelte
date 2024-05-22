@@ -43,6 +43,8 @@
         signalSetView.sendPlayerToController(circuitController)
         
         restart()
+        
+        signalSetView.addListener(circuitController.setDesiredOutputs.bind(circuitController))
     })
 
     /**

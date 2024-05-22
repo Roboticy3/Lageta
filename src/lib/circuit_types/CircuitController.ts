@@ -706,6 +706,32 @@ export class CircuitController {
         return this.player?.isScrubbing() || false
     }
 
+    setDesiredConnectionValues(
+        data:{index:ConnectionIndex, value:ConnectionValue}[]
+    ) {
+        
+        if (this.renderer) { data.forEach((v) => {
+            this.renderer.setConnectionPointDesiredValue(v.index, v.value)
+        }) }
+    }
+
+    setDesiredOutputs(
+        data:ConnectionValue[]
+    ) {
+        let d = 0
+        for (let g of this.gateGrid.outputs) {
+            
+            if (g === undefined) {
+                continue
+            }
+            
+            g.getInputs().forEach((_v, i) => {
+                this.renderer.setConnectionPointDesiredValue({id:g.id, index:i, type:"Input"}, data[d])
+                d++
+            })
+        }
+    }
+
     //tell the view that the level has been beaten
     complete() {
         this.onComplete()
