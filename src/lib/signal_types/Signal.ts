@@ -344,7 +344,7 @@ export class SignalPlayer<T> {
     }
     private currentFrame = 0
     private nextSignal = 0
-    private scrubIntervalId:number | undefined = undefined
+    private scrubIntervalId:NodeJS.Timeout | undefined = undefined
     private scrubbing = false
     scrub(iter:SignalFrameReader<T> | undefined = undefined, reset:boolean = false) {
         if (reset || this.currentFrame >= this.length) {
