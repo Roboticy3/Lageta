@@ -424,10 +424,39 @@ export const Freeplay = {
         },
         undefined,
         [],
-        {},
-        true
     ),
     x:18, y:0
+}
+
+export const Tutorial = {
+    params:new GameViewParameters(
+        "Tutorial",
+        "",
+        {
+            gateTypes: [getGateType(InputLabelledPrebaked[1])],
+            gates: [
+                { x: 0, y: 2, id: 0, type: "Input1Labelled" } as SerializableGate
+            ],
+            size: [10, 5]
+        },
+        new ConnectionValueSignalSet(
+            [
+                new Signal<ConnectionValue>([{frame:0,value:false}])
+                    .push(oscillator(10, 2))
+                    .push(oscillator(5, 3))
+                    .push(oscillator(3, 3))
+                    .push(oscillator(1, 6))
+            ],
+            101,
+            getGateType(Not)
+        ),
+        [
+            OrLevel.params.name,
+            getGateType(Or).name
+        ]
+    ),
+    x:6, y:1,
+    type:Not
 }
 
 const all_params = new Map<string, LevelParameters>([

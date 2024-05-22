@@ -1,11 +1,12 @@
 <script>
     import CircuitEditorComponent from "$lib/components/GameView/CircuitEditor/CircuitEditorComponent.svelte";
-    import { NotLevel } from "$lib/dat/Levels/Levels";
+    import { NotLevel, Tutorial } from "$lib/dat/Levels/Levels";
     import { CircuitController } from "$lib/circuit_types/CircuitController";
     import { browser } from "$app/environment";
     import TutorialIndicator from "$lib/components/GameView/CircuitEditor/TutorialIndicator.svelte";
     import { onMount } from "svelte";
     import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControllerQueryResult";
+    import { OutputLabelledPrebaked, getGateType } from "$lib/dat/GateTypes/GateTypes";
 
     /**
      * @type {CircuitEditorComponent}
@@ -18,7 +19,7 @@
     let indicator
 
     let params = undefined
-    $: params = browser ? NotLevel.params : undefined
+    $: params = browser ? Tutorial.params : undefined
     /**
      * @type {CircuitController | undefined}
      */
@@ -35,7 +36,15 @@
      *  f:() => void}[]}}
      */
     const eventStages = [
-        {index:{id:0,type:"Output",index:0} ,eventName:"dragstart",f:() => {indicator.setPosition([7.75, 1.25])}}
+        {
+            index:{id:0,type:"Output",index:0},eventName:"dragstart",f:() => {
+                if (circuitController) {
+                    circuitController.addGateAtCell(getGateType(OutputLabelledPrebaked[1]), 8, 2) 
+                    circuitController.setDesiredOutputs([true])
+                    indicator.setPosition([7.75, 1.25])
+                }
+            }
+        }
     ]
     let currentEvent = 0
 
