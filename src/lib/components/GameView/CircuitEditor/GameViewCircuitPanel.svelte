@@ -123,6 +123,7 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
             return
         }
 
+        circuitContainer.removeEventListener("mousemove", onMouseMove)
         circuitContainer.addEventListener("mousemove", onDrag)
         window.addEventListener("mousemove", moveDraggable)
     }
@@ -137,6 +138,7 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
 
         circuitContainer.removeEventListener("mousemove", onDrag)
         window.removeEventListener("mousemove", moveDraggable)
+        circuitContainer.addEventListener("mousemove", onMouseMove)
     }
 
     /**
@@ -411,7 +413,13 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
      */
     function onDragInput(e) {
         const contents = circuitDraggable.getController().getContents()
-        
+        const target = query(e.offsetX, e.offsetY)
+        if (target.type === "Output") {
+            checkEntered(target)
+        }
+        else {
+            checkEntered(new CircuitControllerQueryResult())
+        }
     }
 
     /**
@@ -421,7 +429,13 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
      */
     function onDragOutput(e) {
         const contents = circuitDraggable.getController().getContents()
-        
+        const target = query(e.offsetX, e.offsetY)
+        if (target.type === "Input") {
+            checkEntered(target)
+        }
+        else {
+            checkEntered(new CircuitControllerQueryResult())
+        }
     }
 
     /**
@@ -528,7 +542,6 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
     function onMouseMove(e) {
         const newQ = query(e.offsetX, e.offsetY)
         checkEntered(newQ)
-        currentQuery = newQ
     }
 
     /**
@@ -539,6 +552,7 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
             circuitRenderer.onEntered(q)
             circuitRenderer.onExited(currentQuery)
         }
+        currentQuery = q
     }
  
 </script>
