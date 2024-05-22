@@ -240,29 +240,48 @@ export class CircuitSignalSetView extends SignalSetView<ConnectionValue> impleme
     removeListener(listener: (cond: ConnectionValue[]) => any): boolean {
         return this.signalChangeListeners.delete(listener)
     }
+    dispatch() {
+        if (this.player) {for (let l of this.signalChangeListeners) {
+            l(this.player.getCurrentValue())
+        }}       
+    }
 
-    private ourIterTemplate1(
+    private validateWithOutputs(outputs:ConnectionValue[]) {
+        if (this.circuitIsValid === false) return
+
+        const expectedOutputs = this.getPlayerValue()?.slice(this.signalSet.inputs)
+        if (expectedOutputs === undefined) {
+            this.circuitIsValid = false
+            return
+        }
+        //console.log("validating ", result, " against ", outputs)
+        
+        for (let i = 0; i < expectedOutputs.length; i++) {
+            if (expectedOutputs[i] !== outputs[i]) {
+                this.circuitIsValid = false
+                break
+            }
+        }
+    }
+
+    private ourIterTemplate(
         iter: SignalFrameReader<ConnectionValue>,
+        circuitController:CircuitController,
         currentValue: ConnectionValue[], 
         currentFrame: number, 
         update: boolean, 
         done: boolean
     ) {
+        if (update) {
+            this.validateWithOutputs(circuitController.getOutputs())
+            this.dispatch()
+        }
         iter(currentValue, currentFrame, update, done)
     }
 
-    private ourIterTemplate2(
-        currentValue: ConnectionValue[], 
-        currentFrame: number, 
-        update: boolean, 
-        done: boolean
-    ) {
-
-    }
-
-    startPlayer(iter: SignalFrameReader<ConnectionValue> | undefined, reset:boolean = false) {
-        const ourIter = iter ? (this.ourIterTemplate1).bind(null, iter) : this.ourIterTemplate2
-        super.startPlayer(ourIter, reset)
+    playVerify(circuitController:CircuitController, iter: SignalFrameReader<ConnectionValue>, reset:boolean = false) {
+        const ourIter = (this.ourIterTemplate).bind(this, iter, circuitController)
+        this.startPlayer(ourIter, reset)
     }
 
     forceValidate() {
