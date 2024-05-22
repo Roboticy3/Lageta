@@ -119,7 +119,7 @@
 
         if (atEnd) restart()
 
-        signalSetView.startPlayer(onSignalStep)
+        signalSetView.playVerify(circuitController, onSignalStep)
         playing = true
 
         document.querySelectorAll("input").forEach((n) => n.setAttribute('disabled','disabled'))

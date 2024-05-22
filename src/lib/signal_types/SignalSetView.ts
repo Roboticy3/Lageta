@@ -240,10 +240,8 @@ export class CircuitSignalSetView extends SignalSetView<ConnectionValue> impleme
     removeListener(listener: (cond: ConnectionValue[]) => any): boolean {
         return this.signalChangeListeners.delete(listener)
     }
-    dispatch() {
-        if (this.player) {for (let l of this.signalChangeListeners) {
-            l(this.player.getCurrentValue())
-        }}       
+    dispatch(cond:ConnectionValue[]) {
+       this.signalChangeListeners.forEach((l) => {l(cond)})     
     }
 
     private validateWithOutputs(outputs:ConnectionValue[]) {
@@ -254,14 +252,9 @@ export class CircuitSignalSetView extends SignalSetView<ConnectionValue> impleme
             this.circuitIsValid = false
             return
         }
-        //console.log("validating ", result, " against ", outputs)
+        console.log("validating ", outputs, " against ", expectedOutputs)
         
-        for (let i = 0; i < expectedOutputs.length; i++) {
-            if (expectedOutputs[i] !== outputs[i]) {
-                this.circuitIsValid = false
-                break
-            }
-        }
+        this.circuitIsValid = expectedOutputs.every((v, i) => {return v === outputs[i]})
     }
 
     private ourIterTemplate(
@@ -272,11 +265,12 @@ export class CircuitSignalSetView extends SignalSetView<ConnectionValue> impleme
         update: boolean, 
         done: boolean
     ) {
+        iter(currentValue, currentFrame, update, done)
         if (update) {
             this.validateWithOutputs(circuitController.getOutputs())
-            this.dispatch()
+            this.dispatch(currentValue)
         }
-        iter(currentValue, currentFrame, update, done)
+        console.log("playing signal, valid: ", this.circuitIsValid)
     }
 
     playVerify(circuitController:CircuitController, iter: SignalFrameReader<ConnectionValue>, reset:boolean = false) {
