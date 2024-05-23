@@ -149,21 +149,24 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
         const cType = result.cType
         const gPos = result.gPos
 
-        const gateInner = svgGate(cType, id)
+        const gateInner = svgGateBody(cType, id)
         const gateTransform = svgGridTransform(gPos[0], gPos[1])
+        const idString = gateIdString(id)
         if (svg instanceof SVGElement) {
             svg.setAttribute('transform',gateTransform)
-            svg.innerHTML = gateInner
         }
         else {
-            const idString = gateIdString(id)
-            svg = svgWrapGroup(
-                gateInner,
-                gateTransform,
-                idString
-            )
+            svg = svgWrapGroup('', gateTransform, idString)
             gateGroup.appendChild(svg)
         }
+
+        setChild(svg, svgWrapGroup(gateInner, '', `${idString}-body`))
+        const points =  svgConnectionPoints(cType, id, circuitController.getGateState(id) || cType.generateDefaultState())
+        console.log(points)
+        for (let p of points) {
+            setChild(svg, p)
+        }
+        
 
         for (let i = 0; i < cType.view.sizeOut; i++) {
             updateWire([id, i])
@@ -174,6 +177,18 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
         }
 
         console.log("drawing gate:",id,svg)
+    }
+
+    /**
+     * @param {Element} head
+     * @param {Element} newChild
+     */
+    function setChild(head, newChild) {
+        if (newChild.parentElement === head) return
+        const id = newChild.getAttribute('id')
+        const existing = head.querySelector(`#${id}`)
+        if (existing) head.replaceChild(newChild, existing) //why on earth are the arguments ordered this way? 15 minutes down the drain...
+        else head.appendChild(newChild)
     }
 
     /**
@@ -366,7 +381,7 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
             }
             const transform = svgGridTransform(gPos[0], gPos[1])
             svg.setAttribute('transform', transform)
-            svg.innerHTML = svgGate(cType, id)
+            svg.appendChild(svgWrapGroup(svgGateBody(cType, id)))
             
         }
     }
@@ -444,13 +459,13 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
     function svgLine(fromX, fromY, toX, toY, params="") {
         return `<path d="M ${fromX} ${fromY} L ${toX} ${toY}" ${params} />`
     }
-    
+
     /**
      * @param {GateTypeController} cType
      * @param {number | import("$lib/circuit_types/Gate").GateState | undefined} idOrState
      */
-    function svgGate(cType, idOrState=undefined) {
-        console.log("drawing gate", cType.name, " with data ", idOrState)
+    function svgGateBody(cType, idOrState) {
+        if (rendererParams.showGates === false) return ""
         const state = (typeof idOrState === "object" ? 
             idOrState : 
             (idOrState === undefined ?  
@@ -459,12 +474,7 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
             )
         )
         const id = typeof idOrState === "number" ? idOrState : undefined
-        console.log("gate data: ", state, id)
-            
-        const body = rendererParams.showGates === false ? "" : `<g ${id !== undefined ? `id="${gateIdString(id)}-body` : ''}">${cType.view.draw(state)}</g>`
-        const connectionPoints = (id !== undefined ? `<g>${svgConnectionPoints(cType, id, state)}</g>`:'')
-
-        return body + connectionPoints
+        return cType.view.draw(state)
     }
 
     /**
@@ -487,17 +497,14 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
     }
 
     /**
-     * @param {import("$lib/circuit_types/CircuitController").ConnectionIndex} index
-     * @param {number} offsetX
-     * @param {number} offsetY
      * @param {import("$lib/circuit_types/GateType").ConnectionValue} value
      * @param {string} label
      */
-    function svgConnectionPoint(index, offsetX, offsetY, value = undefined, label = "") {
+    function svgConnectionPoint(value = undefined, label = "") {
         const color = connectionValueToColor(value)
         return `
-<g id=${connectionPointIdString(index)} transform="translate(${offsetX} ${offsetY})"><path d="M -1 -1 l 2 1 l -2 1 Z" stroke-width=".25px" stroke="${color}" /></g>\n
-${rendererParams.showLabels ? `<text x="${4}" y="0" stroke="none" fill="${color}" font-size="0.2em" style="pointer-events:none;">${label}</text>`:""}
+<path d="M -1 -1 l 2 1 l -2 1 Z" stroke-width=".25px" stroke="${color}" />\n
+${rendererParams.showLabels !== false ? `<text x="${4}" y="0" stroke="none" fill="${color}" font-size="0.2em" style="pointer-events:none;">${label}</text>`:""}
         `
     }
 
@@ -506,15 +513,13 @@ ${rendererParams.showLabels ? `<text x="${4}" y="0" stroke="none" fill="${color}
      * @param {import("$lib/circuit_types/GateType").ConnectionValue} value
     */
     export function setConnectionPointDesiredValue(index, value) {
-        const connectionPointGroup = svgHead.querySelector(`#${connectionPointIdString(index)}`)
-        if (connectionPointGroup) {
-            const idString = connectionPointDesiredValueIdString(index)
-            const newIndicator = svgWrapGroup(svgConnectionPointDesiredValue(value), '', idString)
-
-            const existing = connectionPointGroup.querySelector(`#${connectionPointDesiredValueIdString(index)}`)
-            if (existing) connectionPointGroup.removeChild(existing)
-            connectionPointGroup.appendChild(newIndicator)
-        }
+        const pointIdString = connectionPointIdString(index)
+        const point = svgHead.querySelector(`#${pointIdString}`)
+        const parent = point?.parentElement
+        if (!point || !parent) return
+        const transform = point.getAttribute('transform') || ""
+        const inner = svgConnectionPointDesiredValue(value)
+        setChild(parent, svgWrapGroup(inner, transform, connectionPointDesiredValueIdString(index)))
     }
 
     /**
@@ -535,26 +540,22 @@ ${rendererParams.showLabels ? `<text x="${4}" y="0" stroke="none" fill="${color}
      */
     function svgConnectionPoints(cType, id, state) { 
         const inputs = rendererParams.showConnectionPoints === false ? [] : cType.view.inputOffsets.map((o, i) => {
-            return svgConnectionPoint(
-                {id:id, type:"Input", index:i},
-                o[0], o[1], 
+            return svgWrapGroup(svgConnectionPoint(
                 state.override[i], cType.view.inputLabels[i]
-            )
+            ), `translate(${o[0]} ${o[1]})`, connectionPointIdString({id:id, type:"Input", index:i}))
         })
 
         const outState = cType.model.f(state) //temp hack, state should store outputs too
         const outputs =  rendererParams.showConnectionPoints === false ? [] : cType.view.outputOffsets.map((o, i) => {
-            return svgConnectionPoint(
-                {id:id, type:"Output", index:i},
-                o[0], o[1], 
-                outState.override[i], cType.view.outputLabels[i]
-            )
+            return svgWrapGroup(svgConnectionPoint(
+                outState.override[i], cType.view.inputLabels[i]
+            ), `translate(${o[0]} ${o[1]})`, connectionPointIdString({id:id, type:"Output", index:i}))
         })
 
         switch (connectionPointDisplayMode) {
-            case "": return inputs.join('') + outputs.join('')
-            case "Input": return inputs.join('')
-            case "Output": return outputs.join('')
+            case "": return inputs.concat(outputs)
+            case "Input": return inputs
+            case "Output": return outputs
         }
     }
 

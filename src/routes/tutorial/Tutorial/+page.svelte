@@ -55,6 +55,7 @@
             const q = evt.to
             if (q?.contentEquals(stage.index)) stage.f()
         })
+        currentEvent++
     }
 
     onMount(prepareNextEvent)
