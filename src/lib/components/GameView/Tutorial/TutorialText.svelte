@@ -17,13 +17,11 @@
 </script>
 
 <div style="position:absolute; left:{position[0]}%; top:{position[1]}%;">
-    <div style={style}>
-        <div class="tutorial-text">
-            <slot />
-            {#if button }
-                <button>Continue</button>
-            {/if}
-        </div>
+    <div class="tutorial-text" style={style}>
+        <slot />
+        {#if button }
+            <button>Continue</button>
+        {/if}
     </div>
 </div>
 
@@ -42,11 +40,11 @@
 
     @keyframes --position-anim {
         0% {
-            transform:translateY(100%);
+            translate: 0 100%;
         }
 
         100% {
-            transform:translateY(0%);
+            translate: 0 0;
         }
     }
 </style>

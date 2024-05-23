@@ -68,6 +68,7 @@
     position={getPosition()}
     size={[0.5, 0.5]}
     active={true}
+    smooth={true}
     >
     <div>
         <input 

@@ -138,10 +138,11 @@
                     position={[0.65, 1.25]}
                     size={[0.75, 0.25]}
                     active={true}
+                    smooth={true}
                 >
                     <p style="font-size:small">what's this?</p>
                 </CircuitDiv>
-                <TutorialText position={[50, 52]} style={"color:black; transform:scale(2);"}>
+                <TutorialText position={[50, 55]} style={"color:black; transform:scale(2);"}>
                     <p>Voltage!</p>
                 </TutorialText>
             {:else if state.currentEvent === 4}

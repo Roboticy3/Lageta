@@ -107,6 +107,7 @@
         font-size: min(2vh, 2vw);
         color:black;
         overflow: hidden;
+        opacity: 100%;
     }
 
     .unavailable {
@@ -123,11 +124,11 @@
     }
 
     .smooth-circuit-div {
-        transition: left 1s, top 1s;
+        transition: left 1s, top 1s, opacity 1s;
     }
 
     .hidden {
-        visibility: hidden;
+        opacity: 0%;
     }
 
     @keyframes bob-y {
