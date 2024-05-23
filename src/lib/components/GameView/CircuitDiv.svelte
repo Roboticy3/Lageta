@@ -47,9 +47,11 @@
         )
     }
 
-    onMount(() => {
+    onMount(async () => {
         window.addEventListener('load',setOffset)
         window.addEventListener('resize',setOffset)
+        await tick()
+        setOffset()
     })
 
     export function activate() {
@@ -94,6 +96,7 @@
         text-align:center;
         font-size: min(2vh, 2vw);
         color:black;
+        overflow: hidden;
     }
 
     .unavailable {

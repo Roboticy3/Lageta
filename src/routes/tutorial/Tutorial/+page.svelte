@@ -42,7 +42,7 @@
                     evt.to.contentEquals({id:0,type:"Output",index:0}) && 
                     circuitController
                 ) {
-                    console.log("successtaging")
+                    
                     circuitController.addGateAtCell(getGateType(OutputLabelledPrebaked[1]), 8, 2) 
                     circuitController.setDesiredOutputs([true])
                     indicator.setPosition([7.75, 1.25])
@@ -53,30 +53,32 @@
         {
             eventName:"drop",f:(evt) => {
                 if (
-                    evt.to.contentEquals({id:1,type:"Input",index:0}) && 
                     circuitController && 
                     circuitController.getOutputs()[0] === true
                 ) {
-                    console.log("successtaging")
+                    state.showInputCheckboxes = true
+                    state = state
                     prepareNextEvent()
                 }
             }
         }
     ]
-    let currentEvent = 0
 
-    function prepareNextEvent(idx=currentEvent) {
+    let state = {
+        currentEvent:0,
+        showInputCheckboxes:false,
+    }
+
+    function prepareNextEvent(idx=state.currentEvent) {
         const last = eventStages[idx - 1]
         if (last) {
             editor.removeEventListener(last.eventName, last.f)
-            console.log("unstaging", last)
         }
         const stage = eventStages[idx]
         if (stage) {
             editor.addEventListener(stage.eventName, stage.f)
-            console.log("staging", stage)
         }
-        currentEvent++
+        state.currentEvent++
     }
 
     onMount(prepareNextEvent)
@@ -91,7 +93,7 @@
             circuitController={circuitController}
             editorParams={{
                 canDragGates:false,
-                inputCheckBoxes:false
+                inputCheckBoxes:state.showInputCheckboxes
             }}
             rendererParams={{
                 showGrid:false,
@@ -108,11 +110,11 @@
         </CircuitEditorComponent>
     </div>
 
-    {#if currentEvent === 3}
+    {#if state.currentEvent === 3}
         <TutorialText position={[50, 80]}>
             <p>Voltage!</p>
         </TutorialText>
-    {:else if currentEvent === 4}
+    {:else if state.currentEvent === 4}
     {/if}
 {:else if browser}
 <h1 class="fullscreen-message">

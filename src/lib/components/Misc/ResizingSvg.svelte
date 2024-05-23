@@ -52,7 +52,7 @@
 
     function getCurrentScale() {
         const inner = contentGroup.getBBox()
-        return Math.max(outerHeight / inner.height, outerHeight / inner.width)
+        return Math.min(outerHeight / inner.height, outerWidth / inner.width)
     }
 
     /**
