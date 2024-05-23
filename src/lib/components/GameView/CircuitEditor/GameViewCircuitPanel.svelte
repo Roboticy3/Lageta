@@ -50,7 +50,7 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
      * @param {EventListener} listener
      */
     export function removeEventListener(type, listener) {
-        circuitEventTarget.addEventListener(type, listener)
+        circuitEventTarget.removeEventListener(type, listener)
     }
 
     /**

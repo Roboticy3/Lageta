@@ -48,8 +48,8 @@ export class GameViewcircuitPanelEventTarget extends EventTarget {
         options?: EventListenerOptions | boolean,
     ) {
         const set = this.eventMap.get(type)
-        if (set) set.add(listener)
-        else this.eventMap.set(type, new Set())
+        if (set) set.delete(listener)
+        console.log(type, listener, set, this.eventMap)
     }
 }
 

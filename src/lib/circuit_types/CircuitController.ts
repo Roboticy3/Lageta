@@ -578,13 +578,13 @@ export class CircuitController {
     }
 
     getOutputs() {
-        let result:boolean[] = []
+        let result:ConnectionValue[] = []
         for (let g of this.gateGrid.outputs) {
             if (g === undefined) {
                 continue
             }
             result.push(...g.state.override.map((v) => {
-                return v || false
+                return v
             }))
         }
         return result

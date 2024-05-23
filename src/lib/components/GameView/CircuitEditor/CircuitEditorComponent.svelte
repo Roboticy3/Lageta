@@ -62,7 +62,7 @@
      * @param {EventListener} listener
      */
     export function removeEventListener(type, listener) {
-        circuitPanel.addEventListener(type, listener)
+        circuitPanel.removeEventListener(type, listener)
     }
 
     let circuitDraggable

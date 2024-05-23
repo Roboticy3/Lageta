@@ -3,10 +3,11 @@
     import { NotLevel, Tutorial } from "$lib/dat/Levels/Levels";
     import { CircuitController } from "$lib/circuit_types/CircuitController";
     import { browser } from "$app/environment";
-    import TutorialIndicator from "$lib/components/GameView/CircuitEditor/TutorialIndicator.svelte";
+    import TutorialIndicator from "$lib/components/GameView/Tutorial/TutorialIndicator.svelte";
     import { onMount } from "svelte";
     import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControllerQueryResult";
     import { OutputLabelledPrebaked, getGateType } from "$lib/dat/GateTypes/GateTypes";
+    import TutorialText from "$lib/components/GameView/Tutorial/TutorialText.svelte";
 
     /**
      * @type {CircuitEditorComponent}
@@ -30,18 +31,34 @@
     }
 
     /**
-     * @type {{
-     *  index:import("$lib/circuit_types/CircuitController").ConnectionIndex, 
+     * @type {{ 
      *  eventName:import("$lib/circuit_types/GameViewCircuitPanelEvent").GameViewCircuitPanelEventKey, 
-     *  f:() => void}[]}}
+     *  f:(evt:any) => void}[]}}
      */
     const eventStages = [
         {
-            index:{id:0,type:"Output",index:0},eventName:"dragstart",f:() => {
-                if (circuitController) {
+            eventName:"dragstart",f:(evt) => {
+                if (
+                    evt.to.contentEquals({id:0,type:"Output",index:0}) && 
+                    circuitController
+                ) {
+                    console.log("successtaging")
                     circuitController.addGateAtCell(getGateType(OutputLabelledPrebaked[1]), 8, 2) 
                     circuitController.setDesiredOutputs([true])
                     indicator.setPosition([7.75, 1.25])
+                    prepareNextEvent()
+                }
+            }
+        },
+        {
+            eventName:"drop",f:(evt) => {
+                if (
+                    evt.to.contentEquals({id:1,type:"Input",index:0}) && 
+                    circuitController && 
+                    circuitController.getOutputs()[0] === true
+                ) {
+                    console.log("successtaging")
+                    prepareNextEvent()
                 }
             }
         }
@@ -49,12 +66,16 @@
     let currentEvent = 0
 
     function prepareNextEvent(idx=currentEvent) {
+        const last = eventStages[idx - 1]
+        if (last) {
+            editor.removeEventListener(last.eventName, last.f)
+            console.log("unstaging", last)
+        }
         const stage = eventStages[idx]
-        editor.addEventListener(stage.eventName, (evt) => {
-            // @ts-ignore bc types are wild
-            const q = evt.to
-            if (q?.contentEquals(stage.index)) stage.f()
-        })
+        if (stage) {
+            editor.addEventListener(stage.eventName, stage.f)
+            console.log("staging", stage)
+        }
         currentEvent++
     }
 
@@ -86,6 +107,13 @@
             
         </CircuitEditorComponent>
     </div>
+
+    {#if currentEvent === 3}
+        <TutorialText position={[50, 80]}>
+            <p>Voltage!</p>
+        </TutorialText>
+    {:else if currentEvent === 4}
+    {/if}
 {:else if browser}
 <h1 class="fullscreen-message">
     Loading
