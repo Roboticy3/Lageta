@@ -14,14 +14,17 @@
      */
     export let position
 
+    export let smooth = true
+
     /**
      * @type {CircuitDiv}
      */
     let container
 
-    /**
+     /**
+     * @param {[number, number]} newPosition
      */
-     export function setPosition(newPosition) {
+      export function setPosition(newPosition) {
         position = newPosition
         container.setPosition(newPosition)
     } 
@@ -34,6 +37,7 @@
     size={[0.75, 0.75]}
     active={true}
     bob={true}
+    smooth={smooth}
 >
     <div style="justify-content:center;">
         <p>click me!</p>

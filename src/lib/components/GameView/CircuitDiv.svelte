@@ -17,6 +17,8 @@
 
     export let bob = false
 
+    export let smooth = false
+
     /**
      * @type {CircuitController}
      */
@@ -77,7 +79,7 @@
 </script>
 
 <div 
-    class="circuit-div {active ? '':'unavailable'} {bob ? 'bobbing-circuit-div':''}" 
+    class="circuit-div {active ? '':'unavailable'} {bob ? 'bobbing-circuit-div':''} {smooth ? 'smooth-circuit-div':''}" 
     style="left:{start[0]}px; top:{start[1]}px; width:{end[0] - start[0]}px; height:{end[1] - start[1]}px;" 
 >
     <slot/>
@@ -105,6 +107,10 @@
         animation-iteration-count:infinite;
         animation-direction: alternate;
         animation-timing-function: ease-in-out;
+    }
+
+    .smooth-circuit-div {
+        transition: left 1s, top 1s;
     }
 
     @keyframes bob-y {
