@@ -24,10 +24,18 @@
      /**
      * @param {[number, number]} newPosition
      */
-      export function setPosition(newPosition) {
+    export function setPosition(newPosition) {
         position = newPosition
         container.setPosition(newPosition)
     } 
+    
+    export function hide() {
+        container.hide()
+    }
+
+    export function show() {
+        container.show()
+    }
 
 </script>
 <CircuitDiv

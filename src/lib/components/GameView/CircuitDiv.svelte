@@ -19,6 +19,8 @@
 
     export let smooth = false
 
+    export let hidden = false
+
     /**
      * @type {CircuitController}
      */
@@ -78,10 +80,18 @@
         setOffset()
         console.log(start, end)
     }
+
+    export function hide() {
+        hidden = true
+    }
+    
+    export function show() {
+        hidden = false
+    }
 </script>
 
 <div 
-    class="circuit-div {active ? '':'unavailable'} {bob ? 'bobbing-circuit-div':''} {smooth ? 'smooth-circuit-div':''}" 
+    class="circuit-div {hidden ? 'hidden':''} {active ? '':'unavailable'} {bob ? 'bobbing-circuit-div':''} {smooth ? 'smooth-circuit-div':''}" 
     style="left:{start[0]}px; top:{start[1]}px; width:{end[0] - start[0]}px; height:{end[1] - start[1]}px;" 
 >
     <slot/>
@@ -114,6 +124,10 @@
 
     .smooth-circuit-div {
         transition: left 1s, top 1s;
+    }
+
+    .hidden {
+        visibility: hidden;
     }
 
     @keyframes bob-y {

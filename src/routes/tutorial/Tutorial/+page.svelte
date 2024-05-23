@@ -8,6 +8,7 @@
     import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControllerQueryResult";
     import { OutputLabelledPrebaked, getGateType } from "$lib/dat/GateTypes/GateTypes";
     import TutorialText from "$lib/components/GameView/Tutorial/TutorialText.svelte";
+    import CircuitDiv from "$lib/components/GameView/CircuitDiv.svelte";
 
     /**
      * @type {CircuitEditorComponent}
@@ -31,8 +32,10 @@
     }
 
     /**
+     * Events can either be of a type that can listen to GameViewCircuitPanel (i.e. GameViewCircuitPanelEventKey),
+     * or of an additional custom type to listen for things outside of the circuit (i.e. clicking the continue button on tutorial text)
      * @type {{ 
-     *  eventName:import("$lib/circuit_types/GameViewCircuitPanelEvent").GameViewCircuitPanelEventKey, 
+     *  eventName:import("$lib/circuit_types/GameViewCircuitPanelEvent").GameViewCircuitPanelEventKey | "continue", 
      *  f:(evt:any) => void}[]}}
      */
     const eventStages = [
@@ -56,10 +59,16 @@
                     circuitController && 
                     circuitController.getOutputs()[0] === true
                 ) {
+                    indicator.hide()
                     state.showInputCheckboxes = true
                     state = state
                     prepareNextEvent()
                 }
+            }
+        },
+        {
+            eventName:"continue",f:(evt) => {
+
             }
         }
     ]
@@ -70,15 +79,31 @@
     }
 
     function prepareNextEvent(idx=state.currentEvent) {
-        const last = eventStages[idx - 1]
-        if (last) {
-            editor.removeEventListener(last.eventName, last.f)
-        }
-        const stage = eventStages[idx]
-        if (stage) {
-            editor.addEventListener(stage.eventName, stage.f)
-        }
+        unstageEvent(idx - 1)
+        stageEvent(idx)
         state.currentEvent++
+    }
+
+    /**
+     * @param {number} idx
+     */
+    function stageEvent(idx) {
+        const stage = eventStages[idx]
+        if (stage) switch (stage.eventName) {
+            case "continue": break;
+            default: editor.addEventListener(stage.eventName, stage.f)
+        }
+    }
+
+    /**
+     * @param {number} idx
+     */
+    function unstageEvent(idx) {
+        const stage = eventStages[idx]
+        if (stage) switch (stage.eventName) {
+            case "continue": break;
+            default: editor.removeEventListener(stage.eventName, stage.f)
+        }
     }
 
     onMount(prepareNextEvent)
@@ -106,16 +131,26 @@
                 circuitController={circuitController}
                 position={[1.35, 1.25]}
             />
+
+            {#if state.currentEvent === 3}
+                <CircuitDiv
+                    circuitController={circuitController}
+                    position={[0.65, 1.25]}
+                    size={[0.75, 0.25]}
+                    active={true}
+                >
+                    <p style="font-size:small">what's this?</p>
+                </CircuitDiv>
+                <TutorialText position={[50, 52]} style={"color:black; transform:scale(2);"}>
+                    <p>Voltage!</p>
+                </TutorialText>
+            {:else if state.currentEvent === 4}
+            {/if}
             
         </CircuitEditorComponent>
     </div>
 
-    {#if state.currentEvent === 3}
-        <TutorialText position={[50, 80]}>
-            <p>Voltage!</p>
-        </TutorialText>
-    {:else if state.currentEvent === 4}
-    {/if}
+    
 {:else if browser}
 <h1 class="fullscreen-message">
     Loading
