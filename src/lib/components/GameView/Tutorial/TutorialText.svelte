@@ -6,8 +6,6 @@
     export let showButton = true
     export let position = [50, 50]
 
-    export let style = ""
-
     /**
      * @param {number} pX
      * @param {number} pY
@@ -18,26 +16,38 @@
     }
 </script>
 
-<div style="position:absolute; left:{position[0]}%; top:{position[1]}%; pointer-events:none;">
-    <div class="tutorial-text" style={style}>
+<div class="tutorial-container" style="position:absolute; left:{position[0]}%; top:{position[1]}%;">
+    <div class="tutorial-text">
         <slot />
-        {#if showButton }
-            <button on:click={() => {dispatch('continue', 'ev')}} style="pointer-events:initial;">Continue</button>
-        {/if}
     </div>
+    {#if showButton }
+        <button class="tutorial-continue" on:click={() => {dispatch('continue', 'ev')}}>Continue</button>
+    {/if}
 </div>
 
 <style>
-    .tutorial-text {
+    .tutorial-container {
+        pointer-events:none;
+        display:flex;
+        flex-direction: column;
         transition: left 1s, top 1s;
         animation-name: --position-anim;
         animation-duration: 1s;
+    }
+
+    .tutorial-text {
         position:relative;
+        font-size:large;
         left:-50%;
-        display:flex;
-        flex-direction: column;
-        justify-content: center;
-        font-size: xx-large;
+        scale:1.5;
+    }
+
+    .tutorial-continue {
+        position:relative;
+        pointer-events:initial;
+        display: inline-flex;
+        align-self: center;
+        left:-50%;
     }
 
     @keyframes --position-anim {

@@ -567,6 +567,7 @@ export class CircuitController {
 
     setInput(index:[number, number], val:boolean) {
         this.gateGrid.graph.setFlow(index, val)
+        this.renderer?.updateGate(index[0])
     }
 
     setInputs(val:ConnectionValue[]) {
@@ -707,9 +708,12 @@ export class CircuitController {
     }
 
     setDesiredConnectionValues(
-        data:{index:ConnectionIndex, value:ConnectionValue}[]
+        data:{index:ConnectionIndex, value:ConnectionValue}[] | undefined = undefined
     ) {
-        
+        if (!data) {
+            this.renderer.clearConnectionPointDesiredValues()
+            return
+        }
         if (this.renderer) { data.forEach((v) => {
             this.renderer.setConnectionPointDesiredValue(v.index, v.value)
         }) }

@@ -15,6 +15,7 @@
     import { Input } from "$lib/dat/GateTypes/GateTypes";
     import { browser } from "$app/environment";
     import CircuitEditorComponent from "../GameView/CircuitEditor/CircuitEditorComponent.svelte";
+    import { GameViewCircuitPanelEventTarget } from "$lib/circuit_types/GameViewCircuitPanelEvent";
 
     const gridWidth = 15
     const gridHeight = 10
@@ -33,9 +34,11 @@
     
     onMount(() => {
         circuitController.addGateAtCell(Input(1, {name:"LevelSelectInput1", inputLabels:[""]}), 1, 1)
+        circuitEventTarget.addEventListener("setinput", readInputCheckBox)
     })
 
-    let circuitController = gameParams.initializeGrid()
+    const circuitController = gameParams.initializeGrid()
+    const circuitEventTarget = new GameViewCircuitPanelEventTarget()
 
     /**
      * @type {InputCheckBox}
@@ -59,9 +62,9 @@
         {/each}
 
         <InputCheckBox 
+            circuitEventTarget={circuitEventTarget}
             gridController={circuitController} 
             from={[0,0]}
-            onChangeListener={readInputCheckBox}
             bind:this={inputCheckBox}
         />
 

@@ -522,6 +522,13 @@ ${rendererParams.showLabels !== false ? `<text x="${4}" y="0" stroke="none" fill
         setChild(parent, svgWrapGroup(inner, transform, connectionPointDesiredValueIdString(index)))
     }
 
+    export function clearConnectionPointDesiredValues() {
+        const indicators = svgHead.querySelectorAll('[id^="point-target-"]')
+        for (let element of indicators) {
+            element.remove()
+        }
+    }
+
     /**
      * 
      * @param {import("$lib/circuit_types/GateType").ConnectionValue} value

@@ -95,7 +95,18 @@
                     prepareNextEvent()
                 }
             }
-        }
+        },
+        {
+            eventName:"setinput",f:(evt) => {
+                if (
+                    circuitController &&
+                    circuitController.getOutputs()[0] === false
+                ) {
+                    circuitController.setDesiredConnectionValues()
+                    prepareNextEvent()
+                } 
+            }
+        },
     ]
 
     let state = {
@@ -177,18 +188,25 @@
                     active={true}
                     smooth={true}
                 >
-                    <p style="scale:0.5">what's this?</p>
+                    <p style="scale:0.75">what's this?</p>
                 </CircuitDiv>
                 <!--Gross multi-binds, let's see if this works!-->
                 <TutorialText 
                     position={[50, 55]} 
-                    style={"color:black; scale:2;"}
                     on:continue={onContinue}
                 >
-                    <p>Voltage!</p>
+                    <p style="font-size:xx-large; color:black;">Voltage!</p>
                 </TutorialText>
             {:else if state.currentEvent === 5}
-                
+                <TutorialText 
+                    position={[50, 70]} 
+                >
+                    <p style="color:black; font-size:x-large;">At any connection point, voltage can be
+                        <span style="color:var(--connection-color-on)">high</span>,
+                        <span style="color:var(--connection-color-off)">low</span>,
+                        or <span style="color:var(--connection-color-x)">neither</span>.
+                    </p>
+                </TutorialText>
             {/if}
             
         </CircuitEditorComponent>

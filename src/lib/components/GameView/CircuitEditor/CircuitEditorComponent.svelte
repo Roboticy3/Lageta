@@ -51,7 +51,7 @@
 
     /**
      * @param {import("$lib/circuit_types/GameViewCircuitPanelEvent").GameViewCircuitPanelEventKey} type
-     * @param {EventListener} listener
+     * @param {import("$lib/circuit_types/GameViewCircuitPanelEvent").GameViewCircuitPanelEventListener} listener
      */
      export function addEventListener(type, listener) {
         circuitPanel.addEventListener(type, listener)
@@ -59,7 +59,7 @@
 
     /**
      * @param {import("$lib/circuit_types/GameViewCircuitPanelEvent").GameViewCircuitPanelEventKey} type
-     * @param {EventListener} listener
+     * @param {import("$lib/circuit_types/GameViewCircuitPanelEvent").GameViewCircuitPanelEventListener} listener
      */
     export function removeEventListener(type, listener) {
         circuitPanel.removeEventListener(type, listener)

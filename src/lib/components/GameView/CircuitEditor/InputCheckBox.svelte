@@ -5,12 +5,19 @@
     import { CircuitController } from "$lib/circuit_types/CircuitController";
     import { onMount, tick } from "svelte";
     import CircuitDiv from "../CircuitDiv.svelte";
+    import { GameViewCircuitPanelEventTarget, createGameViewCircuitPanelEvent } from "$lib/circuit_types/GameViewCircuitPanelEvent";
+    import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControllerQueryResult";
 
     
     /**
      * @type {HTMLInputElement}
      */
     let checkbox
+
+    /**
+     * @type {GameViewCircuitPanelEventTarget}
+     */
+     export let circuitEventTarget
 
     /**
      * @type {CircuitController}
@@ -34,17 +41,16 @@
         }
     })
 
-    export let onChangeListener = () => {}
-
     function onChange() {
         if (from === null) {
             return
         }
         if (gridController) {
             gridController.setInput(from, checkbox.checked)
-            gridController.getRenderer().updateGate(from[0])
         }
-        onChangeListener()
+        
+        const q = gridController.toQuery(from[0], "Input", from[1])
+        circuitEventTarget.dispatchEvent(createGameViewCircuitPanelEvent("setinput", q, q, checkbox))
     }
 
     export function isChecked() {
