@@ -1,7 +1,7 @@
 import { CustomEventTarget, createCustomEvent, type CustomEventListener } from "$lib/misc_types/CustomEventSystem"
 import { CircuitControllerQueryResult, type CircuitControllerQueryResultContentType } from "./CircuitControllerQueryResult"
 
-export type GameViewCircuitPanelEventKey = "dragstart" | "drag" | "drop" | "setinput"
+export type GameViewCircuitPanelEventKey = "dragstart" | "drag" | "drop" | "setinput" | "changed"
 
 export interface GameViewCircuitPanelEvent {
     from:CircuitControllerQueryResult

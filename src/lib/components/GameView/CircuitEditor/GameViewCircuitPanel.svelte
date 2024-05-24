@@ -238,11 +238,10 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
 
         let q = query
         //if so, "consume" the wire, deleting its connection and starting an active wire from the same output as the original
-        if (connected) {
+        if (connected && circuitContainer) {
 
             //we can coerce the onDrag functions to do circuitController by simply switching out the query for one originating from the output
             q = toQuery(connected[0], "Output", connected[1], circuitController)   
-            console.log(q)
             //then we can delete the old connection
             circuitController.removeConnection(
                 {id:index[0], type:"Input", index:index[1]}
@@ -250,6 +249,12 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
 
             //tell onDragStartOutput it's business as usual and pretend we didn't do any of circuitController nonsense behind its back
             onDragStartOutput(e, q)
+
+            circuitEventTarget.dispatchEvent(createGameViewCircuitPanelEvent(
+                "changed",
+                q, q,
+                circuitContainer
+            ))
 
             return
         }
@@ -351,13 +356,12 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
         }
         
         if (circuitContainer && editorParams.dispatchEvents !== false) {
-            const evt = createGameViewCircuitPanelEvent(
+            circuitEventTarget.dispatchEvent(createGameViewCircuitPanelEvent(
                 "drag", 
                 circuitDraggable.getController().getContents(), 
                 query(e.offsetX, e.offsetY), 
                 circuitContainer
-            )
-            circuitEventTarget.dispatchEvent(evt)
+            ))
         }
 
         console.log("Dragging...")
@@ -466,10 +470,15 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
         }
 
         if (circuitContainer && editorParams.dispatchEvents !== false) {
-            const evt = createGameViewCircuitPanelEvent(
+            circuitEventTarget.dispatchEvent(createGameViewCircuitPanelEvent(
                 "drop", source, q, circuitContainer
-            )
-            circuitEventTarget.dispatchEvent(evt)
+            ))
+            circuitEventTarget.dispatchEvent(createGameViewCircuitPanelEvent(
+                "changed",
+                circuitDraggable.getController().getContents(), 
+                query(e.offsetX, e.offsetY), 
+                circuitContainer
+            ))
         }
         
         removeMouseMoveListener()

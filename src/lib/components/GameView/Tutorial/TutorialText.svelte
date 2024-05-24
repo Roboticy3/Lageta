@@ -4,6 +4,7 @@
     const dispatch = createEventDispatcher()
 
     export let showButton = true
+    export let availableButton = true
     export let position = [50, 50]
 
     /**
@@ -21,7 +22,7 @@
         <slot />
     </div>
     {#if showButton }
-        <button class="tutorial-continue" on:click={() => {dispatch('continue', 'ev')}}>Continue</button>
+        <button class="tutorial-continue {availableButton ? '':'unavailable'}" on:click={() => {dispatch('continue', 'ev')}}>Continue</button>
     {/if}
 </div>
 
@@ -48,6 +49,11 @@
         display: inline-flex;
         align-self: center;
         left:-50%;
+    }
+
+    .unavailable {
+        filter:blur(2px) brightness(50%);
+        pointer-events: none;
     }
 
     @keyframes --position-anim {

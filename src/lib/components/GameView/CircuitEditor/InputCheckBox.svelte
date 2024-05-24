@@ -51,6 +51,7 @@
         
         const q = gridController.toQuery(from[0], "Input", from[1])
         circuitEventTarget.dispatchEvent(createGameViewCircuitPanelEvent("setinput", q, q, checkbox))
+        circuitEventTarget.dispatchEvent(createGameViewCircuitPanelEvent("changed", q, q, checkbox))
     }
 
     export function isChecked() {

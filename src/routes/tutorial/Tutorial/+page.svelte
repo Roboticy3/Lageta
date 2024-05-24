@@ -87,7 +87,8 @@
         {
             eventName:"continue",f:(evt) => {
                 if (
-                    circuitController
+                    circuitController &&
+                    circuitController.getOutputs()[0] === true
                 ) {
                     circuitController.setDesiredOutputs([false])
                     indicators[0]?.show()
@@ -107,11 +108,44 @@
                 } 
             }
         },
+        {
+            eventName:"continue",f:(evt) => {
+                if (
+                    circuitController
+                ) {
+                    indicators[0]?.setPosition([7.75, 1.25])
+                    prepareNextEvent()
+                } 
+            }
+        },
+        {
+            eventName:"dragstart",f:(evt) => {
+                if (
+                    circuitController &&
+                    circuitController.getOutputs()[0] === undefined
+                ) {   
+                    indicators[0]?.hide()        
+                    prepareNextEvent()
+                } 
+            }
+        },
+        {
+            eventName:"drop",f:(evt) => {
+                if (
+                    circuitController &&
+                    circuitController.getOutputs()[0] === undefined
+                ) {               
+                    prepareNextEvent()
+                } 
+            }
+        }
     ]
 
     let state = {
         currentEvent:0,
         showInputCheckboxes:false,
+        inputValueLabel:"<p>",
+        outputValueLabel:"neither"
     }
 
     function prepareNextEvent() {
@@ -154,7 +188,24 @@
         tutorialEventTarget.dispatchEvent(e)
     }
 
-    onMount(prepareNextEvent)
+    const valueLabelOptions = new Map([
+        [true, `<p style="color:var(--connection-color-on);">high</p>`],
+        [false, `<p style="color:var(--connection-color-off);">low</p>`],
+        [undefined, `<p style="color:var(--connection-color-x);">neither</p>`]
+    ])
+
+    function setValueLabels() {
+        const inputValue = circuitController?.getConnectionValue({id:0, type:"Output", index:0})
+        const outputValue = circuitController?.getConnectionValue({id:1, type:"Input", index:0})
+        state.inputValueLabel = valueLabelOptions.get(inputValue) || ""
+        state.outputValueLabel = valueLabelOptions.get(outputValue) || ""
+        state = state
+    }
+
+    onMount(() => {
+        prepareNextEvent()
+        editor.addEventListener("changed", setValueLabels)
+    })
 
 </script>
 
@@ -180,6 +231,76 @@
                 position={[1.35, 1.25]}
             />
 
+            {#if state.currentEvent === 8} 
+                <TutorialText 
+                    position={[50, 10]} 
+                    showButton={false}
+                    on:continue={onContinue}
+                >
+                    <p style="color:black; font-size:x-large;">
+                        Are you ready to solve some puzzles?
+                    </p>
+                    <p>
+                        (Reconnect the points to continue)
+                    </p>
+                </TutorialText>
+            {/if}
+
+            {#if state.currentEvent === 7} 
+                <TutorialText 
+                    position={[50, 10]} 
+                    showButton={false}
+                    on:continue={onContinue}
+                >
+                    <p style="color:black; font-size:x-large;">
+                        Click on any blank space to delete a wire.
+                    </p>
+                </TutorialText>
+            {/if}
+
+            {#if state.currentEvent >= 6 && state.currentEvent <= 7}
+                <TutorialText 
+                    position={[50, 70]} 
+                    on:continue={onContinue}
+                >
+                    <p style="color:black; font-size:x-large;">
+                        When points are not connected to anything, they have
+                        <span style="color:var(--connection-color-x)">neither</span>
+                        high or low voltage.
+                    </p>
+                </TutorialText>
+            {/if}
+
+            {#if state.currentEvent === 5}
+                <TutorialText 
+                    position={[50, 70]} 
+                    showButton={true}
+                    on:continue={onContinue}
+                >
+                    <p style="color:black; font-size:x-large;">At any connection point, voltage can be
+                        <span style="color:var(--connection-color-on)">high</span>,
+                        <span style="color:var(--connection-color-off)">low</span>,
+                        or <span style="color:var(--connection-color-x)">neither</span>.
+                    </p>
+                </TutorialText>
+                <CircuitDiv 
+                    position={[1.35, 1.85]} 
+                    circuitController={circuitController}
+                    size={[1, 0.25]}
+                    active={true}
+                >
+                    {@html state.inputValueLabel}
+                </CircuitDiv>
+                <CircuitDiv 
+                    position={[7.45, 2.75]} 
+                    circuitController={circuitController}
+                    size={[1, 0.25]}
+                    active={true}
+                >
+                    {@html state.outputValueLabel}
+                </CircuitDiv>
+            {/if}
+
             {#if state.currentEvent === 3}
                 <CircuitDiv
                     circuitController={circuitController}
@@ -193,19 +314,10 @@
                 <!--Gross multi-binds, let's see if this works!-->
                 <TutorialText 
                     position={[50, 55]} 
+                    availableButton={state.outputValueLabel === valueLabelOptions.get(true)}
                     on:continue={onContinue}
                 >
                     <p style="font-size:xx-large; color:black;">Voltage!</p>
-                </TutorialText>
-            {:else if state.currentEvent === 5}
-                <TutorialText 
-                    position={[50, 70]} 
-                >
-                    <p style="color:black; font-size:x-large;">At any connection point, voltage can be
-                        <span style="color:var(--connection-color-on)">high</span>,
-                        <span style="color:var(--connection-color-off)">low</span>,
-                        or <span style="color:var(--connection-color-x)">neither</span>.
-                    </p>
                 </TutorialText>
             {/if}
             
@@ -223,5 +335,6 @@
     .level-panel {
         width:100%;
         height:100%;
+        transition: stroke 1s;
     }
 </style>

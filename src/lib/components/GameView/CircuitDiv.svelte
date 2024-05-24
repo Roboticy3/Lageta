@@ -113,6 +113,7 @@
     .unavailable {
         filter:blur(2px) brightness(50%);
         pointer-events: none;
+        
     }
 
     .bobbing-circuit-div {
