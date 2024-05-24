@@ -11,7 +11,7 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
     import { Buf, Input, all_gates, getGateType } from '$lib/dat/GateTypes/GateTypes';
     import InputCheckBox from './InputCheckBox.svelte';
     import { GateTypeController } from '$lib/circuit_types/GateType';
-    import { GameViewcircuitPanelEventTarget, createGameViewCircuitPanelEvent } from '$lib/circuit_types/GameViewCircuitPanelEvent';
+    import { GameViewCircuitPanelEventTarget, createGameViewCircuitPanelEvent } from '$lib/circuit_types/GameViewCircuitPanelEvent';
 
     /**
      * @type {GameViewParameters}
@@ -35,11 +35,11 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
      */
     let circuitContainer = null;
 
-    let circuitEventTarget = new GameViewcircuitPanelEventTarget()
+    const circuitEventTarget = new GameViewCircuitPanelEventTarget()
 
     /**
      * @param {import("$lib/circuit_types/GameViewCircuitPanelEvent").GameViewCircuitPanelEventKey} type
-     * @param {EventListener} listener
+     * @param {import('$lib/circuit_types/GameViewCircuitPanelEvent').GameViewCircuitPanelEventListener} listener
      */
     export function addEventListener(type, listener) {
         circuitEventTarget.addEventListener(type, listener)
@@ -47,7 +47,7 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
 
     /**
      * @param {import("$lib/circuit_types/GameViewCircuitPanelEvent").GameViewCircuitPanelEventKey} type
-     * @param {EventListener} listener
+     * @param {import('$lib/circuit_types/GameViewCircuitPanelEvent').GameViewCircuitPanelEventListener} listener
      */
     export function removeEventListener(type, listener) {
         circuitEventTarget.removeEventListener(type, listener)

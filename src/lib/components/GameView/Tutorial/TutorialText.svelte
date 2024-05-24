@@ -1,7 +1,9 @@
 <script>
-    import { onMount, tick } from "svelte";
+    import { createEventDispatcher, onMount, tick } from "svelte";
 
-    export let button = true
+    const dispatch = createEventDispatcher()
+
+    export let showButton = true
     export let position = [50, 50]
 
     export let style = ""
@@ -16,11 +18,11 @@
     }
 </script>
 
-<div style="position:absolute; left:{position[0]}%; top:{position[1]}%;">
+<div style="position:absolute; left:{position[0]}%; top:{position[1]}%; pointer-events:none;">
     <div class="tutorial-text" style={style}>
         <slot />
-        {#if button }
-            <button>Continue</button>
+        {#if showButton }
+            <button on:click={() => {dispatch('continue', 'ev')}} style="pointer-events:initial;">Continue</button>
         {/if}
     </div>
 </div>

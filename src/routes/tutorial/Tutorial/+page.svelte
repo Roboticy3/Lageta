@@ -4,11 +4,12 @@
     import { CircuitController } from "$lib/circuit_types/CircuitController";
     import { browser } from "$app/environment";
     import TutorialIndicator from "$lib/components/GameView/Tutorial/TutorialIndicator.svelte";
-    import { onMount } from "svelte";
+    import { createEventDispatcher, onMount } from "svelte";
     import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControllerQueryResult";
     import { OutputLabelledPrebaked, getGateType } from "$lib/dat/GateTypes/GateTypes";
     import TutorialText from "$lib/components/GameView/Tutorial/TutorialText.svelte";
     import CircuitDiv from "$lib/components/GameView/CircuitDiv.svelte";
+    import { TutorialEventTarget } from "$lib/tutorial_types/TutorialEvent";
 
     /**
      * @type {CircuitEditorComponent}
@@ -16,9 +17,27 @@
     let editor
 
     /**
-     * @type {TutorialIndicator}
+     * @type {(TutorialIndicator | undefined)[]}
      */
-    let indicator
+    let indicators = new Array(2)
+
+    const tutorialEventTarget = new TutorialEventTarget()
+
+    /**
+     * @param {import("$lib/tutorial_types/TutorialEvent").TutorialEventKey} type
+     * @param {import("$lib/tutorial_types/TutorialEvent").TutorialEventListener} listener
+     */
+    function addTutorialEventListener(type, listener) {
+        tutorialEventTarget.addEventListener(type, listener)
+    }
+
+    /**
+     * @param {import("$lib/tutorial_types/TutorialEvent").TutorialEventKey} type
+     * @param {import("$lib/tutorial_types/TutorialEvent").TutorialEventListener} listener
+     */
+     function removeTutorialEventListener(type, listener) {
+        tutorialEventTarget.removeEventListener(type, listener)
+    }
 
     let params = undefined
     $: params = browser ? Tutorial.params : undefined
@@ -48,7 +67,7 @@
                     
                     circuitController.addGateAtCell(getGateType(OutputLabelledPrebaked[1]), 8, 2) 
                     circuitController.setDesiredOutputs([true])
-                    indicator.setPosition([7.75, 1.25])
+                    indicators[0]?.setPosition([7.75, 1.25])
                     prepareNextEvent()
                 }
             }
@@ -59,16 +78,22 @@
                     circuitController && 
                     circuitController.getOutputs()[0] === true
                 ) {
-                    indicator.hide()
+                    indicators[0]?.hide()
                     state.showInputCheckboxes = true
-                    state = state
                     prepareNextEvent()
                 }
             }
         },
         {
             eventName:"continue",f:(evt) => {
-
+                if (
+                    circuitController
+                ) {
+                    circuitController.setDesiredOutputs([false])
+                    indicators[0]?.show()
+                    indicators[0]?.setPosition([0.65, 0.75])
+                    prepareNextEvent()
+                }
             }
         }
     ]
@@ -78,10 +103,11 @@
         showInputCheckboxes:false,
     }
 
-    function prepareNextEvent(idx=state.currentEvent) {
-        unstageEvent(idx - 1)
-        stageEvent(idx)
+    function prepareNextEvent() {
         state.currentEvent++
+        unstageEvent(state.currentEvent - 2)
+        stageEvent(state.currentEvent - 1)
+        state = state
     }
 
     /**
@@ -90,7 +116,9 @@
     function stageEvent(idx) {
         const stage = eventStages[idx]
         if (stage) switch (stage.eventName) {
-            case "continue": break;
+            case "continue":
+                addTutorialEventListener("continue", stage.f)
+                break;
             default: editor.addEventListener(stage.eventName, stage.f)
         }
     }
@@ -101,9 +129,18 @@
     function unstageEvent(idx) {
         const stage = eventStages[idx]
         if (stage) switch (stage.eventName) {
-            case "continue": break;
+            case "continue": 
+                removeTutorialEventListener("continue", stage.f)
+                break;
             default: editor.removeEventListener(stage.eventName, stage.f)
         }
+    }
+
+    /**
+     * @param {any} e
+     */
+    function onContinue(e) {
+        tutorialEventTarget.dispatchEvent(e)
     }
 
     onMount(prepareNextEvent)
@@ -127,7 +164,7 @@
             }}
         >
             <TutorialIndicator 
-                bind:this={indicator}
+                bind:this={indicators[0]}
                 circuitController={circuitController}
                 position={[1.35, 1.25]}
             />
@@ -140,12 +177,18 @@
                     active={true}
                     smooth={true}
                 >
-                    <p style="font-size:small">what's this?</p>
+                    <p style="scale:0.5">what's this?</p>
                 </CircuitDiv>
-                <TutorialText position={[50, 55]} style={"color:black; transform:scale(2);"}>
+                <!--Gross multi-binds, let's see if this works!-->
+                <TutorialText 
+                    position={[50, 55]} 
+                    style={"color:black; scale:2;"}
+                    on:continue={onContinue}
+                >
                     <p>Voltage!</p>
                 </TutorialText>
-            {:else if state.currentEvent === 4}
+            {:else if state.currentEvent === 5}
+                
             {/if}
             
         </CircuitEditorComponent>
