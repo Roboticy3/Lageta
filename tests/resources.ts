@@ -16,15 +16,6 @@ export async function gotoTutorial(page:Page) {
     await page.waitForURL(/Tutorial/)
 }
 
-export async function clickCircuit(page:Page, element:Locator) {
-    await element.boundingBox().then((bbox) => {
-        if (!bbox) return
-        const center = [bbox.x + bbox.width / 2, bbox.y + bbox.height / 2]
-        page.mouse.click(center[0], center[1])
-    })
-    
-}
-
 export async function locateConnectionPoint(page:Page, index:ConnectionIndex) {
     const idSpace = new CircuitRendererIDStandard()
     return await page.locator(`#${idSpace.connectionPointIdString(index)}`)
