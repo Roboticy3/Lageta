@@ -1,5 +1,5 @@
 <script>
-    import { onMount } from "svelte";
+    import { onMount, tick } from "svelte";
     import { compose, scale, translate } from "transformation-matrix";
 
     export let [offsetX, offsetY] = [0, 0]
@@ -75,9 +75,13 @@
         return translated
     }
 
-    onMount(() => {
+    onMount(async () => {
         window.addEventListener('resize', correct)
         window.addEventListener('load', correct)
+
+        await tick()
+
+        correct()
     })
 
     export function getMatrix() {
