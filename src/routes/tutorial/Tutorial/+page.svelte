@@ -98,7 +98,7 @@
             }
         },
         {
-            eventName:"setinput",f:(evt) => {
+            eventName:"changed",f:(evt) => {
                 if (
                     circuitController &&
                     circuitController.getOutputs()[0] === false

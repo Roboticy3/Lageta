@@ -91,3 +91,39 @@ test('tutorial progression 3C', async ({ page }) => {
     await page.getByTestId('continue').click()
     await expect(page.getByText(/Voltage!/)).toHaveCount(0)
 })
+
+async function step4(page:Page) {
+    await step3(page)
+    await page.getByRole('checkbox').click()
+}
+
+test('tutorial progression 4', async ({ page }) => {
+    await gotoTutorial(page)
+
+    await step4(page)
+
+    await expect(page.getByText('low', { exact:true })).toHaveCount(3)
+})
+
+//delete the wire by clicking first on the output connection point and then on the input
+async function stepm2(page:Page) {
+    const secondConnectionPoint = await locateConnectionPoint(page, {id:1, type:"Input", index:0})
+    await secondConnectionPoint.click({force:true})
+    const firstConnectionPoint = await locateConnectionPoint(page, {id:0, type:"Output", index:0})
+    await firstConnectionPoint.click({force:true})
+}
+
+/**
+ * Modify step 4 to remove the wire, then click the checkbox, then reconnect the wire
+ */
+test('tutorial progression 4A', async ({ page }) => {
+    await gotoTutorial(page)
+
+    await step3(page)
+
+    await stepm2(page)
+    await page.getByRole('checkbox').click()
+    await step2(page)
+
+    await expect(page.getByText('low', { exact:true })).toHaveCount(3)
+})
