@@ -97,6 +97,9 @@ async function step4(page:Page) {
     await page.getByRole('checkbox').click()
 }
 
+/**
+ * There are 3 "low"s exactly, because the "low" in the instructions is wrapped by a span to change its color, making it an "exact" low as well as the two on the circuit
+ */
 test('tutorial progression 4', async ({ page }) => {
     await gotoTutorial(page)
 
@@ -126,4 +129,83 @@ test('tutorial progression 4A', async ({ page }) => {
     await step2(page)
 
     await expect(page.getByText('low', { exact:true })).toHaveCount(3)
+    await expect(page.getByText('high', { exact:true })).toHaveCount(1)
+    await expect(page.getByText('neither', { exact:true })).toHaveCount(1)
+})
+
+async function step5(page:Page) {
+    await step4(page)
+    await page.getByTestId('continue').click()
+}
+
+test('tutorial progression 5', async ({ page }) => {
+    await gotoTutorial(page)
+
+    await step5(page)
+
+    await expect(page.getByText('neither', { exact:true })).toHaveCount(1)
+})
+
+/**
+ * Step 5 should still progress as expected if the wire is deleted
+ * 
+ * After disconnecting the wire, there should be two "neither"s on screen, one for the output and one for the instructions
+ */
+test('tutorial progression 5A', async ({ page }) => {
+    await gotoTutorial(page)
+
+    await step4(page)
+
+    await stepm2(page)
+
+    await expect(page.getByText('low', { exact:true })).toHaveCount(2)
+    await expect(page.getByText('high', { exact:true })).toHaveCount(1)
+    await expect(page.getByText('neither', { exact:true })).toHaveCount(2)
+
+    await page.getByTestId('continue').click()
+
+    await expect(page.getByText('neither', { exact:true })).toHaveCount(1)
+})
+
+/**
+ * Step 5 should still progress as expected if the checkbox is set to true
+ * 
+ * After clicking the checkbox, there should be 3 "high"s on screen, two for the input and output and one for the instructions
+ */
+test('tutorial progression 5B', async ({ page }) => {
+    await gotoTutorial(page)
+
+    await step4(page)
+
+    await page.getByRole('checkbox').click()
+
+    await expect(page.getByText('low', { exact:true })).toHaveCount(1)
+    await expect(page.getByText('high', { exact:true })).toHaveCount(3)
+    await expect(page.getByText('neither', { exact:true })).toHaveCount(1)
+
+    await page.getByTestId('continue').click()
+
+    await expect(page.getByText('neither', { exact:true })).toHaveCount(1)
+})
+
+/**
+ * Step 5 should still progress as expected if the checkbox is set to true AND the wire is disconnected
+ * 
+ * After clicking the checkbox, there should be 2 "high"s on screen, one for the input and one for the instructions
+ */
+test('tutorial progression 5C', async ({ page }) => {
+    await gotoTutorial(page)
+
+    await step4(page)
+
+    await page.getByRole('checkbox').click()
+    await stepm2(page)
+
+    await expect(page.getByText('low', { exact:true })).toHaveCount(1)
+    await expect(page.getByText('high', { exact:true })).toHaveCount(2)
+    await expect(page.getByText('neither', { exact:true })).toHaveCount(2)
+
+    await page.getByTestId('continue').click()
+
+    await expect(page.getByText('neither', { exact:true })).toHaveCount(1)
 })
