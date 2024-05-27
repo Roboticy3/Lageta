@@ -49,6 +49,16 @@
     let circuitPanel
 
     /**
+     * @type {CircuitDraggable}
+     */
+    let circuitDraggable
+
+    /**
+     * @type {HTMLDivElement}
+     */
+    let container
+
+    /**
      * @param {string} qs
      */
     export function getElement(qs) {
@@ -71,10 +81,47 @@
         circuitPanel.removeEventListener(type, listener)
     }
 
-    let circuitDraggable
+    /**
+     * Used to give an existing CircuitEditorComponent to a new GameView by putting it in absolute coordinates and letting GameView position it where a normally constructed editor would go.
+     */
+    let floating = false
+    export function pickup() {
+        floating = true
+    }
+    export function putdown() {
+        floating = false
+        container.style.left = 'auto'
+        container.style.top = 'auto'
+        container.style.width = '100%'
+        container.style.height = '100%'
+    }
+
+    /**
+     * Intended for use after pickup has been called. Move the editor in pixel coordinates.
+     * @param {number} left
+     * @param {number} top
+     */
+    export function move(left, top) {
+        container.style.left = `${left}px`
+        container.style.top = `${top}px`
+    }
+
+    /**
+     * Intended for use after pickup has been called. Scale the editor in pixel coordinates.
+     * @param {number} width
+     * @param {number} height
+     */
+    export function scale(width, height) {
+        container.style.width = `${width}px`
+        container.style.height = `${height}px`
+    }
 </script>
 
-<div class="container">
+<div 
+    class="{floating ? 'floating':''}" 
+    style="width:100%; height:100%;"
+    bind:this={container}
+>
     {#if circuitController}
         <CircuitDraggable 
             circuitController={circuitController} 
@@ -126,8 +173,7 @@
         width:100%;
     }
 
-    .container {
-        width: 100%;
-        height: 100%;
+    .floating {
+        position:absolute;
     }
 </style>

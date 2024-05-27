@@ -14,11 +14,6 @@
     import GameView from "$lib/components/GameView/GameView.svelte";
 
     /**
-     * @type {CircuitEditorComponent}
-     */
-    let editor
-
-    /**
      * @type {CircuitController}
      */
     let circuitController = Tutorial.params.initializeGrid()
@@ -31,6 +26,12 @@
         input:true,
         output:undefined
     }
+
+    /**
+     * @type {CircuitEditorComponent}
+     */
+    let editor
+    $: state.editor = editor
 
     let eventStagesController = new TutorialEventSequenceController(
         EventSequenceTutorial(state)
