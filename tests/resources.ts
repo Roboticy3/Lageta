@@ -5,6 +5,14 @@ import { expect } from "playwright/test";
 
 export const root = 'localhost:5173/'
 
+export const gameViewComponentTitles = [
+    "Nav",
+    "Sandbox",
+    "Editor",
+    "Instructions",
+    "Signal Player"
+  ]
+
 export async function gotoTutorial(page:Page) {
     //nav to home
     await page.goto(root);

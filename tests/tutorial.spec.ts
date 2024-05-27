@@ -1,5 +1,5 @@
 import test, { expect, type Page } from "playwright/test";
-import { gotoTutorial, locateConnectionPoint, locateWire } from "./resources";
+import { gameViewComponentTitles, gotoTutorial, locateConnectionPoint, locateWire } from "./resources";
 import { CircuitRendererIDStandard } from "$lib/circuit_types/CircuitRendererIDSpace";
 import { goto } from "$app/navigation";
 
@@ -243,10 +243,15 @@ async function step7(page:Page) {
     await step2(page)
 }
 
+/**
+ * Step 7 expects the gameview ui to be loaded in at some point
+ */
 test('tutorial progression 7', async ({page}) => {
     await gotoTutorial(page)
 
     await step7(page)
 
-    //...
+    for (let title of gameViewComponentTitles) { 
+        await expect(page.getByTitle(title)).toHaveCount(1)
+    }
 })
