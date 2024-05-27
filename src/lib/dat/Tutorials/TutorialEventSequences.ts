@@ -81,5 +81,15 @@ export function EventSequenceTutorial(state:any): TutorialEventSequence {return 
                 return true
             } 
         }
-    }
+    },
+    {
+        eventName:"changed",f:(evt) => {
+            if (
+                state.circuitController &&
+                state.circuitController.getOutputs()[0] === state.circuitController.getInputs()[0]
+            ) {               
+                return true
+            } 
+        }
+    },
 ]}
