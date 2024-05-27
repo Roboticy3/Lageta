@@ -1,6 +1,7 @@
 import test, { expect, type Page } from "playwright/test";
 import { gotoTutorial, locateConnectionPoint, locateWire } from "./resources";
 import { CircuitRendererIDStandard } from "$lib/circuit_types/CircuitRendererIDSpace";
+import { goto } from "$app/navigation";
 
 /**
  * Open the tutorial and ensure that the two elements on the first frame of the storyboard are visible
@@ -208,4 +209,44 @@ test('tutorial progression 5C', async ({ page }) => {
     await page.getByTestId('continue').click()
 
     await expect(page.getByText('neither', { exact:true })).toHaveCount(1)
+})
+
+async function step6(page:Page) {
+    await step5(page)
+    await stepm2(page)
+}
+
+/**
+ * Step 6 has an intermediate instruction, so it's tested in two parts. 6.1 and 6.2
+ */
+test('tutorial progression 6.1', async ({ page }) => {
+    await gotoTutorial(page)
+
+    await step5(page)
+
+    const secondConnectionPoint = await locateConnectionPoint(page, {id:1, type:"Input", index:0})
+    await secondConnectionPoint.click({force:true})
+
+    await expect(page.getByText('Click on any blank space')).toHaveCount(1)
+})
+
+test('tutorial progression 6.2', async ({ page }) => {
+    await gotoTutorial(page)
+
+    await step6(page)
+
+    await expect(page.getByText('ready')).toHaveCount(1)
+})
+
+async function step7(page:Page) {
+    await step6(page)
+    await step2(page)
+}
+
+test('tutorial progression 7', async ({page}) => {
+    await gotoTutorial(page)
+
+    await step7(page)
+
+    //...
 })

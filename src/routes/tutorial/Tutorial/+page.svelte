@@ -262,6 +262,7 @@
                 <TutorialText 
                     position={[50, 70]} 
                     on:continue={onContinue}
+                    showButton={false}
                 >
                     <p style="color:black; font-size:x-large;">
                         When points are not connected to anything, they have
