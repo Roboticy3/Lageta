@@ -50,11 +50,11 @@
 </script>
 
 <div class="base-vertical" data-sveltekit-noscroll>
-    <div class="nav">
+    <div class="nav" title="Nav">
 
     </div>
-    <div class="sandbox-horizontal">
-        <div class="circuit-editor">
+    <div class="sandbox-horizontal" title="Sandbox">
+        <div class="circuit-editor" title="Editor">
             <CircuitEditorComponent 
                 circuitController={circuitController} 
                 gameParams={gameParams} 
@@ -63,12 +63,12 @@
                 shelf={progressStorage.gates()}
             />
         </div>
-        <div class="instructions">
+        <div class="instructions" title="Instructions">
             {@html gameParams.directions}
         </div>
     </div>
     {#if signalSetView}
-        <div class="signal">
+        <div class="signal" title="Signal Player">
             <SignalViewer circuitController={circuitController} signalSetView={signalSetView} />
         </div>
     {/if}

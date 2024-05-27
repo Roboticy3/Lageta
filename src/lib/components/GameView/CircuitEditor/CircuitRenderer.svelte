@@ -8,6 +8,7 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
     import { compose, fromString, identity, scale, toSVG, transform, translate } from "transformation-matrix";
     import { draw } from "svelte/transition";
     import ResizingSvg from "$lib/components/Misc/ResizingSvg.svelte";
+    import { CircuitRendererIDStandard } from "$lib/circuit_types/CircuitRendererIDSpace";
 
     /**
      * @type {CircuitController}
@@ -80,6 +81,8 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
      */
     let connectionGroup
 
+    const idSpace = new CircuitRendererIDStandard()
+
     const gridSize = circuitController.getGridSize();
 
     const cellOffset = 10
@@ -120,7 +123,7 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
     function getGateElementAndTypeAndClean(id) {
         const cType = circuitController.getGateTypeController(id)
         const gPos = circuitController.getGatePosition(id)
-        let svg = gateGroup.querySelector(`#${gateIdString(id)}`)
+        let svg = gateGroup.querySelector(`#${idSpace.gateIdString(id)}`)
         if (cType === undefined || gPos === undefined) {
             //if an svg element exists but not the gate, remove the gate and all associated connections
             if (svg instanceof SVGElement) {
@@ -151,7 +154,7 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
 
         const gateInner = svgGateBody(cType, id)
         const gateTransform = svgGridTransform(gPos[0], gPos[1])
-        const idString = gateIdString(id)
+        const idString = idSpace.gateIdString(id)
         if (svg instanceof SVGElement) {
             svg.setAttribute('transform',gateTransform)
         }
@@ -205,8 +208,8 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
         //if a list of outputs is missing, try to retrieve one from the controller
         if (outputs === undefined) outputs = circuitController.getGateOutputs(index[0])?.override
 
-        const idString = wireIdString(index)
-        let svg = document.querySelector(`#${wireIdString(index)}`)
+        const idString = idSpace.wireIdString(index)
+        let svg = document.querySelector(`#${idSpace.wireIdString(index)}`)
 
         //check that all of the connection's endpoints exist, and that it's source gate exists
         const toIndices = circuitController.getConnectedFrom(index[0], index[1])
@@ -399,33 +402,9 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
 
     /**
      * 
-     * @param {number} id
-     */
-    function gateIdString(id) {
-        return `gate-${id}`
-    }
-
-    /**
-     * @param {[number | string, number | string]} index
-     */
-    function wireIdString(index) {
-        return `wire-${index[0]}-${index[1]}`
-    }
-
-    /**
-     * 
      * @param {import("$lib/circuit_types/CircuitController").ConnectionIndex} index
      */
-    function connectionPointIdString(index) {
-        return `point-${index.type.toLowerCase()}-${index.id}-${index.index}`
-    }
-
-    /**
-     * @param {import("$lib/circuit_types/CircuitController").ConnectionIndex} index
-     */
-    function connectionPointDesiredValueIdString(index) {
-        return `point-target-${index.type.toLowerCase()}-${index.id}-${index.index}`
-    }
+    
 
     /**
      * Return an svg transform group containing the string inner
@@ -513,13 +492,13 @@ ${rendererParams.showLabels !== false ? `<text x="${4}" y="0" stroke="none" fill
      * @param {import("$lib/circuit_types/GateType").ConnectionValue} value
     */
     export function setConnectionPointDesiredValue(index, value) {
-        const pointIdString = connectionPointIdString(index)
+        const pointIdString = idSpace.connectionPointIdString(index)
         const point = svgHead.querySelector(`#${pointIdString}`)
         const parent = point?.parentElement
         if (!point || !parent) return
         const transform = point.getAttribute('transform') || ""
         const inner = svgConnectionPointDesiredValue(value)
-        setChild(parent, svgWrapGroup(inner, transform, connectionPointDesiredValueIdString(index)))
+        setChild(parent, svgWrapGroup(inner, transform, idSpace.connectionPointDesiredValueIdString(index)))
     }
 
     export function clearConnectionPointDesiredValues() {
@@ -549,14 +528,14 @@ ${rendererParams.showLabels !== false ? `<text x="${4}" y="0" stroke="none" fill
         const inputs = rendererParams.showConnectionPoints === false ? [] : cType.view.inputOffsets.map((o, i) => {
             return svgWrapGroup(svgConnectionPoint(
                 state.override[i], cType.view.inputLabels[i]
-            ), `translate(${o[0]} ${o[1]})`, connectionPointIdString({id:id, type:"Input", index:i}))
+            ), `translate(${o[0]} ${o[1]})`, idSpace.connectionPointIdString({id:id, type:"Input", index:i}))
         })
 
         const outState = cType.model.f(state) //temp hack, state should store outputs too
         const outputs =  rendererParams.showConnectionPoints === false ? [] : cType.view.outputOffsets.map((o, i) => {
             return svgWrapGroup(svgConnectionPoint(
                 outState.override[i], cType.view.inputLabels[i]
-            ), `translate(${o[0]} ${o[1]})`, connectionPointIdString({id:id, type:"Output", index:i}))
+            ), `translate(${o[0]} ${o[1]})`, idSpace.connectionPointIdString({id:id, type:"Output", index:i}))
         })
 
         switch (connectionPointDisplayMode) {
@@ -585,12 +564,12 @@ ${rendererParams.showLabels !== false ? `<text x="${4}" y="0" stroke="none" fill
         switch (q.type) {
             case "Gate":
                 return svgHead.querySelector(
-                    `#${gateIdString(q.getId() || 0)}`
+                    `#${idSpace.gateIdString(q.getId() || 0)}`
                 )
             case "Input":
             case "Output":
                 return svgHead.querySelector(
-                    `#${connectionPointIdString({id:q.getId() || 0, type:q.type, index:q.connectionIndex || 0})}`
+                    `#${idSpace.connectionPointIdString({id:q.getId() || 0, type:q.type, index:q.connectionIndex || 0})}`
                 )
         }
 

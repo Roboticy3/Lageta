@@ -22,7 +22,13 @@
         <slot />
     </div>
     {#if showButton }
-        <button class="tutorial-continue {availableButton ? '':'unavailable'}" on:click={() => {dispatch('continue', 'ev')}}>Continue</button>
+        <button 
+            class="tutorial-continue {availableButton ? '':'unavailable'}"
+            on:click={() => {dispatch('continue', 'ev')}}
+            data-testid="continue"
+        >
+            Continue
+        </button>
     {/if}
 </div>
 
