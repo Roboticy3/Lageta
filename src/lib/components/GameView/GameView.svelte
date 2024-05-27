@@ -12,6 +12,7 @@
     import SignalViewer from "./SignalViewer.svelte";
     import CompletionPopup from "./CompletionPopup.svelte";
     import CircuitEditorComponent from "./CircuitEditor/CircuitEditorComponent.svelte";
+    import { onMount } from "svelte";
 
 
     /**
@@ -21,12 +22,20 @@
     export let editorParams = {}
     export let rendererParams = {}
 
+    /**
+     * Passing an existing editor should induce GameView to "steal" the editor
+     * 
+     * Since the CircuitEditorComponent's job is to take up whatever space is left on screen after the rest of the UI,
+     * It should be sufficient to just not construct the usual editor once one of these is passed and just position the exisitngEditor with some extra code
+     * 
+     * @type {CircuitEditorComponent | null}
+     */
+    export let existingEditor = null
+
     console.log("initializing GameView with params: ",gameParams)
     
     const signalSetView = gameParams.completeCondition ? 
         new CircuitSignalSetView(gameParams.completeCondition) : undefined
-
-    let circuitDraggable
 
     let progressStorage = new ProgressStorage()
 
@@ -55,13 +64,15 @@
     </div>
     <div class="sandbox-horizontal" title="Sandbox">
         <div class="circuit-editor" title="Editor">
-            <CircuitEditorComponent 
-                circuitController={circuitController} 
-                gameParams={gameParams} 
-                editorParams={editorParams}
-                rendererParams={rendererParams}
-                shelf={progressStorage.gates()}
-            />
+            {#if !existingEditor}
+                <CircuitEditorComponent 
+                    circuitController={circuitController} 
+                    gameParams={gameParams} 
+                    editorParams={editorParams}
+                    rendererParams={rendererParams}
+                    shelf={progressStorage.gates()}
+                />
+            {/if}
         </div>
         <div class="instructions" title="Instructions">
             {@html gameParams.directions}

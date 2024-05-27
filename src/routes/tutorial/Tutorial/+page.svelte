@@ -11,6 +11,7 @@
     import { createCustomEvent } from "$lib/misc_types/CustomEventSystem";
     import { EventSequenceTutorial } from "$lib/dat/Tutorials/TutorialEventSequences"
     import CircuitEditorContentsTutorial from "$lib/dat/Tutorials/TutorialCircuitEditorContents/CircuitEditorContentsTutorialPart1.svelte";
+    import GameView from "$lib/components/GameView/GameView.svelte";
 
     /**
      * @type {CircuitEditorComponent}
@@ -80,10 +81,22 @@
     </CircuitEditorComponent>
 </div>
 
+{#if state.currentEvent >= 9}
+    <GameView
+        gameParams={Tutorial.params}
+        circuitController={circuitController}
+        editorParams={{
+            canDragGates:false,
+            inputCheckBoxes:state.showInputCheckboxes
+        }}
+        existingEditor={editor}
+    >
+    </GameView>
+{/if}
+
 <style>
     .level-panel {
         width:100%;
         height:100%;
-        transition: stroke 1s;
     }
 </style>

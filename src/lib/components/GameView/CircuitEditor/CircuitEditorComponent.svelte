@@ -74,32 +74,34 @@
     let circuitDraggable
 </script>
 
-{#if circuitController}
-    <CircuitDraggable 
-        circuitController={circuitController} 
-        bind:this={circuitDraggable}
-    />
-    {#if shelf.length > 0}
-        <div class="shelf">
-            {#each shelf as gateTypeController}
-                <GameViewShelfButton circuitDraggable={circuitDraggable} gateType={gateTypeController}/>
-            {/each}
+<div class="container">
+    {#if circuitController}
+        <CircuitDraggable 
+            circuitController={circuitController} 
+            bind:this={circuitDraggable}
+        />
+        {#if shelf.length > 0}
+            <div class="shelf">
+                {#each shelf as gateTypeController}
+                    <GameViewShelfButton circuitDraggable={circuitDraggable} gateType={gateTypeController}/>
+                {/each}
+            </div>
+        {/if}
+        <div class="circuit-panel">
+            <GameViewCircuitPanel 
+                bind:this={circuitPanel}
+                gameParams={gameParams}
+                circuitController={circuitController}
+                circuitDraggable={circuitDraggable}
+                editorParams={editorParams}
+                rendererParams={rendererParams}
+                editorEventTarget={editorEventTarget}
+            >
+                <slot />
+            </GameViewCircuitPanel>
         </div>
     {/if}
-    <div class="circuit-panel">
-        <GameViewCircuitPanel 
-            bind:this={circuitPanel}
-            gameParams={gameParams}
-            circuitController={circuitController}
-            circuitDraggable={circuitDraggable}
-            editorParams={editorParams}
-            rendererParams={rendererParams}
-            editorEventTarget={editorEventTarget}
-        >
-            <slot />
-        </GameViewCircuitPanel>
-    </div>
-{/if}
+</div>
 
 <style>
     .shelf {
@@ -122,5 +124,10 @@
 
         height:100%;
         width:100%;
+    }
+
+    .container {
+        width: 100%;
+        height: 100%;
     }
 </style>
