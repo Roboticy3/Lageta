@@ -28,14 +28,18 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
     /**
      * @type {CircuitDraggable}
      */
-    export let circuitDraggable
+    export let circuitDraggable 
 
     /**
      * @type {HTMLDivElement | null}
      */
     let circuitContainer = null;
 
-    const circuitEventTarget = new GameViewCircuitPanelEventTarget()
+    /**
+     * @type {GameViewCircuitPanelEventTarget | null}
+     */
+    export let editorEventTarget
+    let circuitEventTarget = editorEventTarget || new GameViewCircuitPanelEventTarget()
 
     /**
      * @param {import("$lib/circuit_types/GameViewCircuitPanelEvent").GameViewCircuitPanelEventKey} type
@@ -60,6 +64,13 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
 
     export function getRenderer() {
         return circuitRenderer
+    }
+
+    $: {
+        circuitController.addGraphListener("update", ({id}) => {
+            circuitRenderer.updateGate(id)
+        })
+        circuitController.giveRenderer(circuitRenderer)
     }
 
     /**
@@ -154,7 +165,6 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
      */
     let mountCircuit = () => {
         addDragEventListeners()
-        circuitController.giveRenderer(circuitRenderer)
     }
     onMount(mountCircuit)
 

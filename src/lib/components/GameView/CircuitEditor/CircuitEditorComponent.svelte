@@ -7,6 +7,7 @@
     import GameViewCircuitPanel from "$lib/components/GameView/CircuitEditor/GameViewCircuitPanel.svelte";
     import { GameViewParameters } from "$lib/level_types/GameViewParameters";
     import { GateTypeController } from "$lib/circuit_types/GateType";
+    import { GameViewCircuitPanelEventTarget } from "$lib/circuit_types/GameViewCircuitPanelEvent";
 
     /**
      * @type {CircuitController | null}
@@ -25,6 +26,11 @@
     export let editorParams = {}
 
     export let rendererParams = {}
+
+    /**
+     * @type {GameViewCircuitPanelEventTarget | null}
+     */
+    export let editorEventTarget = null
 
     /**
      * @type {GateTypeController[]}
@@ -88,6 +94,7 @@
             circuitDraggable={circuitDraggable}
             editorParams={editorParams}
             rendererParams={rendererParams}
+            editorEventTarget={editorEventTarget}
         >
             <slot />
         </GameViewCircuitPanel>

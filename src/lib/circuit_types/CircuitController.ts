@@ -1,11 +1,12 @@
 import type { SignalPlayer } from "$lib/signal_types/Signal";
 import { Gate, createGate } from "./Gate";
-import { GateGraph, Connection, type ConnectionType } from "./GateGraph"
+import { GateGraph, Connection, type ConnectionType, type GateGraphEvent, type GateGraphEventListener, type GateGraphEventKey } from "./GateGraph"
 import { GateGrid } from "./GateGrid";
 import { identity, transform, type Matrix, type Transform, applyToPoint, inverse, toSVG, fromObject, translate, rotateDEG, rotate, scale} from "transformation-matrix";
 import { GateType, GateTypeController, GateTypeView, type ConnectionValue } from "./GateType";
 import { all_gates, getGateType, type GateTypeParameters } from "$lib/dat/GateTypes/GateTypes";
 import { CircuitControllerQueryResult, type CircuitControllerQueryResultContentType } from "./CircuitControllerQueryResult";
+import type { CustomEventListener } from "$lib/misc_types/CustomEventSystem";
 
 export type ConnectionIndex = {id:number, type:ConnectionType, index:number}
 
@@ -21,7 +22,7 @@ export class CircuitController {
     readonly gateGrid:GateGrid
     onComplete:() => void
 
-    private renderer:any = null
+    private renderer?:any = null
 
     constructor(
         gateGrid:GateGrid | undefined = undefined,
@@ -47,7 +48,6 @@ export class CircuitController {
 
     giveRenderer(renderer:any) {
         this.renderer = renderer
-        this.gateGrid.graph.connectionListeners.add(renderer.updateGate) //go-go gadget super spaghetti bullshit!
     }
 
     getRenderer() {
@@ -61,7 +61,7 @@ export class CircuitController {
      * @returns 
      */
     projectOffset(offsetX:number, offsetY:number) {
-        return this.renderer.toGlobal([offsetX, offsetY])
+        return this.renderer?.toGlobal([offsetX, offsetY])
     }
 
     /**
@@ -71,11 +71,11 @@ export class CircuitController {
      * @returns 
      */
     unprojectOffset(offsetX:number, offsetY:number) {
-        return this.renderer.toLocal([offsetX, offsetY])
+        return this.renderer?.toLocal([offsetX, offsetY])
     }
 
     getMatrix() {
-        return this.renderer.getMatrix()
+        return this.renderer?.getMatrix()
     }
 
     /**
@@ -512,18 +512,6 @@ export class CircuitController {
         }
     }
 
-    addConnectionListener(
-        f: (id: number) => void
-    ) {
-        this.gateGrid.graph.connectionListeners.add(f)
-    }
-
-    removeConnectionListener(
-        f: (id: number) => void
-    ) {
-        this.gateGrid.graph.connectionListeners.delete(f)
-    }
-
     getInputIds() {
         let result = new Array<[number, number]>()
         for (let i of this.gateGrid.inputs.values()) {
@@ -652,27 +640,12 @@ export class CircuitController {
         )
     }
 
-    /**
-     * Given a drawing function for gates, return an array of strings containing whem all in SVG form.
-     * @param getGateTypeSvgContents 
-     * @returns 
-     */
-    drawGates(getGateTypeSvgContents:(gate:GateType) => string) {
-        var result = Array<string>()
-        this.gateGrid.iterGates((g) => {
-        result.push
-    (
-`
-<g 
-    id="${g.id || 0}" 
-    ${this.getGateSvgTransform(g)}>
-    ${getGateTypeSvgContents(g.type)}
-</g>
-`
-    )
-        })
+    addGraphListener(type: GateGraphEventKey, listener: GateGraphEventListener) {
+        this.gateGrid.graph.addEventListener(type, listener)
+    }
 
-        return result
+    removeGraphListener(type: GateGraphEventKey, listener: GateGraphEventListener) {
+        this.gateGrid.graph.removeEventListener(type, listener)
     }
 
     /**
@@ -711,11 +684,11 @@ export class CircuitController {
         data:{index:ConnectionIndex, value:ConnectionValue}[] | undefined = undefined
     ) {
         if (!data) {
-            this.renderer.clearConnectionPointDesiredValues()
+            this.renderer?.clearConnectionPointDesiredValues()
             return
         }
         if (this.renderer) { data.forEach((v) => {
-            this.renderer.setConnectionPointDesiredValue(v.index, v.value)
+            this.renderer?.setConnectionPointDesiredValue(v.index, v.value)
         }) }
     }
 
@@ -730,7 +703,7 @@ export class CircuitController {
             }
             
             g.getInputs().forEach((_v, i) => {
-                this.renderer.setConnectionPointDesiredValue({id:g.id, index:i, type:"Input"}, data[d])
+                this.renderer?.setConnectionPointDesiredValue({id:g.id, index:i, type:"Input"}, data[d])
                 d++
             })
         }

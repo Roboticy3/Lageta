@@ -6,11 +6,4 @@ export interface TutorialEvent {}
 
 export type TutorialEventListener = CustomEventListener<TutorialEvent, TutorialEventKey>
 
-export function createGameViewCircuitPanelEvent( 
-    type: TutorialEventKey,
-    target: EventTarget
-) {
-    return createCustomEvent({}, type, target)
-}
-
 export class TutorialEventTarget extends CustomEventTarget<TutorialEvent, TutorialEventKey> {}

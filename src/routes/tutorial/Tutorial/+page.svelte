@@ -1,15 +1,19 @@
 <script>
+// @ts-nocheck
+
     import CircuitEditorComponent from "$lib/components/GameView/CircuitEditor/CircuitEditorComponent.svelte";
-    import { NotLevel, Tutorial } from "$lib/dat/Levels/Levels";
+    import { Tutorial } from "$lib/dat/Levels/Levels";
     import { CircuitController } from "$lib/circuit_types/CircuitController";
     import { browser } from "$app/environment";
     import TutorialIndicator from "$lib/components/GameView/Tutorial/TutorialIndicator.svelte";
-    import { createEventDispatcher, onMount } from "svelte";
+    import { onMount } from "svelte";
     import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControllerQueryResult";
-    import { OutputLabelledPrebaked, getGateType } from "$lib/dat/GateTypes/GateTypes";
     import TutorialText from "$lib/components/GameView/Tutorial/TutorialText.svelte";
     import CircuitDiv from "$lib/components/GameView/CircuitDiv.svelte";
-    import { TutorialEventTarget } from "$lib/tutorial_types/TutorialEvent";
+    import { TutorialEventSequenceController } from "$lib/tutorial_types/TutorialEventSequence";
+    import { createGameViewCircuitPanelEvent } from "$lib/circuit_types/GameViewCircuitPanelEvent";
+    import { createCustomEvent } from "$lib/misc_types/CustomEventSystem";
+    import { TutorialEvents } from "$lib/dat/Tutorials/Tutorials"
 
     /**
      * @type {CircuitEditorComponent}
@@ -17,175 +21,39 @@
     let editor
 
     /**
-     * @type {(TutorialIndicator | undefined)[]}
+     * @type {CircuitController}
      */
-    let indicators = new Array(2)
-
-    const tutorialEventTarget = new TutorialEventTarget()
-
-    /**
-     * @param {import("$lib/tutorial_types/TutorialEvent").TutorialEventKey} type
-     * @param {import("$lib/tutorial_types/TutorialEvent").TutorialEventListener} listener
-     */
-    function addTutorialEventListener(type, listener) {
-        tutorialEventTarget.addEventListener(type, listener)
-    }
-
-    /**
-     * @param {import("$lib/tutorial_types/TutorialEvent").TutorialEventKey} type
-     * @param {import("$lib/tutorial_types/TutorialEvent").TutorialEventListener} listener
-     */
-     function removeTutorialEventListener(type, listener) {
-        tutorialEventTarget.removeEventListener(type, listener)
-    }
-
-    let params = undefined
-    $: params = browser ? Tutorial.params : undefined
-    /**
-     * @type {CircuitController | undefined}
-     */
-    let circuitController = undefined
-    $: {
-        circuitController = params?.initializeGrid()
-        circuitController?.setInput([0, 0], true)
-    }
-
-    /**
-     * Events can either be of a type that can listen to GameViewCircuitPanel (i.e. GameViewCircuitPanelEventKey),
-     * or of an additional custom type to listen for things outside of the circuit (i.e. clicking the continue button on tutorial text)
-     * @type {{ 
-     *  eventName:import("$lib/circuit_types/GameViewCircuitPanelEvent").GameViewCircuitPanelEventKey | "continue", 
-     *  f:(evt:any) => void}[]}}
-     */
-    const eventStages = [
-        {
-            eventName:"dragstart",f:(evt) => {
-                if (
-                    evt.to.contentEquals({id:0,type:"Output",index:0}) && 
-                    circuitController
-                ) {
-                    
-                    circuitController.addGateAtCell(getGateType(OutputLabelledPrebaked[1]), 8, 2) 
-                    circuitController.setDesiredOutputs([true])
-                    indicators[0]?.setPosition([7.75, 1.25])
-                    prepareNextEvent()
-                }
-            }
-        },
-        {
-            eventName:"drop",f:(evt) => {
-                if (
-                    circuitController && 
-                    circuitController.getOutputs()[0] === true
-                ) {
-                    indicators[0]?.hide()
-                    state.showInputCheckboxes = true
-                    prepareNextEvent()
-                }
-            }
-        },
-        {
-            eventName:"continue",f:(evt) => {
-                if (
-                    circuitController &&
-                    circuitController.getOutputs()[0] === true
-                ) {
-                    circuitController.setDesiredOutputs([false])
-                    indicators[0]?.show()
-                    indicators[0]?.setPosition([0.65, 0.75])
-                    prepareNextEvent()
-                }
-            }
-        },
-        {
-            eventName:"changed",f:(evt) => {
-                if (
-                    circuitController &&
-                    circuitController.getOutputs()[0] === false
-                ) {
-                    circuitController.setDesiredConnectionValues()
-                    prepareNextEvent()
-                } 
-            }
-        },
-        {
-            eventName:"continue",f:(evt) => {
-                if (
-                    circuitController
-                ) {
-                    indicators[0]?.setPosition([7.75, 1.25])
-                    prepareNextEvent()
-                } 
-            }
-        },
-        {
-            eventName:"dragstart",f:(evt) => {
-                if (
-                    circuitController &&
-                    circuitController.getOutputs()[0] === undefined
-                ) {   
-                    indicators[0]?.hide()        
-                    prepareNextEvent()
-                } 
-            }
-        },
-        {
-            eventName:"drop",f:(evt) => {
-                if (
-                    circuitController &&
-                    circuitController.getOutputs()[0] === undefined
-                ) {               
-                    prepareNextEvent()
-                } 
-            }
-        }
-    ]
+    let circuitController = Tutorial.params.initializeGrid()
+    circuitController.setInputs([true])
 
     let state = {
         currentEvent:0,
         showInputCheckboxes:false,
-        inputValueLabel:"<p>",
-        outputValueLabel:"neither"
+        inputValueLabel:`<p style="color:var(--connection-color-on);>high</p>`,
+        outputValueLabel:`<p style="color:var(--connection-color-x);">neither</p>`,
+        circuitController:circuitController
     }
 
-    function prepareNextEvent() {
+    /**
+     * @type {TutorialIndicator | undefined}
+     */
+    let indicator = undefined
+    $: state.indicator = indicator
+
+    let eventStagesController = new TutorialEventSequenceController(
+        TutorialEvents(state)
+    )
+    eventStagesController.eventSequenceTarget.addEventListener('preparenext', () => { 
+        console.log("preparing", eventStagesController.getCurrentEvent())
         state.currentEvent++
-        unstageEvent(state.currentEvent - 2)
-        stageEvent(state.currentEvent - 1)
         state = state
-    }
-
-    /**
-     * @param {number} idx
-     */
-    function stageEvent(idx) {
-        const stage = eventStages[idx]
-        if (stage) switch (stage.eventName) {
-            case "continue":
-                addTutorialEventListener("continue", stage.f)
-                break;
-            default: editor.addEventListener(stage.eventName, stage.f)
-        }
-    }
-
-    /**
-     * @param {number} idx
-     */
-    function unstageEvent(idx) {
-        const stage = eventStages[idx]
-        if (stage) switch (stage.eventName) {
-            case "continue": 
-                removeTutorialEventListener("continue", stage.f)
-                break;
-            default: editor.removeEventListener(stage.eventName, stage.f)
-        }
-    }
+    })
 
     /**
      * @param {any} e
      */
     function onContinue(e) {
-        tutorialEventTarget.dispatchEvent(e)
+        eventStagesController.tutorialEventTarget.dispatchEvent(createCustomEvent({}, "continue", editor))
     }
 
     const valueLabelOptions = new Map([
@@ -203,134 +71,128 @@
     }
 
     onMount(() => {
-        prepareNextEvent()
+        eventStagesController.prepareNextEvent(createGameViewCircuitPanelEvent("changed", new CircuitControllerQueryResult(), new CircuitControllerQueryResult(), editor))
         editor.addEventListener("changed", setValueLabels)
     })
 
 </script>
 
-{#if params && circuitController}
-    <div class="level-panel" data-sveltekit-noscroll>
-        <CircuitEditorComponent
-            bind:this={editor}
-            gameParams={NotLevel.params}
+
+<div class="level-panel" data-sveltekit-noscroll>
+    <CircuitEditorComponent
+        bind:this={editor}
+        gameParams={Tutorial.params}
+        circuitController={circuitController}
+        editorParams={{
+            canDragGates:false,
+            inputCheckBoxes:state.showInputCheckboxes
+        }}
+        rendererParams={{
+            showGrid:false,
+            showGates:false,
+            showLabels:false
+        }}
+        editorEventTarget={eventStagesController.editorEventTarget}
+    >
+        <TutorialIndicator 
+            bind:this={indicator}
             circuitController={circuitController}
-            editorParams={{
-                canDragGates:false,
-                inputCheckBoxes:state.showInputCheckboxes
-            }}
-            rendererParams={{
-                showGrid:false,
-                showGates:false,
-                showLabels:false
-            }}
-        >
-            <TutorialIndicator 
-                bind:this={indicators[0]}
+            position={[1.35, 1.25]}
+        />
+
+        {#if state.currentEvent === 8} 
+            <TutorialText 
+                position={[50, 10]} 
+                showButton={false}
+                on:continue={onContinue}
+            >
+                <p style="color:black; font-size:x-large;">
+                    Are you ready to solve some puzzles?
+                </p>
+                <p>
+                    (Reconnect the points to continue)
+                </p>
+            </TutorialText>
+        {/if}
+
+        {#if state.currentEvent === 7} 
+            <TutorialText 
+                position={[50, 10]} 
+                showButton={false}
+                on:continue={onContinue}
+            >
+                <p style="color:black; font-size:x-large;">
+                    Click on any blank space to delete a wire.
+                </p>
+            </TutorialText>
+        {/if}
+
+        {#if state.currentEvent >= 6 && state.currentEvent <= 7}
+            <TutorialText 
+                position={[50, 70]} 
+                on:continue={onContinue}
+                showButton={false}
+            >
+                <p style="color:black; font-size:x-large;">
+                    When points are not connected to anything, they have
+                    <span style="color:var(--connection-color-x)">neither</span>
+                    high or low voltage.
+                </p>
+            </TutorialText>
+        {/if}
+
+        {#if state.currentEvent === 5}
+            <TutorialText 
+                position={[50, 70]} 
+                showButton={true}
+                on:continue={onContinue}
+            >
+                <p style="color:black; font-size:x-large;">At any connection point, voltage can be
+                    <span style="color:var(--connection-color-on)">high</span>,
+                    <span style="color:var(--connection-color-off)">low</span>,
+                    or <span style="color:var(--connection-color-x)">neither</span>.
+                </p>
+            </TutorialText>
+            <CircuitDiv 
+                position={[1.35, 1.85]} 
                 circuitController={circuitController}
-                position={[1.35, 1.25]}
-            />
+                size={[1, 0.25]}
+                active={true}
+            >
+                {@html state.inputValueLabel}
+            </CircuitDiv>
+            <CircuitDiv 
+                position={[7.45, 2.75]} 
+                circuitController={circuitController}
+                size={[1, 0.25]}
+                active={true}
+            >
+                {@html state.outputValueLabel}
+            </CircuitDiv>
+        {/if}
 
-            {#if state.currentEvent === 8} 
-                <TutorialText 
-                    position={[50, 10]} 
-                    showButton={false}
-                    on:continue={onContinue}
-                >
-                    <p style="color:black; font-size:x-large;">
-                        Are you ready to solve some puzzles?
-                    </p>
-                    <p>
-                        (Reconnect the points to continue)
-                    </p>
-                </TutorialText>
-            {/if}
-
-            {#if state.currentEvent === 7} 
-                <TutorialText 
-                    position={[50, 10]} 
-                    showButton={false}
-                    on:continue={onContinue}
-                >
-                    <p style="color:black; font-size:x-large;">
-                        Click on any blank space to delete a wire.
-                    </p>
-                </TutorialText>
-            {/if}
-
-            {#if state.currentEvent >= 6 && state.currentEvent <= 7}
-                <TutorialText 
-                    position={[50, 70]} 
-                    on:continue={onContinue}
-                    showButton={false}
-                >
-                    <p style="color:black; font-size:x-large;">
-                        When points are not connected to anything, they have
-                        <span style="color:var(--connection-color-x)">neither</span>
-                        high or low voltage.
-                    </p>
-                </TutorialText>
-            {/if}
-
-            {#if state.currentEvent === 5}
-                <TutorialText 
-                    position={[50, 70]} 
-                    showButton={true}
-                    on:continue={onContinue}
-                >
-                    <p style="color:black; font-size:x-large;">At any connection point, voltage can be
-                        <span style="color:var(--connection-color-on)">high</span>,
-                        <span style="color:var(--connection-color-off)">low</span>,
-                        or <span style="color:var(--connection-color-x)">neither</span>.
-                    </p>
-                </TutorialText>
-                <CircuitDiv 
-                    position={[1.35, 1.85]} 
-                    circuitController={circuitController}
-                    size={[1, 0.25]}
-                    active={true}
-                >
-                    {@html state.inputValueLabel}
-                </CircuitDiv>
-                <CircuitDiv 
-                    position={[7.45, 2.75]} 
-                    circuitController={circuitController}
-                    size={[1, 0.25]}
-                    active={true}
-                >
-                    {@html state.outputValueLabel}
-                </CircuitDiv>
-            {/if}
-
-            {#if state.currentEvent === 3}
-                <CircuitDiv
-                    circuitController={circuitController}
-                    position={[0.65, 1.25]}
-                    size={[0.75, 0.25]}
-                    active={true}
-                    smooth={true}
-                >
-                    <p style="scale:0.75">what's this?</p>
-                </CircuitDiv>
-                <!--Gross multi-binds, let's see if this works!-->
-                <TutorialText 
-                    position={[50, 55]} 
-                    availableButton={state.outputValueLabel === valueLabelOptions.get(true)}
-                    on:continue={onContinue}
-                >
-                    <p style="font-size:xx-large; color:black;">Voltage!</p>
-                </TutorialText>
-            {/if}
-            
-        </CircuitEditorComponent>
-    </div>
-
-    
-{:else if browser}
-<h1 class="fullscreen-message">
-    Loading
-</h1>
-{/if}
+        {#if state.currentEvent === 3}
+            <CircuitDiv
+                circuitController={circuitController}
+                position={[0.65, 1.25]}
+                size={[0.75, 0.25]}
+                active={true}
+                smooth={true}
+            >
+                <p style="scale:0.75">what's this?</p>
+            </CircuitDiv>
+            <!--Gross multi-binds, let's see if this works!-->
+            <TutorialText 
+                position={[50, 55]} 
+                availableButton={state.outputValueLabel === valueLabelOptions.get(true)}
+                on:continue={onContinue}
+            >
+                <p style="font-size:xx-large; color:black;">Voltage!</p>
+            </TutorialText>
+        {/if}
+        
+    </CircuitEditorComponent>
+</div>
 
 <style>
     .level-panel {
