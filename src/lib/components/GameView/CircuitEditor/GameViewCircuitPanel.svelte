@@ -67,10 +67,10 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
     }
 
     $: {
+        circuitController.giveRenderer(circuitRenderer)
         circuitController.addGraphListener("update", ({id}) => {
             circuitRenderer.updateGate(id)
         })
-        circuitController.giveRenderer(circuitRenderer)
     }
 
     /**

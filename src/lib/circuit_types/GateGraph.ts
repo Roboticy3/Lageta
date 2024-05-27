@@ -491,7 +491,7 @@ export class GateGraph extends GateGraphEventTarget {
         )
         const output = newGate.execute(result.result)
 
-        this.dispatchEvent(createCustomEvent({id:0}, "update", null))
+        this.dispatchEvent(createCustomEvent({id:gate.id}, "update", null))
 
         gate.state.override[inputIndex] = output.override[from[1]]
         return result
@@ -533,7 +533,7 @@ export class GateGraph extends GateGraphEventTarget {
 
         let outputs = gate.execute()
         
-        this.dispatchEvent(createCustomEvent({id:0}, "update", null))
+        this.dispatchEvent(createCustomEvent({id:gate.id}, "update", null))
 
         for (let i = 0; i < gType.sizeOut; i++) {
             const c = this.outputs[gate.id][i]
