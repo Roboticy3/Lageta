@@ -42,6 +42,9 @@
         state = state
     })
 
+    let size = 100
+    $: size = state.currentEvent >= 9 ? 0 : 100
+
     /**
      * @param {any} e
      */
@@ -56,7 +59,7 @@
 </script>
 
 
-<div class="level-panel" data-sveltekit-noscroll>
+<div style="width:{size}%; height:{size}%;" data-sveltekit-noscroll>
     <CircuitEditorComponent
         bind:this={editor}
         gameParams={Tutorial.params}
@@ -94,10 +97,3 @@
     >
     </GameView>
 {/if}
-
-<style>
-    .level-panel {
-        width:100%;
-        height:100%;
-    }
-</style>

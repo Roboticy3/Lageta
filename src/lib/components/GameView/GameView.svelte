@@ -2,18 +2,12 @@
 
 <script>
     import { CircuitController } from "$lib/circuit_types/CircuitController";
-    import { ConnectionValueSignalSet, SignalSet } from "$lib/signal_types/Signal";
     import { CircuitSignalSetView, SignalSetView } from "$lib/signal_types/SignalSetView";
     import { ProgressStorage } from "$lib/storage_types/ProgressStore";
-    import CircuitDiv from "./CircuitDiv.svelte";
-    import CircuitDraggable from "$lib/components/GameView/CircuitEditor/CircuitDraggable.svelte";
-    import GameViewCircuitPanel from "$lib/components/GameView/CircuitEditor//GameViewCircuitPanel.svelte";
-    import GameViewShelfButton from "./CircuitEditor/GameViewShelfButton.svelte";
     import SignalViewer from "./SignalViewer.svelte";
     import CompletionPopup from "./CompletionPopup.svelte";
     import CircuitEditorComponent from "./CircuitEditor/CircuitEditorComponent.svelte";
     import { onMount } from "svelte";
-
 
     /**
      * @type {import("$lib/level_types/GameViewParameters").GameViewParameters}
@@ -21,6 +15,8 @@
     export let gameParams
     export let editorParams = {}
     export let rendererParams = {}
+
+    const circuitController = new CircuitController(gameParams.grid, onComplete)
 
     /**
      * Passing an existing editor should induce GameView to "steal" the editor
@@ -45,6 +41,11 @@
      */
     let completionPopup
 
+    /**
+     * @type {HTMLDivElement}
+     */
+    let editorContainer
+
     function onComplete() {
         const rewards = gameParams.completeRewards
         progressStorage.addGate(gameParams.name)
@@ -54,7 +55,25 @@
         completionPopup.show()
     }
 
-    const circuitController = new CircuitController(gameParams.grid, onComplete)
+    function placeExistingEditor() {
+        if (!existingEditor) return
+
+        existingEditor.pickup()
+        window.addEventListener("resize", moveExistingEditor)
+        moveExistingEditor()
+    }
+
+    function moveExistingEditor() {
+        if (!existingEditor) return
+
+        const bbox = editorContainer.getBoundingClientRect()
+        existingEditor.move(bbox.left, bbox.top)
+        existingEditor.scale(bbox.width, bbox.height)
+    }
+
+    onMount(() => {
+        placeExistingEditor()
+    })
 
 </script>
 
@@ -63,7 +82,7 @@
 
     </div>
     <div class="sandbox-horizontal" title="Sandbox">
-        <div class="circuit-editor" title="Editor">
+        <div class="circuit-editor" title="Editor" bind:this={editorContainer}>
             {#if !existingEditor}
                 <CircuitEditorComponent 
                     circuitController={circuitController} 
