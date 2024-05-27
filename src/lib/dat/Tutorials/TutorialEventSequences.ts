@@ -1,8 +1,7 @@
-import { CircuitController } from "$lib/circuit_types/CircuitController"
 import type { TutorialEventSequence } from "$lib/tutorial_types/TutorialEventSequence"
 import { OutputLabelledPrebaked, getGateType } from "../GateTypes/GateTypes"
 
-export function TutorialEvents(state:any): TutorialEventSequence {return [
+export function EventSequenceTutorial(state:any): TutorialEventSequence {return [
     {
         eventName:"dragstart",f:(evt) => {
             if (

@@ -4,17 +4,13 @@
     import CircuitEditorComponent from "$lib/components/GameView/CircuitEditor/CircuitEditorComponent.svelte";
     import { Tutorial } from "$lib/dat/Levels/Levels";
     import { CircuitController } from "$lib/circuit_types/CircuitController";
-    import { browser } from "$app/environment";
-    import TutorialIndicator from "$lib/components/GameView/Tutorial/TutorialIndicator.svelte";
     import { onMount } from "svelte";
     import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControllerQueryResult";
-    import TutorialText from "$lib/components/GameView/Tutorial/TutorialText.svelte";
-    import CircuitDiv from "$lib/components/GameView/CircuitDiv.svelte";
     import { TutorialEventSequenceController } from "$lib/tutorial_types/TutorialEventSequence";
     import { createGameViewCircuitPanelEvent } from "$lib/circuit_types/GameViewCircuitPanelEvent";
     import { createCustomEvent } from "$lib/misc_types/CustomEventSystem";
-    import { TutorialEvents } from "$lib/dat/Tutorials/Tutorials"
-    import TutorialConnectionLabel from "$lib/components/GameView/Tutorial/TutorialConnectionLabel.svelte";
+    import { EventSequenceTutorial } from "$lib/dat/Tutorials/TutorialEventSequences"
+    import CircuitEditorContentsTutorial from "$lib/dat/Tutorials/TutorialCircuitEditorContents/CircuitEditorContentsTutorialPart1.svelte";
 
     /**
      * @type {CircuitEditorComponent}
@@ -35,18 +31,12 @@
         output:undefined
     }
 
-    /**
-     * @type {TutorialIndicator | undefined}
-     */
-    let indicator = undefined
-    $: state.indicator = indicator
-
     let eventStagesController = new TutorialEventSequenceController(
-        TutorialEvents(state)
+        EventSequenceTutorial(state)
     )
     eventStagesController.eventSequenceTarget.addEventListener('preparenext', () => { 
-        console.log("preparing", eventStagesController.getCurrentEvent())
         state.currentEvent++
+        console.log("prepared", state.currentEvent)
         state = state
     })
 
@@ -59,14 +49,7 @@
 
     onMount(() => {
         eventStagesController.prepareNextEvent(createGameViewCircuitPanelEvent("changed", new CircuitControllerQueryResult(), new CircuitControllerQueryResult(), editor))
-        editor.addEventListener("changed", setConnectionValues)
-    })
-
-    function setConnectionValues() {
-        state.input = circuitController.getInputs()[0]
-        state.output = circuitController.getOutputs()[0]
-        state = state
-    }
+    })    
 
 </script>
 
@@ -87,96 +70,13 @@
         }}
         editorEventTarget={eventStagesController.editorEventTarget}
     >
-        <TutorialIndicator 
-            bind:this={indicator}
-            circuitController={circuitController}
-            position={[1.35, 1.25]}
-        />
-
-        {#if state.currentEvent === 8} 
-            <TutorialText 
-                position={[50, 10]} 
-                showButton={false}
-                on:continue={onContinue}
-            >
-                <p style="color:black; font-size:x-large;">
-                    Are you ready to solve some puzzles?
-                </p>
-                <p>
-                    (Reconnect the points to continue)
-                </p>
-            </TutorialText>
-        {/if}
-
-        {#if state.currentEvent === 7} 
-            <TutorialText 
-                position={[50, 10]} 
-                showButton={false}
-                on:continue={onContinue}
-            >
-                <p style="color:black; font-size:x-large;">
-                    Click on any blank space to delete a wire.
-                </p>
-            </TutorialText>
-        {/if}
-
-        {#if state.currentEvent >= 6 && state.currentEvent <= 7}
-            <TutorialText 
-                position={[50, 70]} 
-                on:continue={onContinue}
-                showButton={false}
-            >
-                <p style="color:black; font-size:x-large;">
-                    When points are not connected to anything, they have
-                    <span style="color:var(--connection-color-x)">neither</span>
-                    high or low voltage.
-                </p>
-            </TutorialText>
-        {/if}
-
-        {#if state.currentEvent === 5}
-            <TutorialText 
-                position={[50, 70]} 
-                showButton={true}
-                on:continue={onContinue}
-            >
-                <p style="color:black; font-size:x-large;">At any connection point, voltage can be
-                    <span style="color:var(--connection-color-on)">high</span>,
-                    <span style="color:var(--connection-color-off)">low</span>,
-                    or <span style="color:var(--connection-color-x)">neither</span>.
-                </p>
-            </TutorialText>
-            <TutorialConnectionLabel
+        {#if state.currentEvent < 9}
+            <CircuitEditorContentsTutorial 
                 circuitController={circuitController}
-                index={{id:0, type:"Output", index:0}}
-                adjust={[-0.5,0.25]}
-            />
-            <TutorialConnectionLabel
-                circuitController={circuitController}
-                index={{id:1, type:"Input", index:0}}
+                state={state}
+                on:continue={onContinue}
             />
         {/if}
-
-        {#if state.currentEvent === 3}
-            <CircuitDiv
-                circuitController={circuitController}
-                position={[0.65, 1.25]}
-                size={[0.75, 0.25]}
-                active={true}
-                smooth={true}
-            >
-                <p style="scale:0.75">what's this?</p>
-            </CircuitDiv>
-            <!--Gross multi-binds, let's see if this works!-->
-            <TutorialText 
-                position={[50, 55]} 
-                availableButton={state.output === true}
-                on:continue={onContinue}
-            >
-                <p style="font-size:xx-large; color:black;">Voltage!</p>
-            </TutorialText>
-        {/if}
-        
     </CircuitEditorComponent>
 </div>
 
