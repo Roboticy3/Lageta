@@ -14,6 +14,7 @@
     import { createGameViewCircuitPanelEvent } from "$lib/circuit_types/GameViewCircuitPanelEvent";
     import { createCustomEvent } from "$lib/misc_types/CustomEventSystem";
     import { TutorialEvents } from "$lib/dat/Tutorials/Tutorials"
+    import TutorialConnectionLabel from "$lib/components/GameView/Tutorial/TutorialConnectionLabel.svelte";
 
     /**
      * @type {CircuitEditorComponent}
@@ -29,9 +30,9 @@
     let state = {
         currentEvent:0,
         showInputCheckboxes:false,
-        inputValueLabel:`<p style="color:var(--connection-color-on);>high</p>`,
-        outputValueLabel:`<p style="color:var(--connection-color-x);">neither</p>`,
-        circuitController:circuitController
+        circuitController:circuitController,
+        input:true,
+        output:undefined
     }
 
     /**
@@ -56,24 +57,16 @@
         eventStagesController.tutorialEventTarget.dispatchEvent(createCustomEvent({}, "continue", editor))
     }
 
-    const valueLabelOptions = new Map([
-        [true, `<p style="color:var(--connection-color-on);">high</p>`],
-        [false, `<p style="color:var(--connection-color-off);">low</p>`],
-        [undefined, `<p style="color:var(--connection-color-x);">neither</p>`]
-    ])
-
-    function setValueLabels() {
-        const inputValue = circuitController?.getConnectionValue({id:0, type:"Output", index:0})
-        const outputValue = circuitController?.getConnectionValue({id:1, type:"Input", index:0})
-        state.inputValueLabel = valueLabelOptions.get(inputValue) || ""
-        state.outputValueLabel = valueLabelOptions.get(outputValue) || ""
-        state = state
-    }
-
     onMount(() => {
         eventStagesController.prepareNextEvent(createGameViewCircuitPanelEvent("changed", new CircuitControllerQueryResult(), new CircuitControllerQueryResult(), editor))
-        editor.addEventListener("changed", setValueLabels)
+        editor.addEventListener("changed", setConnectionValues)
     })
+
+    function setConnectionValues() {
+        state.input = circuitController.getInputs()[0]
+        state.output = circuitController.getOutputs()[0]
+        state = state
+    }
 
 </script>
 
@@ -153,22 +146,15 @@
                     or <span style="color:var(--connection-color-x)">neither</span>.
                 </p>
             </TutorialText>
-            <CircuitDiv 
-                position={[1.35, 1.85]} 
+            <TutorialConnectionLabel
                 circuitController={circuitController}
-                size={[1, 0.25]}
-                active={true}
-            >
-                {@html state.inputValueLabel}
-            </CircuitDiv>
-            <CircuitDiv 
-                position={[7.45, 2.75]} 
+                index={{id:0, type:"Output", index:0}}
+                adjust={[-0.5,0.25]}
+            />
+            <TutorialConnectionLabel
                 circuitController={circuitController}
-                size={[1, 0.25]}
-                active={true}
-            >
-                {@html state.outputValueLabel}
-            </CircuitDiv>
+                index={{id:1, type:"Input", index:0}}
+            />
         {/if}
 
         {#if state.currentEvent === 3}
@@ -184,7 +170,7 @@
             <!--Gross multi-binds, let's see if this works!-->
             <TutorialText 
                 position={[50, 55]} 
-                availableButton={state.outputValueLabel === valueLabelOptions.get(true)}
+                availableButton={state.output === true}
                 on:continue={onContinue}
             >
                 <p style="font-size:xx-large; color:black;">Voltage!</p>
