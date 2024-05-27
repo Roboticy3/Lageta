@@ -693,8 +693,13 @@ export class CircuitController {
     }
 
     setDesiredOutputs(
-        data:ConnectionValue[]
+        data:ConnectionValue[] | undefined = undefined
     ) {
+        if (!data) {
+            this.renderer?.clearConnectionPointDesiredValues()
+            return
+        }
+
         let d = 0
         for (let g of this.gateGrid.outputs) {
             

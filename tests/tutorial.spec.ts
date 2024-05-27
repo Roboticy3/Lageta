@@ -163,6 +163,8 @@ test('tutorial progression 5A', async ({ page }) => {
     await expect(page.getByText('high', { exact:true })).toHaveCount(1)
     await expect(page.getByText('neither', { exact:true })).toHaveCount(2)
 
+    await step2(page)
+
     await page.getByTestId('continue').click()
 
     await expect(page.getByText('neither', { exact:true })).toHaveCount(1)
@@ -183,6 +185,8 @@ test('tutorial progression 5B', async ({ page }) => {
     await expect(page.getByText('low', { exact:true })).toHaveCount(1)
     await expect(page.getByText('high', { exact:true })).toHaveCount(3)
     await expect(page.getByText('neither', { exact:true })).toHaveCount(1)
+
+    await page.getByRole('checkbox').click()
 
     await page.getByTestId('continue').click()
 
@@ -206,6 +210,9 @@ test('tutorial progression 5C', async ({ page }) => {
     await expect(page.getByText('high', { exact:true })).toHaveCount(2)
     await expect(page.getByText('neither', { exact:true })).toHaveCount(2)
 
+    await step2(page)
+    await page.getByRole('checkbox').click()
+
     await page.getByTestId('continue').click()
 
     await expect(page.getByText('neither', { exact:true })).toHaveCount(1)
@@ -213,13 +220,11 @@ test('tutorial progression 5C', async ({ page }) => {
 
 async function step6(page:Page) {
     await step5(page)
-    await stepm2(page)
+    const secondConnectionPoint = await locateConnectionPoint(page, {id:1, type:"Input", index:0})
+    await secondConnectionPoint.click({force:true})
 }
 
-/**
- * Step 6 has an intermediate instruction, so it's tested in two parts. 6.1 and 6.2
- */
-test('tutorial progression 6.1', async ({ page }) => {
+test('tutorial progression 6', async ({ page }) => {
     await gotoTutorial(page)
 
     await step5(page)
@@ -230,26 +235,31 @@ test('tutorial progression 6.1', async ({ page }) => {
     await expect(page.getByText('Click on any blank space')).toHaveCount(1)
 })
 
-test('tutorial progression 6.2', async ({ page }) => {
+async function step7(page:Page) {
+    await step5(page)
+    await stepm2(page)
+}
+
+test('tutorial progression 7', async ({ page }) => {
     await gotoTutorial(page)
 
-    await step6(page)
+    await step7(page)
 
     await expect(page.getByText('ready')).toHaveCount(1)
 })
 
-async function step7(page:Page) {
-    await step6(page)
+async function step8(page:Page) {
+    await step7(page)
     await step2(page)
 }
 
 /**
  * Step 7 expects the gameview ui to be loaded in at some point
  */
-test('tutorial progression 7', async ({page}) => {
+test('tutorial progression 8', async ({page}) => {
     await gotoTutorial(page)
 
-    await step7(page)
+    await step8(page)
 
     for (let title of gameViewComponentTitles) { 
         await expect(page.getByTitle(title)).toHaveCount(1)

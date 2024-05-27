@@ -46,7 +46,6 @@ export function EventSequenceTutorial(state:any): TutorialEventSequence {return 
                 state.circuitController &&
                 state.circuitController.getOutputs()[0] === false
             ) {
-                state.circuitController.setDesiredConnectionValues()
                 return true
             } 
         }
@@ -54,8 +53,10 @@ export function EventSequenceTutorial(state:any): TutorialEventSequence {return 
     {
         eventName:"continue",f:(evt) => {
             if (
-                state.circuitController
+                state.circuitController &&
+                state.circuitController.getOutputs()[0] === false
             ) {
+                state.circuitController.setDesiredOutputs([undefined])
                 state.indicator?.setPosition([7.75, 1.25])
                 return true
             } 
@@ -77,7 +78,8 @@ export function EventSequenceTutorial(state:any): TutorialEventSequence {return 
             if (
                 state.circuitController &&
                 state.circuitController.getOutputs()[0] === undefined
-            ) {               
+            ) { 
+                state.circuitController.setDesiredOutputs()              
                 return true
             } 
         }

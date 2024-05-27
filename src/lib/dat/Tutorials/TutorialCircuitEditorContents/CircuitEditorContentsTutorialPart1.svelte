@@ -107,6 +107,7 @@
     <TutorialText 
         position={[50, 70]} 
         showButton={true}
+        availableButton={state.output === false}
         on:continue={dispatch.bind(dispatch, 'continue')}
     >
         <p style="color:black; font-size:x-large;">At any connection point, voltage can be
