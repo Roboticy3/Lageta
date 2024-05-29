@@ -52,8 +52,6 @@
             localEnd[0],
             localEnd[1]
         )
-
-        console.log("correction", start, end)
     }
 
     let resizeObserver = null
@@ -121,6 +119,7 @@
         color:black;
         overflow: hidden;
         opacity: 100%;
+        
     }
 
     .unavailable {

@@ -39,8 +39,8 @@
         if (!parent || !svg || !contentGroup) return
         
         const outer = parent.getBoundingClientRect()
-        outerWidth = Math.max(outer.width, minWidth * innerScale) 
-        outerHeight = Math.max(outer.height, minHeight * innerScale)
+        outerWidth = Math.max(outer.width, minWidth) 
+        outerHeight = Math.max(outer.height, minHeight)
 
         innerScale = getCurrentScale()
 
