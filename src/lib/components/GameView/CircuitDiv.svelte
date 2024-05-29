@@ -26,6 +26,11 @@
      */
     export let circuitController
 
+    /**
+     * @type {HTMLDivElement}
+     */
+    let container
+
     let start = [0, 0]
     let end = [0, 0]
 
@@ -47,12 +52,17 @@
             localEnd[0],
             localEnd[1]
         )
+
+        console.log("correction", start, end)
     }
 
     let resizeObserver = null
 
     onMount(async () => {
-        window.addEventListener('resize',setOffset)
+        if (container?.parentElement) {
+            resizeObserver = new ResizeObserver(setOffset)
+            resizeObserver.observe(container.parentElement)
+        }
 
         await tick()
 
@@ -78,7 +88,6 @@
      * @param {[number, number]} newPosition
      */
     export function setPosition(newPosition) {
-        console.log("REPOSITIONING", position, newPosition)
         position = newPosition
         setOffset()
         console.log(start, end)
@@ -96,6 +105,7 @@
 <div 
     class="circuit-div {hidden ? 'hidden':''} {active ? '':'unavailable'} {bob ? 'bobbing-circuit-div':''} {smooth ? 'smooth-circuit-div':''}" 
     style="left:{start[0]}px; top:{start[1]}px; width:{end[0] - start[0]}px; height:{end[1] - start[1]}px;" 
+    bind:this={container}
 >
     <slot/>
 </div>
