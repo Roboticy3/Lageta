@@ -55,6 +55,7 @@
      * @type {HTMLDivElement}
      */
     let editorContainer
+    let editorContainerResizeObserver
 
     function onComplete() {
         const rewards = gameParams.completeRewards
@@ -69,7 +70,8 @@
         if (!existingEditor) return
 
         existingEditor.pickup()
-        window.addEventListener("resize", moveExistingEditor)
+        editorContainerResizeObserver = new ResizeObserver(moveExistingEditor)
+        editorContainerResizeObserver.observe(editorContainer)
         moveExistingEditor()
     }
 
