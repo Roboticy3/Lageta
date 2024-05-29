@@ -27,19 +27,7 @@
     /**
      * @type {any}
      */
-    export let state = {
-        currentEvent:0,
-        showInputCheckboxes:false,
-        circuitController:circuitController,
-        /**
-         * @type {import("$lib/circuit_types/GateType").ConnectionValue}
-        */
-        input:true,
-        /**
-         * @type {import("$lib/circuit_types/GateType").ConnectionValue}
-        */
-        output:undefined
-    }
+    export let state = {}
 
     export function getState() {
         return state
@@ -61,6 +49,8 @@
     circuitController={circuitController}
     position={[1.35, 1.25]}
 />
+
+
 
 {#if state.currentEvent === 8} 
     <TutorialText 

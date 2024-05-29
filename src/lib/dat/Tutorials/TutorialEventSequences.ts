@@ -3,7 +3,9 @@ import { OutputLabelledPrebaked, getGateType } from "../GateTypes/GateTypes"
 
 export function EventSequenceTutorial(state:any): TutorialEventSequence {return [
     {
-        eventName:"dragstart",f:(evt) => {
+        //wait for a dragstart and check that it's being drawn from the correct point
+        //place the output gate and move the indicator over to its connection point
+        eventName:"dragstart",f:async (evt) => {
             if (
                 evt.to.contentEquals({id:0,type:"Output",index:0}) && 
                 state.circuitController
@@ -16,7 +18,9 @@ export function EventSequenceTutorial(state:any): TutorialEventSequence {return 
         }
     },
     {
-        eventName:"drop",f:(evt) => {
+        //wait for a drop on the circuit and check that the output is true to confirm that a wire has been drawn
+        //show the input checkbox a little early to let the user play with it if they like, however the next event only allows the user to continue if they've undone their damage
+        eventName:"drop",f: async (evt) => {
             if (
                 state.circuitController && 
                 state.circuitController.getOutputs()[0] === true
@@ -28,7 +32,9 @@ export function EventSequenceTutorial(state:any): TutorialEventSequence {return 
         }
     },
     {
-        eventName:"continue",f:(evt) => {
+        //wait for continue to be clicked, make sure that the output is true to confirm that the input checkbox is checked
+        //make the desired output "blue" and show the indicator over the input checkbox
+        eventName:"continue",f: async (evt) => {
             if (
                 state.circuitController &&
                 state.circuitController.getOutputs()[0] === true
@@ -41,7 +47,8 @@ export function EventSequenceTutorial(state:any): TutorialEventSequence {return 
         }
     },
     {
-        eventName:"changed",f:(evt) => {
+        //wait for the circuit to change and check that the output is false to confirm the user has clicked the input checkbox
+        eventName:"changed",f: async (evt) => {
             if (
                 state.circuitController &&
                 state.circuitController.getOutputs()[0] === false
@@ -51,7 +58,9 @@ export function EventSequenceTutorial(state:any): TutorialEventSequence {return 
         }
     },
     {
-        eventName:"continue",f:(evt) => {
+        //wait for continue to be pressed and check that the output is false to confirm both that there is a wire and that the input is false
+        //make the desired output "grey" and move the indicator to it to ask the user to disconnect the wire
+        eventName:"continue",f: async (evt) => {
             if (
                 state.circuitController &&
                 state.circuitController.getOutputs()[0] === false
@@ -63,7 +72,8 @@ export function EventSequenceTutorial(state:any): TutorialEventSequence {return 
         }
     },
     {
-        eventName:"dragstart",f:(evt) => {
+        //wait for a drag to start and check that the output is undefined to confirm the wire earlier has been picked up
+        eventName:"dragstart",f: async (evt) => {
             if (
                 state.circuitController &&
                 state.circuitController.getOutputs()[0] === undefined
@@ -74,7 +84,8 @@ export function EventSequenceTutorial(state:any): TutorialEventSequence {return 
         }
     },
     {
-        eventName:"drop",f:(evt) => {
+        //wait for a drop and make sure the output is undefined to confirm there isn't a wire
+        eventName:"drop",f: async (evt) => {
             if (
                 state.circuitController &&
                 state.circuitController.getOutputs()[0] === undefined
@@ -85,13 +96,20 @@ export function EventSequenceTutorial(state:any): TutorialEventSequence {return 
         }
     },
     {
-        eventName:"changed",f:(evt) => {
+        //wait for the circuit to change and check that the output matches the input to confirm that there's a wire
+        eventName:"changed",f:async (evt) => {
             if (
                 state.circuitController &&
                 state.circuitController.getOutputs()[0] === state.circuitController.getInputs()[0]
-            ) {               
+            ) {   
                 return true
             } 
+        }
+    },
+    {
+        //wait for the GameView transition to finish before sending a continue event
+        eventName:"continue",f:async (evt) => {
+            return true 
         }
     },
 ]}

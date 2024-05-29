@@ -2,7 +2,7 @@ export interface KeyMapInterface<E> {[key:string]: E}
 
 export type CustomEvent<E, K extends string> = {timeStamp:number, target:EventTarget | null, type:K} & E
 
-export type CustomEventListener<E, K extends string> = (evt:CustomEvent<E, K>) => any
+export type CustomEventListener<E, K extends string> = (evt:CustomEvent<E, K>) => Promise<any> | void
 
 export class CustomEventTarget<E, K extends string> {
     protected eventMap:Map<K, Set<CustomEventListener<E, K>>> = new Map()
@@ -15,11 +15,11 @@ export class CustomEventTarget<E, K extends string> {
         if (set) set.add(listener)
         else this.eventMap.set(type, new Set([listener]))
     }
-    dispatchEvent(event: CustomEvent<E, K>) {
+    async dispatchEvent(event: CustomEvent<E, K>) {
         const set = this.eventMap.get(event.type)
         if (!set) return false
         for (let ev of set) {
-            ev(event)
+            await ev(event)
         }
         return true
     }

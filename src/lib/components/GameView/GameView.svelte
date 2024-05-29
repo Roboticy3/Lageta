@@ -26,7 +26,7 @@
         instructionsFlex:3
     }
 
-    const circuitController = new CircuitController(gameParams.grid, onComplete)
+    export let circuitController = new CircuitController(gameParams.grid, onComplete)
 
     /**
      * Passing an existing editor should induce GameView to "steal" the editor
@@ -142,6 +142,7 @@
             <SignalViewer circuitController={circuitController} signalSetView={signalSetView} />
         </div>
     {/if}
+    <slot />
 </div>
 
 <CompletionPopup bind:this={completionPopup} unlocks={gameParams.completeRewards} />

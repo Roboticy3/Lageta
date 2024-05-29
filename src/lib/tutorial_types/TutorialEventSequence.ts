@@ -3,7 +3,7 @@ import { TutorialEventTarget, type TutorialEventKey, type TutorialEventListener 
 import { GameViewCircuitPanelEventTarget, type GameViewCircuitPanelEvent, type GameViewCircuitPanelEventKey, type GameViewCircuitPanelEventListener } from "$lib/circuit_types/GameViewCircuitPanelEvent";
 import { CustomEventTarget, type CustomEventListener, type CustomEvent, createCustomEvent } from "$lib/misc_types/CustomEventSystem";
 
-type TutorialEvent = {eventName:GameViewCircuitPanelEventKey | TutorialEventKey, f:(evt:any) => boolean | undefined}
+type TutorialEvent = {eventName:GameViewCircuitPanelEventKey | TutorialEventKey, f:(evt:any) => Promise<boolean | undefined>}
 export type TutorialEventSequence = TutorialEvent[]
 
 export interface TutorialEventSequenceControllerTemplate {
@@ -69,17 +69,18 @@ export class TutorialEventSequenceController implements TutorialEventSequenceCon
 
         prepareNextEvent
 
-        dispatchEvent(event:CustomEvent<TutorialEvent, TutorialEventKey>) {
+        async dispatchEvent(event:CustomEvent<TutorialEvent, TutorialEventKey>) {
             const set = this.eventMap.get(event.type)
             if (!set) return false
             for (let ev of set) {
-                if (ev(event)) {
+                if (await ev(event)) {
                     this.prepareNextEvent(event)
                 }
             }
             return true
         }
     }(this.prepareNextEvent.bind(this))
+
     readonly editorEventTarget = new class extends GameViewCircuitPanelEventTarget {
         constructor(
             prepareNextEvent: (from:CustomEvent<any, any>) => void
@@ -90,11 +91,11 @@ export class TutorialEventSequenceController implements TutorialEventSequenceCon
 
         prepareNextEvent
 
-        dispatchEvent(event:CustomEvent<GameViewCircuitPanelEvent, GameViewCircuitPanelEventKey>) {
+        async dispatchEvent(event:CustomEvent<GameViewCircuitPanelEvent, GameViewCircuitPanelEventKey>) {
             const set = this.eventMap.get(event.type)
             if (!set) return false
             for (let ev of set) {
-                if (ev(event)) {
+                if (await ev(event)) {
                     this.prepareNextEvent(event)
                 }
             }

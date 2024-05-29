@@ -10,8 +10,9 @@
     import { createGameViewCircuitPanelEvent } from "$lib/circuit_types/GameViewCircuitPanelEvent";
     import { createCustomEvent } from "$lib/misc_types/CustomEventSystem";
     import { EventSequenceTutorial } from "$lib/dat/Tutorials/TutorialEventSequences"
-    import CircuitEditorContentsTutorial from "$lib/dat/Tutorials/TutorialCircuitEditorContents/CircuitEditorContentsTutorialPart1.svelte";
+    import CircuitEditorContentsTutorial from "$lib/dat/Tutorials/TutorialCircuitEditorContents/CircuitEditorContentsTutorial.svelte";
     import GameView from "$lib/components/GameView/GameView.svelte";
+    import GameViewContentsTutorial from "$lib/dat/Tutorials/TutorialGameViewContents/GameViewContentsTutorial.svelte";
 
     /**
      * @type {CircuitController}
@@ -45,11 +46,14 @@
     let size = 100
     $: size = state.currentEvent >= 9 ? 0 : 100
 
-    /**
-     * @param {any} e
-     */
-    function onContinue(e) {
+    function onContinue() {
         eventStagesController.tutorialEventTarget.dispatchEvent(createCustomEvent({}, "continue", editor))
+    }
+
+    async function delayedContinue() {
+        const delay = () => {return new Promise((resolve) => {setTimeout(resolve, 3500)})}
+        await delay()
+        onContinue(null)
     }
 
     onMount(() => {
@@ -75,18 +79,17 @@
         }}
         editorEventTarget={eventStagesController.editorEventTarget}
     >
-        {#if state.currentEvent < 9}
-            <CircuitEditorContentsTutorial 
-                circuitController={circuitController}
-                state={state}
-                on:continue={onContinue}
-            />
-        {/if}
+        <CircuitEditorContentsTutorial
+            circuitController={circuitController}
+            state={state}
+            on:continue={onContinue}
+        />
     </CircuitEditorComponent>
 </div>
 
 {#if state.currentEvent >= 9}
     <GameView
+        
         gameParams={Tutorial.params}
         circuitController={circuitController}
         editorParams={{
@@ -95,5 +98,10 @@
         }}
         existingEditor={editor}
     >
+        <GameViewContentsTutorial 
+            state={state}
+            on:continue={onContinue}
+        />
     </GameView>
+    <div use:delayedContinue></div>
 {/if}
