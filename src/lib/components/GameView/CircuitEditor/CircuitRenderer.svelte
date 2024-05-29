@@ -633,6 +633,7 @@ ${rendererParams.showLabels !== false ? `<text x="${4}" y="0" stroke="none" fill
 >
     <g transform="scale(1, 1)">
         <g id="circuit-bounding-box">
+            <!--white border forces the size to be more consistent-->
             <rect 
                 stroke="white"
                 fill="none"

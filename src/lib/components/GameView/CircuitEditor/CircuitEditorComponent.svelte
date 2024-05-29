@@ -41,12 +41,27 @@
         if (!circuitController) {
             circuitController = new CircuitController()
         }
+
+        if (shelf.length > 0) {
+            shelfContainer.style.height = '15%'
+            circuitContainer.style.height = '85%'
+        }
     })
 
     /**
      * @type {GameViewCircuitPanel}
      */
     let circuitPanel
+
+    /**
+     * @type {HTMLDivElement}
+     */
+    let shelfContainer
+
+    /**
+     * @type {HTMLDivElement}
+     */
+    let circuitContainer
 
     /**
      * @type {CircuitDraggable}
@@ -128,13 +143,13 @@
             bind:this={circuitDraggable}
         />
         {#if shelf.length > 0}
-            <div class="shelf">
+            <div class="shelf" bind:this={shelfContainer}>
                 {#each shelf as gateTypeController}
                     <GameViewShelfButton circuitDraggable={circuitDraggable} gateType={gateTypeController}/>
                 {/each}
             </div>
         {/if}
-        <div class="circuit-panel">
+        <div class="circuit-panel" bind:this={circuitContainer}>
             <GameViewCircuitPanel 
                 bind:this={circuitPanel}
                 gameParams={gameParams}
@@ -151,18 +166,19 @@
 </div>
 
 <style>
+    .container {
+        width: 100%;
+        height: 100%;
+    }
+
     .shelf {
-        flex: 1;
         background-color: var(--tertiary-bg-color);
 
         display: flex;
         flex-direction: row;
-
-        
     }
 
     .circuit-panel {
-        flex: 7;
         background-color: var(--main-bg-color);
         min-height: 0;
 

@@ -151,7 +151,12 @@
     </div>
 
     <div class="svg-container">
-        <ResizingSvg>
+        <ResizingSvg
+            offsetX={0} 
+            offsetY={0}
+            minWidth={100}
+            minHeight={signalSetView.getDesiredHeight()}
+        >
             <g transform="translate(0, 8)" fill="none">
                 {#each channelSvgs as channel, index}
                     <g transform='translate({labelOffset}, {channelSvgHeight(index)})'>

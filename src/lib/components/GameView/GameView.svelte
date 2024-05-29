@@ -7,13 +7,22 @@
     import SignalViewer from "./SignalViewer.svelte";
     import CompletionPopup from "./CompletionPopup.svelte";
     import CircuitEditorComponent from "./CircuitEditor/CircuitEditorComponent.svelte";
-    import { onMount } from "svelte";
+    import { onMount, tick } from "svelte";
 
     /**
      * @type {import("$lib/level_types/GameViewParameters").GameViewParameters}
      */
     export let gameParams
-    export let editorParams = {}
+    /**
+     * @type {any}
+     */
+    export let editorParams = {
+        navFlex:1,
+        signalMaxHeight:'36%',
+        shelfFlex:1,
+        instructionsFlex:3,
+        slideIn:true
+    }
     export let rendererParams = {}
 
     const circuitController = new CircuitController(gameParams.grid, onComplete)
@@ -71,15 +80,45 @@
         existingEditor.scale(bbox.width, bbox.height)
     }
 
-    onMount(() => {
+    /**
+     * @param {number | string} flex
+     */
+    function initialMaxSize(flex) {
+        return editorParams.slideIn ? 0 : flex
+    }
+
+    let maxSizeState = {
+        navFlex:initialMaxSize(editorParams.navFlex),
+        shelfFlex:initialMaxSize(editorParams.shelfFlex),
+        instructionsFlex:initialMaxSize(editorParams.instructionsFlex),
+        signalMaxHeight:initialMaxSize(editorParams.signalMaxHeight)
+    }
+
+    function slideIn() {
+        maxSizeState.navFlex = editorParams.navFlex
+        maxSizeState.shelfFlex = editorParams.shelfFlex
+        maxSizeState.instructionsFlex = editorParams.instructionsFlex
+        maxSizeState.signalMaxHeight = editorParams.signalMaxHeight
+        maxSizeState = maxSizeState
+    }
+
+    onMount(async () => {
         placeExistingEditor()
+
+        await tick()
+        
+        if (editorParams.slideIn) {
+            slideIn()
+        }
     })
+
+    
 
 </script>
 
 <div class="base-vertical" data-sveltekit-noscroll>
-    <div class="nav" title="Nav">
-
+    <div class="nav {editorParams.slideIn ? 'slidein':''}" title="Nav" style="flex:{maxSizeState.navFlex};">
+        
     </div>
     <div class="sandbox-horizontal" title="Sandbox">
         <div class="circuit-editor" title="Editor" bind:this={editorContainer}>
@@ -93,12 +132,12 @@
                 />
             {/if}
         </div>
-        <div class="instructions" title="Instructions">
+        <div class="instructions {editorParams.slideIn ? 'slidein':''}" title="Instructions" style="flex:{maxSizeState.instructionsFlex};">
             {@html gameParams.directions}
         </div>
     </div>
     {#if signalSetView}
-        <div class="signal" title="Signal Player">
+        <div class="signal {editorParams.slideIn ? 'slidein':''}" title="Signal Player" style="max-height:{maxSizeState.signalMaxHeight};">
             <SignalViewer circuitController={circuitController} signalSetView={signalSetView} />
         </div>
     {/if}
@@ -115,7 +154,6 @@
     }
 
     .base-vertical .nav {
-        flex: 1;
         background-color: var(--secondary-bg-color);
     }
 
@@ -135,7 +173,6 @@
     }
 
     .sandbox-horizontal .instructions {
-        flex: 3;
         background-color: var(--tertiary-bg-color);
 
         padding: 3%;
@@ -143,11 +180,15 @@
     }
 
     .base-vertical .signal {
-        flex: 3;
+        flex:3;
+
         background-color: var(--secondary-bg-color);
         padding:2%;
         width: 96%;
         padding-bottom: 0%;
-        max-height: 36%;
+    }
+
+    .slidein {
+        transition: max-height 3s, max-width 3s, flex 3s;
     }
 </style>

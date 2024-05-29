@@ -12,16 +12,15 @@
      * @type {SVGElement | null}
      */
     export let svg = null
-    /**
-     * @type {SVGGraphicsElement}
-     */
-    let scaleGroup
+
     /**
      * @type {SVGGraphicsElement}
      */
     let contentGroup
 
     let [outerWidth, outerHeight] = [0, 0]
+    
+    let innerScale = 0
 
     /**
      * @type {HTMLElement | null}
@@ -29,6 +28,7 @@
     let parent
 
     export function correct() {
+
         if (svg) {
             parent = svg.parentElement
             for (let i = 1; i < ancestry; i++) {
@@ -36,18 +36,17 @@
                 parent = parent.parentElement
             }
         }
-        if (!parent || !svg || !scaleGroup || !contentGroup) return
+        if (!parent || !svg || !contentGroup) return
         
         const outer = parent.getBoundingClientRect()
-        outerHeight = Math.max(outer.height, minHeight)
         outerWidth = Math.max(outer.width, minWidth)
+        outerHeight = Math.max(outer.height, minHeight)
 
-        const scale = getCurrentScale()
+        innerScale = getCurrentScale()
 
-        scaleGroup.setAttribute(
-            "transform",
-            `scale(${scale} ${scale})`
-        )
+        console.log("correcting",  outerWidth, outerHeight, innerScale, svg)
+
+
     }
 
     function getCurrentScale() {
@@ -75,9 +74,17 @@
         return translated
     }
 
+    /**
+     * @type {ResizeObserver | null}
+     */
+    let resizeObserver = null
+
     onMount(async () => {
-        window.addEventListener('resize', correct)
-        window.addEventListener('load', correct)
+        
+        if (svg) {
+            resizeObserver = new ResizeObserver(correct)
+            resizeObserver.observe(svg)
+        }
 
         await tick()
 
@@ -85,17 +92,16 @@
     })
 
     export function getMatrix() {
-        const s = getCurrentScale()
-        return compose(translate(offsetX, offsetY),scale(s))
+        return compose(translate(offsetX, offsetY),scale(innerScale))
     }
 </script>
 
 <svg 
     bind:this={svg}
-    viewBox="{offsetX} {offsetY} {outerWidth} {outerHeight}" 
+    viewBox="{offsetX} {offsetY} {outerWidth + offsetX} {outerHeight + offsetY}" 
 >
     <g
-        bind:this={scaleGroup}
+        transform={`scale(${innerScale} ${innerScale})`}
     >
         <g bind:this={contentGroup}>
             <slot />

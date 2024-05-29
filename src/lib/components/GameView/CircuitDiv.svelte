@@ -49,10 +49,13 @@
         )
     }
 
+    let resizeObserver = null
+
     onMount(async () => {
-        window.addEventListener('load',setOffset)
         window.addEventListener('resize',setOffset)
+
         await tick()
+
         setOffset()
     })
 
