@@ -39,12 +39,10 @@
         if (!parent || !svg || !contentGroup) return
         
         const outer = parent.getBoundingClientRect()
-        outerWidth = Math.max(outer.width, minWidth)
-        outerHeight = Math.max(outer.height, minHeight)
+        outerWidth = Math.max(outer.width, minWidth * innerScale) 
+        outerHeight = Math.max(outer.height, minHeight * innerScale)
 
         innerScale = getCurrentScale()
-
-        console.log("correcting",  outerWidth, outerHeight, innerScale, svg)
 
 
     }
@@ -81,9 +79,9 @@
 
     onMount(async () => {
         
-        if (svg) {
+        if (svg?.parentElement) {
             resizeObserver = new ResizeObserver(correct)
-            resizeObserver.observe(svg)
+            resizeObserver.observe(svg.parentElement)
         }
 
         await tick()

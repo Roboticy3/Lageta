@@ -152,10 +152,7 @@
 
     <div class="svg-container">
         <ResizingSvg
-            offsetX={0} 
-            offsetY={0}
-            minWidth={100}
-            minHeight={signalSetView.getDesiredHeight()}
+            minHeight={signalSetView.getDesiredHeight() + 10}
         >
             <g transform="translate(0, 8)" fill="none">
                 {#each channelSvgs as channel, index}
@@ -185,16 +182,11 @@
         display:grid;
         grid-template-columns: 1fr 1fr 9fr;
         gap: 5%;
-        width: 100%;
-        height: 100%;
-        overflow-y:scroll;
-        overflow-x:hidden;
     }
 
     .svg-container {
         grid-column: 3 / 4;
         padding: 1%;
-        width: 100%;
     }
 
     .button-container {

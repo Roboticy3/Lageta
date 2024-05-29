@@ -40,7 +40,7 @@
             console.log("Unable to set gateId of ", level, "!")
             return
         }
-        circuitController.addConnectionListener((id) => {
+        circuitController.addGraphListener("update", ({id}) => {
             if (id === gateId) {
                 updateAvailability()
             }
