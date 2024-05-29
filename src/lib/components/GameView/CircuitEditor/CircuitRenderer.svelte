@@ -20,6 +20,9 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
      */
     export let circuitDraggable
 
+    /**
+     * @type {any}
+     */
     export let rendererParams = {
         showGrid:true,
         showWires:true,
@@ -623,13 +626,14 @@ ${rendererParams.showLabels !== false ? `<text x="${4}" y="0" stroke="none" fill
 </script>
 
 <ResizingSvg 
-    
+
     offsetX={0} 
     offsetY={0}
     minWidth={gridSize[0] * cellOffset}
     minHeight={gridSize[0] * cellOffset}
     bind:svg={svgHead}
     bind:this={resizer}
+    ancestry={1 || rendererParams.resizeAncestry}
 >
     <g transform="scale(1, 1)">
         <g id="circuit-bounding-box">

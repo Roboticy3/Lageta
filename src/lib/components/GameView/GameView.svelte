@@ -129,6 +129,7 @@
                     gameParams={gameParams} 
                     editorParams={editorParams}
                     rendererParams={rendererParams}
+                    slidinParams={slidinParams}
                     shelf={progressStorage.gates()}
                 />
             {/if}

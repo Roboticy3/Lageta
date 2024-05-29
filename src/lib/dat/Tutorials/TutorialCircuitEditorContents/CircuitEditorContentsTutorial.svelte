@@ -27,7 +27,19 @@
     /**
      * @type {any}
      */
-    export let state = {}
+    export let state = {
+        currentEvent:0,
+        showInputCheckboxes:false,
+        circuitController:circuitController,
+        /**
+         * @type {import("$lib/circuit_types/GateType").ConnectionValue}
+        */
+        input:true,
+        /**
+         * @type {import("$lib/circuit_types/GateType").ConnectionValue}
+        */
+        output:undefined
+    }
 
     export function getState() {
         return state

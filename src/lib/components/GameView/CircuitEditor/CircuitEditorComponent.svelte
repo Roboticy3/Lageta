@@ -23,9 +23,17 @@
      */
     export let gameParams
     
+    /**
+     * @type {any}
+     */
     export let editorParams = {}
 
     export let rendererParams = {}
+
+    /**
+     * @type {any}
+     */
+    export let slidinParams = {}
 
     /**
      * @type {GameViewCircuitPanelEventTarget | null}
@@ -40,11 +48,6 @@
     onMount(() => {
         if (!circuitController) {
             circuitController = new CircuitController()
-        }
-
-        if (shelf.length > 0) {
-            shelfContainer.style.height = '15%'
-            circuitContainer.style.height = '85%'
         }
     })
 
@@ -117,6 +120,7 @@
      * @param {number} top
      */
     export function move(left, top) {
+        if (!floating) return
         container.style.left = `${left}px`
         container.style.top = `${top}px`
     }
@@ -127,6 +131,7 @@
      * @param {number} height
      */
     export function scale(width, height) {
+        if (!floating) return
         container.style.width = `${width}px`
         container.style.height = `${height}px`
     }
@@ -142,13 +147,14 @@
             circuitController={circuitController} 
             bind:this={circuitDraggable}
         />
-        {#if shelf.length > 0}
+        {#if editorParams.showShelf !== false}
             <div class="shelf" bind:this={shelfContainer}>
                 {#each shelf as gateTypeController}
                     <GameViewShelfButton circuitDraggable={circuitDraggable} gateType={gateTypeController}/>
                 {/each}
             </div>
         {/if}
+
         <div class="circuit-panel" bind:this={circuitContainer}>
             <GameViewCircuitPanel 
                 bind:this={circuitPanel}
@@ -166,12 +172,10 @@
 </div>
 
 <style>
-    .container {
-        width: 100%;
-        height: 100%;
-    }
 
     .shelf {
+        flex: 1;
+
         background-color: var(--tertiary-bg-color);
 
         display: flex;
@@ -179,14 +183,14 @@
     }
 
     .circuit-panel {
+        flex: 7;
+
         background-color: var(--main-bg-color);
-        min-height: 0;
 
         border: thick double;
         color: var(--grid-color);
 
         height:100%;
-        width:100%;
     }
 
     .floating {

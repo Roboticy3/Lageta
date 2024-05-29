@@ -4,7 +4,7 @@
 
     export let [offsetX, offsetY] = [0, 0]
 
-    export let ancestry = 2
+    export let ancestry = 1
 
     export let [minHeight, minWidth] = [0, 0]
 
@@ -27,15 +27,17 @@
      */
     let parent
 
+    function ancestor() {
+        parent = svg?.parentElement || null
+        for (let i = 1; i < ancestry; i++) {
+            if (parent === null) break
+            parent = parent.parentElement
+        }
+        return parent
+    }
+
     export function correct() {
 
-        if (svg) {
-            parent = svg.parentElement
-            for (let i = 1; i < ancestry; i++) {
-                if (parent === null) break
-                parent = parent.parentElement
-            }
-        }
         if (!parent || !svg || !contentGroup) return
         
         const outer = parent.getBoundingClientRect()
@@ -79,9 +81,10 @@
 
     onMount(async () => {
         
-        if (svg?.parentElement) {
+        const a = ancestor()
+        if (a) {
             resizeObserver = new ResizeObserver(correct)
-            resizeObserver.observe(svg.parentElement)
+            resizeObserver.observe(a)
         }
 
         await tick()
@@ -93,10 +96,10 @@
         return compose(translate(offsetX, offsetY),scale(innerScale))
     }
 </script>
-
 <svg 
     bind:this={svg}
     viewBox="{offsetX} {offsetY} {outerWidth + offsetX} {outerHeight + offsetY}" 
+    style="position:absolute;"
 >
     <g
         transform={`scale(${innerScale} ${innerScale})`}

@@ -13,19 +13,25 @@
     import CircuitEditorContentsTutorial from "$lib/dat/Tutorials/TutorialCircuitEditorContents/CircuitEditorContentsTutorial.svelte";
     import GameView from "$lib/components/GameView/GameView.svelte";
     import GameViewContentsTutorial from "$lib/dat/Tutorials/TutorialGameViewContents/GameViewContentsTutorial.svelte";
+    import { ProgressStorage } from "$lib/storage_types/ProgressStore";
+    import { browser } from "$app/environment";
 
     /**
      * @type {CircuitController}
      */
-    let circuitController = Tutorial.params.initializeGrid()
+    const circuitController = Tutorial.params.initializeGrid()
     circuitController.setInputs([true])
+
+    let progressStorage = null
+    $: if (browser) progressStorage = new ProgressStorage()
 
     let state = {
         currentEvent:0,
         showInputCheckboxes:false,
         circuitController:circuitController,
         input:true,
-        output:undefined
+        output:undefined,
+        showShelf:false
     }
 
     /**
@@ -70,7 +76,8 @@
         circuitController={circuitController}
         editorParams={{
             canDragGates:false,
-            inputCheckBoxes:state.showInputCheckboxes
+            inputCheckBoxes:state.showInputCheckboxes,
+            showShelf:state.showShelf
         }}
         rendererParams={{
             showGrid:false,
@@ -78,6 +85,7 @@
             showLabels:false
         }}
         editorEventTarget={eventStagesController.editorEventTarget}
+        shelf={progressStorage?.gates()}
     >
         <CircuitEditorContentsTutorial
             circuitController={circuitController}
