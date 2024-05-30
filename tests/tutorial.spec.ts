@@ -224,13 +224,13 @@ async function step6(page:Page) {
     await secondConnectionPoint.click({force:true})
 }
 
+/**
+ * Steps 6 and 7 expect messages
+ */
 test('tutorial progression 6', async ({ page }) => {
     await gotoTutorial(page)
 
-    await step5(page)
-
-    const secondConnectionPoint = await locateConnectionPoint(page, {id:1, type:"Input", index:0})
-    await secondConnectionPoint.click({force:true})
+    await step6(page)
 
     await expect(page.getByText('Click on any blank space')).toHaveCount(1)
 })
@@ -254,7 +254,7 @@ async function step8(page:Page) {
 }
 
 /**
- * Step 7 expects the gameview ui to be loaded in at some point
+ * Step 8 expects the gameview ui to be loaded in at some point
  */
 test('tutorial progression 8', async ({page}) => {
     await gotoTutorial(page)
@@ -264,4 +264,20 @@ test('tutorial progression 8', async ({page}) => {
     for (let title of gameViewComponentTitles) { 
         await expect(page.getByTitle(title)).toHaveCount(1)
     }
+})
+
+async function step9(page:Page) {
+    await step8(page)
+    await page.waitForTimeout(3500)
+}
+
+/**
+ * Step 9 expects a message
+ */
+test('tutorial progression 9', async ({page}) => {
+    await gotoTutorial(page)
+
+    await step9(page)
+
+    await expect(page.getByText('This is a level.', {exact:true})).toHaveCount(1)
 })

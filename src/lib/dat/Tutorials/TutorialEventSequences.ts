@@ -3,7 +3,7 @@ import { OutputLabelledPrebaked, getGateType } from "../GateTypes/GateTypes"
 
 export function EventSequenceTutorial(state:any): TutorialEventSequence {return [
     {
-        //wait for a dragstart and check that it's being drawn from the correct point
+        //1: wait for a dragstart and check that it's being drawn from the correct point
         //place the output gate and move the indicator over to its connection point
         eventName:"dragstart",f:async (evt) => {
             if (
@@ -18,7 +18,7 @@ export function EventSequenceTutorial(state:any): TutorialEventSequence {return 
         }
     },
     {
-        //wait for a drop on the circuit and check that the output is true to confirm that a wire has been drawn
+        //2: wait for a drop on the circuit and check that the output is true to confirm that a wire has been drawn
         //show the input checkbox a little early to let the user play with it if they like, however the next event only allows the user to continue if they've undone their damage
         eventName:"drop",f: async (evt) => {
             if (
@@ -32,7 +32,7 @@ export function EventSequenceTutorial(state:any): TutorialEventSequence {return 
         }
     },
     {
-        //wait for continue to be clicked, make sure that the output is true to confirm that the input checkbox is checked
+        //3: wait for continue to be clicked, make sure that the output is true to confirm that the input checkbox is checked
         //make the desired output "blue" and show the indicator over the input checkbox
         eventName:"continue",f: async (evt) => {
             if (
@@ -47,7 +47,7 @@ export function EventSequenceTutorial(state:any): TutorialEventSequence {return 
         }
     },
     {
-        //wait for the circuit to change and check that the output is false to confirm the user has clicked the input checkbox
+        //4: wait for the circuit to change and check that the output is false to confirm the user has clicked the input checkbox
         eventName:"changed",f: async (evt) => {
             if (
                 state.circuitController &&
@@ -58,7 +58,7 @@ export function EventSequenceTutorial(state:any): TutorialEventSequence {return 
         }
     },
     {
-        //wait for continue to be pressed and check that the output is false to confirm both that there is a wire and that the input is false
+        //5: wait for continue to be pressed and check that the output is false to confirm both that there is a wire and that the input is false
         //make the desired output "grey" and move the indicator to it to ask the user to disconnect the wire
         eventName:"continue",f: async (evt) => {
             if (
@@ -72,7 +72,7 @@ export function EventSequenceTutorial(state:any): TutorialEventSequence {return 
         }
     },
     {
-        //wait for a drag to start and check that the output is undefined to confirm the wire earlier has been picked up
+        //6: wait for a drag to start and check that the output is undefined to confirm the wire earlier has been picked up
         eventName:"dragstart",f: async (evt) => {
             if (
                 state.circuitController &&
@@ -84,7 +84,7 @@ export function EventSequenceTutorial(state:any): TutorialEventSequence {return 
         }
     },
     {
-        //wait for a drop and make sure the output is undefined to confirm there isn't a wire
+        //7: wait for a drop and make sure the output is undefined to confirm there isn't a wire
         eventName:"drop",f: async (evt) => {
             if (
                 state.circuitController &&
@@ -96,7 +96,7 @@ export function EventSequenceTutorial(state:any): TutorialEventSequence {return 
         }
     },
     {
-        //wait for the circuit to change and check that the output matches the input to confirm that there's a wire
+        //8: wait for the circuit to change and check that the output matches the input to confirm that there's a wire
         //also enable the shelf, which is part of the existing circuit but has been hidden until now
         eventName:"changed",f:async (evt) => {
             if (
@@ -108,11 +108,12 @@ export function EventSequenceTutorial(state:any): TutorialEventSequence {return 
         }
     },
     {
-        //wait for the GameView transition to finish before sending a continue event
+        //9: wait for the GameView transition to finish before sending a continue event
         //reset the rendererParams to show everything
         eventName:"continue",f:async (evt) => {
             state.rendererParams = {}
             return true 
         }
     },
+    
 ]}
