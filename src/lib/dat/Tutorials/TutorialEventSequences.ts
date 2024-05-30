@@ -97,6 +97,7 @@ export function EventSequenceTutorial(state:any): TutorialEventSequence {return 
     },
     {
         //wait for the circuit to change and check that the output matches the input to confirm that there's a wire
+        //also enable the shelf, which is part of the existing circuit but has been hidden until now
         eventName:"changed",f:async (evt) => {
             if (
                 state.circuitController &&
@@ -108,9 +109,7 @@ export function EventSequenceTutorial(state:any): TutorialEventSequence {return 
     },
     {
         //wait for the GameView transition to finish before sending a continue event
-        //afterwards, text will display, but the gate shelf still needs to be enabled from here
         eventName:"continue",f:async (evt) => {
-            state.showShelf = true
             return true 
         }
     },

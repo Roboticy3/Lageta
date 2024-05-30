@@ -1,7 +1,7 @@
 
 <script>
     import { CircuitController } from "$lib/circuit_types/CircuitController";
-    import { onMount } from "svelte";
+    import { onMount, tick } from "svelte";
     import CircuitDraggable from "$lib/components/GameView/CircuitEditor/CircuitDraggable.svelte";
     import GameViewShelfButton from "$lib/components/GameView/CircuitEditor/GameViewShelfButton.svelte";
     import GameViewCircuitPanel from "$lib/components/GameView/CircuitEditor/GameViewCircuitPanel.svelte";
@@ -33,7 +33,9 @@
     /**
      * @type {any}
      */
-    export let slidinParams = {}
+    export let maxSizeState = {
+        shelfMaxHeight:'0%'
+    }
 
     /**
      * @type {GameViewCircuitPanelEventTarget | null}
@@ -45,7 +47,7 @@
      */
     export let shelf = []
 
-    onMount(() => {
+    onMount(async () => {
         if (!circuitController) {
             circuitController = new CircuitController()
         }
@@ -138,7 +140,7 @@
 </script>
 
 <div 
-    class="{floating ? 'floating':''}" 
+    class="container {floating ? 'floating':''}" 
     style="width:100%; height:100%;"
     bind:this={container}
 >
@@ -147,14 +149,12 @@
             circuitController={circuitController} 
             bind:this={circuitDraggable}
         />
-        {#if editorParams.showShelf !== false}
-            <div class="shelf" bind:this={shelfContainer}>
-                {#each shelf as gateTypeController}
-                    <GameViewShelfButton circuitDraggable={circuitDraggable} gateType={gateTypeController}/>
-                {/each}
-            </div>
-        {/if}
-
+        <div class="shelf" style="max-height:{maxSizeState.shelfMaxHeight};" bind:this={shelfContainer}>
+            {#each shelf as gateTypeController}
+                <GameViewShelfButton circuitDraggable={circuitDraggable} gateType={gateTypeController}/>
+            {/each}
+        </div>
+        
         <div class="circuit-panel" bind:this={circuitContainer}>
             <GameViewCircuitPanel 
                 bind:this={circuitPanel}
@@ -173,24 +173,30 @@
 
 <style>
 
+    .container {
+        display: flex;
+        flex-direction: column;
+    }
+
     .shelf {
-        flex: 1;
+
+        flex:1;
 
         background-color: var(--tertiary-bg-color);
 
         display: flex;
         flex-direction: row;
+
+        transition:max-height 3s;
     }
 
     .circuit-panel {
-        flex: 7;
+        flex:7;
 
         background-color: var(--main-bg-color);
 
         border: thick double;
         color: var(--grid-color);
-
-        height:100%;
     }
 
     .floating {

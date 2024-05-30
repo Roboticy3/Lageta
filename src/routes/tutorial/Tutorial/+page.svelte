@@ -52,6 +52,27 @@
     let size = 100
     $: size = state.currentEvent >= 9 ? 0 : 100
 
+    const slidinParams = {
+        navFlex:1,
+        shelfMaxHeight:'15%',
+        signalMaxHeight:'36%',
+        instructionsFlex:3
+    }
+
+    /**
+     * @param {number | string} flex
+     */
+    function initialMaxSize(flex) {
+        return flex ? 0 : flex
+    }
+
+    let maxSizeState = {
+        navFlex:initialMaxSize(slidinParams.navFlex),
+        shelfMaxHeight:initialMaxSize(slidinParams.shelfMaxHeight),
+        instructionsFlex:initialMaxSize(slidinParams.instructionsFlex),
+        signalMaxHeight:initialMaxSize(slidinParams.signalMaxHeight)
+    }
+
     function onContinue() {
         eventStagesController.tutorialEventTarget.dispatchEvent(createCustomEvent({}, "continue", editor))
     }
@@ -86,6 +107,7 @@
         }}
         editorEventTarget={eventStagesController.editorEventTarget}
         shelf={progressStorage?.gates()}
+        maxSizeState={maxSizeState}
     >
         <CircuitEditorContentsTutorial
             circuitController={circuitController}
@@ -105,6 +127,7 @@
             inputCheckBoxes:state.showInputCheckboxes
         }}
         existingEditor={editor}
+        bind:maxSizeState={maxSizeState}
     >
         <GameViewContentsTutorial 
             state={state}

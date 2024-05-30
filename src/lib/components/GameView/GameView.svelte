@@ -19,10 +19,10 @@
     export let editorParams = {}
     export let rendererParams = {}
 
-    export let slidinParams = {
+    const slidinParams = {
         navFlex:1,
+        shelfMaxHeight:'15%',
         signalMaxHeight:'36%',
-        shelfFlex:1,
         instructionsFlex:3
     }
 
@@ -90,22 +90,24 @@
         return flex ? 0 : flex
     }
 
-    let maxSizeState = {
+    export let maxSizeState = {
         navFlex:initialMaxSize(slidinParams.navFlex),
-        shelfFlex:initialMaxSize(slidinParams.shelfFlex),
+        shelfMaxHeight:initialMaxSize(slidinParams.shelfMaxHeight),
         instructionsFlex:initialMaxSize(slidinParams.instructionsFlex),
         signalMaxHeight:initialMaxSize(slidinParams.signalMaxHeight)
     }
 
     function slideIn() {
         maxSizeState.navFlex = slidinParams.navFlex
-        maxSizeState.shelfFlex = slidinParams.shelfFlex
+        maxSizeState.shelfMaxHeight = slidinParams.shelfMaxHeight
         maxSizeState.instructionsFlex = slidinParams.instructionsFlex
         maxSizeState.signalMaxHeight = slidinParams.signalMaxHeight
         maxSizeState = maxSizeState
+        console.log("size state", JSON.stringify(maxSizeState))
     }
 
     onMount(async () => {
+        console.log("size state", JSON.stringify(maxSizeState))
         placeExistingEditor()
 
         await tick()
@@ -129,7 +131,7 @@
                     gameParams={gameParams} 
                     editorParams={editorParams}
                     rendererParams={rendererParams}
-                    slidinParams={slidinParams}
+                    maxSizeState={maxSizeState}
                     shelf={progressStorage.gates()}
                 />
             {/if}
