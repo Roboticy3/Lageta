@@ -9,6 +9,7 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
     import { draw } from "svelte/transition";
     import ResizingSvg from "$lib/components/Misc/ResizingSvg.svelte";
     import { CircuitRendererIDStandard } from "$lib/circuit_types/CircuitRendererIDSpace";
+    import { browser } from "$app/environment";
 
     /**
      * @type {CircuitController}
@@ -23,12 +24,15 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
     /**
      * @type {any}
      */
-    export let rendererParams = {
-        showGrid:true,
-        showWires:true,
-        showGates:true,
-        showConnectionPoints:true,
-        showLabels:true,
+    export let rendererParams = {}
+    $: if(svgHead) updateParams(rendererParams)
+
+    /**
+     * @param {any} _params
+     */
+    function updateParams(_params) {
+        drawGates()
+        drawGrid()
     }
 
     /**
@@ -94,15 +98,14 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
     let viewBoxHeight = cellOffset * gridSize[1]
     
     onMount(async () => {
-        drawGrid()
-        drawGates()
+        updateParams(rendererParams)
 
         linkDraggable()
     })
 
     export function drawGrid() {
 
-        if (rendererParams.showGrid === false) return
+        if (rendererParams.showGrid !== true) return
         
         let grid = new Array(gridSize[0] + gridSize[1] - 2).fill("")
         const endX = cellOffset * gridSize[0]

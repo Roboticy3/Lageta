@@ -109,7 +109,9 @@ export function EventSequenceTutorial(state:any): TutorialEventSequence {return 
     },
     {
         //wait for the GameView transition to finish before sending a continue event
+        //reset the rendererParams to show everything
         eventName:"continue",f:async (evt) => {
+            state.rendererParams = {}
             return true 
         }
     },

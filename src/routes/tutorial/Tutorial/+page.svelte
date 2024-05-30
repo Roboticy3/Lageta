@@ -31,7 +31,12 @@
         circuitController:circuitController,
         input:true,
         output:undefined,
-        showShelf:false
+        showShelf:false,
+        rendererParams: {
+            showGrid:false,
+            showGates:false,
+            showLabels:false
+        }
     }
 
     /**
@@ -100,11 +105,7 @@
             inputCheckBoxes:state.showInputCheckboxes,
             showShelf:state.showShelf
         }}
-        rendererParams={{
-            showGrid:false,
-            showGates:false,
-            showLabels:false
-        }}
+        bind:rendererParams={state.rendererParams}
         editorEventTarget={eventStagesController.editorEventTarget}
         shelf={progressStorage?.gates()}
         maxSizeState={maxSizeState}
