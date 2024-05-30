@@ -27,6 +27,7 @@
     })
 
     let id = `gateshelf.${gateType.view.name}`
+    let title = `ShelfButton.${gateType.view.name}`
 
     /**
      * @type {HTMLElement}
@@ -44,7 +45,12 @@
 
 </script>
 
-<button class="shelf-button" id={id} bind:this={element} on:mousedown={onMouseDown}>
+<button 
+    class="shelf-button" 
+    id={id} 
+    title={title}
+    bind:this={element} 
+    on:mousedown={onMouseDown}>
     {@html wrapGateTypeViewInSvgHeader(gateType.view.gridWidth, gateType.view.gridHeight, render, `width="100%" height="100%"`)}
 </button>
 

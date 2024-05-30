@@ -149,13 +149,22 @@
             circuitController={circuitController} 
             bind:this={circuitDraggable}
         />
-        <div class="shelf" style="max-height:{maxSizeState.shelfMaxHeight};" bind:this={shelfContainer}>
+        <div 
+            class="shelf" 
+            style="max-height:{maxSizeState.shelfMaxHeight};" 
+            title="Shelf"
+            bind:this={shelfContainer}
+        >
             {#each shelf as gateTypeController}
                 <GameViewShelfButton circuitDraggable={circuitDraggable} gateType={gateTypeController}/>
             {/each}
         </div>
         
-        <div class="circuit-panel" bind:this={circuitContainer}>
+        <div 
+            class="circuit-panel" 
+            bind:this={circuitContainer}
+            title="Circuit"
+        >
             <GameViewCircuitPanel 
                 bind:this={circuitPanel}
                 gameParams={gameParams}

@@ -10,7 +10,10 @@ export const gameViewComponentTitles = [
     "Sandbox",
     "Editor",
     "Instructions",
-    "Signal Player"
+    "Signal Player",
+    "Shelf",
+    "Circuit",
+    "ShelfButton.Not"
   ]
 
 export async function gotoTutorial(page:Page) {

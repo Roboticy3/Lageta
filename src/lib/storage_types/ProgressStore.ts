@@ -130,7 +130,7 @@ export class ProgressStorage {
 
 class ProgressStorageObject {
     gates:Array<string> = [
-        
+        "Not"
     ]
     levels:Array<string> = []
     currentTutorial:string = "Tutorial"

@@ -262,7 +262,7 @@ test('tutorial progression 8', async ({page}) => {
     await step8(page)
 
     for (let title of gameViewComponentTitles) { 
-        await expect(page.getByTitle(title)).toHaveCount(1)
+        await expect(page.getByTitle(title, {exact:true})).toHaveCount(1)
     }
 })
 
