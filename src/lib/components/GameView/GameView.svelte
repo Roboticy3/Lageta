@@ -8,6 +8,7 @@
     import CompletionPopup from "./CompletionPopup.svelte";
     import CircuitEditorComponent from "./CircuitEditor/CircuitEditorComponent.svelte";
     import { onMount, tick } from "svelte";
+    import { CircuitSignalSetViewEventTarget, SignalSetViewEventTarget } from "$lib/signal_types/SignalSetViewEvent";
 
     /**
      * @type {import("$lib/level_types/GameViewParameters").GameViewParameters}
@@ -44,6 +45,11 @@
         new CircuitSignalSetView(gameParams.completeCondition) : undefined
 
     let progressStorage = new ProgressStorage()
+
+    /**
+     * @type {CircuitSignalSetViewEventTarget | null}
+     */
+    export let signalSetViewEventTarget = null
 
     
     /**
@@ -142,7 +148,11 @@
     </div>
     {#if signalSetView}
         <div class="signal {slidinParams ? 'slidein':''}" title="Signal Player" style="max-height:{maxSizeState.signalMaxHeight};">
-            <SignalViewer circuitController={circuitController} signalSetView={signalSetView} />
+            <SignalViewer 
+                circuitController={circuitController} 
+                signalSetView={signalSetView} 
+                signalSetViewEventTarget={signalSetViewEventTarget}
+            />
         </div>
     {/if}
     <slot />

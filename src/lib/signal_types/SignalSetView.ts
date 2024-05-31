@@ -1,14 +1,20 @@
 import type { CircuitController } from "$lib/circuit_types/CircuitController";
 import type { ConnectionValue } from "$lib/circuit_types/GateType";
 import type { WinCondition } from "$lib/circuit_types/WinCondition";
+import { createCustomEvent } from "$lib/misc_types/CustomEventSystem";
 import { SignalSet, Signal, type SignalKeyFrame, SignalPlayer, type SignalFrameReader, type SignalPointResult, ConnectionValueSignalSet } from "./Signal";
+import { CircuitSignalSetViewEventTarget, SignalSetViewEventTarget, type SignalSetViewEventKey } from "./SignalSetViewEvent";
 
 export class SignalSetView<T> {
     readonly signalSet:SignalSet<T>
     readonly height=20
 
+    private target:EventTarget | null
+
     constructor(
         from:SignalSet<T> | number | T[],
+        target:EventTarget | null = null,
+        signalSetViewEventTarget:SignalSetViewEventTarget<T[]> | undefined = undefined
     ) {
         if (from instanceof SignalSet) {
             this.signalSet = from
@@ -19,6 +25,10 @@ export class SignalSetView<T> {
         else {
             this.signalSet = this.initChannelsWithValue(from)
         }
+
+        this.target = target
+
+        this.signalSetViewEventTarget = signalSetViewEventTarget || new SignalSetViewEventTarget<T[]>()
     }
 
     private initBlankChannels(from:number) {
@@ -107,15 +117,36 @@ export class SignalSetView<T> {
     }
 
     startPlayer(iter: SignalFrameReader<T> | undefined, reset:boolean = false) {
-        if (this.player) this.player.scrub(iter, reset)
+        if (this.player) {
+            this.player.scrub(
+                iter ? (currentValue, currentFrame, update, done) => {
+                    iter(currentValue, currentFrame, update, done)
+                    this.scrubDispatch(currentValue, currentFrame, update, done)
+                } : this.scrubDispatch, 
+                reset
+            )
+            this.dispatchSignalEvent("play")
+        } 
+    }
+
+    private readonly scrubDispatch:SignalFrameReader<T> = (currentValue, currentFrame, update, done) => {
+        this.dispatchSignalEvent("step")
+        if (done) this.dispatchSignalEvent("done")
     }
 
     pausePlayer() {
-        if (this.player) this.player.abortScrub()
+        if (this.player) {
+            this.player.abortScrub()
+            this.dispatchSignalEvent("pause")
+        }
     }
 
     getPlayerValue() {
         if (this.player) return this.player.getCurrentValue()
+    }
+
+    getPlayerFrame() {
+        if (this.player) return this.player.getCurrentFrame()
     }
 
     isPlayerActive() {
@@ -123,21 +154,48 @@ export class SignalSetView<T> {
     }
 
     resetPlayer() {
-        if (this.player) this.player.resetScrub()
+        if (this.player) {
+            this.player.resetScrub()
+            this.dispatchSignalEvent("restart")
+        }
     }
 
     setPlayer(player:SignalPlayer<T>) {
         this.player = player
     }
+
+    private signalSetViewEventTarget
+
+    private createSignalEvent(type:SignalSetViewEventKey) {
+        if (!this.player) return undefined
+
+        return createCustomEvent(
+            {
+                frame:this.player.getCurrentFrame(),
+                value:this.player.getCurrentValue()
+            },
+            type, this.target
+        )
+    }
+
+    private dispatchSignalEvent(type:SignalSetViewEventKey) {
+        const evt = this.createSignalEvent(type)
+        if (!evt) {
+            throw Error(`SignalSetView tried to throw a signal event with no player!`)
+        }          
+        this.signalSetViewEventTarget.dispatchEvent(evt)
+    }
+
+    setTarget(newTarget:EventTarget) {
+        this.target = newTarget
+    }
+
+    setEventTarget(newEventTarget:SignalSetViewEventTarget<T[]>) {
+        this.signalSetViewEventTarget = newEventTarget
+    }
 }
 
 export class CircuitSignalSetView extends SignalSetView<ConnectionValue> implements WinCondition {
-
-    constructor(
-        from:ConnectionValueSignalSet | SignalSet<ConnectionValue> | number | ConnectionValue[],
-    ) {
-        super(from)
-    }
 
     frameWidth = 3
     frameTime = 250

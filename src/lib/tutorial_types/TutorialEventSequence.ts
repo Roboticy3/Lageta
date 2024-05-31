@@ -2,6 +2,8 @@ import { SvelteComponent } from "svelte";
 import { TutorialEventTarget, type TutorialEventKey, type TutorialEventListener } from "./TutorialEvent";
 import { GameViewCircuitPanelEventTarget, type GameViewCircuitPanelEvent, type GameViewCircuitPanelEventKey, type GameViewCircuitPanelEventListener } from "$lib/circuit_types/GameViewCircuitPanelEvent";
 import { CustomEventTarget, type CustomEventListener, type CustomEvent, createCustomEvent } from "$lib/misc_types/CustomEventSystem";
+import { CircuitSignalSetViewEventTarget, SignalSetViewEventTarget, type SignalSetViewEvent, type SignalSetViewEventKey } from "$lib/signal_types/SignalSetViewEvent";
+import type { ConnectionValue } from "$lib/circuit_types/GateType";
 
 type TutorialEvent = {eventName:GameViewCircuitPanelEventKey | TutorialEventKey, f:(evt:any) => Promise<boolean | undefined>}
 export type TutorialEventSequence = TutorialEvent[]
@@ -93,6 +95,28 @@ export class TutorialEventSequenceController implements TutorialEventSequenceCon
         prepareNextEvent
 
         async dispatchEvent(event:CustomEvent<GameViewCircuitPanelEvent, GameViewCircuitPanelEventKey>) {
+            const set = this.eventMap.get(event.type)
+            if (!set) return false
+            for (let ev of set) {
+                if (await ev(event)) {
+                    this.prepareNextEvent(event)
+                }
+            }
+            return true
+        }
+    }(this.prepareNextEvent.bind(this))
+
+    readonly signalEventTarget = new class extends CircuitSignalSetViewEventTarget {
+        constructor(
+            prepareNextEvent: (from:CustomEvent<any, any>) => void
+        ) {
+            super()
+            this.prepareNextEvent = prepareNextEvent
+        }
+
+        prepareNextEvent
+
+        async dispatchEvent(event:CustomEvent<SignalSetViewEvent<ConnectionValue[]>, SignalSetViewEventKey>) {
             const set = this.eventMap.get(event.type)
             if (!set) return false
             for (let ev of set) {

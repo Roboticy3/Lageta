@@ -5,11 +5,18 @@
     import { onMount } from "svelte";
     import ResizingSvg from "../Misc/ResizingSvg.svelte";
     import { ConnectionValueSignalSet } from "$lib/signal_types/Signal";
+    import { CircuitSignalSetViewEventTarget, SignalSetViewEventTarget } from "$lib/signal_types/SignalSetViewEvent";
+    import { createCustomEvent } from "$lib/misc_types/CustomEventSystem";
     /**
      * @type {CircuitSignalSetView}
      */
     export let signalSetView
     let channelSvgs = signalSetView.drawChannels()
+
+    /**
+     * @type {CircuitSignalSetViewEventTarget | null}
+     */
+    export let signalSetViewEventTarget = null
 
     let labelOffset = 50
 
@@ -23,11 +30,11 @@
     /**
      * @type {CircuitSignalSetView}
      */
-    export let outputSignalSetView =  new CircuitSignalSetView(circuitController.getOutputs())
+    export let outputSignalSetView =  new CircuitSignalSetView(circuitController.getOutputs(), null)
     let liveChannelSvgs = outputSignalSetView.drawChannels(0)
 
     function resetOutputSignalSetView() {
-        outputSignalSetView = new CircuitSignalSetView(circuitController.getOutputs())
+        outputSignalSetView = new CircuitSignalSetView(circuitController.getOutputs(), container)
         liveChannelSvgs = outputSignalSetView.drawChannels(0)
     }
 
@@ -41,11 +48,27 @@
     onMount(() => {
         signalSetView.createPlayer(100)
         signalSetView.sendPlayerToController(circuitController)
+        signalSetView.setTarget(container)
+        outputSignalSetView.setTarget(container)
         
         restart()
-        
-        signalSetView.addListener(circuitController.setDesiredOutputs.bind(circuitController))
+
+        if (!signalSetViewEventTarget) 
+            signalSetViewEventTarget = new CircuitSignalSetViewEventTarget()
+        signalSetView.setEventTarget(signalSetViewEventTarget)
+
+        signalSetViewEventTarget.addEventListener("step", updateDesiredOutputs)
+        signalSetViewEventTarget.addEventListener("play", updateDesiredOutputs)
     })
+
+
+    /**
+     * @param {{ value: import("$lib/circuit_types/GateType").ConnectionValue[]; }} withKeyFrame
+     */
+    function updateDesiredOutputs(withKeyFrame) {
+        console.log("signal wants desired outputs", withKeyFrame.value)
+        circuitController.setDesiredOutputs(withKeyFrame.value.slice(-signalSetView.getOutputSize()))
+    }
 
     /**
      * @type {SVGElement | null}
@@ -110,7 +133,9 @@
         if (done) {
             atEnd = true
             pause()
-            if (signalSetView.isCircuitValid()) circuitController.complete()
+            if (signalSetView.isCircuitValid()) {
+                circuitController.complete()
+            }
         }  
     }
 

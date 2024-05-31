@@ -128,6 +128,7 @@
             inputCheckBoxes:state.showInputCheckboxes
         }}
         existingEditor={editor}
+        signalSetViewEventTarget={eventStagesController.signalEventTarget}
         bind:maxSizeState={maxSizeState}
     >
         <GameViewContentsTutorial 

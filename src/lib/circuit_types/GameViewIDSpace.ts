@@ -1,5 +1,6 @@
 import { randomInt } from "crypto";
 
+
 export interface GameViewIDSpace {
     idString(componentName:string): string;
 }

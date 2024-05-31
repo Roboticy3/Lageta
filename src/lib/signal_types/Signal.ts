@@ -1,7 +1,7 @@
 import { createGate } from "$lib/circuit_types/Gate"
 import { GateType, GateTypeController, type ConnectionValue } from "$lib/circuit_types/GateType"
 
-export type SignalKeyFrame<T> = {
+export interface SignalKeyFrame<T> {
     frame:number,
     value:T
 }
@@ -423,6 +423,10 @@ export class SignalPlayer<T> {
             return this.initialValue
         }
         return Array.from(this.currentKeyFrame.value)
+    }
+
+    getCurrentFrame() {
+        return this.currentFrame
     }
 
     isScrubbing() {
