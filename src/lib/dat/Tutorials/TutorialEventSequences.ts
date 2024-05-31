@@ -135,7 +135,7 @@ export function EventSequenceTutorial(state:any): TutorialEventSequence {return 
         eventName:"step",f:async (evt) => {
             if (
                 state.circuitController &&
-                evt.frame >= 20
+                evt.frame >= 50
             ) {
                 return true
             }

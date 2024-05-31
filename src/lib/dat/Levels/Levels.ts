@@ -442,12 +442,9 @@ export const Tutorial = {
         new ConnectionValueSignalSet(
             [
                 new Signal<ConnectionValue>([{frame:0,value:false}])
-                    .push(oscillator(10, 2))
-                    .push(oscillator(5, 3))
-                    .push(oscillator(3, 3))
-                    .push(oscillator(1, 6))
+                    .push(oscillator(10, 7))
             ],
-            101,
+            141,
             getGateType(Not)
         ),
         [

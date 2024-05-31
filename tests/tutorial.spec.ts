@@ -312,7 +312,7 @@ test('tutorial progression 11', async ({page}) => {
 
 async function step12(page:Page) {
     await step11(page)
-    await page.waitForTimeout(3000)
+    await page.waitForTimeout(10000)
 }
 
 /**
