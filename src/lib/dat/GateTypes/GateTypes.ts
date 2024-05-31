@@ -237,17 +237,17 @@ export const InputDecodePrebaked = [
 
 export const OutputLabelledPrebaked = [
     Buf,
-    Output(1,{ name:"Output1Labelled", outputLabels: ["Output"], gridSize: [2, 1] }),
-    Output(2,{ name:"Output2Labelled", outputLabels: ["Output 1", "Output 2"], gridSize: [2, 2] }),
-    Output(3,{ name:"Output3Labelled", outputLabels: ["Output 1", "Output 2", "Output 3"], gridSize: [2, 3] }),
-    Output(4,{ name:"Output4Labelled", outputLabels: ["Output 1", "Output 2", "Output 3", "Output 4"], gridSize: [2, 4] })
+    Output(1,{ name:"Output1Labelled", inputLabels: ["Output"], gridSize: [2, 1] }),
+    Output(2,{ name:"Output2Labelled", inputLabels: ["Output 1", "Output 2"], gridSize: [2, 2] }),
+    Output(3,{ name:"Output3Labelled", inputLabels: ["Output 1", "Output 2", "Output 3"], gridSize: [2, 3] }),
+    Output(4,{ name:"Output4Labelled", inputLabels: ["Output 1", "Output 2", "Output 3", "Output 4"], gridSize: [2, 4] })
 ]
 
 export const OutputDecodePrebaked = [
     Buf,
-    Output(1,{ name:"Output1Decode", outputLabels: ["Output"], gridSize: [2, 2], draw:(s) => drawGateTypeDecode(s, 2, 1)}),
-    Output(2,{ name:"Output2Decode", outputLabels: ["Output 0", "Output 1"], gridSize: [2, 2], draw:(s) => drawGateTypeDecode(s, 2, 2)}),
-    Output(4,{ name:"Output4Decode", outputLabels: ["Output 0", "Output 1", "Output 2", "Output 3"], gridSize: [2, 4], draw:(s) => drawGateTypeDecode(s, 2, 4)}),
+    Output(1,{ name:"Output1Decode", inputLabels: ["Output"], gridSize: [2, 2], draw:(s) => drawGateTypeDecode(s, 2, 1)}),
+    Output(2,{ name:"Output2Decode", inputLabels: ["Output 0", "Output 1"], gridSize: [2, 2], draw:(s) => drawGateTypeDecode(s, 2, 2)}),
+    Output(4,{ name:"Output4Decode", inputLabels: ["Output 0", "Output 1", "Output 2", "Output 3"], gridSize: [2, 4], draw:(s) => drawGateTypeDecode(s, 2, 4)}),
 ]
 
 function decodeInternal(s:GateState, bits:number) {
