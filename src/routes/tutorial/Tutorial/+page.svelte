@@ -31,6 +31,7 @@
         circuitController:circuitController,
         input:true,
         output:undefined,
+        expectedOutput:undefined,
         showShelf:false,
         rendererParams: {
             showGrid:false,

@@ -38,7 +38,11 @@
         /**
          * @type {import("$lib/circuit_types/GateType").ConnectionValue}
         */
-        output:undefined
+        output:undefined,
+        /**
+         * @type {import("$lib/circuit_types/GateType").ConnectionValue}
+        */
+        expectedOutput:undefined
     }
 
     export function getState() {
@@ -47,9 +51,17 @@
 
     function setConnectionValues() {
         state.input = circuitController.getInputs()[0]
-        state.output = circuitController.getOutputs()[0]
+        const outputs = circuitController.getOutputs()
+        state.output = outputs[0]
+        state.expectedOutput = circuitController.getPlayerValue()?.slice(-outputs.length)[0]
         state = state
     }
+
+    const valueLabelColors = new Map([
+        [true, "var(--connection-color-on)"],
+        [false, "var(--connection-color-off)"],
+        [undefined, "var(--connection-color-x)"]
+    ])
 
     onMount(() => {
         circuitController.addGraphListener("update", setConnectionValues)
@@ -62,7 +74,18 @@
     position={[1.35, 1.25]}
 />
 
-
+{#if state.currentEvent === 13}
+    <TutorialText
+        position={[50, 15]}
+        on:continue={dispatch.bind(dispatch, 'continue')}
+        showButton={false}
+    >   
+        <div style="color:black; white-space: nowrap;">
+            <div>As the signal changes, it <span style="color:{valueLabelColors.get(state.input)}">sends voltage to the input</span>,</div>
+            <div>but also <span style="color:{valueLabelColors.get(state.expectedOutput)}">expects a certain output</span> from the circuit</div>
+        </div>
+    </TutorialText>
+{/if}
 
 {#if state.currentEvent === 8} 
     <TutorialText 

@@ -12,6 +12,7 @@ export function EventSequenceTutorial(state:any): TutorialEventSequence {return 
             ) {
                 state.circuitController.addGateAtCell(getGateType(OutputLabelledPrebaked[1]), 8, 2) 
                 state.circuitController.setDesiredOutputs([true])
+                state.expectedOutput = true
                 state.indicator?.setPosition([7.75, 1.25])
                 return true
             }
@@ -40,6 +41,7 @@ export function EventSequenceTutorial(state:any): TutorialEventSequence {return 
                 state.circuitController.getOutputs()[0] === true
             ) {
                 state.circuitController.setDesiredOutputs([false])
+                state.expectedOutput = false
                 state.indicator?.show()
                 state.indicator?.setPosition([0.65, 0.75])
                 return true
@@ -66,6 +68,7 @@ export function EventSequenceTutorial(state:any): TutorialEventSequence {return 
                 state.circuitController.getOutputs()[0] === false
             ) {
                 state.circuitController.setDesiredOutputs([undefined])
+                state.expectedOutput = undefined
                 state.indicator?.setPosition([7.75, 1.25])
                 return true
             } 
@@ -90,7 +93,7 @@ export function EventSequenceTutorial(state:any): TutorialEventSequence {return 
                 state.circuitController &&
                 state.circuitController.getOutputs()[0] === undefined
             ) { 
-                state.circuitController.setDesiredOutputs()              
+                state.circuitController.setDesiredOutputs()             
                 return true
             } 
         }
