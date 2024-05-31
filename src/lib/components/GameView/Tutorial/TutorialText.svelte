@@ -18,43 +18,41 @@
 </script>
 
 <div class="tutorial-container" style="position:absolute; left:{position[0]}%; top:{position[1]}%;">
-    <div class="tutorial-text">
-        <slot />
+    <div style="left:-50%; position:relative; display:flex; flex-direction:column">
+        <div class="tutorial-text">
+            <slot />
+        </div>
+        {#if showButton }
+            <button 
+                class="tutorial-continue {availableButton ? '':'unavailable'}"
+                on:click={() => {dispatch('continue', 'ev')}}
+                data-testid="continue"
+            >
+                Continue
+            </button>
+        {/if}
     </div>
-    {#if showButton }
-        <button 
-            class="tutorial-continue {availableButton ? '':'unavailable'}"
-            on:click={() => {dispatch('continue', 'ev')}}
-            data-testid="continue"
-        >
-            Continue
-        </button>
-    {/if}
 </div>
 
 <style>
     .tutorial-container {
         pointer-events:none;
-        display:flex;
-        flex-direction: column;
         transition: left 1s, top 1s;
         animation-name: --position-anim;
         animation-duration: 1s;
     }
 
     .tutorial-text {
-        position:relative;
         font-size:large;
-        left:-50%;
         scale:1.5;
+        padding:5%;
+        box-sizing: border-box;
     }
 
     .tutorial-continue {
-        position:relative;
         pointer-events:initial;
-        display: inline-flex;
-        align-self: center;
-        left:-50%;
+        display:inline-flex;
+        align-self:center;
     }
 
     .unavailable {

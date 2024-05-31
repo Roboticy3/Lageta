@@ -75,6 +75,7 @@ export class TutorialEventSequenceController implements TutorialEventSequenceCon
             for (let ev of set) {
                 if (await ev(event)) {
                     this.prepareNextEvent(event)
+                    break
                 }
             }
             return true
