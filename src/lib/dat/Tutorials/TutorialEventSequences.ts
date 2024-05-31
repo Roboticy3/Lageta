@@ -141,5 +141,10 @@ export function EventSequenceTutorial(state:any): TutorialEventSequence {return 
             }
         }
     },
-    
+    {
+        //13: wait for the user to accept the text
+        eventName:"continue",f:async (evt) => {
+            return true
+        }
+    },
 ]}

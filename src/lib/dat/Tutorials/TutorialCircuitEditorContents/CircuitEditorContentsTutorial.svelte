@@ -78,7 +78,7 @@
     <TutorialText
         position={[50, 15]}
         on:continue={dispatch.bind(dispatch, 'continue')}
-        showButton={false}
+        showButton={true}
     >   
         <div style="color:black; white-space: nowrap;">
             <div>As the signal changes, it <span style="color:{valueLabelColors.get(state.input)}">sends voltage to the input</span>,</div>
