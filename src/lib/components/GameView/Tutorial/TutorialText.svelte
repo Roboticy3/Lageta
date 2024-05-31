@@ -22,7 +22,7 @@
         <div class="tutorial-text">
             <slot />
         </div>
-        {#if showButton }
+        {#if showButton === true}
             <button 
                 class="tutorial-continue {availableButton ? '':'unavailable'}"
                 on:click={() => {dispatch('continue', 'ev')}}

@@ -33,6 +33,7 @@
         output:undefined,
         expectedOutput:undefined,
         showShelf:false,
+        signalPlaying:false,
         rendererParams: {
             showGrid:false,
             showGates:false,
@@ -46,12 +47,28 @@
     let editor
     $: state.editor = editor
 
-    let eventStagesController = new TutorialEventSequenceController(
+    const eventStagesController = new TutorialEventSequenceController(
         EventSequenceTutorial(state)
     )
     eventStagesController.eventSequenceTarget.addEventListener('preparenext', ({idxOffset}) => { 
         state.currentEvent += idxOffset
         console.log("prepared", state.currentEvent)
+        state = state
+    })
+    eventStagesController.signalEventTarget.addEventListener('play', () => { 
+        state.signalPlaying = true
+        state = state
+    })
+    eventStagesController.signalEventTarget.addEventListener('pause', () => { 
+        state.signalPlaying = false
+        state = state
+    })
+    eventStagesController.signalEventTarget.addEventListener('restart', () => { 
+        state.signalPlaying = false
+        state = state
+    })
+    eventStagesController.signalEventTarget.addEventListener('done', () => { 
+        state.signalPlaying = false
         state = state
     })
 

@@ -21,21 +21,9 @@
             if (state.currentEvent === 10 && evt.frame >= 50) {
                 eventStagesController.prepareNextEvent(evt, 3)
             }
-            console.log("skipping to", state.currentEvent)
         })
     })
 </script>
-
-{#if state.currentEvent === 10}
-    <TutorialText
-        position={[85, 30]}
-        on:continue={dispatch.bind(dispatch, 'continue')}
-    >   
-        <p style="color:black; width:150%;">
-            This is a level.
-        </p>
-    </TutorialText>
-{/if}
 
 {#if state.currentEvent === 11}
     <TutorialText
@@ -47,5 +35,17 @@
             <div>This is the Signal. Press the play button</div>
             <div>to see what happens in the circuit.</div>
         </div>
+    </TutorialText>
+{/if}
+
+{#if state.currentEvent === 10}
+    <TutorialText
+        position={[85, 30]}
+        on:continue={dispatch.bind(dispatch, 'continue')}
+        availableButton={!(state.signalPlaying)}
+    >   
+        <p style="color:black; width:150%;">
+            This is a level.
+        </p>
     </TutorialText>
 {/if}

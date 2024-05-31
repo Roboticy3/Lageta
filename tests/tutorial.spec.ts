@@ -336,7 +336,12 @@ test('tutorial progression 12A', async ({page}) => {
 
     await page.locator('#signal-play-button').click()
 
+    await page.getByTestId('continue').click({force:true})
+
+    await expect(page.getByText('This is a level')).toHaveCount(1)
+
     await page.waitForTimeout(10000)
 
+    await expect(page.getByText('This is a level')).toHaveCount(0)
     await expect(page.getByText('As the signal changes')).toHaveCount(1)
 })
