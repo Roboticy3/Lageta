@@ -122,9 +122,20 @@ export function EventSequenceTutorial(state:any): TutorialEventSequence {return 
         }
     },
     {
-        //10: wait for the user to press continue
+        //11: wait for the user to press play on the signal
         eventName:"play",f:async (evt) => {
             return true
+        }
+    },
+    {
+        //12: wait for the signal to get a certain frame before telling the player what's going on
+        eventName:"step",f:async (evt) => {
+            if (
+                state.circuitController &&
+                evt.frame >= 20
+            ) {
+                return true
+            }
         }
     },
     

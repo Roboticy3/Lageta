@@ -293,5 +293,35 @@ test('tutorial progression 10', async ({page}) => {
     await step10(page)
 
     await expect(page.getByText('This is a level')).toHaveCount(0)
-    await expect(page.getByText('the signal')).toHaveCount(1)
+    await expect(page.getByText('This is the signal')).toHaveCount(1)
+})
+
+async function step11(page:Page) {
+    await step10(page)
+    await page.locator('#signal-play-button').click()
+}
+
+test('tutorial progression 11', async ({page}) => {
+    await gotoTutorial(page)
+
+    await step11(page)
+
+    await expect(page.getByText('This is the signal')).toHaveCount(0)
+    await expect(page.getByText('As the signal changes')).toHaveCount(0)
+})
+
+async function step12(page:Page) {
+    await step11(page)
+    await page.waitForTimeout(3000)
+}
+
+/**
+ * Step 12 is just waiting for the signal
+ */
+test('tutorial progression 12', async ({page}) => {
+    await gotoTutorial(page)
+
+    await step12(page)
+
+    await expect(page.getByText('As the signal changes')).toHaveCount(1)
 })

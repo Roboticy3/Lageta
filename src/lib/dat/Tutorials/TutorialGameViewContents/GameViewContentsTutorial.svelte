@@ -34,3 +34,16 @@
         </div>
     </TutorialText>
 {/if}
+
+{#if state.currentEvent === 13}
+    <TutorialText
+        position={[30, 25]}
+        on:continue={dispatch.bind(dispatch, 'continue')}
+        showButton={false}
+    >   
+        <div style="color:black; white-space: nowrap;">
+            <div>As the signal changes, it sends voltage to the input</div>
+            <div>But also expects a certain output from the circuit</div>
+        </div>
+    </TutorialText>
+{/if}

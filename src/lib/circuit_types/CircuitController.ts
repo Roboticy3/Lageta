@@ -680,6 +680,8 @@ export class CircuitController {
         return this.player?.isScrubbing() || false
     }
 
+    
+
     setDesiredConnectionValues(
         data:{index:ConnectionIndex, value:ConnectionValue}[] | undefined = undefined
     ) {
