@@ -25,6 +25,20 @@
     })
 </script>
 
+{#if state.currentEvent === 14}
+    <TutorialText
+        position={[50, 15]}
+        on:continue={dispatch.bind(dispatch, 'continue')}
+        showButton={true}
+    >   
+        <div style="color:black; white-space: nowrap;">
+            <div>Looks like this circuit isn't correct.</div>
+            <div>But flipping the input manually seems like a pain...</div>
+            <div>To match the signal, we can <span style="font-style:italic;">transform</span> the input to match the expected output.</div>
+        </div>
+    </TutorialText>
+{/if}
+
 {#if state.currentEvent === 11}
     <TutorialText
         position={[50, 85]}

@@ -76,13 +76,16 @@
 
 {#if state.currentEvent === 13}
     <TutorialText
-        position={[35, 5]}
+        position={[40, 5]}
         on:continue={dispatch.bind(dispatch, 'continue')}
         showButton={true}
     >   
         <div style="color:black; white-space: nowrap;">
-            <div>As the signal changes, it <span style="color:{valueLabelColors.get(state.input)}">sends voltage to the input</span>,</div>
-            <div>but also <span style="color:{valueLabelColors.get(state.expectedOutput)}">expects a certain output</span> from the circuit</div>
+            <div style="left:10vw;">As the signal changes,</div>
+            <div style="display:flex; flex-direction:row; width:125%; justify-content:space-between">
+                <div>it <span style="color:{valueLabelColors.get(state.input)}">sends voltage to the input</span>,</div>
+                <div>but also <span style="color:{valueLabelColors.get(state.expectedOutput)}">expects a certain output</span></div>
+            </div>
         </div>
     </TutorialText>
 {/if}
