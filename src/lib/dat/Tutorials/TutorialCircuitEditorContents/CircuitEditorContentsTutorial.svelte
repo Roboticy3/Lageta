@@ -76,7 +76,7 @@
 
 {#if state.currentEvent === 13}
     <TutorialText
-        position={[50, 15]}
+        position={[35, 5]}
         on:continue={dispatch.bind(dispatch, 'continue')}
         showButton={true}
     >   

@@ -14,7 +14,7 @@ export function EventSequenceTutorial(state:any): TutorialEventSequence {return 
                 state.circuitController.setDesiredOutputs([true])
                 state.expectedOutput = true
                 state.indicator?.setPosition([7.75, 1.25])
-                return true
+                return 1
             }
         }
     },
@@ -28,7 +28,7 @@ export function EventSequenceTutorial(state:any): TutorialEventSequence {return 
             ) {
                 state.indicator?.hide()
                 state.showInputCheckboxes = true
-                return true
+                return 1
             }
         }
     },
@@ -44,7 +44,7 @@ export function EventSequenceTutorial(state:any): TutorialEventSequence {return 
                 state.expectedOutput = false
                 state.indicator?.show()
                 state.indicator?.setPosition([0.65, 0.75])
-                return true
+                return 1
             }
         }
     },
@@ -55,7 +55,7 @@ export function EventSequenceTutorial(state:any): TutorialEventSequence {return 
                 state.circuitController &&
                 state.circuitController.getOutputs()[0] === false
             ) {
-                return true
+                return 1
             } 
         }
     },
@@ -70,7 +70,7 @@ export function EventSequenceTutorial(state:any): TutorialEventSequence {return 
                 state.circuitController.setDesiredOutputs([undefined])
                 state.expectedOutput = undefined
                 state.indicator?.setPosition([7.75, 1.25])
-                return true
+                return 1
             } 
         }
     },
@@ -82,7 +82,7 @@ export function EventSequenceTutorial(state:any): TutorialEventSequence {return 
                 state.circuitController.getOutputs()[0] === undefined
             ) {   
                 state.indicator?.hide()        
-                return true
+                return 1
             } 
         }
     },
@@ -94,7 +94,7 @@ export function EventSequenceTutorial(state:any): TutorialEventSequence {return 
                 state.circuitController.getOutputs()[0] === undefined
             ) { 
                 state.circuitController.setDesiredOutputs()             
-                return true
+                return 1
             } 
         }
     },
@@ -106,7 +106,7 @@ export function EventSequenceTutorial(state:any): TutorialEventSequence {return 
                 state.circuitController &&
                 state.circuitController.getOutputs()[0] === state.circuitController.getInputs()[0]
             ) {   
-                return true
+                return 1
             } 
         }
     },
@@ -115,19 +115,19 @@ export function EventSequenceTutorial(state:any): TutorialEventSequence {return 
         //reset the rendererParams to show everything
         eventName:"continue",f:async (evt) => {
             state.rendererParams = {}
-            return true 
+            return 1 
         }
     },
     {
         //10: wait for the user to press continue
         eventName:"continue",f:async (evt) => {
-            return true
+            return 1
         }
     },
     {
         //11: wait for the user to press play on the signal
         eventName:"play",f:async (evt) => {
-            return true
+            return 1
         }
     },
     {
@@ -137,14 +137,14 @@ export function EventSequenceTutorial(state:any): TutorialEventSequence {return 
                 state.circuitController &&
                 evt.frame >= 50
             ) {
-                return true
+                return 1
             }
         }
     },
     {
         //13: wait for the user to accept the text
         eventName:"continue",f:async (evt) => {
-            return true
+            return 1
         }
     },
 ]}

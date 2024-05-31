@@ -1,7 +1,8 @@
 
 <script>
     import TutorialText from "$lib/components/GameView/Tutorial/TutorialText.svelte";
-    import { createEventDispatcher } from "svelte";
+    import { TutorialEventSequenceController } from "$lib/tutorial_types/TutorialEventSequence";
+    import { createEventDispatcher, onMount } from "svelte";
 
     const dispatch = createEventDispatcher()
 
@@ -9,6 +10,20 @@
      * @type {any}
      */
     export let state = {}
+
+    /**
+     * Add a non-linear event to the tutorial where the user can skip pressing continue if they press play on the signal first
+     * @type {TutorialEventSequenceController}
+     */
+    export let eventStagesController
+    onMount(() => {
+        eventStagesController.signalEventTarget.addEventListener("step", (evt) => {
+            if (state.currentEvent === 10 && evt.frame >= 50) {
+                eventStagesController.prepareNextEvent(evt, 3)
+            }
+            console.log("skipping to", state.currentEvent)
+        })
+    })
 </script>
 
 {#if state.currentEvent === 10}

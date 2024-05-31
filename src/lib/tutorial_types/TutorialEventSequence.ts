@@ -5,7 +5,7 @@ import { CustomEventTarget, type CustomEventListener, type CustomEvent, createCu
 import { CircuitSignalSetViewEventTarget, SIGNALSETVIEWEVENTKEYS, SignalSetViewEventTarget, type SignalSetViewEvent, type SignalSetViewEventKey } from "$lib/signal_types/SignalSetViewEvent";
 import type { ConnectionValue } from "$lib/circuit_types/GateType";
 
-type TutorialEvent = {eventName:GameViewCircuitPanelEventKey | TutorialEventKey | SignalSetViewEventKey, f:(evt:any) => Promise<boolean | undefined>}
+type TutorialEvent = {eventName:GameViewCircuitPanelEventKey | TutorialEventKey | SignalSetViewEventKey, f:(evt:any) => Promise<number | undefined>}
 export type TutorialEventSequence = TutorialEvent[]
 
 export interface TutorialEventSequenceControllerTemplate {
@@ -19,7 +19,7 @@ export const TUTORIALEVENTSEQUENCEEVENTKEYS = ["preparenext"] as const
 type TutorialEventSequenceEventKeyTuple = typeof TUTORIALEVENTSEQUENCEEVENTKEYS
 export type TutorialEventSequenceEventKey = TutorialEventSequenceEventKeyTuple[number]
 
-export interface TutorialEventSequenceEvent {}
+export interface TutorialEventSequenceEvent {idxOffset:number}
 
 export type TutorialEventSequenceEventListener = CustomEventListener<TutorialEventSequenceEvent, TutorialEventSequenceEventKey>
 
@@ -61,15 +61,15 @@ export class TutorialEventSequenceController implements TutorialEventSequenceCon
             this.signalEventTarget.removeEventListener(name, stage.f)
         }
     }
-    prepareNextEvent(from:CustomEvent<any, any>): void {
-        this.currentEvent++
-        this.unstageEvent(this.currentEvent - 2)
+    prepareNextEvent(from:CustomEvent<any, any>, idxOffset:number = 1): void {
+        this.currentEvent += idxOffset
+        this.unstageEvent(this.currentEvent - (idxOffset + 1))
         this.stageEvent(this.currentEvent - 1)
         this.eventSequenceTarget.dispatchEvent(
             createCustomEvent<
                 TutorialEventSequenceEvent, 
                 TutorialEventSequenceEventKey
-            >({}, "preparenext", from.target)
+            >({idxOffset:idxOffset}, "preparenext", from.target)
         )
     }
 
@@ -82,7 +82,7 @@ export class TutorialEventSequenceController implements TutorialEventSequenceCon
     readonly eventSequenceTarget: TutorialEventSequenceEventTarget = new TutorialEventSequenceEventTarget()
     readonly tutorialEventTarget = new class extends TutorialEventTarget {
         constructor(
-            prepareNextEvent: (from:CustomEvent<any, any>) => void
+            prepareNextEvent: (from:CustomEvent<any, any>, idxOffset:number) => void
         ) {
             super()
             this.prepareNextEvent = prepareNextEvent
@@ -94,8 +94,9 @@ export class TutorialEventSequenceController implements TutorialEventSequenceCon
             const set = this.eventMap.get(event.type)
             if (!set) return false
             for (let ev of set) {
-                if (await ev(event)) {
-                    this.prepareNextEvent(event)
+                const result = await ev(event)
+                if (result) {
+                    this.prepareNextEvent(event, result)
                     break
                 }
             }
@@ -105,7 +106,7 @@ export class TutorialEventSequenceController implements TutorialEventSequenceCon
 
     readonly editorEventTarget = new class extends GameViewCircuitPanelEventTarget {
         constructor(
-            prepareNextEvent: (from:CustomEvent<any, any>) => void
+            prepareNextEvent: (from:CustomEvent<any, any>, idxOffset:number) => void
         ) {
             super()
             this.prepareNextEvent = prepareNextEvent
@@ -117,8 +118,10 @@ export class TutorialEventSequenceController implements TutorialEventSequenceCon
             const set = this.eventMap.get(event.type)
             if (!set) return false
             for (let ev of set) {
-                if (await ev(event)) {
-                    this.prepareNextEvent(event)
+                const result = await ev(event)
+                if (result) {
+                    this.prepareNextEvent(event, result)
+                    break
                 }
             }
             return true
@@ -127,7 +130,7 @@ export class TutorialEventSequenceController implements TutorialEventSequenceCon
 
     readonly signalEventTarget = new class extends CircuitSignalSetViewEventTarget {
         constructor(
-            prepareNextEvent: (from:CustomEvent<any, any>) => void
+            prepareNextEvent: (from:CustomEvent<any, any>, idxOffset:number) => void
         ) {
             super()
             this.prepareNextEvent = prepareNextEvent
@@ -139,8 +142,10 @@ export class TutorialEventSequenceController implements TutorialEventSequenceCon
             const set = this.eventMap.get(event.type)
             if (!set) return false
             for (let ev of set) {
-                if (await ev(event)) {
-                    this.prepareNextEvent(event)
+                const result = await ev(event)
+                if (result) {
+                    this.prepareNextEvent(event, result)
+                    break
                 }
             }
             return true

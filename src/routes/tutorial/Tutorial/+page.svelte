@@ -49,8 +49,8 @@
     let eventStagesController = new TutorialEventSequenceController(
         EventSequenceTutorial(state)
     )
-    eventStagesController.eventSequenceTarget.addEventListener('preparenext', () => { 
-        state.currentEvent++
+    eventStagesController.eventSequenceTarget.addEventListener('preparenext', ({idxOffset}) => { 
+        state.currentEvent += idxOffset
         console.log("prepared", state.currentEvent)
         state = state
     })
@@ -134,6 +134,7 @@
     >
         <GameViewContentsTutorial 
             state={state}
+            eventStagesController={eventStagesController}
             on:continue={onContinue}
         />
     </GameView>
