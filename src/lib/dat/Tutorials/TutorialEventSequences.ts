@@ -118,7 +118,12 @@ export function EventSequenceTutorial(state:any): TutorialEventSequence {return 
     {
         //10: wait for the user to press continue
         eventName:"continue",f:async (evt) => {
-            
+            return true
+        }
+    },
+    {
+        //10: wait for the user to press continue
+        eventName:"play",f:async (evt) => {
             return true
         }
     },

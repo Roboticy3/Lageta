@@ -1,11 +1,11 @@
 import { SvelteComponent } from "svelte";
-import { TutorialEventTarget, type TutorialEventKey, type TutorialEventListener } from "./TutorialEvent";
-import { GameViewCircuitPanelEventTarget, type GameViewCircuitPanelEvent, type GameViewCircuitPanelEventKey, type GameViewCircuitPanelEventListener } from "$lib/circuit_types/GameViewCircuitPanelEvent";
+import { TUTORIALEVENTKEYS, TutorialEventTarget, type TutorialEventKey, type TutorialEventListener } from "./TutorialEvent";
+import { GAMEVIEWCIRCUITPANELEVENTKEYS, GameViewCircuitPanelEventTarget, type GameViewCircuitPanelEvent, type GameViewCircuitPanelEventKey, type GameViewCircuitPanelEventListener } from "$lib/circuit_types/GameViewCircuitPanelEvent";
 import { CustomEventTarget, type CustomEventListener, type CustomEvent, createCustomEvent } from "$lib/misc_types/CustomEventSystem";
-import { CircuitSignalSetViewEventTarget, SignalSetViewEventTarget, type SignalSetViewEvent, type SignalSetViewEventKey } from "$lib/signal_types/SignalSetViewEvent";
+import { CircuitSignalSetViewEventTarget, SIGNALSETVIEWEVENTKEYS, SignalSetViewEventTarget, type SignalSetViewEvent, type SignalSetViewEventKey } from "$lib/signal_types/SignalSetViewEvent";
 import type { ConnectionValue } from "$lib/circuit_types/GateType";
 
-type TutorialEvent = {eventName:GameViewCircuitPanelEventKey | TutorialEventKey, f:(evt:any) => Promise<boolean | undefined>}
+type TutorialEvent = {eventName:GameViewCircuitPanelEventKey | TutorialEventKey | SignalSetViewEventKey, f:(evt:any) => Promise<boolean | undefined>}
 export type TutorialEventSequence = TutorialEvent[]
 
 export interface TutorialEventSequenceControllerTemplate {
@@ -15,7 +15,9 @@ export interface TutorialEventSequenceControllerTemplate {
     getEvent(idx:number): TutorialEvent
 }
 
-export type TutorialEventSequenceEventKey = "preparenext"
+export const TUTORIALEVENTSEQUENCEEVENTKEYS = ["preparenext"] as const
+type TutorialEventSequenceEventKeyTuple = typeof TUTORIALEVENTSEQUENCEEVENTKEYS
+export type TutorialEventSequenceEventKey = TutorialEventSequenceEventKeyTuple[number]
 
 export interface TutorialEventSequenceEvent {}
 
@@ -24,22 +26,39 @@ export type TutorialEventSequenceEventListener = CustomEventListener<TutorialEve
 export class TutorialEventSequenceEventTarget extends CustomEventTarget<TutorialEventSequenceEvent, TutorialEventSequenceEventKey> {}
 
 export class TutorialEventSequenceController implements TutorialEventSequenceControllerTemplate {
+
     stageEvent(idx: number): void {
         const stage = this.sequence[idx]
-        if (stage) switch (stage.eventName) {
-            case "continue":
-                this.tutorialEventTarget.addEventListener("continue", stage.f)
-                break;
-            default: this.editorEventTarget.addEventListener(stage.eventName, stage.f)
+        if (!stage) return
+        const eventName = stage.eventName
+        if (TUTORIALEVENTKEYS.find((k) => k === eventName)) {
+            const name = eventName as TutorialEventKey
+            this.tutorialEventTarget.addEventListener(name, stage.f)
+        }
+        else if (GAMEVIEWCIRCUITPANELEVENTKEYS.find((k) => k === eventName)) {
+            const name = eventName as GameViewCircuitPanelEventKey
+            this.editorEventTarget.addEventListener(name, stage.f)
+        }
+        else if (SIGNALSETVIEWEVENTKEYS.find((k) => k === eventName)) {
+            const name = eventName as SignalSetViewEventKey
+            this.signalEventTarget.addEventListener(name, stage.f)
         }
     }
     unstageEvent(idx: number): void {
         const stage = this.sequence[idx]
-        if (stage) switch (stage.eventName) {
-            case "continue": 
-                this.tutorialEventTarget.removeEventListener("continue", stage.f)
-                break;
-            default: this.editorEventTarget.removeEventListener(stage.eventName, stage.f)
+        if (!stage) return
+        const eventName = stage.eventName
+        if (TUTORIALEVENTKEYS.find((k) => k === eventName)) {
+            const name = eventName as TutorialEventKey
+            this.tutorialEventTarget.removeEventListener(name, stage.f)
+        }
+        else if (GAMEVIEWCIRCUITPANELEVENTKEYS.find((k) => k === eventName)) {
+            const name = eventName as GameViewCircuitPanelEventKey
+            this.editorEventTarget.removeEventListener(name, stage.f)
+        }
+        else if (SIGNALSETVIEWEVENTKEYS.find((k) => k === eventName)) {
+            const name = eventName as SignalSetViewEventKey
+            this.signalEventTarget.removeEventListener(name, stage.f)
         }
     }
     prepareNextEvent(from:CustomEvent<any, any>): void {

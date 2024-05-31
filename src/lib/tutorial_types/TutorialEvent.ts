@@ -1,6 +1,8 @@
 import { CustomEventTarget, createCustomEvent, type CustomEventListener } from "$lib/misc_types/CustomEventSystem"
 
-export type TutorialEventKey = "continue"
+export const TUTORIALEVENTKEYS = ["continue"] as const
+type TutorialEventKeyTuple = typeof TUTORIALEVENTKEYS
+export type TutorialEventKey = TutorialEventKeyTuple[number]
 
 export interface TutorialEvent {}
 
