@@ -18,7 +18,7 @@
      */
     export let signalSetViewEventTarget = null
 
-    let labelOffset = 50
+    let labelOffset = 75
 
     /**
      * @type {CircuitController}
@@ -59,6 +59,8 @@
 
         signalSetViewEventTarget.addEventListener("step", updateDesiredOutputs)
         signalSetViewEventTarget.addEventListener("play", updateDesiredOutputs)
+
+        console.log("channels", labels, channelSvgs)
     })
 
 
@@ -128,7 +130,10 @@
             console.log(signalSetView)
         }
 
-        liveChannelSvgs = outputSignalSetView.drawChannels(currentFrame, `stroke="red"`)
+        liveChannelSvgs = outputSignalSetView.drawChannels(
+            currentFrame, 
+            `stroke="var(--grid-color)" stroke-width="2" stroke-dasharray="2 1"`
+        )
         
         if (done) {
             atEnd = true
@@ -160,7 +165,10 @@
     }
 
     function setPlayBarProgress(frame = 0) {
-        playBarGroup?.setAttribute('transform', `translate(${labelOffset + signalSetView.getDesiredFrameWidth() * frame}, 0)`)
+        let adjustedFrame = frame + 1
+        if (frame === 0) adjustedFrame = 0
+        else if (frame === signalSetView.getLength()) adjustedFrame = signalSetView.getLength()
+        if (playBarGroup) playBarGroup.style.translate = `${labelOffset + signalSetView.getDesiredFrameWidth() * (adjustedFrame)}px`
     }
 
 </script>
@@ -186,11 +194,11 @@
                         <g transform='translate({labelOffset}, {channelSvgHeight(index)})'>
                             {@html channel}
                         </g>
-                        <g font-size="10px" transform='translate(0, {channelSvgHeight(index)  + channelSvgHeight(1) / 2})'>
+                        <g fill="black" transform='translate(0, {channelSvgHeight(index)  + channelSvgHeight(1) / 2})'>
                             <text>{labels[index]}</text>
                         </g>
                     {/each}
-                    <g id="signal-svg-play-bar">
+                    <g id="signal-svg-play-bar" style="transition:translate 200ms;">
                         <path d="M -4 -8 L 4 -8 L 0 0 L 0 {signalSetView.getDesiredHeight()} L 0 0 Z" stroke="var(--grid-color)" stroke-width="1px" fill="none"/>
                     </g>
                     {#each liveChannelSvgs as channel, index}

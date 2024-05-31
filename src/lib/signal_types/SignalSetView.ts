@@ -55,7 +55,7 @@ export class SignalSetView<T> {
         )
     }
 
-    drawChannel(channel:number, to:number, pathParams:string) {}
+    drawChannel: (channel:number, to:number, pathParams:string)=> string = () => ""
 
     drawChannels(
         to:number = this.signalSet.length, 
