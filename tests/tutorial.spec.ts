@@ -359,3 +359,18 @@ test('tutorial progression 13', async ({page}) => {
     await expect(page.getByText('As the signal changes')).toHaveCount(0)
     await expect(page.getByText("Looks like this circuit isn't correct")).toHaveCount(1)
 })
+
+async function step14(page:Page) {
+    await step13(page)
+
+    await page.getByTestId('continue').click()
+}
+
+test('tutorial progression 14', async ({page}) => {
+    await gotoTutorial(page)
+
+    await step14(page)
+
+    await expect(page.getByText("Looks like this circuit isn't correct")).toHaveCount(0)
+    await expect(page.getByText("click me")).toHaveCount(1)
+})
