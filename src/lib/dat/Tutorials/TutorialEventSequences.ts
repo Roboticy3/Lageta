@@ -153,4 +153,14 @@ export function EventSequenceTutorial(state:any): TutorialEventSequence {return 
             return 1
         }
     },
+    {
+        //15: wait for the user to grab a Not gate from the shelf
+        eventName:"dragstart",f:async (evt) => {
+            if (
+                evt.from.type === "Gate"
+            ) {
+                return 1
+            }
+        }
+    },
 ]}

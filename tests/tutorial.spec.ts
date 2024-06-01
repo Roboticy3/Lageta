@@ -372,5 +372,5 @@ test('tutorial progression 14', async ({page}) => {
     await step14(page)
 
     await expect(page.getByText("Looks like this circuit isn't correct")).toHaveCount(0)
-    await expect(page.getByText("click me")).toHaveCount(1)
+    await expect(page.getByText("click me")).toHaveCount(2) //two indicators should exist now. Though only one is visible there's no good way to check this.
 })

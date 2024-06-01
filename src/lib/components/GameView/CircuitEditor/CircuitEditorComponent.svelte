@@ -156,7 +156,11 @@
             bind:this={shelfContainer}
         >
             {#each shelf as gateTypeController}
-                <GameViewShelfButton circuitDraggable={circuitDraggable} gateType={gateTypeController}/>
+                <GameViewShelfButton 
+                    circuitDraggable={circuitDraggable} 
+                    gateType={gateTypeController}
+                    editorEventTarget={editorEventTarget}
+                />
             {/each}
         </div>
         

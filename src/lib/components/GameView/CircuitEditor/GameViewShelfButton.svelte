@@ -4,6 +4,9 @@
     import CircuitDraggable from "$lib/components/GameView/CircuitEditor/CircuitDraggable.svelte";
     import { Buf, getGateType, wrapGateTypeViewInSvgHeader } from "$lib/dat/GateTypes/GateTypes";
     import { GateType, GateTypeController, GateTypeView } from "$lib/circuit_types/GateType";
+    import { GameViewCircuitPanelEventTarget } from "$lib/circuit_types/GameViewCircuitPanelEvent";
+    import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControllerQueryResult";
+    import { createCustomEvent } from "$lib/misc_types/CustomEventSystem";
 
     /**
      * @type {GateTypeController}
@@ -14,6 +17,11 @@
      * @type {CircuitDraggable}
      */
     export let circuitDraggable
+
+    /**
+     * @type {GameViewCircuitPanelEventTarget | null}
+     */
+    export let editorEventTarget
 
     onMount(() => {
 
@@ -41,6 +49,14 @@
      */
     export let onMouseDown = (e) => {
         circuitDraggable.dragGateType(e, gateType, element)
+        editorEventTarget?.dispatchEvent(createCustomEvent({
+                from:circuitDraggable.getController().getContents(),
+                to:  circuitDraggable.getController().getContents(),
+                e:e
+            },
+            "dragstart",
+            e.target
+        ))
     }
 
 </script>
