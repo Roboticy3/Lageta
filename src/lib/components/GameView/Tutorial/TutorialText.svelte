@@ -1,31 +1,38 @@
 <script>
     import { createEventDispatcher, onMount, tick } from "svelte";
 
-    const dispatch = createEventDispatcher()
+    const dispatch = createEventDispatcher();
 
-    export let showButton = true
-    export let availableButton = true
-    export let position = [50, 50]
+    export let showButton = true;
+    export let availableButton = true;
+    export let position = [50, 50];
 
     /**
      * @param {number} pX
      * @param {number} pY
      */
     export function setPosition(pX, pY) {
-        position[0] = pX
-        position[1] = pY
+        position[0] = pX;
+        position[1] = pY;
     }
 </script>
 
-<div class="tutorial-container" style="position:absolute; left:{position[0]}%; top:{position[1]}%;">
-    <div style="left:-50%; position:relative; display:flex; flex-direction:column">
+<div
+    class="tutorial-container"
+    style="position:absolute; left:{position[0]}%; top:{position[1]}%;"
+>
+    <div
+        style="left:-50%; position:relative; display:flex; flex-direction:column"
+    >
         <div class="tutorial-text">
             <slot />
         </div>
         {#if showButton === true}
-            <button 
-                class="tutorial-continue {availableButton ? '':'unavailable'}"
-                on:click={() => {dispatch('continue', 'ev')}}
+            <button
+                class="tutorial-continue {availableButton ? '' : 'unavailable'}"
+                on:click={() => {
+                    dispatch("continue", "ev");
+                }}
                 data-testid="continue"
             >
                 Continue
@@ -36,27 +43,27 @@
 
 <style>
     .tutorial-container {
-        pointer-events:none;
-        transition: left 1s, top 1s;
+        pointer-events: none;
+        transition:
+            left 1s,
+            top 1s;
         animation-name: --position-anim;
         animation-duration: 1s;
     }
 
     .tutorial-text {
-        font-size:min(3vh, 2vw);
-        scale:1.5;
-        padding:5%;
+        font-size: min(3vh, 2vw);
         box-sizing: border-box;
     }
 
     .tutorial-continue {
-        pointer-events:initial;
-        display:inline-flex;
-        align-self:center;
+        pointer-events: initial;
+        display: inline-flex;
+        align-self: center;
     }
 
     .unavailable {
-        filter:blur(2px) brightness(50%);
+        filter: blur(2px) brightness(50%);
         pointer-events: none;
     }
 
