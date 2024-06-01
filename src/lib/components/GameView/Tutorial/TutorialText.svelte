@@ -43,7 +43,7 @@
     }
 
     .tutorial-text {
-        font-size:large;
+        font-size:min(3vh, 2vw);
         scale:1.5;
         padding:5%;
         box-sizing: border-box;

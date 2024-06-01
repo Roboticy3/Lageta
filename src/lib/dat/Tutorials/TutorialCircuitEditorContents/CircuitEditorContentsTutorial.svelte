@@ -81,8 +81,15 @@
         showButton={true}
     >   
         <div style="color:black; white-space: nowrap;">
-            <div style="left:10vw;">As the signal changes,</div>
-            <div style="display:flex; flex-direction:row; width:125%; justify-content:space-between">
+            <div style="position:relative; left:5vw;">As the <span style="color:var(--grid-color);">signal</span> changes,</div>
+            <div style="
+                display:flex; 
+                flex-direction:row; 
+                width:125%; 
+                justify-content:space-between;
+                font-size:min(3vh, 1vw);
+
+            ">
                 <div>it <span style="color:{valueLabelColors.get(state.input)}">sends voltage to the input</span>,</div>
                 <div>but also <span style="color:{valueLabelColors.get(state.expectedOutput)}">expects a certain output</span></div>
             </div>
@@ -96,7 +103,7 @@
         showButton={false}
         on:continue={dispatch.bind(dispatch, 'continue')}
     >
-        <p style="color:black; font-size:x-large;">
+        <p style="color:black; font-size:min(3vw, 3vh);">
             Are you ready to solve some puzzles?
         </p>
         <p style="color:black;">
@@ -111,7 +118,7 @@
         showButton={false}
         on:continue={dispatch.bind(dispatch, 'continue')}
     >
-        <p style="color:black; font-size:x-large;">
+        <p style="color:black; font-size:min(3vw, 3vh);">
             Click on any blank space to delete a wire.
         </p>
     </TutorialText>
@@ -123,7 +130,7 @@
         on:continue={dispatch.bind(dispatch, 'continue')}
         showButton={false}
     >
-        <p style="color:black; font-size:x-large;">
+        <p style="color:black; font-size:min(3vw, 3vh);">
             When points are not connected to anything, they have
             <span style="color:var(--connection-color-x)">neither</span>
             high or low voltage.
@@ -138,7 +145,7 @@
         availableButton={state.output === false}
         on:continue={dispatch.bind(dispatch, 'continue')}
     >
-        <p style="color:black; font-size:x-large;">At any connection point, voltage can be
+        <p style="color:black; font-size:min(3vw, 3vh);">At any connection point, voltage can be
             <span style="color:var(--connection-color-on)">high</span>,
             <span style="color:var(--connection-color-off)">low</span>,
             or <span style="color:var(--connection-color-x)">neither</span>.
@@ -171,6 +178,6 @@
         availableButton={state.output === true}
         on:continue={dispatch.bind(dispatch, 'continue')}
     >
-        <p style="font-size:xx-large; color:black;">Voltage!</p>
+        <p style="font-size:min(7vw, 7vh); color:black;">Voltage!</p>
     </TutorialText>
 {/if}
