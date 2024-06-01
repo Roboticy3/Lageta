@@ -20,18 +20,6 @@
     $: state.indicator = indicator
 
     /**
-     * @type {TutorialIndicator | undefined}
-     */
-     let indicator2
-    export function getIndicator2() {
-        return indicator2
-    }
-    $: {
-        indicator2?.hide()
-        state.indicator2 = indicator2
-    }
-
-    /**
      * @type {CircuitController}
      */
     export let circuitController
@@ -86,13 +74,13 @@
     position={[1.35, 1.25]}
 />
 
-<TutorialIndicator 
-    bind:this={indicator2}
-    circuitController={circuitController}
-    variant={1}
-    position={[1.35, 1.25]}
-/>
-
+{#if state.currentEvent === 15}
+    <TutorialIndicator 
+        circuitController={circuitController}
+        variant={1}
+        position={[0.5, 0]}
+    />
+{/if}
 
 {#if state.currentEvent === 13}
     <TutorialText

@@ -147,4 +147,10 @@ export function EventSequenceTutorial(state:any): TutorialEventSequence {return 
             return 1
         }
     },
+    {
+        //14: -/-
+        eventName:"continue",f:async (evt) => {
+            return 1
+        }
+    },
 ]}
