@@ -594,6 +594,7 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
 <div
     class="circuit-container" 
     role="application"
+    id="circuit-container"
     bind:this={circuitContainer}
     >
 

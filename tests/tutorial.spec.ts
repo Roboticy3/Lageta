@@ -1,5 +1,5 @@
 import test, { expect, type Page } from "playwright/test";
-import { gameViewComponentTitles, gotoTutorial, locateConnectionPoint, locateWire } from "./resources";
+import { circuitBBox, gameViewComponentTitles, gotoTutorial, locateConnectionPoint, locateGridSquare, locateWire } from "./resources";
 import { CircuitRendererIDStandard } from "$lib/circuit_types/CircuitRendererIDSpace";
 import { goto } from "$app/navigation";
 
@@ -76,7 +76,7 @@ test('tutorial progression 3B', async ({ page }) => {
 
     await page.getByRole('checkbox').click()
     await page.getByTestId('continue').click({force:true})
-    await expect(page.getByText(/Voltage!/)).toBeVisible()
+    await expect(page.getByText(/Voltage!/)).toHaveCount(1)
 })
 
 /**
@@ -118,7 +118,7 @@ async function stepm2(page:Page) {
 }
 
 /**
- * Modify step 4 to remove the wire, then click the checkbox, then reconnect the wire
+ * Modify step 4 to removing the wire and reconnecting it, should go back to step 2
  */
 test('tutorial progression 4A', async ({ page }) => {
     await gotoTutorial(page)
@@ -126,12 +126,14 @@ test('tutorial progression 4A', async ({ page }) => {
     await step3(page)
 
     await stepm2(page)
-    await page.getByRole('checkbox').click()
+    
     await step2(page)
 
-    await expect(page.getByText('low', { exact:true })).toHaveCount(3)
-    await expect(page.getByText('high', { exact:true })).toHaveCount(1)
-    await expect(page.getByText('neither', { exact:true })).toHaveCount(1)
+    await expect(page.getByText('low', { exact:true })).toHaveCount(0)
+    await expect(page.getByText('high', { exact:true })).toHaveCount(0)
+    await expect(page.getByText('neither', { exact:true })).toHaveCount(0)
+
+    await expect(page.getByText(/Voltage!/)).toHaveCount(1)
 })
 
 async function step5(page:Page) {
@@ -373,4 +375,49 @@ test('tutorial progression 14', async ({page}) => {
 
     await expect(page.getByText("Looks like this circuit isn't correct")).toHaveCount(0)
     await expect(page.getByText("click me")).toHaveCount(2) //two indicators should exist now. Though only one is visible there's no good way to check this.
+})
+
+async function step15(page:Page) {
+    await step14(page)
+
+    await page.getByTitle('ShelfButton.Not').click()
+}
+
+test('tutorial progression 15', async ({page}) => {
+    await gotoTutorial(page)
+
+    await step15(page)
+
+    await expect(page.getByText("picked up a gate")).toHaveCount(1)
+})
+
+async function step16(page:Page) {
+    await step15(page)
+
+    const offset = await locateGridSquare(page, 10, 5, 4, 1)
+    await page.mouse.click(offset[0], offset[1])
+}
+
+test('tutorial progression 16', async ({page}) => {
+    await gotoTutorial(page)
+
+    await step16(page)
+
+    await expect(page.getByText("picked up a gate")).toHaveCount(0)
+    await expect(page.getByText("gate is now in the circuit")).toHaveCount(1)
+})
+
+/**
+ * Try to place a gate in a filled position on the circuit. This should not progress the tutorial.
+ */
+test('tutorial progression 16A', async ({page}) => {
+    await gotoTutorial(page)
+
+    await step15(page)
+
+    const offset = await locateGridSquare(page, 10, 5, 8, 1)
+    await page.mouse.click(offset[0], offset[1])
+
+    await expect(page.getByText("picked up a gate")).toHaveCount(1)
+    await expect(page.getByText("gate is now in the circuit")).toHaveCount(0)
 })

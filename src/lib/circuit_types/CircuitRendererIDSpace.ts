@@ -8,6 +8,8 @@ export interface CircuitRendererIDSpace {
     gateIdString(id:number): string;
     
     wireIdString(index:[number, number]): string;
+
+    headIdString(): string;
 }
 
 export class CircuitRendererIDStandard implements CircuitRendererIDSpace {
@@ -25,5 +27,9 @@ export class CircuitRendererIDStandard implements CircuitRendererIDSpace {
     
     wireIdString(index:[number, number]) {
         return `wire-${index[0]}-${index[1]}`
+    }
+
+    headIdString(): string {
+        return 'circuit-svg-head'
     }
 }

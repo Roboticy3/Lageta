@@ -101,6 +101,8 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
         updateParams(rendererParams)
 
         linkDraggable()
+
+        svgHead.setAttribute('id', idSpace.headIdString())
     })
 
     export function drawGrid() {

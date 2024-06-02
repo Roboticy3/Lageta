@@ -27,6 +27,29 @@
     });
 </script>
 
+{#if state.currentEvent === 17}
+    <TutorialText
+        position={[25, 25]}
+        initialPosition={[85,20]}
+        on:continue={dispatch.bind(dispatch, "continue")}
+        showButton={false}
+    >
+        <div style="color:black; width:25vw;">
+            Ok, the gate is now in the circuit. You can add more gates, or pick this one up and move it.
+        </div>
+    </TutorialText>
+    <TutorialText
+        position={[20, 80]}
+        initialPosition={[85,20]}
+        on:continue={dispatch.bind(dispatch, "continue")}
+        showButton={false}
+    >
+        <div style="color:black; width:25vw;">
+            Press play to see how the circuit works now!
+        </div>
+    </TutorialText>
+{/if}
+
 {#if state.currentEvent === 16}
     <TutorialText
         position={[85, 20]}

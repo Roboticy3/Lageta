@@ -37,3 +37,27 @@ export async function locateWire(page:Page, index:[number, number]) {
     const idSpace = new CircuitRendererIDStandard()
     return await page.locator(`#${idSpace.wireIdString(index)}`)
 }
+
+export async function circuitBBox(page:Page) {
+    const idSpace = new CircuitRendererIDStandard()
+    return (await page.locator(`#${idSpace.headIdString()}`)).boundingBox()
+}
+
+export async function locateGridSquare(
+    page:Page, 
+    sizeX:number, 
+    sizeY:number, 
+    x:number, 
+    y:number, 
+    gridOffsetX:number = 0, 
+    gridOffsetY:number = 0
+): Promise<[number, number]> {
+    const bbox = await circuitBBox(page)
+    if (!bbox) return [0, 0]
+    const cX = bbox.width / sizeX
+    const cY = bbox.height / sizeY
+    return [
+        bbox.x + cX * (x - 10 * gridOffsetX), 
+        bbox.y + cY * (y - 10 * gridOffsetY)
+    ]
+}
