@@ -1,5 +1,6 @@
 <script>
     import TutorialText from "$lib/components/GameView/Tutorial/TutorialText.svelte";
+    import { createCustomEvent } from "$lib/misc_types/CustomEventSystem";
     import { TutorialEventSequenceController } from "$lib/tutorial_types/TutorialEventSequence";
     import { createEventDispatcher, onMount } from "svelte";
 
@@ -30,15 +31,38 @@
             },
         );
     });
+
+    function onContinue() {
+        // @ts-ignore
+        eventStagesController.tutorialEventTarget.dispatchEvent(createCustomEvent({}, "continue"))
+    }
+
+    async function delayedContinue() {
+        const delay = () => {return new Promise((resolve) => {setTimeout(resolve, 5000)})}
+        await delay()
+        onContinue()
+    }
 </script>
+
+{#if state.currentEvent === 19}
+    <TutorialText
+        position={[20, 90]}
+        initialPosition={[20,90]}
+        showButton={false}
+    >
+    <div style="color:black;" use:delayedContinue>
+        ...
+    </div>
+    </TutorialText>
+{/if}
 
 {#if state.currentEvent === 18}
     <TutorialText
-        position={[20, 90]}
+        position={[35, 90]}
         initialPosition={[85, 20]}
         showButton={false}
     >
-    <div style="color:black; width:25vw;">
+    <div style="color:black;">
         Let's see if the circuit works now! (press play)
     </div>
     </TutorialText>
@@ -84,6 +108,18 @@
                 > the input to match the expected output.
             </div>
         </div>
+    </TutorialText>
+{/if}
+
+{#if state.currentEvent === 12}
+    <TutorialText
+        position={[20, 90]}
+        initialPosition={[20,90]}
+        showButton={false}
+    >
+    <div style="color:black;" use:delayedContinue>
+        ...
+    </div>
     </TutorialText>
 {/if}
 

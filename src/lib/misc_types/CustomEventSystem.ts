@@ -32,6 +32,6 @@ export class CustomEventTarget<E, K extends string> {
     }
 }
 
-export function createCustomEvent<E, K extends string>(props:E, type:K, target:EventTarget | null): CustomEvent<E, K> {
+export function createCustomEvent<E, K extends string>(props:E, type:K, target:EventTarget | null =null): CustomEvent<E, K> {
     return {...{type:type, target:target, timeStamp:Date.now()}, ...props} as CustomEvent<E, K>
 }

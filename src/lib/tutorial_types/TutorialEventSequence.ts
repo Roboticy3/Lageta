@@ -5,14 +5,14 @@ import { CustomEventTarget, type CustomEventListener, type CustomEvent, createCu
 import { CircuitSignalSetViewEventTarget, SIGNALSETVIEWEVENTKEYS, SignalSetViewEventTarget, type SignalSetViewEvent, type SignalSetViewEventKey } from "$lib/signal_types/SignalSetViewEvent";
 import type { ConnectionValue } from "$lib/circuit_types/GateType";
 
-type TutorialEvent = {eventName:GameViewCircuitPanelEventKey | TutorialEventKey | SignalSetViewEventKey, f:(evt:any) => Promise<number | undefined>}
-export type TutorialEventSequence = TutorialEvent[]
+type TutorialEventSequenceControllerEvent = {eventName:GameViewCircuitPanelEventKey | TutorialEventKey | SignalSetViewEventKey, f:(evt:any) => Promise<number | undefined>}
+export type TutorialEventSequence = TutorialEventSequenceControllerEvent[]
 
 export interface TutorialEventSequenceControllerTemplate {
     stageEvent(idx:number): void;
     unstageEvent(idx:number): void;
     prepareNextEvent(from:CustomEvent<any, any>): void;
-    getEvent(idx:number): TutorialEvent
+    getEvent(idx:number): TutorialEventSequenceControllerEvent
 }
 
 export const TUTORIALEVENTSEQUENCEEVENTKEYS = ["preparenext"] as const
@@ -90,7 +90,7 @@ export class TutorialEventSequenceController implements TutorialEventSequenceCon
 
         prepareNextEvent
 
-        async dispatchEvent(event:CustomEvent<TutorialEvent, TutorialEventKey>) {
+        async dispatchEvent(event:CustomEvent<TutorialEventSequenceControllerEvent, TutorialEventKey>) {
             const set = this.eventMap.get(event.type)
             if (!set) return false
             for (let ev of set) {

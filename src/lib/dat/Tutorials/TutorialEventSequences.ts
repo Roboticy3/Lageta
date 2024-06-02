@@ -145,13 +145,8 @@ export function EventSequenceTutorial(state:any): TutorialEventSequence {return 
     },
     {
         //12: wait for the signal to get a certain frame before telling the player what's going on
-        eventName:"step",f:async (evt) => {
-            if (
-                state.circuitController &&
-                evt.frame >= 50
-            ) {
-                return 1
-            }
+        eventName:"continue",f:async (evt) => {
+            return 1
         }
     },
     {
@@ -180,9 +175,7 @@ export function EventSequenceTutorial(state:any): TutorialEventSequence {return 
         //16: wait for the user place a gate in the circuit
         eventName:"changed",f:async (evt) => {
             if (
-                evt.to.type === "Gate" &&
-                state.circuitController &&
-                state.circuitController.getNumGates() > 2
+                evt.to.type === "Gate" 
             ) {
                 return 1
             }
@@ -191,6 +184,12 @@ export function EventSequenceTutorial(state:any): TutorialEventSequence {return 
     {
         //17: wait for the user to accept the text
         eventName:"continue",f:async (evt) => {
+            return 1
+        }
+    },
+    {
+        //18: wait for the user to accept the text
+        eventName:"play",f:async (evt) => {
             return 1
         }
     },

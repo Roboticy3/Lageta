@@ -436,3 +436,17 @@ test('tutorial progression 17', async ({page}) => {
     await expect(page.getByText("gate is now in the circuit")).toHaveCount(0)
     await expect(page.getByText("press play")).toHaveCount(1)
 })
+
+async function step18(page:Page) {
+    await step17(page)
+    await page.locator('#signal-play-button').click()
+}
+
+test('tutorial progression 18', async ({page}) => {
+    await gotoTutorial(page)
+
+    await step18(page)
+
+    await expect(page.getByText("press play")).toHaveCount(0)
+    await expect(page.getByText("...")).toHaveCount(1)
+})
