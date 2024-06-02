@@ -177,7 +177,7 @@
             initialPosition={[50,70]}
             showButton={false}
         >
-            <span style="color:var(--connection-color-off);">(Hint: the wire should match the dotted circle around the output)</span>
+            <span style="color:var(--connection-color-off);">(Hint: the <span style="color:{valueLabelColors.get(state.output)}">output</span> should match the dotted circle around it)</span>
         </TutorialText>
     {/if}
 {/if}
