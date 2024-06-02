@@ -200,7 +200,6 @@
         background-color: var(--secondary-bg-color);
         padding:2%;
         width: 96%;
-        padding-bottom: 0%;
     }
 
     .slidein {

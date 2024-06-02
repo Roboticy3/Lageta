@@ -184,32 +184,29 @@
     </div>
 
     <div class="svg-container">
-        <div style="max-height:90%;">
-            <ResizingSvg
-                minHeight={signalSetView.getDesiredHeight() + 10}
-                ancestry={1}
-            >
-                <g transform="translate(0, 8)" fill="none">
-                    {#each channelSvgs as channel, index}
-                        <g transform='translate({labelOffset}, {channelSvgHeight(index)})'>
-                            {@html channel}
-                        </g>
-                        <g fill="black" transform='translate(0, {channelSvgHeight(index)  + channelSvgHeight(1) / 2})'>
-                            <text>{labels[index]}</text>
-                        </g>
-                    {/each}
-                    <g id="signal-svg-play-bar" style="transition:translate 200ms;">
-                        <path d="M -4 -8 L 4 -8 L 0 0 L 0 {signalSetView.getDesiredHeight()} L 0 0 Z" stroke="var(--grid-color)" stroke-width="1px" fill="none"/>
+        <ResizingSvg
+            
+            ancestry={1}
+        >
+            <g transform="translate(0, 8)" fill="none">
+                {#each channelSvgs as channel, index}
+                    <g transform='translate({labelOffset}, {channelSvgHeight(index)})'>
+                        {@html channel}
                     </g>
-                    {#each liveChannelSvgs as channel, index}
-                        <g transform='translate({labelOffset}, {channelSvgHeight(index + signalSetView.getInputSize())})'>
-                            {@html channel}
-                        </g>
-                    {/each}
+                    <g fill="black" transform='translate(0, {channelSvgHeight(index)  + channelSvgHeight(1) / 2})'>
+                        <text>{labels[index]}</text>
+                    </g>
+                {/each}
+                <g id="signal-svg-play-bar" style="transition:translate 200ms;">
+                    <path d="M -4 -8 L 4 -8 L 0 0 L 0 {signalSetView.getDesiredHeight()} L 0 0 Z" stroke="var(--grid-color)" stroke-width="1px" fill="none"/>
                 </g>
-            </ResizingSvg>
-        </div>
-        
+                {#each liveChannelSvgs as channel, index}
+                    <g transform='translate({labelOffset}, {channelSvgHeight(index + signalSetView.getInputSize())})'>
+                        {@html channel}
+                    </g>
+                {/each}
+            </g>
+        </ResizingSvg>
     </div>
 </div>
 
@@ -219,11 +216,11 @@
         display:grid;
         grid-template-columns: 1fr 1fr 9fr;
         gap: 5%;
+        height:100%;
     }
 
     .svg-container {
         grid-column: 3 / 4;
-        padding: 1%;
     }
 
     .button-container {
