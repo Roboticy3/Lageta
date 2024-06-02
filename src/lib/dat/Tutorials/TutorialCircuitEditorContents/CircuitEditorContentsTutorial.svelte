@@ -108,6 +108,7 @@
 {#if state.currentEvent === 8} 
     <TutorialText 
         position={[50, 10]} 
+        initialPosition={undefined}
         showButton={false}
         on:continue={dispatch.bind(dispatch, 'continue')}
     >
@@ -123,6 +124,7 @@
 {#if state.currentEvent === 7} 
     <TutorialText 
         position={[50, 10]} 
+        initialPosition={[50,70]}
         showButton={false}
         on:continue={dispatch.bind(dispatch, 'continue')}
     >
@@ -135,6 +137,7 @@
 {#if state.currentEvent >= 6 && state.currentEvent <= 7}
     <TutorialText 
         position={[50, 70]} 
+        initialPosition={undefined}
         on:continue={dispatch.bind(dispatch, 'continue')}
         showButton={false}
     >

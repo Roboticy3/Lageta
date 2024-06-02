@@ -60,6 +60,7 @@
 {#if state.currentEvent === 11}
     <TutorialText
         position={[50, 85]}
+        initialPosition={[85,30]}
         on:continue={dispatch.bind(dispatch, "continue")}
         showButton={false}
     >
