@@ -99,7 +99,7 @@
 
             ">
                 <div>it <span style="color:{valueLabelColors.get(state.input)}">sends voltage to the input</span>,</div>
-                <div>but also <span style="color:{valueLabelColors.get(state.expectedOutput)}">expects a certain output</span></div>
+                <div>but also <span style="color:{valueLabelColors.get(state.expectedOutput)}">expects a certain output (dotted circle)</span></div>
             </div>
         </div>
     </TutorialText>
@@ -171,6 +171,15 @@
         circuitController={circuitController}
         index={{id:1, type:"Input", index:0}}
     />
+    {#if state.output !== false}
+        <TutorialText
+            position={[50,25]}
+            initialPosition={[50,70]}
+            showButton={false}
+        >
+            <span style="color:var(--connection-color-off);">(Hint: the wire should match the dotted circle around the output)</span>
+        </TutorialText>
+    {/if}
 {/if}
 
 {#if state.currentEvent === 3}
