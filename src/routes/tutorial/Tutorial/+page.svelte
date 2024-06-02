@@ -119,7 +119,6 @@
         gameParams={Tutorial.params}
         circuitController={circuitController}
         editorParams={{
-            canDragGates:false,
             inputCheckBoxes:state.showInputCheckboxes,
             showShelf:state.showShelf
         }}

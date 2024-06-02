@@ -220,6 +220,7 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
                 if (editorParams.canDragConnections !== false) onDragStartOutput(e, check)
                 break
             case "Gate":
+                console.log(canDragStartGate(check))
                 if (canDragStartGate(check)) onDragStartGate(e, check)
         }
 
@@ -476,7 +477,7 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
             case "Input":
             case "Output":
                 console.log(q)
-                dropConnection(result, q)
+                dropConnection(result, q, e)
                 break
             default: return
         }
@@ -484,12 +485,6 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
         if (circuitContainer && editorParams.dispatchEvents !== false) {
             circuitEventTarget.dispatchEvent(createGameViewCircuitPanelEvent(
                 "drop", source, q, circuitContainer
-            ))
-            circuitEventTarget.dispatchEvent(createGameViewCircuitPanelEvent(
-                "changed",
-                circuitDraggable.getController().getContents(), 
-                query(e.offsetX, e.offsetY), 
-                circuitContainer
             ))
         }
         
@@ -525,17 +520,26 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
         else {
             circuitController.moveGate(id, e.offsetX, e.offsetY)
         }
+
+        if (circuitContainer) {
+            circuitEventTarget.dispatchEvent(createGameViewCircuitPanelEvent(
+                "changed",
+                circuitDraggable.getController().getContents(), 
+                query(e.offsetX, e.offsetY), 
+                circuitContainer
+            ))
+        }
     }
 
     /**
      * onDrop calls circuitController when dropping a connection, passing two queries for a start and end.
      * 
      * Only does stuff when the queries have opposite connection types, evading any undefined behavior from connecting two inputs or trying to connect a wire to nothing.
-     * 
      * @param {CircuitControllerQueryResult} qa
      * @param {CircuitControllerQueryResult} qb
+     * @param {MouseEvent} e
      */
-    function dropConnection(qa, qb) {
+    function dropConnection(qa, qb, e) {
         switch (qa.type + qb.type) {
             case "OutputInput":
                 console.log("laying connection from ", qa, qb)
@@ -551,6 +555,15 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
                     qa.getId() || 0, qa.connectionIndex || 0
                 );
                 break
+        }
+
+        if (circuitContainer) {
+            circuitEventTarget.dispatchEvent(createGameViewCircuitPanelEvent(
+                "changed",
+                circuitDraggable.getController().getContents(), 
+                query(e.offsetX, e.offsetY), 
+                circuitContainer
+            ))
         }
 
     }

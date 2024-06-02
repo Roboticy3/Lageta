@@ -30,6 +30,10 @@ export function EventSequenceTutorial(state:any): TutorialEventSequence {return 
                 state.showInputCheckboxes = true
                 return 1
             }
+            else {
+                state.indicator?.setPosition([1.35, 1.25])
+                return -1
+            }
         }
     },
     {
@@ -57,6 +61,15 @@ export function EventSequenceTutorial(state:any): TutorialEventSequence {return 
             ) {
                 return 1
             } 
+            else if (
+                state.circuitController &&
+                state.circuitController.getOutputs()[0] === undefined
+            ) {
+                state.indicator?.show()
+                state.showInputCheckboxes = false
+                state.indicator?.setPosition([7.75, 1.25])
+                return -2
+            }
         }
     },
     {
@@ -154,10 +167,22 @@ export function EventSequenceTutorial(state:any): TutorialEventSequence {return 
         }
     },
     {
-        //15: wait for the user to grab a Not gate from the shelf
+        //15: wait for the user to grab a gate from the shelf
         eventName:"dragstart",f:async (evt) => {
             if (
                 evt.from.type === "Gate"
+            ) {
+                return 1
+            }
+        }
+    },
+    {
+        //15: wait for the user place a gate in the circuit
+        eventName:"changed",f:async (evt) => {
+            if (
+                evt.to.type === "Gate" &&
+                state.circuitController &&
+                state.circuitController.getNumGates() > 2
             ) {
                 return 1
             }
