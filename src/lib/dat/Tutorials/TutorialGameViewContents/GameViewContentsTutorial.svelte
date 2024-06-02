@@ -11,42 +11,48 @@
     export let state = {};
 
     /**
-     * Add a non-linear event to the tutorial where the user can skip pressing continue if they press play on the signal first
+     * Make sure the play button is disabled for step 10
      * @type {TutorialEventSequenceController}
      */
     export let eventStagesController;
     onMount(() => {
-        eventStagesController.signalEventTarget.addEventListener(
-            "step",
+        eventStagesController.eventSequenceTarget.addEventListener(
+            "preparenext",
             (evt) => {
-                if (state.currentEvent === 10 && evt.frame >= 50) {
-                    eventStagesController.prepareNextEvent(evt, 3);
+                if (state.currentEvent <= 10) {
+                    document.querySelector('#signal-play-button')?.setAttribute('disabled', 'disabled')
+                    document.querySelector('#signal-play-button')?.classList.add('unavailable')
+                }
+                else {
+                    document.querySelector('#signal-play-button')?.removeAttribute('disabled')
+                    document.querySelector('#signal-play-button')?.classList.remove('unavailable')
                 }
             },
         );
     });
 </script>
 
+{#if state.currentEvent === 18}
+    <TutorialText
+        position={[20, 90]}
+        initialPosition={[85, 20]}
+        showButton={false}
+    >
+    <div style="color:black; width:25vw;">
+        Let's see if the circuit works now! (press play)
+    </div>
+    </TutorialText>
+{/if}
+
 {#if state.currentEvent === 17}
     <TutorialText
-        position={[25, 25]}
-        initialPosition={[85,20]}
+        position={[85, 20]}
+        initialPosition={[85, 30]}
         on:continue={dispatch.bind(dispatch, "continue")}
-        showButton={false}
     >
-        <div style="color:black; width:25vw;">
-            Ok, the gate is now in the circuit. You can add more gates, or pick this one up and move it.
-        </div>
-    </TutorialText>
-    <TutorialText
-        position={[20, 80]}
-        initialPosition={[85,20]}
-        on:continue={dispatch.bind(dispatch, "continue")}
-        showButton={false}
-    >
-        <div style="color:black; width:25vw;">
-            Press play to see how the circuit works now!
-        </div>
+    <div style="color:black; width:25vw;">
+        Ok, the gate is now in the circuit. You can add more gates, or pick this one up and move it.
+    </div>
     </TutorialText>
 {/if}
 

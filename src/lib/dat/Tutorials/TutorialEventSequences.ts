@@ -177,7 +177,7 @@ export function EventSequenceTutorial(state:any): TutorialEventSequence {return 
         }
     },
     {
-        //15: wait for the user place a gate in the circuit
+        //16: wait for the user place a gate in the circuit
         eventName:"changed",f:async (evt) => {
             if (
                 evt.to.type === "Gate" &&
@@ -186,6 +186,12 @@ export function EventSequenceTutorial(state:any): TutorialEventSequence {return 
             ) {
                 return 1
             }
+        }
+    },
+    {
+        //17: wait for the user to accept the text
+        eventName:"continue",f:async (evt) => {
+            return 1
         }
     },
 ]}

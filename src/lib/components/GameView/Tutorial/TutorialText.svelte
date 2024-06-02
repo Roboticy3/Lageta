@@ -74,9 +74,4 @@
         display: inline-flex;
         align-self: center;
     }
-
-    .unavailable {
-        filter: blur(2px) brightness(50%);
-        pointer-events: none;
-    }
 </style>
