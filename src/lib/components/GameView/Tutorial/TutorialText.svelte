@@ -8,6 +8,11 @@
     export let position = [50, 50];
 
     /**
+     * @type {[number, number] | undefined}
+     */
+    export let initialPosition = [50, 100];
+
+    /**
      * @param {number} pX
      * @param {number} pY
      */
@@ -15,11 +20,21 @@
         position[0] = pX;
         position[1] = pY;
     }
+
+    onMount(async () => {
+        console.log("placing tutorial text")
+
+        if (!initialPosition) return
+
+        setTimeout(() => {
+            initialPosition = undefined
+        }, 100)
+    })
 </script>
 
 <div
     class="tutorial-container"
-    style="position:absolute; left:{position[0]}%; top:{position[1]}%;"
+    style="position:absolute; left:{initialPosition?.at(0) || position[0]}%; top:{initialPosition?.at(1) || position[1]}%;"
 >
     <div
         style="left:-50%; position:relative; display:flex; flex-direction:column"
@@ -47,8 +62,6 @@
         transition:
             left 1s,
             top 1s;
-        animation-name: --position-anim;
-        animation-duration: 1s;
     }
 
     .tutorial-text {
@@ -65,15 +78,5 @@
     .unavailable {
         filter: blur(2px) brightness(50%);
         pointer-events: none;
-    }
-
-    @keyframes --position-anim {
-        0% {
-            translate: 0 100%;
-        }
-
-        100% {
-            translate: 0 0;
-        }
     }
 </style>

@@ -27,6 +27,18 @@
     });
 </script>
 
+{#if state.currentEvent === 16}
+    <TutorialText
+        position={[50, 20]}
+        on:continue={dispatch.bind(dispatch, "continue")}
+        showButton={false}
+    >
+        <div style="color:black; width:20vw;">
+            You've picked up a gate. Click anywhere in the circuit to place the gate.
+        </div>
+    </TutorialText>
+{/if}
+
 {#if state.currentEvent === 14}
     <TutorialText
         position={[50, 20]}
