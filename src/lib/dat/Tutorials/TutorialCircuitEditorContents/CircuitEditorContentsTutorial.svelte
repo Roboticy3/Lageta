@@ -74,6 +74,19 @@
     position={[1.35, 1.25]}
 />
 
+{#if state.currentEvent === 20}
+    <TutorialText
+        position={[50, 90]}
+        initialPosition={[30, 120]}
+        on:continue={dispatch.bind(dispatch, 'continue')}
+        showButton={false}
+    >   
+        <div style="color:black;">
+            It's still not working...
+        </div>
+    </TutorialText>
+{/if}
+
 {#if state.currentEvent === 15}
     <TutorialIndicator 
         circuitController={circuitController}

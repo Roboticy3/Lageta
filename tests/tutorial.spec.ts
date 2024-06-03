@@ -427,8 +427,8 @@ test('tutorial progression 18', async ({page}) => {
 
     await step18(page)
 
-    await expect(page.getByText("press play")).toHaveCount(1)
-    await expect(page.getByText("...")).toHaveCount(0)
+    await expect(page.getByText("press play")).toHaveCount(0)
+    await expect(page.getByText("...")).toHaveCount(1)
 })
 
 async function step19(page:Page) {
@@ -442,6 +442,6 @@ test('tutorial progression 19', async ({page}) => {
 
     await step19(page)
 
-    await expect(page.getByText("press play")).toHaveCount(0)
-    await expect(page.getByText("...")).toHaveCount(1)
+    await expect(page.getByText("...")).toHaveCount(0)
+    await expect(page.getByText("still not working")).toHaveCount(1)
 })
