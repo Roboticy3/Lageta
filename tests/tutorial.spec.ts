@@ -1,5 +1,5 @@
 import test, { expect, type Page } from "playwright/test";
-import { circuitBBox, gameViewComponentTitles, gotoTutorial, locateConnectionPoint, locateGridSquare, locateWire } from "./resources";
+import { gameViewComponentTitles, gotoTutorial, locateConnectionPoint, locateGate, locateGridSquare, locateWire } from "./resources";
 import { CircuitRendererIDStandard } from "$lib/circuit_types/CircuitRendererIDSpace";
 import { goto } from "$app/navigation";
 
@@ -470,11 +470,9 @@ test('tutorial progression 20A', async ({page}) => {
 
     await step19(page)
 
-    const offset1 = await locateGridSquare(page, 10, 5, 9, 2)
-    await page.mouse.click(offset1[0], offset1[1])
+    await (await locateGate(page, 2)).click({force:true})
 
-    const offset2 = await locateGridSquare(page, 10, 5, 11, 2)
-    await page.mouse.click(offset2[0], offset2[1])
+    await (await locateGate(page, 0)).click({force:true})
 
     const firstConnectionPoint = await locateConnectionPoint(page, {id:0, type:"Output", index:0})
     await firstConnectionPoint.click({force:true})

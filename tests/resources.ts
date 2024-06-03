@@ -38,6 +38,11 @@ export async function locateWire(page:Page, index:[number, number]) {
     return await page.locator(`#${idSpace.wireIdString(index)}`)
 }
 
+export async function locateGate(page:Page, id:number) {
+    const idSpace = new CircuitRendererIDStandard() 
+    return await page.locator(`#${idSpace.gateIdString(id)}`)
+}
+
 export async function circuitBBox(page:Page) {
     const idSpace = new CircuitRendererIDStandard()
     return (await page.locator(`#${idSpace.headIdString()}`)).boundingBox()

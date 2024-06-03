@@ -273,9 +273,13 @@ export class CircuitController {
         offsetY:number
     ) {
 
+        if (!this.isOffsetInGrid(offsetX, offsetY)) {
+            return "Out of Bounds"
+        }
+
         const [x, y] = this.toLocal(offsetX, offsetY)
         
-        this.addGateAtCell(cType, x, y)
+        return this.addGateAtCell(cType, x, y)
 
     }
 
@@ -289,14 +293,14 @@ export class CircuitController {
         console.log("adding gate: ", gate, " at ", x, y)
 
         const result = this.gateGrid.addGate(x, y, gate)
-        if (result === undefined) {
+        if (result !== true) {
             console.log("failed add!")
-            return
+            return "Failed Add"
         }
 
         this.renderer?.updateGate(gate.id)
 
-        console.log(this.gateGrid)
+        return "Ok"
     }
 
     previewAddGate(
@@ -340,21 +344,25 @@ export class CircuitController {
         const [x, y] = this.toLocal(offsetX, offsetY)
         console.log("moving gate ", id, " to ", x, y)
 
+        if (!this.isOffsetInGrid(offsetX, offsetY)) {
+            return "Out of Bounds"
+        }
+
         const vType = this.getGateTypeView(id)
-        if (vType === undefined) return
+        if (vType === undefined) return "Gate Type Not Found"
         if (!(vType.moveable === true)) {
-            return
+            return "Gate Not Moveable"
         }
 
         const result = this.gateGrid.moveGate(id, x, y)
-        if (result === undefined) {
+        if (result !== true) {
             console.log("failed move!")
-            return
+            return "Failed Move"
         }
 
         this.renderer?.updateGate(id)
 
-        console.log(this.gateGrid)
+        return "Ok"
     }
 
     /**

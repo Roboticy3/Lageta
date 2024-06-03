@@ -505,20 +505,23 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
      */
     function dropGate(result, e) {
         const id = result.getId()
+        
+        const cType = result.gateTypeController || getGateType(Buf)
+        let controllerResult = "Ok"
+        if (id === undefined) {
+            controllerResult = circuitController.addGate(cType, e.offsetX, e.offsetY)
+        }
+        else {
+            controllerResult = circuitController.moveGate(id, e.offsetX, e.offsetY)
+        }
 
-        if (!circuitController.isOffsetInGrid(e.offsetX, e.offsetY)) {
+        console.log("dropped gate with code ", controllerResult)
+
+        if (controllerResult !== "Ok") {
             if (id !== undefined) {
                 circuitController.removeGate(id)
             }
             return
-        }
-
-        const cType = result.gateTypeController || getGateType(Buf)
-        if (id === undefined) {
-            circuitController.addGate(cType, e.offsetX, e.offsetY)
-        }
-        else {
-            circuitController.moveGate(id, e.offsetX, e.offsetY)
         }
 
         if (circuitContainer) {
