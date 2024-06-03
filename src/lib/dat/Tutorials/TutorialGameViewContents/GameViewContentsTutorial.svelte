@@ -19,7 +19,7 @@
     onMount(() => {
         eventStagesController.eventSequenceTarget.addEventListener(
             "preparenext",
-            (evt) => {
+            async (evt) => {
                 if (state.currentEvent <= 10) {
                     document.querySelector('#signal-play-button')?.setAttribute('disabled', 'disabled')
                     document.querySelector('#signal-play-button')?.classList.add('unavailable')
@@ -27,6 +27,13 @@
                 else {
                     document.querySelector('#signal-play-button')?.removeAttribute('disabled')
                     document.querySelector('#signal-play-button')?.classList.remove('unavailable')
+                }
+
+                switch (state.currentEvent) {
+                    case 19:
+                    case 12:
+                        await delayedContinue()
+                        break
                 }
             },
         );
@@ -50,7 +57,7 @@
         initialPosition={[20,90]}
         showButton={false}
     >
-    <div style="color:black;" use:delayedContinue>
+    <div style="color:black;">
         ...
     </div>
     </TutorialText>
@@ -117,7 +124,7 @@
         initialPosition={[20,90]}
         showButton={false}
     >
-    <div style="color:black;" use:delayedContinue>
+    <div style="color:black;">
         ...
     </div>
     </TutorialText>
