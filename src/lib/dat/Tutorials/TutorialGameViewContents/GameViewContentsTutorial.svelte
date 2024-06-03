@@ -75,7 +75,7 @@
         on:continue={dispatch.bind(dispatch, "continue")}
     >
     <div style="color:black; width:25vw;">
-        Ok, the gate is now in the circuit. You can add more gates, or pick this one up and move it.
+        You can add more gates, some can be picked up and moved.
     </div>
     </TutorialText>
 {/if}

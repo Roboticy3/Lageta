@@ -404,7 +404,7 @@ test('tutorial progression 16', async ({page}) => {
     await step16(page)
 
     await expect(page.getByText("picked up a gate")).toHaveCount(0)
-    await expect(page.getByText("gate is now in the circuit")).toHaveCount(1)
+    await expect(page.getByText("you can add more gates")).toHaveCount(1)
 })
 
 /**
@@ -419,7 +419,7 @@ test('tutorial progression 16A', async ({page}) => {
     await page.mouse.click(offset[0], offset[1])
 
     await expect(page.getByText("picked up a gate")).toHaveCount(1)
-    await expect(page.getByText("gate is now in the circuit")).toHaveCount(0)
+    await expect(page.getByText("you can add more gates")).toHaveCount(0)
 })
 
 async function step17(page:Page) {
@@ -433,7 +433,7 @@ test('tutorial progression 17', async ({page}) => {
 
     await step17(page)
 
-    await expect(page.getByText("gate is now in the circuit")).toHaveCount(0)
+    await expect(page.getByText("you can add more gates")).toHaveCount(0)
     await expect(page.getByText("press play")).toHaveCount(1)
 })
 

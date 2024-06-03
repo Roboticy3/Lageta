@@ -158,6 +158,12 @@ export function EventSequenceTutorial(state:any): TutorialEventSequence {return 
     {
         //14: -/-
         eventName:"continue",f:async (evt) => {
+            if (
+                state.circuitController &&
+                state.circuitController.getNumGates() > 2
+            ) {
+                return 3
+            }
             return 1
         }
     },
@@ -190,6 +196,13 @@ export function EventSequenceTutorial(state:any): TutorialEventSequence {return 
     {
         //18: wait for the user to accept the text
         eventName:"play",f:async (evt) => {
+            return 1
+        }
+    },
+
+    {
+        //19: wait for the signal
+        eventName:"continue",f:async (evt) => {
             return 1
         }
     },
