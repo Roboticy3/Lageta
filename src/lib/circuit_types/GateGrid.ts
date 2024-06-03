@@ -41,7 +41,7 @@ export class GateGrid {
         return [x, y]
     }
 
-    indexToOffset(x:number, y:number) {
+    indexToOffset(x:number, y:number): [number, number] {
         return [10 * x, 10 * y]
     }
 

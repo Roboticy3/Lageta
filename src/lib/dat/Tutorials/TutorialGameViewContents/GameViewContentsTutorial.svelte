@@ -81,7 +81,7 @@
     }
 </script>
 
-{#if state.currentEvent === 21}
+{#if state.currentEvent >= 21 && state.currentEvent <= 24}
     <TutorialText
         position={[85, 15]}
         initialPosition={[20,90]}

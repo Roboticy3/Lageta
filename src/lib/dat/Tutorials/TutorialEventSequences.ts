@@ -218,7 +218,7 @@ export function EventSequenceTutorial(state:any): TutorialEventSequence {return 
                 evt.to.contentEquals({id:0,type:"Output",index:0})
             ) {
                 state.indicator?.setPositionToConnectionPoint({id:2, type:"Input", index:0})
-                    return 1
+                return 1
             }
         }
     },

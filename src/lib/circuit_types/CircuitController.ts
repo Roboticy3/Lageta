@@ -174,7 +174,7 @@ export class CircuitController {
      * @param y 
      * @returns 
      */
-    indexToOffset(x:number, y:number) {
+    indexToOffset(x:number, y:number): [number, number] {
         return this.gateGrid.indexToOffset(x,y)
     }
 
