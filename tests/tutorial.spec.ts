@@ -445,3 +445,40 @@ test('tutorial progression 19', async ({page}) => {
     await expect(page.getByText("...")).toHaveCount(0)
     await expect(page.getByText("still not working")).toHaveCount(1)
 })
+
+async function step20(page:Page) {
+    await step19(page)
+
+    const firstConnectionPoint = await locateConnectionPoint(page, {id:0, type:"Output", index:0})
+    await firstConnectionPoint.click({force:true})
+}
+
+test('tutorial progression 20', async ({page}) => {
+    await gotoTutorial(page)
+
+    await step20(page)
+
+    await expect(page.getByText("still not working")).toHaveCount(1)
+    await expect(page.getByText("affect the circuit")).toHaveCount(1)
+})
+
+/**
+ * Step should not progress if the gate is deleted first. In fact, the tutorial should go back to the step that asks the user to place a gate
+ */
+test('tutorial progression 20A', async ({page}) => {
+    await gotoTutorial(page)
+
+    await step19(page)
+
+    const offset1 = await locateGridSquare(page, 10, 5, 9, 2)
+    await page.mouse.click(offset1[0], offset1[1])
+
+    const offset2 = await locateGridSquare(page, 10, 5, 11, 2)
+    await page.mouse.click(offset2[0], offset2[1])
+
+    const firstConnectionPoint = await locateConnectionPoint(page, {id:0, type:"Output", index:0})
+    await firstConnectionPoint.click({force:true})
+
+    await expect(page.getByText("still not working")).toHaveCount(0)
+    await expect(page.getByText("affect the circuit")).toHaveCount(0)
+})

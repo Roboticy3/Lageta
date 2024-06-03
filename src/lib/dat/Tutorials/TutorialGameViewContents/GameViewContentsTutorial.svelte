@@ -65,6 +65,18 @@
     }
 </script>
 
+{#if state.currentEvent === 21}
+    <TutorialText
+        position={[85, 15]}
+        initialPosition={[20,90]}
+        showButton={false}
+    >
+    <div style="color:black; wdith:25vw">
+        For the gate to affect the circuit, it needs to be connected.
+    </div>
+    </TutorialText>
+{/if}
+
 {#if state.currentEvent === 19}
     <TutorialText
         position={[20, 90]}

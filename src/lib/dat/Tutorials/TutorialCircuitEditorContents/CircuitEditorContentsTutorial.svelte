@@ -74,7 +74,7 @@
     position={[1.35, 1.25]}
 />
 
-{#if state.currentEvent === 20}
+{#if state.currentEvent >= 20 && !(state.isCircuitValid)}
     <TutorialText
         position={[50, 90]}
         initialPosition={[30, 120]}

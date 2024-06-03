@@ -38,7 +38,8 @@
             showGrid:false,
             showGates:false,
             showLabels:false
-        }
+        },
+        isCircuitValid:false
     }
 
     /**
@@ -64,11 +65,20 @@
         state = state
     })
     eventStagesController.signalEventTarget.addEventListener('restart', () => { 
+        state.isCircuitValid = true
         state.signalPlaying = false
         state = state
     })
     eventStagesController.signalEventTarget.addEventListener('done', () => { 
         state.signalPlaying = false
+        state = state
+    })
+    eventStagesController.signalEventTarget.addEventListener('done', () => { 
+        state.signalPlaying = false
+        state = state
+    })
+    eventStagesController.signalEventTarget.addEventListener('step', (evt) => { 
+        state.isCircuitValid = evt.isCircuitValid
         state = state
     })
 

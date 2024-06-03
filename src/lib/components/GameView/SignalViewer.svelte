@@ -107,14 +107,15 @@
 
     /**
      * @param {import("$lib/signal_types/SignalSetViewEvent").SignalSetViewEventKey} type
+     * @param {Object | undefined} [options]
      */
-    function dispatchSignalEvent(type) {
+    function dispatchSignalEvent(type, options) {
         signalSetViewEventTarget?.dispatchEvent(
             createCustomEvent(
-                {
+                {...{
                     frame:signalSetView.getPlayerFrame() || 0,
                     value:signalSetView.getPlayerValue() || []
-                },
+                }, ...(options || {})},
                 type,
                 container
             )
@@ -146,7 +147,7 @@
      * @param {boolean} done
      */
     function step(currentValue, currentFrame, update, done) {
-        dispatchSignalEvent("step")
+        dispatchSignalEvent("step", {isCircuitValid:signalSetView.isCircuitValid()})
 
         if (update) {
             //send input channels to circuit inputs
@@ -158,9 +159,11 @@
         
         if (done) {
             atEnd = true
+            dispatchSignalEvent("done")
             pause()
             if (signalSetView.isCircuitValid()) {
                 circuitController.complete()
+                dispatchSignalEvent("complete")
             }
         }  
     }

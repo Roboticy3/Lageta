@@ -217,11 +217,8 @@ export function EventSequenceTutorial(state:any): TutorialEventSequence {return 
             if (
                 evt.to.contentEquals({id:0,type:"Output",index:0})
             ) {
-                if (state.circuitController && state.circuitController.getNumGates() > 2) {
-                    state.indicator?.setPositionToConnectionPoint({id:2, type:"Input", index:0})
+                state.indicator?.setPositionToConnectionPoint({id:2, type:"Input", index:0})
                     return 1
-                }
-                return -5
             }
         }
     },
@@ -235,11 +232,8 @@ export function EventSequenceTutorial(state:any): TutorialEventSequence {return 
                 return 1
             }
             else {
-                if (state.circuitController && state.circuitController.getNumGates() > 2) {
-                    state.indicator?.setPosition([1.35, 1.25])
-                    return -1
-                }
-                return -6
+                state.indicator?.setPosition([1.35, 1.25])
+                return -1
             }
         }
     },
