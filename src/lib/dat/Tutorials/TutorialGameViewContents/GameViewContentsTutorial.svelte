@@ -34,6 +34,20 @@
                     case 12:
                         await delayedContinue()
                         break
+                    case 17:
+                        eventStagesController.signalEventTarget.dispatchEvent(
+                            createCustomEvent(
+                                {
+                                    frame:0,
+                                    value:[]
+                                },
+                                "restart",
+                                null
+                            )
+                        )
+                        document.querySelector('#signal-play-button')?.setAttribute('disabled', 'disabled')
+                        document.querySelector('#signal-play-button')?.classList.add('unavailable')
+                        break
                 }
             },
         );
@@ -82,7 +96,7 @@
         on:continue={dispatch.bind(dispatch, "continue")}
     >
     <div style="color:black; width:25vw;">
-        You can add more gates, some can be picked up and moved.
+        You can add more gates, and this one can be picked up and moved.
     </div>
     </TutorialText>
 {/if}
