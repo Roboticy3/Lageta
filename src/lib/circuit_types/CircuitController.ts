@@ -251,7 +251,7 @@ export class CircuitController {
      * @returns the number of gates in this controller's grid
      */
     getNumGates() {
-        return this.gateGrid.gates.length
+        return this.gateGrid.gates.filter(v => v).length
     }
 
     toLocal(offsetX:number, offsetY:number) {

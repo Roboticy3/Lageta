@@ -51,6 +51,19 @@
                 }
             },
         );
+
+        eventStagesController.editorEventTarget.addEventListener(
+            "changed",
+            async (evt) => {
+                console.log("changed!", state.currentEvent, (state.circuitController?.getNumGates() || 0) < 3)
+                if (state.currentEvent >= 17 && (state.circuitController?.getNumGates() || 0) < 3) {
+                    console.log("preparing event 15 (blocking delayed continues)")
+                    block = true
+                    eventStagesController.prepareEvent(createCustomEvent({}, "", null), 15)
+                    state.indicator?.hide()
+                }
+            }
+        )
     });
 
     function onContinue() {
@@ -58,10 +71,13 @@
         eventStagesController.tutorialEventTarget.dispatchEvent(createCustomEvent({}, "continue"))
     }
 
+    let block = false
     async function delayedContinue() {
+        block = false
         const delay = () => {return new Promise((resolve) => {setTimeout(resolve, 5000)})}
         await delay()
-        onContinue()
+        if (block) block = false
+        else onContinue()
     }
 </script>
 

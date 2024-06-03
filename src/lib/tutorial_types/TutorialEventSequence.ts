@@ -73,6 +73,11 @@ export class TutorialEventSequenceController implements TutorialEventSequenceCon
         )
     }
 
+    prepareEvent(from:CustomEvent<any, any>, absoluteIdx:number): void {
+        const idxOffset = absoluteIdx - this.currentEvent
+        this.prepareNextEvent(from, idxOffset)
+    }
+
     getEvent(idx:number) {return this.sequence[idx]}
     getCurrentEvent() {return this.sequence[this.currentEvent - 1]}
 
