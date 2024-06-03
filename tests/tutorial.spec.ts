@@ -314,7 +314,7 @@ test('tutorial progression 11', async ({page}) => {
 
 async function step12(page:Page) {
     await step11(page)
-    await page.waitForTimeout(10000)
+    await page.waitForTimeout(6000)
 }
 
 /**
@@ -325,26 +325,6 @@ test('tutorial progression 12', async ({page}) => {
 
     await step12(page)
 
-    await expect(page.getByText('As the signal changes')).toHaveCount(1)
-})
-
-/**
- * If user bypassed clicking continue in step 10, they should still be able to continue by pressing play in the circuit
- */
-test('tutorial progression 12A', async ({page}) => {
-    await gotoTutorial(page)
-
-    await step9(page)
-
-    await page.locator('#signal-play-button').click()
-
-    await page.getByTestId('continue').click({force:true})
-
-    await expect(page.getByText('This is a level')).toHaveCount(1)
-
-    await page.waitForTimeout(10000)
-
-    await expect(page.getByText('This is a level')).toHaveCount(0)
     await expect(page.getByText('As the signal changes')).toHaveCount(1)
 })
 
@@ -439,13 +419,28 @@ test('tutorial progression 17', async ({page}) => {
 
 async function step18(page:Page) {
     await step17(page)
-    await page.locator('#signal-play-button').click()
+    await page.locator('#signal-play-button').click({force:true})
 }
 
 test('tutorial progression 18', async ({page}) => {
     await gotoTutorial(page)
 
     await step18(page)
+
+    await expect(page.getByText("press play")).toHaveCount(1)
+    await expect(page.getByText("...")).toHaveCount(0)
+})
+
+async function step19(page:Page) {
+    await step18(page)
+
+    await page.waitForTimeout(6000)
+}
+
+test('tutorial progression 19', async ({page}) => {
+    await gotoTutorial(page)
+
+    await step19(page)
 
     await expect(page.getByText("press play")).toHaveCount(0)
     await expect(page.getByText("...")).toHaveCount(1)

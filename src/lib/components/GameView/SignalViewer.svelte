@@ -2,7 +2,7 @@
     //@ts-ignore
     import { CircuitController } from "$lib/circuit_types/CircuitController";
     import { CircuitSignalSetView, SignalSetView } from "$lib/signal_types/SignalSetView";
-    import { onMount } from "svelte";
+    import { onMount, tick } from "svelte";
     import ResizingSvg from "../Misc/ResizingSvg.svelte";
     import { ConnectionValueSignalSet } from "$lib/signal_types/Signal";
     import { CircuitSignalSetViewEventTarget, SignalSetViewEventTarget } from "$lib/signal_types/SignalSetViewEvent";
@@ -30,11 +30,11 @@
     /**
      * @type {CircuitSignalSetView}
      */
-    export let outputSignalSetView =  new CircuitSignalSetView(circuitController.getOutputs(), null)
+    export let outputSignalSetView =  new CircuitSignalSetView(circuitController.getOutputs())
     let liveChannelSvgs = outputSignalSetView.drawChannels(0)
 
     function resetOutputSignalSetView() {
-        outputSignalSetView = new CircuitSignalSetView(circuitController.getOutputs(), container)
+        outputSignalSetView = new CircuitSignalSetView(circuitController.getOutputs())
         liveChannelSvgs = outputSignalSetView.drawChannels(0)
     }
 
@@ -45,22 +45,29 @@
         return signalSetView.getDesiredChannelHeight(index)
     }
 
-    onMount(() => {
+    onMount(async () => {
         signalSetView.createPlayer(100)
         signalSetView.sendPlayerToController(circuitController)
-        signalSetView.setTarget(container)
-        outputSignalSetView.setTarget(container)
         
         restart()
 
-        if (!signalSetViewEventTarget) 
-            signalSetViewEventTarget = new CircuitSignalSetViewEventTarget()
-        signalSetView.setEventTarget(signalSetViewEventTarget)
+        if (!signalSetViewEventTarget) signalSetViewEventTarget = new CircuitSignalSetViewEventTarget()
 
-        signalSetViewEventTarget.addEventListener("step", updateDesiredOutputs)
+        signalSetViewEventTarget.addEventListener("restart", updateDesiredOutputs)
         signalSetViewEventTarget.addEventListener("play", updateDesiredOutputs)
+        signalSetViewEventTarget.addEventListener("pause", updateDesiredOutputs)
+        signalSetViewEventTarget.addEventListener("step", updateDesiredOutputs)
+
+        signalSetViewEventTarget.addEventListener("restart", onRestart)
+        signalSetViewEventTarget.addEventListener("play", onPlay)
+        signalSetViewEventTarget.addEventListener("pause", onPause)
+        signalSetViewEventTarget.addEventListener("step", onStep)
 
         console.log("channels", labels, channelSvgs)
+
+        await tick()
+
+        restart()
     })
 
 
@@ -98,9 +105,29 @@
         }
     }
 
+    /**
+     * @param {import("$lib/signal_types/SignalSetViewEvent").SignalSetViewEventKey} type
+     */
+    function dispatchSignalEvent(type) {
+        signalSetViewEventTarget?.dispatchEvent(
+            createCustomEvent(
+                {
+                    frame:signalSetView.getPlayerFrame() || 0,
+                    value:signalSetView.getPlayerValue() || []
+                },
+                type,
+                container
+            )
+        )
+    }
+
     function restart() {
+        dispatchSignalEvent("restart")
+    }
+
+    function onRestart() {
         pause()
-        
+
         signalSetView.resetPlayer()
         resetOutputSignalSetView()
 
@@ -118,8 +145,8 @@
      * @param {boolean} update
      * @param {boolean} done
      */
-    function onSignalStep(currentValue, currentFrame, update, done) {
-        setPlayBarProgress(currentFrame)
+    function step(currentValue, currentFrame, update, done) {
+        dispatchSignalEvent("step")
 
         if (update) {
             //send input channels to circuit inputs
@@ -127,13 +154,7 @@
 
             //send circuit outputs to output channels
             outputSignalSetView.push(circuitController.getOutputs(), currentFrame - 1);
-            console.log(signalSetView)
-        }
-
-        liveChannelSvgs = outputSignalSetView.drawChannels(
-            currentFrame, 
-            `stroke="var(--grid-color)" stroke-width="2" stroke-dasharray="2 1"`
-        )
+        }       
         
         if (done) {
             atEnd = true
@@ -144,21 +165,41 @@
         }  
     }
 
-    function play() {
-        if (playButton) playButton.innerText = "⏸"
+    /**
+     * 
+     * @param {import("$lib/signal_types/SignalSetViewEvent").CircuitSignalSetViewEvent} param0
+     */
+    function onStep({frame, value}) {
+        setPlayBarProgress(frame)
+        liveChannelSvgs = outputSignalSetView.drawChannels(
+            frame, 
+            `stroke="var(--grid-color)" stroke-width="2" stroke-dasharray="2 1"`
+        )
+    }
 
+    function play() {
+        dispatchSignalEvent("play")
+    }
+
+    function onPlay() {
+        signalSetView.playVerify(circuitController, step)
+
+        if (playButton) playButton.innerText = "⏸"
         if (atEnd) restart()
 
-        signalSetView.playVerify(circuitController, onSignalStep)
         playing = true
 
         document.querySelectorAll("input").forEach((n) => n.setAttribute('disabled','disabled'))
     }
 
     function pause() {
-        if (playButton) playButton.innerText = "⏵"
-        
+        dispatchSignalEvent("pause")
+    }
+
+    function onPause() {
         signalSetView.pausePlayer()
+
+        if (playButton) playButton.innerText = "⏵"
         playing = false
 
         document.querySelectorAll("input").forEach((n) => n.removeAttribute('disabled'))

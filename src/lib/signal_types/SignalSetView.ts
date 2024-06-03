@@ -9,12 +9,8 @@ export class SignalSetView<T> {
     readonly signalSet:SignalSet<T>
     readonly height=20
 
-    private target:EventTarget | null
-
     constructor(
-        from:SignalSet<T> | number | T[],
-        target:EventTarget | null = null,
-        signalSetViewEventTarget:SignalSetViewEventTarget<T[]> | undefined = undefined
+        from:SignalSet<T> | number | T[]
     ) {
         if (from instanceof SignalSet) {
             this.signalSet = from
@@ -25,10 +21,6 @@ export class SignalSetView<T> {
         else {
             this.signalSet = this.initChannelsWithValue(from)
         }
-
-        this.target = target
-
-        this.signalSetViewEventTarget = signalSetViewEventTarget || new SignalSetViewEventTarget<T[]>()
     }
 
     private initBlankChannels(from:number) {
@@ -119,25 +111,15 @@ export class SignalSetView<T> {
     startPlayer(iter: SignalFrameReader<T> | undefined, reset:boolean = false) {
         if (this.player) {
             this.player.scrub(
-                iter ? (currentValue, currentFrame, update, done) => {
-                    iter(currentValue, currentFrame, update, done)
-                    this.scrubDispatch(currentValue, currentFrame, update, done)
-                } : this.scrubDispatch, 
+                iter,
                 reset
             )
-            this.dispatchSignalEvent("play")
         } 
-    }
-
-    private readonly scrubDispatch:SignalFrameReader<T> = (currentValue, currentFrame, update, done) => {
-        this.dispatchSignalEvent("step")
-        if (done) this.dispatchSignalEvent("done")
     }
 
     pausePlayer() {
         if (this.player) {
             this.player.abortScrub()
-            this.dispatchSignalEvent("pause")
         }
     }
 
@@ -156,7 +138,6 @@ export class SignalSetView<T> {
     resetPlayer() {
         if (this.player) {
             this.player.resetScrub()
-            this.dispatchSignalEvent("restart")
         }
     }
 
@@ -164,35 +145,6 @@ export class SignalSetView<T> {
         this.player = player
     }
 
-    private signalSetViewEventTarget
-
-    private createSignalEvent(type:SignalSetViewEventKey) {
-        if (!this.player) return undefined
-
-        return createCustomEvent(
-            {
-                frame:this.player.getCurrentFrame(),
-                value:this.player.getCurrentValue()
-            },
-            type, this.target
-        )
-    }
-
-    private dispatchSignalEvent(type:SignalSetViewEventKey) {
-        const evt = this.createSignalEvent(type)
-        if (!evt) {
-            throw Error(`SignalSetView tried to throw a signal event with no player!`)
-        }          
-        this.signalSetViewEventTarget.dispatchEvent(evt)
-    }
-
-    setTarget(newTarget:EventTarget) {
-        this.target = newTarget
-    }
-
-    setEventTarget(newEventTarget:SignalSetViewEventTarget<T[]>) {
-        this.signalSetViewEventTarget = newEventTarget
-    }
 }
 
 export class CircuitSignalSetView extends SignalSetView<ConnectionValue> implements WinCondition {

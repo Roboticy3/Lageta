@@ -13,3 +13,5 @@ export type SignalSetViewEventListener<T> = CustomEventListener<SignalSetViewEve
 export class SignalSetViewEventTarget<T> extends CustomEventTarget<SignalSetViewEvent<T>, SignalSetViewEventKey> {}
 
 export class CircuitSignalSetViewEventTarget extends SignalSetViewEventTarget<ConnectionValue[]> {}
+
+export interface CircuitSignalSetViewEvent extends SignalSetViewEvent<ConnectionValue[]>{}
