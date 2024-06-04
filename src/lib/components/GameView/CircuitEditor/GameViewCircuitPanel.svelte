@@ -424,6 +424,8 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
                 dropGate({from, to})
                 break
             case "Input":
+                dropConnection({from:to, to:from})
+                break
             case "Output":
                 dropConnection({from, to})
                 break
@@ -479,22 +481,11 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
      * @param {import('$lib/circuit_types/GameViewCircuitPanelEvent').GameViewCircuitPanelEvent} param0
      */
     function dropConnection({from, to}) {
-        switch (from.type + to.type) {
-            case "OutputInput":
-                console.log("laying connection from ", from, " to ", to)
-                circuitController.addConnection(
-                    from.getId() || 0, from.connectionIndex || 0, 
-                    to.getId() || 0, to.connectionIndex || 0
-                );
-                break
-            case "InputOutput":
-                console.log("laying connection from ", from, " to ", to)
-                circuitController.addConnection(
-                    from.getId() || 0, from.connectionIndex || 0, 
-                    to.getId() || 0, to.connectionIndex || 0
-                );
-                break
-        }
+        console.log("laying connection from ", from, " to ", to)
+        circuitController.addConnection(
+            from.getId() || 0, from.connectionIndex || 0, 
+            to.getId() || 0, to.connectionIndex || 0
+        );
     }
 
 
