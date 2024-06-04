@@ -139,6 +139,7 @@
     >
         <CircuitEditorContentsTutorial
             circuitController={circuitController}
+            eventStagesController={eventStagesController}
             state={state}
             on:continue={onContinue}
         />

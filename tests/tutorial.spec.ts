@@ -33,6 +33,7 @@ test('tutorial progression 1', async ({ page }) => {
 async function step2(page:Page) {
     await step1(page)
     const secondConnectionPoint = await locateConnectionPoint(page, {id:1, type:"Input", index:0})
+    await page.waitForTimeout(500)
     await secondConnectionPoint.click({force:true})
 }
 
@@ -113,6 +114,7 @@ test('tutorial progression 4', async ({ page }) => {
 async function stepm2(page:Page) {
     const secondConnectionPoint = await locateConnectionPoint(page, {id:1, type:"Input", index:0})
     await secondConnectionPoint.click({force:true})
+    await page.waitForTimeout(500)
     const firstConnectionPoint = await locateConnectionPoint(page, {id:0, type:"Output", index:0})
     await firstConnectionPoint.click({force:true})
 }
@@ -125,7 +127,11 @@ test('tutorial progression 4A', async ({ page }) => {
 
     await step3(page)
 
+    await page.waitForTimeout(500)
+
     await stepm2(page)
+
+    await page.waitForTimeout(500)
     
     await step2(page)
 
@@ -159,11 +165,15 @@ test('tutorial progression 5A', async ({ page }) => {
 
     await step4(page)
 
+    await page.waitForTimeout(500)
+
     await stepm2(page)
 
     await expect(page.getByText('low', { exact:true })).toHaveCount(2)
     await expect(page.getByText('high', { exact:true })).toHaveCount(1)
     await expect(page.getByText('neither', { exact:true })).toHaveCount(2)
+    
+    await page.waitForTimeout(500)
 
     await step2(page)
 
@@ -205,12 +215,16 @@ test('tutorial progression 5C', async ({ page }) => {
 
     await step4(page)
 
+    await page.waitForTimeout(500)
+
     await page.getByRole('checkbox').click()
     await stepm2(page)
 
     await expect(page.getByText('low', { exact:true })).toHaveCount(1)
     await expect(page.getByText('high', { exact:true })).toHaveCount(2)
     await expect(page.getByText('neither', { exact:true })).toHaveCount(2)
+
+    await page.waitForTimeout(500)
 
     await step2(page)
     await page.getByRole('checkbox').click()
@@ -252,6 +266,9 @@ test('tutorial progression 7', async ({ page }) => {
 
 async function step8(page:Page) {
     await step7(page)
+
+    await page.waitForTimeout(500)
+
     await step2(page)
 }
 

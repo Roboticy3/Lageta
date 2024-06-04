@@ -6,6 +6,7 @@
 
     import TutorialIndicator from "$lib/components/GameView/Tutorial/TutorialIndicator.svelte";
     import TutorialText from "$lib/components/GameView/Tutorial/TutorialText.svelte";
+    import { TutorialEventSequenceController } from "$lib/tutorial_types/TutorialEventSequence";
     import { createEventDispatcher, onMount } from "svelte";
 
     const dispatch = createEventDispatcher()
@@ -23,6 +24,11 @@
      * @type {CircuitController}
      */
     export let circuitController
+
+    /**
+     * @type {TutorialEventSequenceController}
+     */
+    export let eventStagesController
 
     /**
      * @type {any}
@@ -65,6 +71,16 @@
 
     onMount(() => {
         circuitController.addGraphListener("update", setConnectionValues)
+
+        eventStagesController.editorEventTarget.addEventListener("drop", (evt) => {
+            if (state.currentEvent >= 3 && state.currentEvent <= 5) {
+                if (state.circuitController.getOutputs()[0] === undefined) {
+                    state.showInputCheckboxes = false
+                    state.indicator.show()
+                    eventStagesController.prepareEvent(evt, 2)
+                }
+            }
+        })
     })
 
 </script>

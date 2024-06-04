@@ -497,7 +497,7 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
         const color = connectionValueToColor(value)
         return `
 <path d="M -1 -1 l 2 1 l -2 1 Z" stroke-width=".25px" stroke="${color}" ${extraValueParams}/>\n
-${rendererParams.showLabels !== false ? `<text stroke="none" fill="${color}" font-size="0.2em" style="pointer-events:none;" ${extraLabelParams}>${label}</text>`:""}
+${rendererParams.showLabels !== false ? `<text stroke="none" fill="${color}" font-size="0.2em" ${extraLabelParams}>${label}</text>`:""}
         `
     }
 
@@ -662,5 +662,17 @@ ${rendererParams.showLabels !== false ? `<text stroke="none" fill="${color}" fon
         <g bind:this={gateGroup} id="circuit-svg-gates" stroke="var(--gate-color)" stroke-width="0.5px" fill="none"></g>
         <g bind:this={connectionGroup} id="circuit-svg-connections" stroke="var(--gate-color)" stroke-width="0.5px" fill="none"></g>
     </g>
+    <path></path>
+    <text></text>
     <slot />
 </ResizingSvg>
+
+<style>
+    path {
+        pointer-events: none;
+    }
+
+    text {
+        pointer-events: none;
+    }
+</style>

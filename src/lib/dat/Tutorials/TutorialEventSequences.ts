@@ -60,15 +60,6 @@ export function EventSequenceTutorial(state:any): TutorialEventSequence {return 
                 state.circuitController.getOutputs()[0] === false
             ) {
                 return 1
-            } 
-            else if (
-                state.circuitController &&
-                state.circuitController.getOutputs()[0] === undefined
-            ) {
-                state.indicator?.show()
-                state.showInputCheckboxes = false
-                state.indicator?.setPosition([7.75, 1.25])
-                return -2
             }
         }
     },

@@ -96,17 +96,6 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
     }
 
     /**
-     * @param {number | undefined} id
-     * @param {"" | "Gate" | "Input" | "Output" | undefined} type
-     * @param {number | undefined} connectionIndex
-     * @param {CircuitController} controller
-     * @return {CircuitControllerQueryResult}
-     */
-     export function toQuery(id, type, connectionIndex, controller) {
-        return controller.toQuery(id, type, connectionIndex)
-    }
-
-    /**
      * Add all events needed to edit the circuit, name is a hold-over from when the project used the drag and drop api
      */
     function setInitialEventListeners() {
@@ -217,7 +206,9 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
             if (connected && circuitContainer) {
                 //we can coerce the onDrag functions to do circuitController by simply switching out the query for one originating from the output
                 //SKETCHY: query loses localOffset and pageOffset data
-                q = toQuery(connected[0], "Output", connected[1], circuitController)   
+                q = circuitController.toQuery(
+                    connected[0], "Output", connected[1], undefined, undefined, q.timeStamp
+                )   
                 //then we can delete the old connection
                 circuitController.removeConnection(
                     {id:index[0], type:"Input", index:index[1]}
@@ -236,9 +227,10 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
      * addDragEventListeners should hook circuitController up so it starts when the user selects an object in the circuitContainer div.
      * Outside of that div, other components will be in charge of starting a drag.
      * 
-     * @param {import('$lib/circuit_types/GameViewCircuitPanelEvent').GameViewCircuitPanelEvent} param0 
+     * @param {import('$lib/circuit_types/GameViewCircuitPanelEvent').GameViewCircuitPanelEvent} evt 
      */
-    function onDragStart({to}) {
+    function onDragStart(evt) {
+        const to = evt.to
 
         switch (to.type) {
             case "Output":
@@ -249,6 +241,8 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
         }
 
         setDragEventListeners()
+
+        onDrag(evt)
     }
 
     /**
@@ -406,7 +400,9 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
         //check that the from and to queries weren't too close together in time,
         //this allows the mouse to be clicked once to pick up, and again to drop later
 
-
+        if ((to.timeStamp || 0) - (from.timeStamp || 0) < 500) {
+            return
+        }
 
         editorEventTarget?.dispatchEvent(
             createGameViewCircuitPanelEvent(
@@ -493,7 +489,12 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
             from.getId(), from.connectionIndex,
             to.getId(), to.connectionIndex
         ]
-        if (fId === undefined || fC === undefined || tId === undefined || tC === undefined) return
+        if (fId === undefined || 
+            fC === undefined || 
+            tId === undefined || 
+            tC === undefined || 
+            from.type === to.type
+        ) return
         console.log("laying connection from ", from, " to ", to)
         circuitController.addConnection(
             fId, tC, tId, tC

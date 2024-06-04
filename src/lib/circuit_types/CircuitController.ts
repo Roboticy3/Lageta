@@ -176,13 +176,15 @@ export class CircuitController {
         type:CircuitControllerQueryResultContentType | undefined, 
         connectionIndex:number | undefined, 
         localOffset?:[number, number],
-        pageOffset?:[number, number]
+        pageOffset?:[number, number],
+        timeStamp?:number
     ) {
         const gate = this.gateGrid.gates[id || 0]
         return new CircuitControllerQueryResult(
             gate, type, connectionIndex, 
             this.getGateTypeController(id || 0), 
-            localOffset, pageOffset
+            localOffset, pageOffset,
+            timeStamp
         )
     }
 
