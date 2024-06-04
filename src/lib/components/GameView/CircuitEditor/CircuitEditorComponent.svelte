@@ -38,9 +38,9 @@
     }
 
     /**
-     * @type {GameViewCircuitPanelEventTarget | null}
+     * @type {GameViewCircuitPanelEventTarget}
      */
-    export let editorEventTarget = null
+    export let editorEventTarget
 
     /**
      * @type {GateTypeController[]}
@@ -147,6 +147,7 @@
     {#if circuitController}
         <CircuitDraggable 
             circuitController={circuitController} 
+            editorEventTarget={editorEventTarget}
             bind:this={circuitDraggable}
         />
         <div 

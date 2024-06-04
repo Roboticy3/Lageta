@@ -18,11 +18,17 @@ export class CircuitControllerQueryResult {
     readonly type: CircuitControllerQueryResultContentType;
     readonly connectionIndex: number | undefined;
 
+    readonly localOffset: [number, number] | undefined
+
+    readonly pageOffset: [number, number] | undefined
+
     constructor(
         gate: Gate | undefined = undefined,
         type: CircuitControllerQueryResultContentType = "",
         connectionIndex: number | undefined = undefined,
-        gateTypeController: GateTypeController | undefined = undefined
+        gateTypeController: GateTypeController | undefined = undefined,
+        localOffset: [number, number] | undefined = undefined,
+        pageOffset: [number, number] | undefined = undefined,
     ) {
         this.gate = gate;
         this.gateTypeController = gateTypeController;
@@ -32,18 +38,31 @@ export class CircuitControllerQueryResult {
             this.connectionIndex = connectionIndex;
         }
 
+        this.localOffset = localOffset
+        this.pageOffset = pageOffset
+
     }
 
     getId() { return this.gate?.id; }
 
     getPos() { return this.gate ? [this.gate.x, this.gate.y] : undefined; }
 
-    contentEquals(other:CircuitControllerQueryResult | ConnectionIndex) {
+    getGateType() { return this.gateTypeController }
+
+    getLocalOffset() { return this.localOffset}
+
+    getPageOffset() { return this.pageOffset }
+
+    contentEquals(other:CircuitControllerQueryResult | ConnectionIndex, includeOffset?:boolean) {
         if (other instanceof CircuitControllerQueryResult)
             return (
                 other.type === this.type &&
                 other.connectionIndex === this.connectionIndex &&
-                other.gate === this.gate
+                other.gate === this.gate &&
+                (!includeOffset || ( 
+                    other.localOffset?.at(0) === this.localOffset?.at(0) &&
+                    other.localOffset?.at(1) === this.localOffset?.at(1)
+                ))
             )
         else
             return (

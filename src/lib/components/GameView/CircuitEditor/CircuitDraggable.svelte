@@ -6,6 +6,7 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
     import { onMount } from 'svelte';
     import { GateType, GateTypeController } from '$lib/circuit_types/GateType';
     import { getGateType, wrapGateTypeViewInSvgHeader } from '$lib/dat/GateTypes/GateTypes';
+    import { GameViewCircuitPanelEventTarget } from "$lib/circuit_types/GameViewCircuitPanelEvent";
 
     let contents = ""
 
@@ -21,7 +22,20 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
      */
     export let circuitController
 
+    /**
+     * @type {GameViewCircuitPanelEventTarget | null}
+     */
+    export let editorEventTarget
+
     let circuitDragDropController = new CircuitDragDropController(circuitController)
+
+    onMount(() => {
+        editorEventTarget?.addEventListener("dragstart", onDragStart)
+        editorEventTarget?.addEventListener("drag", onDrag)
+        editorEventTarget?.addEventListener("drop", onDrop)
+
+        window.addEventListener("mousemove", onMouseMove)
+    })
 
     /**
      * @param {MouseEvent} e
@@ -31,7 +45,7 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
     export function dragGateType(e, type, element=null) {
         circuitDragDropController.dragStartGateType(type, e, element) 
         resolveContents()
-        onMouseMove(e, circuitDragDropController.getContents())
+        onMouseMove(e)
     }
 
     function resolveContents() {
@@ -47,38 +61,34 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
     let posY = 0
 
     /**
-     * @param {MouseEvent} e
-     * @param {CircuitControllerQueryResult} query
-     * @param {HTMLElement | null} element
+     * @param {import("$lib/circuit_types/GameViewCircuitPanelEvent").GameViewCircuitPanelEvent} param0
      */
-     export function drag(e, query, element=null) {
-        circuitDragDropController.dragStart(query, e, element)
+     export function onDragStart({from, to}) {
+        circuitDragDropController.dragStart(from)
         resolveContents()
-        onMouseMove(e, query)
     }
 
     /**
      * @param {MouseEvent} e
-     * @param {CircuitControllerQueryResult} q
       */
-    export function onMouseMove(e, q) {
+    export function onMouseMove(e) {
         posX = e.pageX
         posY = e.pageY
-        const controller = getController()
-        if (isDragging()) {
-            const type = controller.getContentType()
-            controller.dragCircuit(e, q)
-        }
+    }
+    
+    /**
+     * @param {import("$lib/circuit_types/GameViewCircuitPanelEvent").GameViewCircuitPanelEvent} param0
+     */
+    export function onDrag({from, to}) {
+        circuitDragDropController.dragCircuit(to)
     }
 
     /**
-     * @param {MouseEvent} e
-     * @param {CircuitControllerQueryResult} q
+     * @param {import("$lib/circuit_types/GameViewCircuitPanelEvent").GameViewCircuitPanelEvent} param0
      */
-     export function drop(e, q) {
-        const result = circuitDragDropController.dragEnd(e, q)
+     export function onDrop({from, to}) {
+        const result = circuitDragDropController.dragEnd(to)
         resolveContents()
-        return result
     }
 
     export function getController() {

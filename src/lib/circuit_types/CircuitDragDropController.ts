@@ -18,10 +18,6 @@ export class CircuitDragDropController {
 
     private contents:CircuitControllerQueryResult = new CircuitControllerQueryResult()
 
-    dragStartHandler=(e:MouseEvent, q:CircuitControllerQueryResult) => {}
-    dragEndHandler=(e:MouseEvent, q:CircuitControllerQueryResult) => {}
-    dragCircuitHandler=(e:MouseEvent, q:CircuitControllerQueryResult) => {}
-
     dragStartGateType(
         type:GateTypeController,
         e:MouseEvent,
@@ -31,29 +27,20 @@ export class CircuitDragDropController {
             undefined,"Gate",undefined,type
         )
         this.sourceElement = element
-
-        this.lastDragEvent = e
-
-        this.dragStartHandler(e, this.contents)
     }
 
     dragStart(
         from:CircuitControllerQueryResult,
-        e:MouseEvent,
         element: HTMLElement | null = null
     ) {
         this.contents = from
         this.sourceElement = element
-
-        this.lastDragEvent = e
-
-        this.dragStartHandler(e, from)
     }
 
     private canDrop = false
     private lastDragEvent:MouseEvent | null = null
 
-    dragEnd(e:MouseEvent, q:CircuitControllerQueryResult) {
+    dragEnd(q:CircuitControllerQueryResult) {
         if (this.canDrop) {
             const result = this.contents
 
@@ -63,8 +50,6 @@ export class CircuitDragDropController {
             this.lastDragEvent = null
             this.canDrop = false
 
-            this.dragEndHandler(e, q)
-
             return result
         }
         
@@ -72,16 +57,18 @@ export class CircuitDragDropController {
         return new CircuitControllerQueryResult()
     }
 
-    private mouseEventDistance(a:MouseEvent, b:MouseEvent) {
-        return Math.pow(Math.pow(a.pageX - b.pageX, 2) + Math.pow(a.pageY - b.pageY, 2), 0.5)
+    private mouseEventDistance(a:CircuitControllerQueryResult, b:CircuitControllerQueryResult) {
+        const pA = a.getPageOffset()
+        const pB = b.getPageOffset()
+        if (!pA || !pB) return Infinity
+        return Math.pow(Math.pow(pA[0] - pB[0], 2) + Math.pow(pA[0] - pB[0], 2), 0.5)
     }
 
-    dragCircuit(e:MouseEvent, q:CircuitControllerQueryResult) {
-        if (this.lastDragEvent === null || this.mouseEventDistance(this.lastDragEvent, e) > 3) {
+    dragCircuit(q:CircuitControllerQueryResult) {
+        if (this.lastDragEvent === null || this.mouseEventDistance(this.contents, q) > 3) {
             this.canDrop = true
             this.lastDragEvent = null
         }
-        this.dragCircuitHandler(e, q)
     }
 
     getGateType() {

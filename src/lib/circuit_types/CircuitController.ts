@@ -93,7 +93,9 @@ export class CircuitController {
         return [this.gateGrid.sizeX, this.gateGrid.sizeY]
     }
 
-    query(offsetX:number, offsetY:number) {
+    query(e:MouseEvent) {
+        const [offsetX, offsetY] = [e.offsetX, e.offsetY]
+        const [pageX, pageY] = [e.pageX, e.pageY]
         const [localX, localY] = this.unprojectOffset(offsetX, offsetY)
         
         const [x, y] = this.gateGrid.offsetToIndex(localX, localY)
@@ -127,7 +129,9 @@ export class CircuitController {
                 gate,
                 "Input",
                 i,
-                cType
+                cType,
+                [localX, localY],
+                [pageX, pageY]
             ) 
         }
 
@@ -149,7 +153,9 @@ export class CircuitController {
                 gate,
                 "Output",
                 i,
-                cType
+                cType,
+                [localX, localY],
+                [pageX, pageY]
             ) 
         }
 
@@ -157,14 +163,24 @@ export class CircuitController {
             gate,
             "Gate",
             undefined,
-            cType
+            cType,
+            [localX, localY],
+            [pageX, pageY]
         ) 
     }
 
-    toQuery(id:number | undefined, type:CircuitControllerQueryResultContentType | undefined, connectionIndex:number | undefined) {
+    toQuery(
+        id:number | undefined, 
+        type:CircuitControllerQueryResultContentType | undefined, 
+        connectionIndex:number | undefined, 
+        localOffset?:[number, number],
+        pageOffset?:[number, number]
+    ) {
         const gate = this.gateGrid.gates[id || 0]
         return new CircuitControllerQueryResult(
-            gate, type, connectionIndex, this.getGateTypeController(id || 0)
+            gate, type, connectionIndex, 
+            this.getGateTypeController(id || 0), 
+            localOffset, pageOffset
         )
     }
 
@@ -178,7 +194,7 @@ export class CircuitController {
         return this.gateGrid.indexToOffset(x,y)
     }
 
-    offsetToIndex(offsetX:number, offsetY:number) {
+    localOffsetToIndex(offsetX:number, offsetY:number) {
         return this.gateGrid.offsetToIndex(offsetX, offsetY)
     }
 
@@ -254,12 +270,6 @@ export class CircuitController {
         return this.gateGrid.gates.filter(v => v).length
     }
 
-    toLocal(offsetX:number, offsetY:number) {
-        const [localX, localY] = this.unprojectOffset(offsetX, offsetY)
-        return this.gateGrid.offsetToIndex(localX, localY)
-
-    }
-
     /**
      * Attempt to add a gate of a given type to the grid at the given global offset
      * @param gType 
@@ -272,15 +282,21 @@ export class CircuitController {
         offsetX:number, 
         offsetY:number
     ) {
+        const [localX, localY] = this.unprojectOffset(offsetX, offsetY)
+        return this.addGateLocal(cType, localX, localY)
+    }
 
-        if (!this.isOffsetInGrid(offsetX, offsetY)) {
+    addGateLocal(
+        cType:GateTypeController,
+        localX:number,
+        localY:number
+    ) {
+        if (!this.isLocalOffsetInGrid(localX, localY)) {
             return "Out of Bounds"
         }
 
-        const [x, y] = this.toLocal(offsetX, offsetY)
-        
+        const [x, y] = this.localOffsetToIndex(localX, localY)       
         return this.addGateAtCell(cType, x, y)
-
     }
 
     addGateAtCell(
@@ -309,6 +325,14 @@ export class CircuitController {
         offsetY:number
     ) {
         const [localX, localY] = this.unprojectOffset(offsetX, offsetY)
+        this.previewAddGateLocal(cType, localX, localY)
+    }
+
+    previewAddGateLocal(
+        cType:GateTypeController,
+        localX:number, 
+        localY:number
+    ) {
         const [x, y] = this.gateGrid.offsetToIndex(localX, localY)
         const gate = new Gate(cType.model)
         gate.id = -1
@@ -322,6 +346,14 @@ export class CircuitController {
         offsetY:number
     ) {
         const [localX, localY] = this.unprojectOffset(offsetX, offsetY)
+        return this.previewMoveGateLocal(id, localX, localY)
+    }
+
+    previewMoveGateLocal(
+        id:number,
+        localX:number,
+        localY:number
+    ) { 
         const [x, y] = this.gateGrid.offsetToIndex(localX, localY)
         const gate = this.gateGrid.gates[id]
         if (!gate) return {at:[x, y], error:"Missing Gate"}
@@ -341,10 +373,19 @@ export class CircuitController {
         offsetX:number, 
         offsetY:number
     ) {
-        const [x, y] = this.toLocal(offsetX, offsetY)
+        const [localX, localY] = this.unprojectOffset(offsetX, offsetY)
+        this.moveGateLocal(id, localX, localY)
+    }
+
+    moveGateLocal(
+        id:number,
+        localX:number,
+        localY:number
+    ) {
+        const [x, y] = this.localOffsetToIndex(localX, localY)
         console.log("moving gate ", id, " to ", x, y)
 
-        if (!this.isOffsetInGrid(offsetX, offsetY)) {
+        if (!this.isLocalOffsetInGrid(localX, localY)) {
             return "Out of Bounds"
         }
 
@@ -635,7 +676,11 @@ export class CircuitController {
     }
 
     isOffsetInGrid(offsetX:number, offsetY:number) {
-        const localOffset = this.unprojectOffset(offsetX, offsetY)
+        const [localX, localY] = this.unprojectOffset(offsetX, offsetY)
+        return this.isLocalOffsetInGrid(localX, localY)
+    }
+
+    isLocalOffsetInGrid(localX:number, localY:number) {
         const grid = this.gateGrid
         const [sizeX, sizeY] = [
             grid.sizeX * 10,
@@ -643,8 +688,8 @@ export class CircuitController {
         ]
 
         return (
-            localOffset[0] >= 0 && localOffset[1] >= 1 &&
-            localOffset[0] < sizeX && localOffset[1] < sizeY
+            localX >= 0 && localY >= 1 &&
+            localX < sizeX && localY < sizeY
         )
     }
 

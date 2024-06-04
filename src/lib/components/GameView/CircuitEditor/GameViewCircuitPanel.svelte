@@ -39,14 +39,13 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
      * @type {GameViewCircuitPanelEventTarget | null}
      */
     export let editorEventTarget
-    let circuitEventTarget = editorEventTarget || new GameViewCircuitPanelEventTarget()
 
     /**
      * @param {import("$lib/circuit_types/GameViewCircuitPanelEvent").GameViewCircuitPanelEventKey} type
      * @param {import('$lib/circuit_types/GameViewCircuitPanelEvent').GameViewCircuitPanelEventListener} listener
      */
     export function addEventListener(type, listener) {
-        circuitEventTarget.addEventListener(type, listener)
+        editorEventTarget?.addEventListener(type, listener)
     }
 
     /**
@@ -54,7 +53,7 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
      * @param {import('$lib/circuit_types/GameViewCircuitPanelEvent').GameViewCircuitPanelEventListener} listener
      */
     export function removeEventListener(type, listener) {
-        circuitEventTarget.removeEventListener(type, listener)
+        editorEventTarget?.removeEventListener(type, listener)
     }
 
     /**
@@ -84,18 +83,16 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
     
     /**
      * 
-     * @param {number} offsetX 
-     * @param {number} offsetY 
+     * @param {MouseEvent} e
      * @param {CircuitController} controller
      * @returns {CircuitControllerQueryResult} A CircuitControllerQueryResult that may contain a gate, as well as a connection.
      */
     export function query(
-        offsetX,
-        offsetY,
+        e,
         controller = circuitController
     )
     {
-        return controller.query(offsetX, offsetY)
+        return controller.query(e)
     }
 
     /**
@@ -113,17 +110,21 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
      * Add all events needed to edit the circuit, name is a hold-over from when the project used the drag and drop api
      */
     async function addDragEventListeners() {
-        if (circuitContainer == null) {
+        if (circuitContainer == null || editorEventTarget == null) {
             return
         }
 
-        circuitContainer.addEventListener("mousedown", onDragStart)
-        circuitContainer.addEventListener("mouseup", onDrop)
+        circuitContainer.addEventListener("mousedown", dragStart)
+        editorEventTarget.addEventListener("dragstart", onDragStart)
+
         circuitContainer.addEventListener("mousemove", onMouseMove)
+        circuitContainer.addEventListener("mousemove", drag)
+        editorEventTarget.addEventListener("drag", onDrag)
+
+        circuitContainer.addEventListener("mouseup", drop)
+        editorEventTarget.addEventListener("drop", onDrop)
 
         await tick()
-
-        circuitDraggable.getController().dragStartHandler = addMouseMoveListener
     }
 
     /**
@@ -137,7 +138,7 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
         }
 
         circuitContainer.removeEventListener("mousemove", onMouseMove)
-        circuitContainer.addEventListener("mousemove", onDrag)
+        circuitContainer.addEventListener("mousemove", drag)
         window.addEventListener("mousemove", moveDraggable)
     }
 
@@ -149,7 +150,7 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
             return
         }
 
-        circuitContainer.removeEventListener("mousemove", onDrag)
+        circuitContainer.removeEventListener("mousemove", drag)
         window.removeEventListener("mousemove", moveDraggable)
         circuitContainer.addEventListener("mousemove", onMouseMove)
     }
@@ -158,7 +159,7 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
      * @param {MouseEvent} e
      */
     function moveDraggable(e) {
-        circuitDraggable.onMouseMove(e, query(e.offsetX, e.offsetY))
+        //circuitDraggable.onMouseMove(e)
     }
     
     /**
@@ -183,7 +184,7 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
     function canDragStart(e) {
         if (circuitDraggable.isDragging()) return "Already Dragging"
 
-        const q = query(e.offsetX, e.offsetY)     
+        const q = query(e)     
 
         if (q.type === "") {
             return "Nothing Under Mouse"
@@ -201,32 +202,40 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
     }
 
     /**
+     * @param {MouseEvent} e
+     */
+    function dragStart(e) {
+        const q = canDragStart(e)
+        if (
+            !(q instanceof CircuitControllerQueryResult) || 
+            !circuitContainer || 
+            editorParams.dispatchEvents === false
+        ) return
+        editorEventTarget?.dispatchEvent(
+            createGameViewCircuitPanelEvent(
+                "dragstart", q, q, circuitContainer
+            )
+        )
+    }
+
+    /**
      * addDragEventListeners should hook circuitController up so it starts when the user selects an object in the circuitContainer div.
      * Outside of that div, other components will be in charge of starting a drag.
      * 
-     * @param {MouseEvent} e
+     * @param {import('$lib/circuit_types/GameViewCircuitPanelEvent').GameViewCircuitPanelEvent} param0 
      */
-    function onDragStart(e) {
-        e.preventDefault()
+    function onDragStart({from}) {
 
-        const check = canDragStart(e)
-        if (!(check instanceof CircuitControllerQueryResult)) return
-
-        switch (check.type) {
+        switch (from.type) {
             case "Input":
-                if (editorParams.canDragConnections !== false) onDragStartInput(e, check)
+                if (editorParams.canDragConnections !== false) onDragStartInput(from)
                 break
             case "Output":
-                if (editorParams.canDragConnections !== false) onDragStartOutput(e, check)
+                if (editorParams.canDragConnections !== false) onDragStartOutput(from)
                 break
             case "Gate":
-                console.log(canDragStartGate(check))
-                if (canDragStartGate(check)) onDragStartGate(e, check)
-        }
-
-        if (circuitContainer && editorParams.dispatchEvents !== false) {
-            const evt = createGameViewCircuitPanelEvent("dragstart", check, check, circuitContainer)
-            circuitEventTarget.dispatchEvent(evt)
+                console.log(canDragStartGate(from))
+                if (canDragStartGate(from)) onDragStartGate(from)
         }
     }
 
@@ -237,10 +246,9 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
      * Dragging from an empty input should create a new wire, 
      * while dragging from a populated input should appear to reroute the existing connection.
      * 
-     * @param {MouseEvent} e
      * @param {CircuitControllerQueryResult} query
      */
-    function onDragStartInput(e, query) {
+    function onDragStartInput(query) {
         //check if an input wire is already there
         const index = [query.getId() || 0, query.connectionIndex || 0]
         const connected = circuitController.getConnectedTo(
@@ -254,6 +262,7 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
         if (connected && circuitContainer) {
 
             //we can coerce the onDrag functions to do circuitController by simply switching out the query for one originating from the output
+            //SKETCHY: query loses localOffset and pageOffset data
             q = toQuery(connected[0], "Output", connected[1], circuitController)   
             //then we can delete the old connection
             circuitController.removeConnection(
@@ -261,22 +270,16 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
             )
 
             //tell onDragStartOutput it's business as usual and pretend we didn't do any of circuitController nonsense behind its back
-            onDragStartOutput(e, q)
-
-            circuitEventTarget.dispatchEvent(createGameViewCircuitPanelEvent(
-                "changed",
-                q, q,
-                circuitContainer
-            ))
+            onDragStartOutput(q)
 
             return
         }
 
         //otherwise, just start a drag
-        circuitDraggable.drag(e, q, circuitContainer)
+        //circuitDraggable.drag(q, circuitContainer)
 
         //updates the activeSvgWire without having to wait until the user moves their mouse, so they don't get too confused
-        onDragInput(e)
+        onDragInput({from:q, to:q})
 
         //draw only the connection points that can be connected to from here
         //svgConnectionPoints = gridController.drawConnectionPoints(ConnectionSvg, "Output")
@@ -286,34 +289,26 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
      * onDragStart calls circuitController when the event passed to it selected an input connection.
      * It also needs a query referencing the id of the gate and the index of the connection to proceed.
      * 
-     * @param {MouseEvent} e
      * @param {CircuitControllerQueryResult} query
      */
-    function onDragStartOutput(e, query) {
+    function onDragStartOutput(query) {
         //draw a new wire from the input, gategraph will handle merging it with any existing connections
-        circuitDraggable.drag(e, query, circuitContainer)
+        //circuitDraggable.drag(query, circuitContainer)
 
         //same as the end of onDragStartInput
         //svgConnectionPoints = gridController.drawConnectionPoints(ConnectionSvg, "Input")
-        onDragOutput(e)
+        onDragOutput({from:query, to:query})
     }
 
     /**
      * onDragStart calls circuitController when the event passed to it selected an input connection.
      * It also needs a query referencing the id of the gate and the index of the connection to proceed.
      * 
-     * @param {MouseEvent} e
      * @param {CircuitControllerQueryResult} query
      */
-    function onDragStartGate(e, query) {
-        circuitDraggable.drag(e, query, circuitContainer)
+    function onDragStartGate(query) {
+        //circuitDraggable.drag(query, circuitContainer)
     }
-
-    /**
-     * The svg string of a gate, if one is being previewed during a drag
-     * 
-     */
-    let activeSvgGate = ""
 
     export let forceDragOnCircuitContainerOnly = true
 
@@ -330,109 +325,85 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
         }
 
         if (!circuitController.isOffsetInGrid(e.offsetX, e.offsetY)) {
-            activeSvgGate = ""
             return "Out of Bounds"
         }
 
         const controller = circuitDraggable.getController()
         const dragType = controller.getContentType()
+        const q = query(e)
 
-        if (dragType === "") {
+        if (q.type === "") {
             return "Nothing Under Mouse"
         }
 
-        return dragType
+        if (dragType === "") {
+            return "Nothing Under Drag"
+        }
+
+        return q
+    }
+
+    /**
+     * @param {MouseEvent} e
+     */
+    function drag(e) {
+        const q = canDrag(e)
+        if (
+            !(q instanceof CircuitControllerQueryResult) || 
+            !circuitContainer || 
+            editorParams.dispatchEvents === false
+        ) return
+        editorEventTarget?.dispatchEvent(
+            createGameViewCircuitPanelEvent(
+                "drag",
+                circuitDraggable.getController().getContents(),
+                q,
+                circuitContainer
+            )
+        )
     }
 
     /**
      * Called after the user has started a drag. 
-     * Keeps activeSvgGate and activeSvgWire updated to preview the changes to user is trying to make.
      * 
-     * @param {MouseEvent} e
+     * @param {import('$lib/circuit_types/GameViewCircuitPanelEvent').GameViewCircuitPanelEvent} param0
      */
-    function onDrag(e) {
+    function onDrag({from, to}) {
         
-        switch(canDrag(e)) {
+        switch(from.type) {
             case "Gate":
-                onDragGate(e)
+                onDragGate({from, to})
                 break
             case "Input":
-                onDragInput(e)
+                onDragInput({from, to})
                 break
             case "Output":
-                onDragOutput(e)
+                onDragOutput({from, to})
                 break
-            case "Nothing Under Mouse":
-                onDrop(e)
-                return //skip the drag event if dropping
-            default: return
-        }
-        
-        if (circuitContainer && editorParams.dispatchEvents !== false) {
-            circuitEventTarget.dispatchEvent(createGameViewCircuitPanelEvent(
-                "drag", 
-                circuitDraggable.getController().getContents(), 
-                query(e.offsetX, e.offsetY), 
-                circuitContainer
-            ))
         }
 
         console.log("Dragging...")
     }
 
     /**
-     * @returns {"No GateType" | [GateTypeController, number | undefined]}
-     */
-    function getDraggedGateData() {
-        const controller = circuitDraggable.getController()
-        const cType = controller.getGateType()
-        if (cType === undefined) return "No GateType"
-
-        const id = controller.getId()
-
-        return [cType, id]
-    }
-
-    /**
-     * onDrag calls circuitController whenever the mouse moves and the user is dragging a gate.
-     * Handles displaying a gate, invoking different functions for adding a gate versus moving an existing one,
-     * since moving a gate won't collide with itself and so shouldn't appear as it does, but adding a new gate will collide with any other.
      * 
-     * @param {MouseEvent} e
+     * @param {import('$lib/circuit_types/GameViewCircuitPanelEvent').GameViewCircuitPanelEvent} param0
      */
-    function onDragGate(e) {
-        const check = getDraggedGateData()
+    function onDragGate({from, to}) {
 
-        if (check === "No GateType") return
-        const [cType, id] = check;
-        
-        const result = id ? 
-            circuitController.previewMoveGate(
-                id,
-                e.offsetX,
-                e.offsetY
-            ) :
-            circuitController.previewAddGate(
-                cType,
-                e.offsetX,
-                e.offsetY
-            )
+        const [cType, id, localOffset] = [from.gateTypeController, from.getId(), to.getLocalOffset()];
 
-        activeSvgGate = `<g ${circuitController.getGateSvgTransform(
-            {type:cType.model, x:result.at[0], y:result.at[1]}
-        )}>${cType.view.draw()}</g>`
+        if (!cType || !localOffset) return
     }
 
     /**
      * onDrag calls circuitController whenever the mouse moves and the user is dragging a wire from an input.
      * 
-     * @param {MouseEvent} e
+     * @param {import('$lib/circuit_types/GameViewCircuitPanelEvent').GameViewCircuitPanelEvent} param0
      */
-    function onDragInput(e) {
-        const contents = circuitDraggable.getController().getContents()
-        const target = query(e.offsetX, e.offsetY)
-        if (target.type === "Output") {
-            checkEntered(target)
+    function onDragInput({from, to}) {
+        if (to.type === "Output") {
+            checkEntered(to)
         }
         else {
             checkEntered(new CircuitControllerQueryResult())
@@ -442,13 +413,11 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
     /**
      * onDrag calls circuitController whenever the mouse moves and the user is dragging a wire from an output.
      * 
-     * @param {MouseEvent} e
+     * @param {import('$lib/circuit_types/GameViewCircuitPanelEvent').GameViewCircuitPanelEvent} param0
      */
-    function onDragOutput(e) {
-        const contents = circuitDraggable.getController().getContents()
-        const target = query(e.offsetX, e.offsetY)
-        if (target.type === "Input") {
-            checkEntered(target)
+    function onDragOutput({from, to}) {
+        if (to.type === "Input") {
+            checkEntered(to)
         }
         else {
             checkEntered(new CircuitControllerQueryResult())
@@ -456,42 +425,53 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
     }
 
     /**
+     * @param {MouseEvent} e
+     */
+    function drop(e) {
+        const to = query(e)
+        if (
+            !(to instanceof CircuitControllerQueryResult) || 
+            !circuitContainer || 
+            editorParams.dispatchEvents === false
+        ) return
+        editorEventTarget?.dispatchEvent(
+            createGameViewCircuitPanelEvent(
+                "drop",
+                circuitDraggable.getController().getContents(),
+                to,
+                circuitContainer
+            )
+        )
+    }
+
+    /**
      * Called at the end of a user's drag, calling dropGate or dropConnection depending on the type of the drag contents.
      * 
      * Also calls removeMouseMoveListener, calls updateSvg, and clears the active svg strings. 
      * 
-     * @param {MouseEvent} e
+     * @param {import('$lib/circuit_types/GameViewCircuitPanelEvent').GameViewCircuitPanelEvent} param0
      */
-    function onDrop(e) {
+    function onDrop({from, to}) {
 
         const source = circuitDraggable.getController().getContents()
-        const q = query(e.offsetX, e.offsetY)
-        const result = circuitDraggable.drop(e, q)
+        //const result = circuitDraggable.drop(to)
 
-        const cType = result.type
-
-        switch (cType) {
+        switch (to.type) {
             case "Gate": 
-                dropGate(result, e)
+                dropGate({from, to})
                 break
             case "Input":
             case "Output":
-                console.log(q)
-                dropConnection(result, q, e)
+                console.log(to)
+                dropConnection({from, to})
                 break
             default: return
         }
-
-        if (circuitContainer && editorParams.dispatchEvents !== false) {
-            circuitEventTarget.dispatchEvent(createGameViewCircuitPanelEvent(
-                "drop", source, q, circuitContainer
-            ))
-        }
         
         removeMouseMoveListener()
+        
         currentQuery = new CircuitControllerQueryResult()
-        checkEntered(q)
-        console.log("dropped ", q, currentQuery)
+        checkEntered(to)
     }
 
     /**
@@ -500,19 +480,21 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
      * The circuitpanel-overhaul branch should have fully isolated the Gate class from the view, making it a proper model class.
      * While we can technically still reference it here, there's no need. Gates are added via their readonly gateType, and moved/removed via their id.
      * 
-     * @param {CircuitControllerQueryResult} result
-     * @param {MouseEvent} e
+     * @param {import('$lib/circuit_types/GameViewCircuitPanelEvent').GameViewCircuitPanelEvent} param0
      */
-    function dropGate(result, e) {
-        const id = result.getId()
+    function dropGate({from, to}) {
+        if (!to.localOffset) return
+        const [localX, localY] = to.localOffset
+
+        const id = from.getId()
         
-        const cType = result.gateTypeController || getGateType(Buf)
+        const cType = from.gateTypeController || getGateType(Buf)
         let controllerResult = "Ok"
         if (id === undefined) {
-            controllerResult = circuitController.addGate(cType, e.offsetX, e.offsetY)
+            controllerResult = circuitController.addGateLocal(cType, localX, localY)
         }
         else {
-            controllerResult = circuitController.moveGate(id, e.offsetX, e.offsetY)
+            controllerResult = circuitController.moveGateLocal(id, localX, localY)
         }
 
         console.log("dropped gate with code ", controllerResult)
@@ -523,52 +505,31 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
             }
             return
         }
-
-        if (circuitContainer) {
-            circuitEventTarget.dispatchEvent(createGameViewCircuitPanelEvent(
-                "changed",
-                circuitDraggable.getController().getContents(), 
-                query(e.offsetX, e.offsetY), 
-                circuitContainer
-            ))
-        }
     }
 
     /**
      * onDrop calls circuitController when dropping a connection, passing two queries for a start and end.
      * 
      * Only does stuff when the queries have opposite connection types, evading any undefined behavior from connecting two inputs or trying to connect a wire to nothing.
-     * @param {CircuitControllerQueryResult} qa
-     * @param {CircuitControllerQueryResult} qb
-     * @param {MouseEvent} e
+     * @param {import('$lib/circuit_types/GameViewCircuitPanelEvent').GameViewCircuitPanelEvent} param0
      */
-    function dropConnection(qa, qb, e) {
-        switch (qa.type + qb.type) {
+    function dropConnection({from, to}) {
+        switch (from.type + to.type) {
             case "OutputInput":
-                console.log("laying connection from ", qa, qb)
+                console.log("laying connection from ", from, " to ", to)
                 circuitController.addConnection(
-                    qa.getId() || 0, qa.connectionIndex || 0, 
-                    qb.getId() || 0, qb.connectionIndex || 0
+                    from.getId() || 0, from.connectionIndex || 0, 
+                    to.getId() || 0, to.connectionIndex || 0
                 );
                 break
             case "InputOutput":
-                console.log("laying connection from ", qb, qa)
+                console.log("laying connection from ", from, " to ", to)
                 circuitController.addConnection(
-                    qb.getId() || 0, qb.connectionIndex || 0, 
-                    qa.getId() || 0, qa.connectionIndex || 0
+                    from.getId() || 0, from.connectionIndex || 0, 
+                    to.getId() || 0, to.connectionIndex || 0
                 );
                 break
         }
-
-        if (circuitContainer) {
-            circuitEventTarget.dispatchEvent(createGameViewCircuitPanelEvent(
-                "changed",
-                circuitDraggable.getController().getContents(), 
-                query(e.offsetX, e.offsetY), 
-                circuitContainer
-            ))
-        }
-
     }
 
 
@@ -577,7 +538,7 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
      * @param {MouseEvent} e
      */
     function onMouseMove(e) {
-        const newQ = query(e.offsetX, e.offsetY)
+        const newQ = query(e)
         checkEntered(newQ)
     }
 
@@ -606,12 +567,13 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
         circuitController={circuitController} 
         circuitDraggable={circuitDraggable} 
         rendererParams={rendererParams}
+        editorEventTarget={editorEventTarget}
     >
     </CircuitRenderer>
 
     {#if editorParams.inputCheckBoxes !== false}
         {#each circuitController.getInputIds() as id}
-            <InputCheckBox gridController={circuitController} from={id} circuitEventTarget={circuitEventTarget}/>
+            <InputCheckBox gridController={circuitController} from={id} editorEventTarget={editorEventTarget}/>
         {/each} 
     {/if}
 

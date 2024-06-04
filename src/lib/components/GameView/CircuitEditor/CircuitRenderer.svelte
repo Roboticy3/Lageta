@@ -10,6 +10,7 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
     import ResizingSvg from "$lib/components/Misc/ResizingSvg.svelte";
     import { CircuitRendererIDStandard } from "$lib/circuit_types/CircuitRendererIDSpace";
     import { browser } from "$app/environment";
+    import { GameViewCircuitPanelEventTarget } from "$lib/circuit_types/GameViewCircuitPanelEvent";
 
     /**
      * @type {CircuitController}
@@ -20,6 +21,11 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
      * @type {CircuitDraggable}
      */
     export let circuitDraggable
+
+    /**
+     * @type {GameViewCircuitPanelEventTarget | null}
+     */
+    export let editorEventTarget
 
     /**
      * @type {any}
@@ -278,9 +284,8 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
     async function linkDraggable() {
         await tick()
 
-        const controller = circuitDraggable.getController()
-        controller.dragCircuitHandler = onDragCircuit
-        controller.dragEndHandler = clearActives
+        editorEventTarget?.addEventListener("drag", onDragCircuit)
+        editorEventTarget?.addEventListener("drop", clearActives)
 
         const activeWire = document.createElementNS("http://www.w3.org/2000/svg", 'g')
         activeWire.setAttribute('id', "wire-active")
@@ -292,37 +297,34 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
     }
 
     /**
-     * @param {MouseEvent} e
-     * @param {CircuitControllerQueryResult} q
+     * @param {import("$lib/circuit_types/GameViewCircuitPanelEvent").GameViewCircuitPanelEvent} param0
      */
-    function onDragCircuit(e, q) {
-        switch (circuitDraggable.getController().getContentType()) {
+    function onDragCircuit({from, to}) {
+        switch (from.type) {
             case "Input":
             case "Output":
-                drawActiveWire(e, q)
+                drawActiveWire({from, to})
                 break
             case "Gate":
-                drawActiveGate(e, q)
+                drawActiveGate({from, to})
                 break
         }
     }
 
     /**
-     * @param {MouseEvent} e
-     * @param {CircuitControllerQueryResult} q
+     * @param {import("$lib/circuit_types/GameViewCircuitPanelEvent").GameViewCircuitPanelEvent} param0
      */
-     export function drawActiveWire(e, q) {
-        if (e.target !== getSvgHead()) return
+     export function drawActiveWire({from, to}) {
+        const localOffset = to.getLocalOffset()
+        if (!localOffset) return
+        const [localX, localY] = localOffset
 
-        const controller = circuitDraggable.getController()
-
-        const source = controller.getContents()
+        const source = from
         const gPos = source.getPos()
         const cType = source.gateTypeController
-        const id = source.getId()
         const index = source.connectionIndex
 
-        const target = q
+        const target = to
         const activeWire = connectionGroup.querySelector("#wire-active")
         
         if (activeWire === null || gPos === undefined || index === undefined || cType === undefined) return
@@ -330,15 +332,15 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
          * @type {[number, number] | null}
          */
         let fromOffset
-        let localOffset
+        let connectionOffset
         switch (source.type) {
             case "Input": 
-                localOffset = cType.view.inputOffsets[index]
-                fromOffset = [gPos[0] * 10 + localOffset[0], gPos[1] * 10 + localOffset[1]]
+                connectionOffset = cType.view.inputOffsets[index]
+                fromOffset = [gPos[0] * 10 + connectionOffset[0], gPos[1] * 10 + connectionOffset[1]]
                 break
             case "Output": 
-                localOffset = cType.view.outputOffsets[index]
-                fromOffset = [gPos[0] * 10 + localOffset[0], gPos[1] * 10 + localOffset[1]]
+                connectionOffset = cType.view.outputOffsets[index]
+                fromOffset = [gPos[0] * 10 + connectionOffset[0], gPos[1] * 10 + connectionOffset[1]]
                 break
             default: return
         }
@@ -354,7 +356,7 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
                 value = circuitController.getConnectionValue({id:source.getId() || 0, type:"Output", index:source.connectionIndex || 0})
         }
 
-        activeWire.innerHTML = drawWire(fromOffset, circuitController.unprojectOffset(e.offsetX, e.offsetY), value)
+        activeWire.innerHTML = drawWire(fromOffset, localOffset, value)
     }
 
     export function clearActiveWire() {
@@ -365,22 +367,26 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
     }
 
     /**
-     * @param {MouseEvent} e
-     * @param {CircuitControllerQueryResult} _q
+     * @param {import("$lib/circuit_types/GameViewCircuitPanelEvent").GameViewCircuitPanelEvent} param0
      */
-     export function drawActiveGate(e, _q) {
-        if (e.target !== getSvgHead()) return
+     export function drawActiveGate({from, to}) {
 
-        const controller = circuitDraggable.getController()
-        const cType = controller.getGateType()
-        const id = controller.getId()
+        const localOffset = to.getLocalOffset()
+        if (!localOffset) return
+
+        const [localX, localY] = localOffset
+
+        const cType = from.getGateType()
+        const id = from.getId()
+
         let previewResult
         let svg = gateGroup.querySelector(`#gate-active`)
         console.log("previewing ", cType, "with id", id)
+
         if (id && cType) {
-            previewResult = circuitController.previewMoveGate(id, e.offsetX, e.offsetY)
+            previewResult = circuitController.previewMoveGateLocal(id, localX, localY)
         } else if (cType) {
-            previewResult = circuitController.previewAddGate(cType, e.offsetX, e.offsetY)
+            previewResult = circuitController.previewAddGateLocal(cType, localX, localY)
         }
         else return
 

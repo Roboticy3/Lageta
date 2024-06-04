@@ -15,9 +15,9 @@
     let checkbox
 
     /**
-     * @type {GameViewCircuitPanelEventTarget}
+     * @type {GameViewCircuitPanelEventTarget | null}
      */
-     export let circuitEventTarget
+     export let editorEventTarget
 
     /**
      * @type {CircuitController}
@@ -48,10 +48,12 @@
         if (gridController) {
             gridController.setInput(from, checkbox.checked)
         }
+
+        const bbox = checkbox.getBoundingClientRect()
         
-        const q = gridController.toQuery(from[0], "Input", from[1])
-        circuitEventTarget.dispatchEvent(createGameViewCircuitPanelEvent("setinput", q, q, checkbox))
-        circuitEventTarget.dispatchEvent(createGameViewCircuitPanelEvent("changed", q, q, checkbox))
+        const q = gridController.toQuery(from[0], "Input", from[1], undefined, [bbox.x, bbox.y])
+        editorEventTarget?.dispatchEvent(createGameViewCircuitPanelEvent("setinput", q, q, checkbox))
+        editorEventTarget?.dispatchEvent(createGameViewCircuitPanelEvent("changed", q, q, checkbox))
     }
 
     export function isChecked() {

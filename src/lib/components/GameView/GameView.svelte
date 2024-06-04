@@ -9,6 +9,7 @@
     import CircuitEditorComponent from "./CircuitEditor/CircuitEditorComponent.svelte";
     import { onMount, tick } from "svelte";
     import { CircuitSignalSetViewEventTarget, SignalSetViewEventTarget } from "$lib/signal_types/SignalSetViewEvent";
+    import { GameViewCircuitPanelEventTarget } from "$lib/circuit_types/GameViewCircuitPanelEvent";
 
     /**
      * @type {import("$lib/level_types/GameViewParameters").GameViewParameters}
@@ -138,6 +139,7 @@
                     editorParams={editorParams}
                     rendererParams={rendererParams}
                     maxSizeState={maxSizeState}
+                    editorEventTarget={new GameViewCircuitPanelEventTarget()}
                     shelf={progressStorage.gates()}
                 />
             {/if}
