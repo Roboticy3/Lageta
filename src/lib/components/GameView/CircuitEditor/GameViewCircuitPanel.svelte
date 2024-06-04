@@ -211,6 +211,7 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
             !circuitContainer || 
             editorParams.dispatchEvents === false
         ) return
+        console.log("started drag from ", q)
         editorEventTarget?.dispatchEvent(
             createGameViewCircuitPanelEvent(
                 "dragstart", q, q, circuitContainer
@@ -347,17 +348,19 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
      * @param {MouseEvent} e
      */
     function drag(e) {
-        const q = canDrag(e)
+        if (!circuitDraggable.isDragging()) return
+        const to = canDrag(e)
         if (
-            !(q instanceof CircuitControllerQueryResult) || 
+            !(to instanceof CircuitControllerQueryResult) || 
             !circuitContainer || 
             editorParams.dispatchEvents === false
         ) return
+        const from = circuitDraggable.getController().getContents()
+        console.log("dragging from ", from, " to ", to)
         editorEventTarget?.dispatchEvent(
             createGameViewCircuitPanelEvent(
                 "drag",
-                circuitDraggable.getController().getContents(),
-                q,
+                from, to,
                 circuitContainer
             )
         )
@@ -428,12 +431,15 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
      * @param {MouseEvent} e
      */
     function drop(e) {
+        if (!circuitDraggable.isDragging()) return
         const to = query(e)
         if (
             !(to instanceof CircuitControllerQueryResult) || 
             !circuitContainer || 
             editorParams.dispatchEvents === false
         ) return
+        const from = circuitDraggable.getController().getContents()
+        console.log("dropping drag from ", from, " to ", to)
         editorEventTarget?.dispatchEvent(
             createGameViewCircuitPanelEvent(
                 "drop",
@@ -462,7 +468,6 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
                 break
             case "Input":
             case "Output":
-                console.log(to)
                 dropConnection({from, to})
                 break
             default: return

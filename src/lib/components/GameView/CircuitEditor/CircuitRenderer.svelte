@@ -596,7 +596,7 @@ ${rendererParams.showLabels !== false ? `<text stroke="none" fill="${color}" fon
      * @param {CircuitControllerQueryResult} q
      */
     export function onEntered(q) {
-        console.log("entered", q)
+        //console.log("entered", q)
         if (q.type === "Gate") return
         const svg = queryToElement(q)
         const g = svg?.children[0]
@@ -611,7 +611,7 @@ ${rendererParams.showLabels !== false ? `<text stroke="none" fill="${color}" fon
      * @param {CircuitControllerQueryResult} q
      */
     export function onExited(q) {
-        console.log("exited", q)
+        //console.log("exited", q)
         if (q.type === "Gate") return
         const svg = queryToElement(q)
         const g = svg?.children[0]
