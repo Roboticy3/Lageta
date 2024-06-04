@@ -38,14 +38,12 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
     })
 
     /**
-     * @param {MouseEvent} e
      * @param {GateTypeController} type
      * @param {HTMLElement | null} element
      */
-    export function dragGateType(e, type, element=null) {
-        circuitDragDropController.dragStartGateType(type, e, element) 
+    export function dragGateType(type, element=null) {
+        circuitDragDropController.dragStartGateType(type, element) 
         resolveContents()
-        onMouseMove(e)
     }
 
     function resolveContents() {

@@ -235,7 +235,6 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
                 if (editorParams.canDragConnections !== false) onDragStartOutput(from)
                 break
             case "Gate":
-                console.log(canDragStartGate(from))
                 if (canDragStartGate(from)) onDragStartGate(from)
         }
     }

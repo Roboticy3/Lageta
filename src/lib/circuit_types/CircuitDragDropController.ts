@@ -20,7 +20,6 @@ export class CircuitDragDropController {
 
     dragStartGateType(
         type:GateTypeController,
-        e:MouseEvent,
         element: HTMLElement | null = null
     ) {
         this.contents = new CircuitControllerQueryResult(
