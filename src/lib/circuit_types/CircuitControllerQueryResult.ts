@@ -22,13 +22,16 @@ export class CircuitControllerQueryResult {
 
     readonly pageOffset: [number, number] | undefined
 
+    readonly timeStamp: number | undefined
+
     constructor(
-        gate: Gate | undefined = undefined,
+        gate?: Gate,
         type: CircuitControllerQueryResultContentType = "",
-        connectionIndex: number | undefined = undefined,
-        gateTypeController: GateTypeController | undefined = undefined,
-        localOffset: [number, number] | undefined = undefined,
-        pageOffset: [number, number] | undefined = undefined,
+        connectionIndex?: number,
+        gateTypeController?: GateTypeController,
+        localOffset?: [number, number],
+        pageOffset?: [number, number],
+        timeStamp?: number
     ) {
         this.gate = gate;
         this.gateTypeController = gateTypeController;
@@ -41,6 +44,7 @@ export class CircuitControllerQueryResult {
         this.localOffset = localOffset
         this.pageOffset = pageOffset
 
+        this.timeStamp = timeStamp
     }
 
     getId() { return this.gate?.id; }

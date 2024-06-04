@@ -389,7 +389,8 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
         if (e.target !== svg) {
             to = new CircuitControllerQueryResult(
                 to.gate, to.type, to.connectionIndex, 
-                to.gateTypeController, undefined, to.pageOffset
+                to.gateTypeController, undefined, to.pageOffset,
+                e.timeStamp
             )
         }
 
@@ -398,8 +399,15 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
             !circuitContainer || 
             editorParams.dispatchEvents === false
         ) return
+
         const from = circuitDraggable.getQuery()
         console.log("dropping drag from ", from, " to ", to)
+
+        //check that the from and to queries weren't too close together in time,
+        //this allows the mouse to be clicked once to pick up, and again to drop later
+
+
+
         editorEventTarget?.dispatchEvent(
             createGameViewCircuitPanelEvent(
                 "drop",

@@ -96,6 +96,7 @@ export class CircuitController {
     query(e:MouseEvent) {
         const [offsetX, offsetY] = [e.offsetX, e.offsetY]
         const [pageX, pageY] = [e.pageX, e.pageY]
+        const timeStamp = e.timeStamp
         const [localX, localY] = this.unprojectOffset(offsetX, offsetY)
         
         const [x, y] = this.gateGrid.offsetToIndex(localX, localY)
@@ -103,7 +104,8 @@ export class CircuitController {
         if (gate === undefined) {
             return new CircuitControllerQueryResult(
                 undefined, undefined, undefined, undefined,
-                [localX, localY], [pageX, pageY]
+                [localX, localY], [pageX, pageY],
+                timeStamp
             )
         }
         const [gridOffsetX, gridOffsetY] = [gate.x * 10, gate.y * 10]
@@ -112,7 +114,8 @@ export class CircuitController {
         if (cType === undefined) {
             return new CircuitControllerQueryResult(
                 undefined, undefined, undefined, undefined,
-                [localX, localY], [pageX, pageY]
+                [localX, localY], [pageX, pageY],
+                timeStamp
             )
         }
         const vType = cType.view
@@ -133,11 +136,9 @@ export class CircuitController {
         if (i != gType.sizeIn) {
             return new CircuitControllerQueryResult(
                 gate,
-                "Input",
-                i,
-                cType,
-                [localX, localY],
-                [pageX, pageY]
+                "Input", i, cType,
+                [localX, localY], [pageX, pageY],
+                timeStamp
             ) 
         }
 
@@ -157,21 +158,16 @@ export class CircuitController {
         if (i != gType.sizeOut) {
             return new CircuitControllerQueryResult(
                 gate,
-                "Output",
-                i,
-                cType,
-                [localX, localY],
-                [pageX, pageY]
+                "Output", i, cType,
+                [localX, localY], [pageX, pageY],
+                timeStamp
             ) 
         }
 
         return new CircuitControllerQueryResult(
-            gate,
-            "Gate",
-            undefined,
-            cType,
-            [localX, localY],
-            [pageX, pageY]
+            gate, "Gate", undefined, cType,
+            [localX, localY], [pageX, pageY],
+            timeStamp
         ) 
     }
 
