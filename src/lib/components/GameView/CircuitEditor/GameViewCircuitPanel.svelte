@@ -462,8 +462,9 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
      * @param {import('$lib/circuit_types/GameViewCircuitPanelEvent').GameViewCircuitPanelEvent} param0
      */
     function dropGate({from, to}) {
-        if (!to.localOffset) return
-        const [localX, localY] = to.localOffset
+        const localOffset = to.localOffset
+        if (!localOffset) return
+        const [localX, localY] = localOffset
 
         const id = from.getId()
         

@@ -101,13 +101,19 @@ export class CircuitController {
         const [x, y] = this.gateGrid.offsetToIndex(localX, localY)
         const gate = this.gateGrid.get(x, y)
         if (gate === undefined) {
-            return new CircuitControllerQueryResult()
+            return new CircuitControllerQueryResult(
+                undefined, undefined, undefined, undefined,
+                [localX, localY], [pageX, pageY]
+            )
         }
         const [gridOffsetX, gridOffsetY] = [gate.x * 10, gate.y * 10]
         const gType = gate.type
         const cType = all_gates.get(gType.name)
         if (cType === undefined) {
-            return new CircuitControllerQueryResult()
+            return new CircuitControllerQueryResult(
+                undefined, undefined, undefined, undefined,
+                [localX, localY], [pageX, pageY]
+            )
         }
         const vType = cType.view
 
