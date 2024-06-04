@@ -119,7 +119,7 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
         circuitContainer.addEventListener("mousedown", dragStart)
 
         circuitContainer.removeEventListener("mousemove", drag)
-        circuitContainer.removeEventListener("mouseup", drop)
+        window.removeEventListener("mouseup", drop)
 
     }
 
@@ -147,7 +147,7 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
         circuitContainer.removeEventListener("mousedown", dragStart)
 
         circuitContainer.addEventListener("mousemove", drag)
-        circuitContainer.addEventListener("mouseup", drop)
+        window.addEventListener("mouseup", drop)
     }
     
     /**
@@ -409,7 +409,18 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
      * @param {MouseEvent} e
      */
     function drop(e) {
-        const to = query(e)
+        
+        let to = query(e)
+
+        //since drop looks for window events, check if the query was over the circuit, and clear the local offset if not
+        const svg = getRenderer().getSvgHead()
+        if (e.target !== svg) {
+            to = new CircuitControllerQueryResult(
+                to.gate, to.type, to.connectionIndex, 
+                to.gateTypeController, undefined, to.pageOffset
+            )
+        }
+
         if (
             !(to instanceof CircuitControllerQueryResult) || 
             !circuitContainer || 
@@ -436,7 +447,7 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
      */
     function onDrop({from, to}) {
 
-        switch (to.type) {
+        switch (from.type) {
             case "Gate": 
                 dropGate({from, to})
                 break
@@ -465,6 +476,8 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
         const localOffset = to.localOffset
         if (!localOffset) return
         const [localX, localY] = localOffset
+
+        console.log("localOffset found")
 
         const id = from.getId()
         
