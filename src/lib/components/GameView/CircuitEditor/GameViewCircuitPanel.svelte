@@ -318,17 +318,12 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
         }
 
         const from = circuitDraggable.getQuery()
-        const to = query(e)
-
-        if (to.type === "") {
-            return "Nothing Under Mouse"
-        }
 
         if (from.type === "") {
             return "Nothing Under Drag"
         }
 
-        return to
+        return query(e)
     }
 
     /**
