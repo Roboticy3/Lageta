@@ -25,8 +25,6 @@
 
     onMount(() => {
 
-        editorEventTarget?.addEventListener("dragstart", onDragStart)
-
         let elem = document.getElementById(`gateshelf.${gateType.view.name}`)
 
         if (elem == null) {
@@ -64,15 +62,6 @@
         ))
 
         console.log("starting drag from shelf button ", newQuery)
-    }
-
-    /**
-     * 
-     * @param {import("$lib/circuit_types/GameViewCircuitPanelEvent").GameViewCircuitPanelEvent} param0
-     */
-    export function onDragStart({from, to}) {
-        if (from.getGateType() === gateType && from.getId() === undefined)
-            circuitDraggable.dragGateType(gateType, element)
     }
 
 </script>

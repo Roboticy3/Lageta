@@ -2,7 +2,6 @@
 <script>
     import { CircuitController } from "$lib/circuit_types/CircuitController";
 import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControllerQueryResult";
-    import { CircuitDragDropController } from "$lib/circuit_types/CircuitDragDropController";
     import { onMount } from 'svelte';
     import { GateType, GateTypeController } from '$lib/circuit_types/GateType';
     import { getGateType, wrapGateTypeViewInSvgHeader } from '$lib/dat/GateTypes/GateTypes';
@@ -18,36 +17,24 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
     */
 
     /**
-     * @type {CircuitController}
-     */
-    export let circuitController
-
-    /**
      * @type {GameViewCircuitPanelEventTarget | null}
      */
     export let editorEventTarget
 
-    let circuitDragDropController = new CircuitDragDropController(circuitController)
+    let dragging = false
+
+    let query = new CircuitControllerQueryResult()
 
     onMount(() => {
         editorEventTarget?.addEventListener("dragstart", onDragStart)
-        editorEventTarget?.addEventListener("drag", onDrag)
         editorEventTarget?.addEventListener("drop", onDrop)
 
         window.addEventListener("mousemove", onMouseMove)
     })
 
-    /**
-     * @param {GateTypeController} type
-     * @param {HTMLElement | null} element
-     */
-    export function dragGateType(type, element=null) {
-        circuitDragDropController.dragStartGateType(type, element) 
-        resolveContents()
-    }
 
     function resolveContents() {
-        const vType = circuitDragDropController.getGateType()?.view
+        const vType = query.gateTypeController?.view
         if (vType !== undefined) {
             contents = wrapGateTypeViewInSvgHeader(vType.gridWidth, vType.gridHeight, vType.draw())
             return
@@ -62,7 +49,8 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
      * @param {import("$lib/circuit_types/GameViewCircuitPanelEvent").GameViewCircuitPanelEvent} param0
      */
      export function onDragStart({from, to}) {
-        circuitDragDropController.dragStart(from)
+        query = from
+        dragging = true
         resolveContents()
     }
 
@@ -73,28 +61,22 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
         posX = e.pageX
         posY = e.pageY
     }
-    
-    /**
-     * @param {import("$lib/circuit_types/GameViewCircuitPanelEvent").GameViewCircuitPanelEvent} param0
-     */
-    export function onDrag({from, to}) {
-        circuitDragDropController.dragCircuit(to)
-    }
 
     /**
      * @param {import("$lib/circuit_types/GameViewCircuitPanelEvent").GameViewCircuitPanelEvent} param0
      */
      export function onDrop({from, to}) {
-        const result = circuitDragDropController.dragEnd(to)
+        query = new CircuitControllerQueryResult()
+        dragging = false
         resolveContents()
     }
 
-    export function getController() {
-        return circuitDragDropController
+    export function isDragging() {
+        return dragging
     }
 
-    export function isDragging() {
-        return circuitDragDropController.hasContents()
+    export function getQuery() {
+        return query
     }
 </script>
 

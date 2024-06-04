@@ -146,7 +146,6 @@
 >
     {#if circuitController}
         <CircuitDraggable 
-            circuitController={circuitController} 
             editorEventTarget={editorEventTarget}
             bind:this={circuitDraggable}
         />
