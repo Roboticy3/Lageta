@@ -200,13 +200,31 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
      * @param {MouseEvent} e
      */
     function dragStart(e) {
-        const q = canDragStart(e)
+        let q = canDragStart(e)
         if (
             !(q instanceof CircuitControllerQueryResult) || 
             !circuitContainer || 
             editorParams.dispatchEvents === false
         ) return
         console.log("started drag from ", q)
+
+        if (q.type === "Input") {
+            const index = [q.getId() || 0, q.connectionIndex || 0]
+            const connected = circuitController.getConnectedTo(
+                index[0], index[1]
+            )
+
+            if (connected && circuitContainer) {
+                //we can coerce the onDrag functions to do circuitController by simply switching out the query for one originating from the output
+                //SKETCHY: query loses localOffset and pageOffset data
+                q = toQuery(connected[0], "Output", connected[1], circuitController)   
+                //then we can delete the old connection
+                circuitController.removeConnection(
+                    {id:index[0], type:"Input", index:index[1]}
+                )
+            }
+        }
+
         editorEventTarget?.dispatchEvent(
             createGameViewCircuitPanelEvent(
                 "dragstart", q, q, circuitContainer
@@ -223,9 +241,6 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
     function onDragStart({to}) {
 
         switch (to.type) {
-            case "Input":
-                if (editorParams.canDragConnections !== false) onDragStartInput(to)
-                break
             case "Output":
                 if (editorParams.canDragConnections !== false) onDragStartOutput(to)
                 break
@@ -234,49 +249,6 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
         }
 
         setDragEventListeners()
-    }
-
-    /**
-     * onDragStart calls circuitController when the event passed to it selected an input connection.
-     * It also needs a query referencing the id of the gate and the index of the connection to proceed.
-     * 
-     * Dragging from an empty input should create a new wire, 
-     * while dragging from a populated input should appear to reroute the existing connection.
-     * 
-     * @param {CircuitControllerQueryResult} query
-     */
-    function onDragStartInput(query) {
-        //check if an input wire is already there
-        const index = [query.getId() || 0, query.connectionIndex || 0]
-        const connected = circuitController.getConnectedTo(
-            index[0], index[1]
-        )
-
-        console.log("Checking if input is already connected:", connected)
-
-        let q = query
-        //if so, "consume" the wire, deleting its connection and starting an active wire from the same output as the original
-        if (connected && circuitContainer) {
-
-            //we can coerce the onDrag functions to do circuitController by simply switching out the query for one originating from the output
-            //SKETCHY: query loses localOffset and pageOffset data
-            q = toQuery(connected[0], "Output", connected[1], circuitController)   
-            //then we can delete the old connection
-            circuitController.removeConnection(
-                {id:index[0], type:"Input", index:index[1]}
-            )
-
-            //tell onDragStartOutput it's business as usual and pretend we didn't do any of circuitController nonsense behind its back
-            onDragStartOutput(q)
-
-            return
-        }
-
-        //otherwise, just start a drag
-        //circuitDraggable.drag(q, circuitContainer)
-
-        //draw only the connection points that can be connected to from here
-        //svgConnectionPoints = gridController.drawConnectionPoints(ConnectionSvg, "Output")
     }
 
     /**
