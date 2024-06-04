@@ -405,7 +405,7 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
                 "drop",
                 from,
                 to,
-                circuitContainer
+                e.target || circuitContainer
             )
         )
     }
@@ -481,10 +481,14 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
      * @param {import('$lib/circuit_types/GameViewCircuitPanelEvent').GameViewCircuitPanelEvent} param0
      */
     function dropConnection({from, to}) {
+        const [fId, fC, tId, tC] = [
+            from.getId(), from.connectionIndex,
+            to.getId(), to.connectionIndex
+        ]
+        if (fId === undefined || fC === undefined || tId === undefined || tC === undefined) return
         console.log("laying connection from ", from, " to ", to)
         circuitController.addConnection(
-            from.getId() || 0, from.connectionIndex || 0, 
-            to.getId() || 0, to.connectionIndex || 0
+            fId, tC, tId, tC
         );
     }
 
@@ -508,7 +512,7 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
         }
         currentQuery = q
     }
- 
+
 </script>
 
 <div

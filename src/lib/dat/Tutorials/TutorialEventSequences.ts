@@ -54,7 +54,7 @@ export function EventSequenceTutorial(state:any): TutorialEventSequence {return 
     },
     {
         //4: wait for the circuit to change and check that the output is false to confirm the user has clicked the input checkbox
-        eventName:"changed",f: async (evt) => {
+        eventName:"setinput",f: async (evt) => {
             if (
                 state.circuitController &&
                 state.circuitController.getOutputs()[0] === false
@@ -114,7 +114,7 @@ export function EventSequenceTutorial(state:any): TutorialEventSequence {return 
     {
         //8: wait for the circuit to change and check that the output matches the input to confirm that there's a wire
         //also enable the shelf, which is part of the existing circuit but has been hidden until now
-        eventName:"changed",f:async (evt) => {
+        eventName:"drop",f:async (evt) => {
             if (
                 state.circuitController &&
                 state.circuitController.getOutputs()[0] === state.circuitController.getInputs()[0]
@@ -179,9 +179,10 @@ export function EventSequenceTutorial(state:any): TutorialEventSequence {return 
     },
     {
         //16: wait for the user place a gate in the circuit
-        eventName:"changed",f:async (evt) => {
+        eventName:"drop",f:async (evt) => {
             if (
-                evt.to.type === "Gate" 
+                evt.from.type === "Gate" &&
+                evt.from.getId() === undefined
             ) {
                 return 1
             }
