@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { gameViewComponentTitles, root } from './resources';
+import { gameViewComponentTitles, root } from '../resources';
 
 test('ui exists', async ({ page }) => {
   await page.goto(root + 'level/Simple%20Calculator')
