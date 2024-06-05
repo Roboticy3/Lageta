@@ -53,7 +53,7 @@
         );
 
         eventStagesController.editorEventTarget.addEventListener(
-            "changed",
+            "drop",
             async (evt) => {
                 console.log("changed!", state.currentEvent, (state.circuitController?.getNumGates() || 0) < 3)
                 if (state.currentEvent >= 17 && (state.circuitController?.getNumGates() || 0) < 3) {

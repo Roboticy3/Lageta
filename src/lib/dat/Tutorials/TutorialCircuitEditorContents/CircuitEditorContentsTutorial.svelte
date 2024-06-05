@@ -98,7 +98,7 @@
         showButton={false}
     >   
         <div style="color:black;">
-            It's still not working...
+            It's still not working..
         </div>
     </TutorialText>
 {/if}

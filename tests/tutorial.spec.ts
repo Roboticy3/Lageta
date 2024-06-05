@@ -35,6 +35,7 @@ async function step2(page:Page) {
     const secondConnectionPoint = await locateConnectionPoint(page, {id:1, type:"Input", index:0})
     await page.waitForTimeout(500)
     await secondConnectionPoint.click({force:true})
+    await page.waitForTimeout(500)
 }
 
 /**
@@ -117,6 +118,7 @@ async function stepm2(page:Page) {
     await page.waitForTimeout(500)
     const firstConnectionPoint = await locateConnectionPoint(page, {id:0, type:"Output", index:0})
     await firstConnectionPoint.click({force:true})
+    await page.waitForTimeout(500)
 }
 
 /**
@@ -267,8 +269,6 @@ test('tutorial progression 7', async ({ page }) => {
 async function step8(page:Page) {
     await step7(page)
 
-    await page.waitForTimeout(500)
-
     await step2(page)
 }
 
@@ -396,6 +396,8 @@ async function step16(page:Page) {
     await page.waitForTimeout(500)
     
     await page.mouse.click(offset[0], offset[1])
+
+    await page.waitForTimeout(500)
 }
 
 test('tutorial progression 16', async ({page}) => {
