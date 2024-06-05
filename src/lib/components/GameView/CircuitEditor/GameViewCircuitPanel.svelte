@@ -190,18 +190,21 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
      */
     function dragStart(e) {
         let q = canDragStart(e)
+
+        console.log("trying to start drag from ", q)
+
+        if ( !(q instanceof CircuitControllerQueryResult)) return
+        const [id, index] = [q.getId(), q.connectionIndex]
+
         if (
-            !(q instanceof CircuitControllerQueryResult) || 
-            !circuitContainer || 
+            id === undefined || index === undefined || !circuitContainer || 
             editorParams.dispatchEvents === false
         ) return
         console.log("started drag from ", q)
 
-        if (q.type === "Input") {
-            const index = [q.getId() || 0, q.connectionIndex || 0]
-            const connected = circuitController.getConnectedTo(
-                index[0], index[1]
-            )
+        if (q.type === "Input") {     
+
+            const connected = circuitController.getConnectedTo(id, index)
 
             if (connected && circuitContainer) {
                 //we can coerce the onDrag functions to do circuitController by simply switching out the query for one originating from the output
@@ -211,7 +214,7 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
                 )   
                 //then we can delete the old connection
                 circuitController.removeConnection(
-                    {id:index[0], type:"Input", index:index[1]}
+                    {id:id, type:"Input", index:index}
                 )
             }
         }
@@ -400,7 +403,12 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
         //check that the from and to queries weren't too close together in time,
         //this allows the mouse to be clicked once to pick up, and again to drop later
 
-        if ((to.timeStamp || 0) - (from.timeStamp || 0) < 250) {
+        if (
+            to.timeStamp === undefined || 
+            from.timeStamp === undefined || 
+            (to.timeStamp) - (from.timeStamp) < 250
+        ) 
+        {
             return
         }
 
@@ -497,7 +505,7 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
         ) return
         console.log("laying connection from ", from, " to ", to)
         circuitController.addConnection(
-            fId, tC, tId, tC
+            fId, fC, tId, tC
         );
     }
 
