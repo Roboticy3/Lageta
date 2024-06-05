@@ -73,7 +73,7 @@
         circuitController.addGraphListener("update", setConnectionValues)
 
         eventStagesController.editorEventTarget.addEventListener("drop", (evt) => {
-            if (state.currentEvent >= 3 && state.currentEvent <= 5) {
+            if (state.currentEvent >= 3 && state.currentEvent <= 4) {
                 if (state.circuitController.getOutputs()[0] === undefined) {
                     state.showInputCheckboxes = false
                     state.indicator.show()

@@ -392,6 +392,9 @@ async function step16(page:Page) {
     await step15(page)
 
     const offset = await locateGridSquare(page, 10, 5, 4, 1)
+
+    await page.waitForTimeout(500)
+    
     await page.mouse.click(offset[0], offset[1])
 }
 
