@@ -232,9 +232,7 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
                 connectionPointConstructor.bind(connectionPointConstructor, index, cType, gPos)
             )
 
-            updateItem(
-                idSpace.wireIdString([id, i])
-            )
+            updateWire([id, i])
         }
         for (let i = 0; i < cType.view.sizeIn; i++) {
             /**
