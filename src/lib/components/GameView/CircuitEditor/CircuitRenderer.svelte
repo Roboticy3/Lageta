@@ -398,6 +398,7 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
      * @param {import("$lib/circuit_types/GameViewCircuitPanelEvent").GameViewCircuitPanelEvent} evt
      */
     function drawActive(evt) {
+
         switch (evt.from.type) {
             case "Input":
             case "Output":
@@ -409,10 +410,60 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
         }
     }
 
+    function activeWireConstructor() {
+        const g = document.createElementNS("http://www.w3.org/2000/svg","g")
+        wireGroup.appendChild(g)
+        return g
+    }
+
+    /**
+     * @param {import("$lib/circuit_types/GateType").ConnectionValue} value
+     * @param {[number, number]} fromOffset
+     * @param {[number, number]} toOffset
+     * @param {Element} wire
+     */
+    function activeWireRefresher(value, fromOffset, toOffset, wire) {
+        const wireInner = drawWire(fromOffset, toOffset)
+
+        wire.innerHTML = wireInner
+        wire.setAttribute('stroke', connectionValueToColor(value))
+    }
+
     /**
      * @param {import("$lib/circuit_types/GameViewCircuitPanelEvent").GameViewCircuitPanelEvent} param0
      */
     function drawActiveWire({from, to}) {
+        const id = from.getId()
+        const toOffset = to.getLocalOffset()
+        const index = from.connectionIndex
+
+        if ((id === undefined) || !toOffset || (index === undefined)) return
+
+        const fCType = circuitController.getGateTypeController(id)
+        const fGPos = circuitController.getGatePosition(id)
+
+        if (!fCType || !fGPos) return
+
+        const fromGateOffset = circuitController.indexToOffset(fGPos[0], fGPos[1])
+        const fromConnectionOffset = from.type === "Output" ? 
+            fCType.view.outputOffsets[index]:
+            fCType.view.inputOffsets[index]
+        /**
+         * @type {[number, number]}
+         */
+        const fromOffset = [fromGateOffset[0] + fromConnectionOffset[0], fromGateOffset[1] + fromConnectionOffset[1]]
+
+        const idString = "wire-active"
+        const [toId, toIndex] = [to.getId(), to.connectionIndex]
+        const value = from.type === "Output" ? 
+            circuitController.getGateOutputs(id)?.override[index]:
+            (toId !== undefined && toIndex !== undefined ? circuitController.getGateOutputs(toId)?.override[toIndex] : undefined)
+        
+        updateItem(
+            idString,
+            activeWireRefresher.bind(activeGateRefresher, value, fromOffset, toOffset),
+            activeWireConstructor
+        )
 
     }
 
