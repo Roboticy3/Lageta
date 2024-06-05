@@ -92,7 +92,7 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
     /**
      * @type {SVGElement}
      */
-    let connectionGroup
+    let wireGroup
 
     const idSpace = new CircuitRendererIDStandard()
 
@@ -232,7 +232,9 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
                 connectionPointConstructor.bind(connectionPointConstructor, index, cType, gPos)
             )
 
-            updateWire([id, i])
+            updateItem(
+                idSpace.wireIdString([id, i])
+            )
         }
         for (let i = 0; i < cType.view.sizeIn; i++) {
             /**
@@ -246,7 +248,9 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
             )
 
             const fromIndex = circuitController.getConnectedTo(id, i)
-            if (fromIndex) updateWire(fromIndex)
+            if (fromIndex) updateItem(
+                idSpace.wireIdString(fromIndex)
+            )
         }
     }
 
@@ -295,6 +299,19 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
 
         point.setAttribute('stroke', color)
     }
+
+    function wireConstructor() {
+        const g = document.createElementNS("http://www.w3.org/2000/svg", 'g')
+        wireGroup.appendChild(g)
+        return g
+    }
+
+    /**
+     * @param {Element} wire
+     */
+    function wireRefresher(wire) {
+        
+    }   
     
     /**
      * @param {number} id
@@ -350,7 +367,7 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
         const toIndices = circuitController.getConnectedFrom(index[0], index[1])
         let result = getGateElementAndTypeAndClean(index[0])
         if (result === undefined || outputs === undefined || toIndices === undefined) {
-            if (svg) connectionGroup.removeChild(svg)
+            if (svg) wireGroup.removeChild(svg)
             return
         }
 
@@ -389,7 +406,7 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
             const svg = document.createElementNS("http://www.w3.org/2000/svg", 'g')
             svg.setAttribute('id', idString)
             svg.innerHTML = wires.join('')
-            connectionGroup.appendChild(svg)
+            wireGroup.appendChild(svg)
         }
 
         console.log("Updating wires: ", index, wires)
@@ -410,7 +427,7 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
 
         const activeWire = document.createElementNS("http://www.w3.org/2000/svg", 'g')
         activeWire.setAttribute('id', "wire-active")
-        connectionGroup.appendChild(activeWire)
+        wireGroup.appendChild(activeWire)
 
         const activeGate = document.createElementNS("http://www.w3.org/2000/svg", 'g')
         activeGate.setAttribute('id', "gate-active")
@@ -446,7 +463,7 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
         const index = source.connectionIndex
 
         const target = to
-        const activeWire = connectionGroup.querySelector("#wire-active")
+        const activeWire = wireGroup.querySelector("#wire-active")
         
         if (activeWire === null || gPos === undefined || index === undefined || cType === undefined) return
         /**
@@ -481,7 +498,7 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
     }
 
     export function clearActiveWire() {
-        const activeWire = connectionGroup.querySelector("#wire-active")
+        const activeWire = wireGroup.querySelector("#wire-active")
         if (activeWire === null) return
         console.log("erasing active wire")
         activeWire.innerHTML = ""
@@ -766,7 +783,7 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
         </g>
         <g bind:this={gridGroup} stroke="var(--grid-color)" stroke-width="0.25px" fill="none"></g>
         <g bind:this={gateGroup} stroke="var(--gate-color)" stroke-width="0.5px" fill="none"></g>
-        <g bind:this={connectionGroup} stroke="var(--gate-color)" stroke-width="0.5px" fill="none"></g>
+        <g bind:this={wireGroup} stroke="var(--gate-color)" stroke-width="0.5px" fill="none"></g>
     </g>
     <path></path>
     <text></text>
