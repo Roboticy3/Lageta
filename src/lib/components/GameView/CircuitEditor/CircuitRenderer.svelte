@@ -222,8 +222,14 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
         }
 
         for (let i = 0; i < cType.view.sizeOut; i++) {
+            /**
+             * @type {import("$lib/circuit_types/CircuitController").ConnectionIndex}
+             */
+            const index = {id:id, type:"Output", index:i}
             updateItem(
-                idSpace.connectionPointIdString({id:id, type:"Output", index:i})
+                idSpace.connectionPointIdString(index),
+                connectionPointRefresher.bind(connectionPointRefresher, index),
+                connectionPointConstructor.bind(connectionPointConstructor, index, cType, gPos)
             )
 
             updateItem(
@@ -231,13 +237,65 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
             )
         }
         for (let i = 0; i < cType.view.sizeIn; i++) {
+            /**
+             * @type {import("$lib/circuit_types/CircuitController").ConnectionIndex}
+             */
+            const index = {id:id, type:"Input", index:i}
             updateItem(
-                idSpace.connectionPointIdString({id:id, type:"Input", index:i})
+                idSpace.connectionPointIdString(index),
+                connectionPointRefresher.bind(connectionPointRefresher, index),
+                connectionPointConstructor.bind(connectionPointConstructor, index, cType, gPos)
             )
 
             const fromIndex = circuitController.getConnectedTo(id, i)
             if (fromIndex) updateWire(fromIndex)
         }
+    }
+
+    /**
+     * 
+     * @param {import("$lib/circuit_types/CircuitController").ConnectionIndex} index
+     * @param {GateTypeController} cType
+     * @param {[number, number]} gPos
+     */
+    function connectionPointConstructor(index, cType, gPos) {
+        const id = index.id
+        const gateIdString = idSpace.gateIdString(id)
+        let svg = svgHead.querySelector(`#${gateIdString}`)
+
+        //if no svg is found, construct the parent gate that this connection point is "dependant" on
+        if (!svg) {
+            const g = gateConstructor(id, cType, gPos)
+            svg = g
+            //however, don't update the gate (action = undefined) because that could trigger an infinite recursion if something goes wrong
+            updateItem(gateIdString, undefined, () => { return g })
+        }
+        
+        const pointIdString = idSpace.connectionPointIdString(index)
+        const pointOffset = (index.type === "Input") ? 
+            cType.view.inputOffsets[index.index] : 
+            cType.view.outputOffsets[index.index]
+        const pointInner = svgConnectionPoint()
+
+        const point = svgWrapGroup(
+            pointInner, 
+            `translate(${pointOffset[0]}, ${pointOffset[1]})`, 
+            '' //id is applied in updateItem
+        )
+
+        if (rendererParams.showConnectionPoints !== false) svg.appendChild(point)
+        return point
+    }
+
+    /**
+     * @param {import("$lib/circuit_types/CircuitController").ConnectionIndex} index
+     * @param {Element} point
+     */
+    function connectionPointRefresher(index, point) {
+        const value = circuitController.getConnectionValue(index)
+        const color = connectionValueToColor(value)
+
+        point.setAttribute('stroke', color)
     }
     
     /**
