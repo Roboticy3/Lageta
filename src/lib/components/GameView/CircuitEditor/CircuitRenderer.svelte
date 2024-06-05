@@ -107,6 +107,9 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
         updateParams(rendererParams)
 
         svgHead.setAttribute('id', idSpace.headIdString())
+
+        editorEventTarget?.addEventListener("drag", drawActive)
+        editorEventTarget?.addEventListener("drop", clearActives)
     })
 
     /**
@@ -391,6 +394,28 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
         )
     }
 
+    /**
+     * @param {import("$lib/circuit_types/GameViewCircuitPanelEvent").GameViewCircuitPanelEvent} evt
+     */
+    function drawActive(evt) {
+        switch (evt.from.type) {
+            case "Input":
+            case "Output":
+                drawActiveWire(evt)
+                break
+            case "Gate":
+                drawActiveGate(evt)
+                break
+        }
+    }
+
+    /**
+     * @param {import("$lib/circuit_types/GameViewCircuitPanelEvent").GameViewCircuitPanelEvent} param0
+     */
+    function drawActiveWire({from, to}) {
+
+    }
+
     export function clearActiveWire() {
         const activeWire = wireGroup.querySelector("#wire-active")
         if (activeWire === null) return
@@ -398,10 +423,39 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
         activeWire.innerHTML = ""
     }
 
+    function activeGateConstructor() {
+        const g = document.createElementNS("http://www.w3.org/2000/svg","g")
+        gateGroup.appendChild(g)
+        return g
+    }
+
+     /**
+     * @param {boolean} valid
+     * @param {import("$lib/circuit_types/Gate").GateState | undefined} state
+     * @param {GateTypeController} cType
+     * @param {number[]} gPos
+     * @param {Element} svg
+     */
+    function activeGateRefresher(valid, state, cType, gPos, svg) {
+        const innerGate = svgGateBody(cType, state)
+
+        const gateTransform = svgGridTransform(gPos[0], gPos[1])
+
+        svg.setAttribute('transform',gateTransform)
+        svg.innerHTML = innerGate
+
+        svg.setAttribute('stroke','black')
+        if (!valid) {
+            svg.setAttribute('stroke','gray')
+        }
+        const transform = svgGridTransform(gPos[0], gPos[1])
+        svg.setAttribute('transform', transform)
+    }
+
     /**
      * @param {import("$lib/circuit_types/GameViewCircuitPanelEvent").GameViewCircuitPanelEvent} param0
      */
-     export function drawActiveGate({from, to}) {
+    export function drawActiveGate({from, to}) {
 
         const localOffset = to.getLocalOffset()
         if (!localOffset) return
@@ -411,8 +465,9 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
         const cType = from.getGateType()
         const id = from.getId()
 
+        const idString = `gate-active`
         let previewResult
-        let svg = gateGroup.querySelector(`#gate-active`)
+        let svg = gateGroup.querySelector(`#${idString}`)
         console.log("previewing ", cType, "with id", id)
 
         if (id && cType) {
@@ -422,17 +477,19 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
         }
         else return
 
-        if (svg) {
-            svg.setAttribute('stroke','black')
-            let gPos = previewResult.at
-            if (previewResult.error != "") {
-                svg.setAttribute('stroke','gray')
-            }
-            const transform = svgGridTransform(gPos[0], gPos[1])
-            svg.setAttribute('transform', transform)
-            svg.appendChild(svgWrapGroup(svgGateBody(cType, id)))
-            
-        }
+        const state = id ? circuitController.getGateState(id) : undefined
+
+        updateItem(
+            idString,
+            activeGateRefresher.bind(
+                activeGateRefresher, 
+                previewResult.error === "",
+                state,
+                cType,
+                previewResult.at
+            ),
+            activeGateConstructor
+        )
     }
 
     export function clearActiveGate() {
@@ -552,28 +609,6 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
     function svgConnectionPointDesiredValue(value) {
         const color = connectionValueToColor(value)
         return `<circle r="2.5" stroke="${color}" stroke-dasharray="1" fill="none"/>`
-    }
-
-    /**
-     * @param {GateTypeController} cType
-     * @param {number} id
-     * @param {import("$lib/circuit_types/Gate").GateState} state
-     */
-    function svgConnectionPoints(cType, id, state) { 
-        const inputs = rendererParams.showConnectionPoints === false ? [] : cType.view.inputOffsets.map((o, i) => {
-            return svgWrapGroup(svgConnectionPoint(), `translate(${o[0]} ${o[1]})`, idSpace.connectionPointIdString({id:id, type:"Input", index:i}))
-        })
-
-        const outState = cType.model.f(state) //temp hack, state should store outputs too
-        const outputs =  rendererParams.showConnectionPoints === false ? [] : cType.view.outputOffsets.map((o, i) => {
-            return svgWrapGroup(svgConnectionPoint(), `translate(${o[0]} ${o[1]})`, idSpace.connectionPointIdString({id:id, type:"Output", index:i}))
-        })
-
-        switch (connectionPointDisplayMode) {
-            case "": return inputs.concat(outputs)
-            case "Input": return inputs
-            case "Output": return outputs
-        }
     }
 
     /**
