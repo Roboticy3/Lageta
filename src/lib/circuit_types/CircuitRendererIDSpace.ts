@@ -13,6 +13,8 @@ export interface CircuitRendererIDSpace {
     wireIdString(index:[number, number]): string;
 
     headIdString(): string;
+
+    gridIdString(): string;
 }
 
 export class CircuitRendererIDStandard implements CircuitRendererIDSpace {
@@ -38,5 +40,9 @@ export class CircuitRendererIDStandard implements CircuitRendererIDSpace {
 
     headIdString(): string {
         return 'circuit-svg-head'
+    }
+
+    gridIdString(): string {
+        return 'circuit-grid-lines'
     }
 }

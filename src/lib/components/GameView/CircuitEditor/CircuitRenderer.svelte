@@ -111,10 +111,25 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
         svgHead.setAttribute('id', idSpace.headIdString())
     })
 
-    export function drawGrid() {
+    /**
+     * @param {string} id the id of the item, whether it already exists or not
+     * @param {((arg0: Element) => void) | undefined} action update the item by changing its attributes
+     * @param {(() => SVGGElement) | undefined} constructor create a new element and add it to the appropriate parent
+     */
+     export function updateItem(id, action = undefined, constructor = undefined) {
+        if (!action) return
+        const item = svgHead.querySelector(`#${id}`)
+        if (!item && constructor) {
+            const newItem = constructor()
+            newItem.setAttribute('id', id)
+            action(newItem)
+        }
+        else if (item) {
+            action(item)
+        }
+    }
 
-        if (rendererParams.showGrid !== true) return
-        
+    function gridConstructor() {
         let grid = new Array(gridSize[0] + gridSize[1] - 2).fill("")
         const endX = cellOffset * gridSize[0]
         const endY = cellOffset * gridSize[1]
@@ -126,8 +141,19 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
             const y = cellOffset * (i + 1)
             grid[gridSize[0] + i - 1] = svgLine(0, y, endX, y)
         }
-        gridGroup.innerHTML = grid.join('\n')
-        console.log("drawing grid: ", grid)
+        const g = svgWrapGroup(grid.join('\n'), "")
+        gridGroup.replaceChildren(g)
+        return g
+    }
+
+    export function drawGrid() {
+        if (rendererParams.showGrid === true) {
+            updateItem(
+                idSpace.gridIdString(), 
+                () => {},
+                gridConstructor
+            )
+        }
     }
 
     /**
@@ -154,46 +180,85 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
             return {svg: (svg instanceof SVGElement ? svg:null), cType:cType, gPos:gPos}
         }
     }
+
+    /**
+     * @param {number} id
+     * @param {GateTypeController} cType
+     * @param {[number, number]} gPos
+     */
+    function gateConstructor(id, cType, gPos) {
+
+        const gateTransform = svgGridTransform(gPos[0], gPos[1])
+        const idString = idSpace.gateIdString(id)
+
+        const gateInner = ""
+
+        const gate = svgWrapGroup(gateInner, '', `${idString}-body`)
+
+        const g = svgWrapGroup('', gateTransform, idString)
+        if (rendererParams.showGates !== false) g.appendChild(gate)
+
+        gateGroup.appendChild(g)
+
+        return g
+    }
+
+    /**
+     * @param {number} id
+     * @param {Element} svg
+     * @param {GateTypeController} cType
+     * @param {[number, number]} gPos
+     */
+    function gateRefresher(id, cType, gPos, svg) {
+
+        const gateTransform = svgGridTransform(gPos[0], gPos[1])
+        const idString = idSpace.gateIdString(id)
+
+        svg.setAttribute('transform',gateTransform)
+
+        const body = svg.querySelector(`#${idString}-body`)
+        if (body) {
+            body.innerHTML = svgGateBody(cType, id)
+        }
+
+        for (let i = 0; i < cType.view.sizeOut; i++) {
+            updateItem(
+                idSpace.connectionPointIdString({id:id, type:"Output", index:i})
+            )
+
+            updateItem(
+                idSpace.wireIdString([id, i])
+            )
+        }
+        for (let i = 0; i < cType.view.sizeIn; i++) {
+            updateItem(
+                idSpace.connectionPointIdString({id:id, type:"Input", index:i})
+            )
+
+            const fromIndex = circuitController.getConnectedTo(id, i)
+            if (fromIndex) updateWire(fromIndex)
+        }
+    }
     
     /**
      * @param {number} id
      */
     export function updateGate(id) {
 
-        const result = getGateElementAndTypeAndClean(id)
-        if (result === undefined) return
-        let svg = result.svg
-        const cType = result.cType
-        const gPos = result.gPos
+        const cType = circuitController.getGateTypeController(id)
+        const gPos = circuitController.getGatePosition(id)
 
-        const gateInner = svgGateBody(cType, id)
-        const gateTransform = svgGridTransform(gPos[0], gPos[1])
+        if (!cType || !gPos) return
+
         const idString = idSpace.gateIdString(id)
-        if (svg instanceof SVGElement) {
-            svg.setAttribute('transform',gateTransform)
-        }
-        else {
-            svg = svgWrapGroup('', gateTransform, idString)
-            gateGroup.appendChild(svg)
-        }
 
-        setChild(svg, svgWrapGroup(gateInner, '', `${idString}-body`))
-        const points =  svgConnectionPoints(cType, id, circuitController.getGateState(id) || cType.generateDefaultState())
-        console.log(points)
-        for (let p of points) {
-            setChild(svg, p)
-        }
-        
+        updateItem(
+            idString,
+            gateRefresher.bind(gateRefresher, id, cType, gPos),
+            gateConstructor.bind(gateConstructor, id, cType, gPos)
+        )
 
-        for (let i = 0; i < cType.view.sizeOut; i++) {
-            updateWire([id, i])
-        }
-        for (let i = 0; i < cType.view.sizeIn; i++) {
-            const fromIndex = circuitController.getConnectedTo(id, i)
-            if (fromIndex) updateWire(fromIndex)
-        }
-
-        console.log("drawing gate:",id,svg)
+        console.log("drawing gate:",id)
     }
 
     /**
@@ -458,7 +523,6 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
      * @param {number | import("$lib/circuit_types/Gate").GateState | undefined} idOrState
      */
     function svgGateBody(cType, idOrState) {
-        if (rendererParams.showGates === false) return ""
         const state = (typeof idOrState === "object" ? 
             idOrState : 
             (idOrState === undefined ?  
@@ -489,12 +553,8 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
         return color
     }
 
-    /**
-     * @param {import("$lib/circuit_types/GateType").ConnectionValue} value
-     */
-    function svgConnectionPoint(value = undefined, extraParams = "") {
-        const color = connectionValueToColor(value)
-        return `<path d="M -1 -1 l 2 1 l -2 1 Z" stroke-width=".25px" stroke="${color}" ${extraParams}/>`
+    function svgConnectionPoint(extraParams = "") {
+        return `<path d="M -1 -1 l 2 1 l -2 1 Z" stroke-width=".25px" ${extraParams}/>`
     }
 
     /**
@@ -534,16 +594,12 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
      */
     function svgConnectionPoints(cType, id, state) { 
         const inputs = rendererParams.showConnectionPoints === false ? [] : cType.view.inputOffsets.map((o, i) => {
-            return svgWrapGroup(svgConnectionPoint(
-                state.override[i]
-            ), `translate(${o[0]} ${o[1]})`, idSpace.connectionPointIdString({id:id, type:"Input", index:i}))
+            return svgWrapGroup(svgConnectionPoint(), `translate(${o[0]} ${o[1]})`, idSpace.connectionPointIdString({id:id, type:"Input", index:i}))
         })
 
         const outState = cType.model.f(state) //temp hack, state should store outputs too
         const outputs =  rendererParams.showConnectionPoints === false ? [] : cType.view.outputOffsets.map((o, i) => {
-            return svgWrapGroup(svgConnectionPoint(
-                outState.override[i]
-            ), `translate(${o[0]} ${o[1]})`, idSpace.connectionPointIdString({id:id, type:"Output", index:i}))
+            return svgWrapGroup(svgConnectionPoint(), `translate(${o[0]} ${o[1]})`, idSpace.connectionPointIdString({id:id, type:"Output", index:i}))
         })
 
         switch (connectionPointDisplayMode) {
@@ -652,9 +708,9 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
                 y="0"
             >
         </g>
-        <g bind:this={gridGroup} id="circuit-svg-lines" stroke="var(--grid-color)" stroke-width="0.25px" fill="none"></g>
-        <g bind:this={gateGroup} id="circuit-svg-gates" stroke="var(--gate-color)" stroke-width="0.5px" fill="none"></g>
-        <g bind:this={connectionGroup} id="circuit-svg-connections" stroke="var(--gate-color)" stroke-width="0.5px" fill="none"></g>
+        <g bind:this={gridGroup} stroke="var(--grid-color)" stroke-width="0.25px" fill="none"></g>
+        <g bind:this={gateGroup} stroke="var(--gate-color)" stroke-width="0.5px" fill="none"></g>
+        <g bind:this={connectionGroup} stroke="var(--gate-color)" stroke-width="0.5px" fill="none"></g>
     </g>
     <path></path>
     <text></text>
