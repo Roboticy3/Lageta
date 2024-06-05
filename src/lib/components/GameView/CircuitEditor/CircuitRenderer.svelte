@@ -659,7 +659,7 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
      */
     function svgConnectionPointDesiredValue(value) {
         const color = connectionValueToColor(value)
-        return `<circle r="2.5" stroke="${color}" stroke-dasharray="1" fill="none"/>`
+        return `<circle r="2.5" stroke="${color}" stroke-dasharray="1" fill="none", style="pointer-events:none;"/>`
     }
 
     /**
@@ -667,7 +667,7 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
      * @param {[number, number]} to
      */
     function drawWire(from, to) {
-        return `<path d="M ${from[0]} ${from[1]} L ${to[0]} ${to[1]}" />`
+        return `<path d="M ${from[0]} ${from[1]} L ${to[0]} ${to[1]}" style="pointer-events:none;"/>`
     }
     
     /**
