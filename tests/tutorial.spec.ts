@@ -494,10 +494,16 @@ test('tutorial progression 20A', async ({page}) => {
 
     await (await locateGate(page, 2)).click({force:true})
 
+    await page.waitForTimeout(500)
+
     await (await locateGate(page, 0)).click({force:true})
+
+    await page.waitForTimeout(500)
 
     const firstConnectionPoint = await locateConnectionPoint(page, {id:0, type:"Output", index:0})
     await firstConnectionPoint.click({force:true})
+
+    await page.waitForTimeout(500)
 
     await expect(page.getByText("still not working")).toHaveCount(0)
     await expect(page.getByText("affect the circuit")).toHaveCount(0)

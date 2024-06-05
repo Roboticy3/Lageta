@@ -1,7 +1,10 @@
 import type { ConnectionIndex } from "./CircuitController"
 
 export interface CircuitRendererIDSpace {
+
     connectionPointIdString(index:ConnectionIndex): string;
+
+    connectionPointLabelIdString(index:ConnectionIndex): string;
 
     connectionPointDesiredValueIdString(index:ConnectionIndex): string;
     
@@ -15,6 +18,10 @@ export interface CircuitRendererIDSpace {
 export class CircuitRendererIDStandard implements CircuitRendererIDSpace {
     connectionPointIdString(index:ConnectionIndex) {
         return `point-${index.type.toLowerCase()}-${index.id}-${index.index}`
+    }
+
+    connectionPointLabelIdString(index: ConnectionIndex): string {
+        return `point-label-${index.type.toLowerCase()}-${index.id}-${index.index}`
     }
 
     connectionPointDesiredValueIdString(index:ConnectionIndex) {

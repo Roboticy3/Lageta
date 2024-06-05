@@ -491,14 +491,10 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
 
     /**
      * @param {import("$lib/circuit_types/GateType").ConnectionValue} value
-     * @param {string} label
      */
-    function svgConnectionPoint(value = undefined, label = "", extraValueParams = "", extraLabelParams = `x="4"`) {
+    function svgConnectionPoint(value = undefined, extraParams = "") {
         const color = connectionValueToColor(value)
-        return `
-<path d="M -1 -1 l 2 1 l -2 1 Z" stroke-width=".25px" stroke="${color}" ${extraValueParams}/>\n
-${rendererParams.showLabels !== false ? `<text stroke="none" fill="${color}" font-size="0.2em" ${extraLabelParams}>${label}</text>`:""}
-        `
+        return `<path d="M -1 -1 l 2 1 l -2 1 Z" stroke-width=".25px" stroke="${color}" ${extraParams}/>`
     }
 
     /**
@@ -527,9 +523,7 @@ ${rendererParams.showLabels !== false ? `<text stroke="none" fill="${color}" fon
      * @param {import("$lib/circuit_types/GateType").ConnectionValue} value
      */
     function svgConnectionPointDesiredValue(value) {
-        let color = `var(--connection-color-x)`
-        if (value === true) color = `var(--connection-color-on)`
-        else if (value === false) color = `var(--connection-color-off)`
+        const color = connectionValueToColor(value)
         return `<circle r="2.5" stroke="${color}" stroke-dasharray="1" fill="none"/>`
     }
 
@@ -541,14 +535,14 @@ ${rendererParams.showLabels !== false ? `<text stroke="none" fill="${color}" fon
     function svgConnectionPoints(cType, id, state) { 
         const inputs = rendererParams.showConnectionPoints === false ? [] : cType.view.inputOffsets.map((o, i) => {
             return svgWrapGroup(svgConnectionPoint(
-                state.override[i], cType.view.inputLabels[i], "", `x="-16"`
+                state.override[i]
             ), `translate(${o[0]} ${o[1]})`, idSpace.connectionPointIdString({id:id, type:"Input", index:i}))
         })
 
         const outState = cType.model.f(state) //temp hack, state should store outputs too
         const outputs =  rendererParams.showConnectionPoints === false ? [] : cType.view.outputOffsets.map((o, i) => {
             return svgWrapGroup(svgConnectionPoint(
-                outState.override[i], cType.view.outputLabels[i]
+                outState.override[i]
             ), `translate(${o[0]} ${o[1]})`, idSpace.connectionPointIdString({id:id, type:"Output", index:i}))
         })
 
