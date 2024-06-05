@@ -16,7 +16,7 @@ export const gameViewComponentTitles = [
     "ShelfButton.Not"
 ]
 
-export const clickDelayMS = 500
+export const clickDelayMS = 250
 
 export async function gotoTutorial(page:Page) {
     //nav to home

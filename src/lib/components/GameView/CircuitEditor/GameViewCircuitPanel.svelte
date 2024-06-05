@@ -400,7 +400,7 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
         //check that the from and to queries weren't too close together in time,
         //this allows the mouse to be clicked once to pick up, and again to drop later
 
-        if ((to.timeStamp || 0) - (from.timeStamp || 0) < 500) {
+        if ((to.timeStamp || 0) - (from.timeStamp || 0) < 250) {
             return
         }
 
