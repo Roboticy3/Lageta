@@ -1,5 +1,5 @@
 import test, { expect, type Page } from "playwright/test";
-import { gameViewComponentTitles, gotoTutorial, locateConnectionPoint, locateGate, locateGridSquare, locateWire } from "./resources";
+import { clickDelayMS, gameViewComponentTitles, gotoTutorial, locateConnectionPoint, locateGate, locateGridSquare, locateWire } from "./resources";
 import { CircuitRendererIDStandard } from "$lib/circuit_types/CircuitRendererIDSpace";
 import { goto } from "$app/navigation";
 
@@ -33,9 +33,9 @@ test('tutorial progression 1', async ({ page }) => {
 async function step2(page:Page) {
     await step1(page)
     const secondConnectionPoint = await locateConnectionPoint(page, {id:1, type:"Input", index:0})
-    await page.waitForTimeout(500)
+    await page.waitForTimeout(clickDelayMS)
     await secondConnectionPoint.click({force:true})
-    await page.waitForTimeout(500)
+    await page.waitForTimeout(clickDelayMS)
 }
 
 /**
@@ -115,10 +115,10 @@ test('tutorial progression 4', async ({ page }) => {
 async function stepm2(page:Page) {
     const secondConnectionPoint = await locateConnectionPoint(page, {id:1, type:"Input", index:0})
     await secondConnectionPoint.click({force:true})
-    await page.waitForTimeout(500)
+    await page.waitForTimeout(clickDelayMS)
     const firstConnectionPoint = await locateConnectionPoint(page, {id:0, type:"Output", index:0})
     await firstConnectionPoint.click({force:true})
-    await page.waitForTimeout(500)
+    await page.waitForTimeout(clickDelayMS)
 }
 
 /**
@@ -129,11 +129,11 @@ test('tutorial progression 4A', async ({ page }) => {
 
     await step3(page)
 
-    await page.waitForTimeout(500)
+    await page.waitForTimeout(clickDelayMS)
 
     await stepm2(page)
 
-    await page.waitForTimeout(500)
+    await page.waitForTimeout(clickDelayMS)
     
     await step2(page)
 
@@ -167,7 +167,7 @@ test('tutorial progression 5A', async ({ page }) => {
 
     await step4(page)
 
-    await page.waitForTimeout(500)
+    await page.waitForTimeout(clickDelayMS)
 
     await stepm2(page)
 
@@ -175,7 +175,7 @@ test('tutorial progression 5A', async ({ page }) => {
     await expect(page.getByText('high', { exact:true })).toHaveCount(1)
     await expect(page.getByText('neither', { exact:true })).toHaveCount(2)
     
-    await page.waitForTimeout(500)
+    await page.waitForTimeout(clickDelayMS)
 
     await step2(page)
 
@@ -217,7 +217,7 @@ test('tutorial progression 5C', async ({ page }) => {
 
     await step4(page)
 
-    await page.waitForTimeout(500)
+    await page.waitForTimeout(clickDelayMS)
 
     await page.getByRole('checkbox').click()
     await stepm2(page)
@@ -226,7 +226,7 @@ test('tutorial progression 5C', async ({ page }) => {
     await expect(page.getByText('high', { exact:true })).toHaveCount(2)
     await expect(page.getByText('neither', { exact:true })).toHaveCount(2)
 
-    await page.waitForTimeout(500)
+    await page.waitForTimeout(clickDelayMS)
 
     await step2(page)
     await page.getByRole('checkbox').click()
@@ -393,11 +393,11 @@ async function step16(page:Page) {
 
     const offset = await locateGridSquare(page, 10, 5, 4, 1)
 
-    await page.waitForTimeout(500)
+    await page.waitForTimeout(clickDelayMS)
     
     await page.mouse.click(offset[0], offset[1])
 
-    await page.waitForTimeout(500)
+    await page.waitForTimeout(clickDelayMS)
 }
 
 test('tutorial progression 16', async ({page}) => {
@@ -494,16 +494,16 @@ test('tutorial progression 20A', async ({page}) => {
 
     await (await locateGate(page, 2)).click({force:true})
 
-    await page.waitForTimeout(500)
+    await page.waitForTimeout(clickDelayMS)
 
     await (await locateGate(page, 0)).click({force:true})
 
-    await page.waitForTimeout(500)
+    await page.waitForTimeout(clickDelayMS)
 
     const firstConnectionPoint = await locateConnectionPoint(page, {id:0, type:"Output", index:0})
     await firstConnectionPoint.click({force:true})
 
-    await page.waitForTimeout(500)
+    await page.waitForTimeout(clickDelayMS)
 
     await expect(page.getByText("still not working")).toHaveCount(0)
     await expect(page.getByText("affect the circuit")).toHaveCount(0)
