@@ -106,8 +106,6 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
     onMount(async () => {
         updateParams(rendererParams)
 
-        linkDraggable()
-
         svgHead.setAttribute('id', idSpace.headIdString())
     })
 
@@ -153,31 +151,6 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
                 () => {},
                 gridConstructor
             )
-        }
-    }
-
-    /**
-     * @param {number} id
-     * @returns {{svg:SVGElement | null, cType:GateTypeController, gPos:[number,number]} | undefined}
-     */
-    function getGateElementAndTypeAndClean(id) {
-        const cType = circuitController.getGateTypeController(id)
-        const gPos = circuitController.getGatePosition(id)
-        let svg = gateGroup.querySelector(`#${idSpace.gateIdString(id)}`)
-        if (cType === undefined || gPos === undefined) {
-            //if an svg element exists but not the gate, remove the gate and all associated connections
-            if (svg instanceof SVGElement) {
-                console.log("clearing gate",id)
-                gateGroup.removeChild(svg)
-            }
-            //otherwise, it just doesn't exist, can't do anything with that
-            else {
-                console.log("tried to update nonexistent gate",id)   
-            }
-        }
-        //if everything exists, return all the needed data
-        else {
-            return {svg: (svg instanceof SVGElement ? svg:null), cType:cType, gPos:gPos}
         }
     }
 
@@ -307,11 +280,23 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
     }
 
     /**
+     * @param {[number, number]} outputOffset
+     * @param {[number, number][]} inputOffsets
+     * @param {import("$lib/circuit_types/GateType").ConnectionValue} value
      * @param {Element} wire
      */
-    function wireRefresher(wire) {
-        
+    function wireRefresher(outputOffset, inputOffsets, value, wire) {
+        const innerWires = inputOffsets.map(v => drawWire(outputOffset, v))
+        wire.innerHTML = innerWires.join('\n')
+
+        wire.setAttribute('stroke', connectionValueToColor(value))
     }   
+
+    export function drawGates() {
+        for (let i = 0; i < circuitController.getGateIdLength(); i++) {
+            updateGate(i)
+        }
+    }
     
     /**
      * @param {number} id
@@ -348,153 +333,62 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
 
     /**
      * @param {[number, number]} index
-     * 
-     * @param {import("$lib/circuit_types/GateType").ConnectionValue[] | undefined} outputs 
-     * the outputs of the gate the connection is being drawn from, 
-     * used to determine the color of the connection
+     * @param {import("$lib/circuit_types/GateType").ConnectionValue} value
      */
-    export function updateWire(index, outputs = undefined) {
+    export function updateWire(index, value = undefined) {
+
+        const fCType = circuitController.getGateTypeController(index[0])
+        const fGPos = circuitController.getGatePosition(index[0])
+
+        const to = circuitController.getConnectedFrom(index[0], index[1])
+
+        //check that the input and the output array exists
+        if (!fCType || !fGPos || !to) return
+
+        //check that the outputs exist
+        /**
+         * @type {[GateTypeController[], [number, number][]]}
+         */
+        const [tCTypes, tGPoss] = [[], []] //const means nothing in this language lol
+        for (let i = 0; i < to.length; i++) {
+            const toi = to[i]
+            const [tCType, tGPos] = [
+                circuitController.getGateTypeController(toi[0]),
+                circuitController.getGatePosition(toi[0])
+            ]
+
+            if (!tCType || !tGPos) {
+                return
+            }
+
+            tCTypes.push(tCType)
+            tGPoss.push(tGPos)
+        }     
+
+        //process the gate positions 
+        const fromGateOffset = circuitController.indexToOffset(fGPos[0], fGPos[1])
+        const toGateOffsets = tGPoss.map(v => circuitController.indexToOffset(v[0], v[1]))
         
-        if (rendererParams.showWires === false) return
+        const fromConnectionOffset = fCType.view.outputOffsets[index[1]]
+        const toConnectionOffsets = tCTypes.map((v, i) => v.view.inputOffsets[to[i][1]])
 
-        //if a list of outputs is missing, try to retrieve one from the controller
-        if (outputs === undefined) outputs = circuitController.getGateOutputs(index[0])?.override
-
-        const idString = idSpace.wireIdString(index)
-        let svg = document.querySelector(`#${idSpace.wireIdString(index)}`)
-
-        //check that all of the connection's endpoints exist, and that it's source gate exists
-        const toIndices = circuitController.getConnectedFrom(index[0], index[1])
-        let result = getGateElementAndTypeAndClean(index[0])
-        if (result === undefined || outputs === undefined || toIndices === undefined) {
-            if (svg) wireGroup.removeChild(svg)
-            return
-        }
-
-        //get the color of the connection and it's starting position
-        const value = outputs[index[1]]
-        const fVType = result.cType.view
-        let localOffset = fVType.outputOffsets[index[1]]
         /**
          * @type {[number, number]}
          */
-        const outputOffset = [localOffset[0] + result.gPos[0] * 10, localOffset[1] + result.gPos[1] * 10]
-
-        //get the endpoint positions and pair them with the starting position to draw wires to a string array
+        const fromOffset = [fromGateOffset[0] + fromConnectionOffset[0], fromGateOffset[1] + fromConnectionOffset[1]]
         /**
-         * @type {string[]}
+         * @type {[number, number][]}
          */
-        const wires = []
-        for (const toIndex of toIndices) {
-            result = getGateElementAndTypeAndClean(toIndex[0])
-            if (result === undefined) continue
-            const tVType = result.cType.view
-            localOffset = tVType.inputOffsets[toIndex[1]]
-            /**
-             * @type {[number, number]}
-             */
-            const inputOffset = [localOffset[0] + result.gPos[0] * 10, localOffset[1] + result.gPos[1] * 10]
+        const toOffsets = toGateOffsets.map((v, i) => 
+            [toGateOffsets[i][0] + toConnectionOffsets[i][0], 
+            toGateOffsets[i][1] + toConnectionOffsets[i][1]]
+        )
 
-            wires.push(drawWire(outputOffset, inputOffset, value))
-        }
-
-        //check if the connection is already rendered
-        if (svg instanceof SVGElement) {
-            svg.innerHTML = wires.join('')
-        }
-        else {
-            const svg = document.createElementNS("http://www.w3.org/2000/svg", 'g')
-            svg.setAttribute('id', idString)
-            svg.innerHTML = wires.join('')
-            wireGroup.appendChild(svg)
-        }
-
-        console.log("Updating wires: ", index, wires)
-    }
-
-    export function drawGates() {
-        const c = circuitController.getNumGates()
-        for (let i = 0; i < c; i++) {
-            updateGate(i)
-        }
-    }
-
-    async function linkDraggable() {
-        await tick()
-
-        editorEventTarget?.addEventListener("drag", onDragCircuit)
-        editorEventTarget?.addEventListener("drop", clearActives)
-
-        const activeWire = document.createElementNS("http://www.w3.org/2000/svg", 'g')
-        activeWire.setAttribute('id', "wire-active")
-        wireGroup.appendChild(activeWire)
-
-        const activeGate = document.createElementNS("http://www.w3.org/2000/svg", 'g')
-        activeGate.setAttribute('id', "gate-active")
-        gateGroup.appendChild(activeGate)
-    }
-
-    /**
-     * @param {import("$lib/circuit_types/GameViewCircuitPanelEvent").GameViewCircuitPanelEvent} param0
-     */
-    function onDragCircuit({from, to}) {
-        switch (from.type) {
-            case "Input":
-            case "Output":
-                drawActiveWire({from, to})
-                break
-            case "Gate":
-                drawActiveGate({from, to})
-                break
-        }
-    }
-
-    /**
-     * @param {import("$lib/circuit_types/GameViewCircuitPanelEvent").GameViewCircuitPanelEvent} param0
-     */
-     export function drawActiveWire({from, to}) {
-        const localOffset = to.getLocalOffset()
-        if (!localOffset) return
-        const [localX, localY] = localOffset
-
-        const source = from
-        const gPos = source.getPos()
-        const cType = source.gateTypeController
-        const index = source.connectionIndex
-
-        const target = to
-        const activeWire = wireGroup.querySelector("#wire-active")
-        
-        if (activeWire === null || gPos === undefined || index === undefined || cType === undefined) return
-        /**
-         * @type {[number, number] | null}
-         */
-        let fromOffset
-        let connectionOffset
-        switch (source.type) {
-            case "Input": 
-                connectionOffset = cType.view.inputOffsets[index]
-                fromOffset = [gPos[0] * 10 + connectionOffset[0], gPos[1] * 10 + connectionOffset[1]]
-                break
-            case "Output": 
-                connectionOffset = cType.view.outputOffsets[index]
-                fromOffset = [gPos[0] * 10 + connectionOffset[0], gPos[1] * 10 + connectionOffset[1]]
-                break
-            default: return
-        }
-
-        activeWire.setAttribute('stroke', 'gray')
-        let value = undefined
-        switch (source.type) {
-            case "Input":
-                if (target.type === "Output")
-                    value = circuitController.getConnectionValue({id:target.getId() || 0, type:"Output", index:target.connectionIndex || 0})
-                break
-            case "Output":
-                value = circuitController.getConnectionValue({id:source.getId() || 0, type:"Output", index:source.connectionIndex || 0})
-        }
-
-        activeWire.innerHTML = drawWire(fromOffset, localOffset, value)
+        updateItem(
+            idSpace.wireIdString(index),
+            wireRefresher.bind(wireRefresher, fromOffset, toOffsets, value),
+            wireConstructor.bind(wireConstructor)
+        )
     }
 
     export function clearActiveWire() {
@@ -685,11 +579,9 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
     /**
      * @param {[number, number]} from
      * @param {[number, number]} to
-     * @param {import("$lib/circuit_types/GateType").ConnectionValue} value
      */
-    function drawWire(from, to, value = undefined) {
-        const color = connectionValueToColor(value)
-        return `<path d="M ${from[0]} ${from[1]} L ${to[0]} ${to[1]}" stroke="${color}" />`
+    function drawWire(from, to) {
+        return `<path d="M ${from[0]} ${from[1]} L ${to[0]} ${to[1]}" />`
     }
     
     /**

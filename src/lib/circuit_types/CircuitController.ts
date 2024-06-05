@@ -274,6 +274,10 @@ export class CircuitController {
         return this.gateGrid.gates.filter(v => v).length
     }
 
+    getGateIdLength() {
+        return this.gateGrid.gates.length
+    }
+
     /**
      * Attempt to add a gate of a given type to the grid at the given global offset
      * @param gType 
@@ -458,9 +462,11 @@ export class CircuitController {
 
         const result = graph.addConnection(c)
 
-        this.renderer?.updateWire([from, output])
+        const outputValue = this.getGateOutputs(from)?.override.at(output)
+
+        this.renderer?.updateWire([from, output], outputValue)
         if (existing) {
-            this.renderer?.updateWire(existing)
+            this.renderer?.updateWire(existing, outputValue)
         }
 
         return result
