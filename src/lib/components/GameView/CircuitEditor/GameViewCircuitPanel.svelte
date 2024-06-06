@@ -449,8 +449,7 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
         
         setInitialEventListeners()
         
-        currentQuery = new CircuitControllerQueryResult()
-        checkEntered(to)
+        
     }
 
     /**
@@ -527,8 +526,8 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
      */
     function checkEntered(q) {     
         if (!currentQuery.contentEquals(q)) {
-            //circuitRenderer.onEntered(q)
-            //circuitRenderer.onExited(currentQuery)
+            circuitRenderer.onEntered(q)
+            circuitRenderer.onExited(currentQuery)
         }
         currentQuery = q
     }

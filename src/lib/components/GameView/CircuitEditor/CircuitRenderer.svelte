@@ -719,10 +719,9 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
         //console.log("entered", q)
         if (q.type === "Gate") return
         const svg = queryToElement(q)
-        const g = svg?.children[0]
-        if (g) {
-            const existing = g.getAttribute('transform')
-            g.setAttribute('transform', (existing || '') + highlightTransformEffect )
+        if (svg) {
+            const existing = svg.getAttribute('transform')
+            svg.setAttribute('transform', (existing || '') + highlightTransformEffect )
         }   
     }
 
@@ -734,12 +733,11 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
         //console.log("exited", q)
         if (q.type === "Gate") return
         const svg = queryToElement(q)
-        const g = svg?.children[0]
-        if (g) {
-            const existing = g.getAttribute('transform')
+        if (svg) {
+            const existing = svg.getAttribute('transform')
             if (existing) {
                 const i = existing.lastIndexOf(highlightTransformEffect)
-                g.setAttribute('transform', existing.substring(0, i) + existing.substring(i + highlightTransformEffect.length))
+                svg.setAttribute('transform', existing.substring(0, i) + existing.substring(i + highlightTransformEffect.length))
             }
         }
     }
