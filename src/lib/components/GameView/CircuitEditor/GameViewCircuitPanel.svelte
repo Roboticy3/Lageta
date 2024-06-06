@@ -18,6 +18,9 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
     */
     export let gameParams
 
+    /**
+     * @type {any}
+     */
     export let rendererParams
 
     /**
@@ -524,8 +527,8 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
      */
     function checkEntered(q) {     
         if (!currentQuery.contentEquals(q)) {
-            circuitRenderer.onEntered(q)
-            circuitRenderer.onExited(currentQuery)
+            //circuitRenderer.onEntered(q)
+            //circuitRenderer.onExited(currentQuery)
         }
         currentQuery = q
     }
