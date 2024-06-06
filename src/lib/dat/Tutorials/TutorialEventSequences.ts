@@ -16,6 +16,15 @@ export function EventSequenceTutorial(state:any): TutorialEventSequence {return 
                 state.indicator?.setPosition([7.75, 1.25])
                 return 1
             }
+            else if (
+                evt.to.contentEquals({id:1,type:"Input",index:0}) &&
+                state.circuitController
+            ) {
+                state.circuitController.setDesiredOutputs([true])
+                state.expectedOutput = true
+                state.indicator?.setPosition([1.35, 1.25])
+                return 1
+            }
         }
     },
     {
