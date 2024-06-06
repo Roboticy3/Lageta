@@ -773,11 +773,13 @@ export class CircuitController {
             if (g === undefined) {
                 continue
             }
+
+            const inputs = g.getInputs()
             
-            g.getInputs().forEach((_v, i) => {
+            inputs.forEach(((g:Gate, _v:ConnectionValue, i:number) => {
                 this.renderer?.setConnectionPointDesiredValue({id:g.id, index:i, type:"Input"}, data[d])
                 d++
-            })
+            }).bind(inputs, g))
         }
     }
 

@@ -197,6 +197,7 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
             body.innerHTML = svgGateBody(cType, id)
         }
 
+        const outputs = circuitController.getGateOutputs(id)?.override
         for (let i = 0; i < cType.view.sizeOut; i++) {
             /**
              * @type {import("$lib/circuit_types/CircuitController").ConnectionIndex}
@@ -208,10 +209,9 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
                 connectionPointConstructor.bind(connectionPointConstructor, index, cType, gPos)
             )
 
-            updateItem(
-                idSpace.wireIdString([id, i])
-            )
+            updateWire([id, i], outputs?.at(i))
         }
+        const inputs = circuitController.getGateInputs(id)
         for (let i = 0; i < cType.view.sizeIn; i++) {
             /**
              * @type {import("$lib/circuit_types/CircuitController").ConnectionIndex}
@@ -224,9 +224,7 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
             )
 
             const fromIndex = circuitController.getConnectedTo(id, i)
-            if (fromIndex) updateItem(
-                idSpace.wireIdString(fromIndex)
-            )
+            if (fromIndex) updateWire(fromIndex, inputs?.at(i))
         }
     }
 
@@ -283,12 +281,17 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
     }
 
     /**
-     * @param {[number, number]} outputOffset
-     * @param {[number, number][]} inputOffsets
+     * @param {[number, number] | undefined} outputOffset
+     * @param {[number, number][] | undefined} inputOffsets
      * @param {import("$lib/circuit_types/GateType").ConnectionValue} value
      * @param {Element} wire
      */
     function wireRefresher(outputOffset, inputOffsets, value, wire) {
+        if (!outputOffset || !inputOffsets) {
+            wire.innerHTML = ""
+            return
+        }
+        
         const innerWires = inputOffsets.map(v => drawWire(outputOffset, v))
         wire.innerHTML = innerWires.join('\n')
 
@@ -320,6 +323,8 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
         )
 
         console.log("drawing gate:",id)
+
+        clearActiveGate()
     }
 
     /**
@@ -346,7 +351,14 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
         const to = circuitController.getConnectedFrom(index[0], index[1])
 
         //check that the input and the output array exists
-        if (!fCType || !fGPos || !to) return
+        if (!fCType || !fGPos || !to) {
+            updateItem(
+                idSpace.wireIdString(index),
+                wireRefresher.bind(wireRefresher, undefined, undefined, value),
+                wireConstructor.bind(wireConstructor)
+            )
+            return
+        }
 
         //check that the outputs exist
         /**
@@ -361,6 +373,11 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
             ]
 
             if (!tCType || !tGPos) {
+                updateItem(
+                    idSpace.wireIdString(index),
+                    wireRefresher.bind(wireRefresher, undefined, undefined, value),
+                    wireConstructor.bind(wireConstructor)
+                )
                 return
             }
 
@@ -392,6 +409,8 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
             wireRefresher.bind(wireRefresher, fromOffset, toOffsets, value),
             wireConstructor.bind(wireConstructor)
         )
+
+        clearActiveWire()
     }
 
     /**
