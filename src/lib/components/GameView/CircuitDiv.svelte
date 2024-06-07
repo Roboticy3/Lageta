@@ -113,7 +113,7 @@
         position:absolute;
         background-color: var(--main-bg-color);
         border-radius: 10%;
-        border: 4px ridge black;
+        border: 8px ridge black;
         text-align:center;
         font-size: min(2vh, 2vw);
         color:black;

@@ -199,6 +199,7 @@
     <TutorialConnectionLabel
         circuitController={circuitController}
         index={{id:1, type:"Input", index:0}}
+        adjust={[-0.5,-0.75]}
     />
     {#if state.output !== false}
         <TutorialText
@@ -212,15 +213,6 @@
 {/if}
 
 {#if state.currentEvent === 3}
-    <CircuitDiv
-        circuitController={circuitController}
-        position={[0.65, 1.25]}
-        size={[0.75, 0.25]}
-        active={true}
-        smooth={true}
-    >
-        <p style="scale:0.75">what's this?</p>
-    </CircuitDiv>
     <!--Gross multi-binds, let's see if this works!-->
     <TutorialText 
         position={[50, 55]} 

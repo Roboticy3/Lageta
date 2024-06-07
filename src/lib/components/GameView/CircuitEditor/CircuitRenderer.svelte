@@ -647,7 +647,7 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
         return color
     }
 
-    function svgConnectionPoint(extraParams = "") {
+    function svgConnectionPoint(extraParams = `fill="white"`) {
         return `<path d="M -1 -1 l 2 1 l -2 1 Z" stroke-width=".25px" ${extraParams}/>`
     }
 
@@ -777,8 +777,8 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
             >
         </g>
         <g bind:this={gridGroup} stroke="var(--grid-color)" stroke-width="0.25px" fill="none"></g>
-        <g bind:this={gateGroup} stroke="var(--gate-color)" stroke-width="0.5px" fill="none"></g>
         <g bind:this={wireGroup} stroke="var(--gate-color)" stroke-width="0.5px" fill="none"></g>
+        <g bind:this={gateGroup} stroke="var(--gate-color)" stroke-width="0.5px" fill="none"></g>
     </g>
     <path></path>
     <text></text>
