@@ -146,7 +146,13 @@ export function EventSequenceTutorial(state:any): TutorialEventSequence {return 
     {
         //12: wait for the signal to get a certain frame before telling the player what's going on
         eventName:"continue",f:async (evt) => {
-            return 1
+            if (
+                state.isCircuitValid === false
+            ) return 1
+            else {
+                state.indicator.hide()
+                return 14
+            }
         }
     },
     {
@@ -209,7 +215,15 @@ export function EventSequenceTutorial(state:any): TutorialEventSequence {return 
                 state.indicator.show()
                 state.indicator.setPosition([1.35, 1.25])
             }
-            return 1
+
+            if (
+                state.isCircuitValid === false
+            ) return 1
+            else {
+                state.indicator.hide()
+                return 7
+            }
+            
         }
     },
     {
@@ -273,7 +287,12 @@ export function EventSequenceTutorial(state:any): TutorialEventSequence {return 
     {
         //25: wait for the signal to reach a certain point using delayedContinue
         eventName:"continue",f: async (evt) => {
-            return 1
+            if (
+                state.isCircuitValid === true
+            ) {
+                state.indicator.hide()
+                return 1
+            }
         }
     }
 ]}
