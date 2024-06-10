@@ -264,4 +264,16 @@ export function EventSequenceTutorial(state:any): TutorialEventSequence {return 
             }
         }
     },
+    {
+        //24: wait for the signal to play
+        eventName:"play",f: async (evt) => {
+            return 1
+        }
+    },
+    {
+        //25: wait for the signal to reach a certain point using delayedContinue
+        eventName:"continue",f: async (evt) => {
+            return 1
+        }
+    }
 ]}

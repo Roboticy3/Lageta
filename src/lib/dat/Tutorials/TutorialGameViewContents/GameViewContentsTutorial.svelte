@@ -30,8 +30,9 @@
                 }
 
                 switch (state.currentEvent) {
-                    case 19:
                     case 12:
+                    case 19:
+                    case 24:
                         await delayedContinue()
                         break
                     case 17:
@@ -39,7 +40,7 @@
                         document.querySelector('#signal-play-button')?.setAttribute('disabled', 'disabled')
                         document.querySelector('#signal-play-button')?.classList.add('unavailable')
                         break
-                    case 24:
+                    case 23:
                         restartSignalPlayer()
                         break
                 }
@@ -87,6 +88,33 @@
         else onContinue()
     }
 </script>
+
+{#if state.currentEvent === 26}
+    <TutorialText
+        position={[85, 15]}
+        initialPosition={[85, 45]}
+        showButton={false}
+    >
+    <div style="color:black; width:25vw">
+        Each Gate has a name, this one is called a “Not” gate, it takes one input and “inverts” it, 
+        <span style="color:var(--connection-color-on)">high</span>, to <span style="color:var(--connection-color-off)">low</span> 
+        and <span style="color:var(--connection-color-off)">low</span> to <span style="color:var(--connection-color-on)">high</span>
+    </div>
+    </TutorialText>
+{/if}
+
+{#if state.currentEvent === 25}
+    <TutorialText
+        position={[85, 15]}
+        initialPosition={[85, 45]}
+        showButton={false}
+    >
+    <div style="color:black; width:25vw">
+        Wait for the <span style="color:var(--grid-color);">signal</span> to play all the way through to 
+        <span style="color:green;">verify</span> the circuit.
+    </div>
+    </TutorialText>
+{/if}
 
 {#if state.currentEvent === 24}
     <TutorialText
