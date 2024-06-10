@@ -95,7 +95,7 @@
         showButton={false}
     >
     <div style="color:black; width:25vw">
-        That looks much better, play the signal again to see how the circuit performs.
+        That looks much better, play the <span style="color:var(--grid-color);">signal</span> again to see how the circuit performs.
     </div>
     </TutorialText>
 {/if}
@@ -183,7 +183,7 @@
             <div>Looks like this circuit isn't correct.</div>
             <div>But flipping the input manually seems like a pain...</div>
             <div>
-                To match the signal, we can <span style="font-style:italic;"
+                To match the <span style="color:var(--grid-color);">signal</span>, we can <span style="font-style:italic;"
                     >transform</span
                 > the input to match the expected output.
             </div>
