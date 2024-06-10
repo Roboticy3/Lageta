@@ -294,5 +294,19 @@ export function EventSequenceTutorial(state:any): TutorialEventSequence {return 
                 return 1
             }
         }
-    }
+    },
+    {
+        //26: wait for the signal to finish
+        eventName:"done",f: async (evt) => {
+            if (
+                state.isCircuitValid === true
+            ) {
+                state.circuitController?.onComplete()
+                return 0
+            }
+            else {
+                return -2
+            }
+        }
+    },
 ]}
