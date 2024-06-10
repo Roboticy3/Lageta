@@ -167,3 +167,8 @@ export async function step25(page: Page) {
     await step24(page)
     await page.waitForTimeout(8000);
 }
+
+export async function step26(page: Page) {
+    await step25(page)
+    await page.waitForTimeout(21000)
+}
