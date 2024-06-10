@@ -57,6 +57,8 @@
                 }
             }
         )
+
+        eventStagesController
     });
 
     function restartSignalPlayer() {
@@ -95,7 +97,7 @@
     >
     <div style="color:black; width:25vw">
         Each Gate has a name, this one is called a “Not” gate, it takes one input and “inverts” it, 
-        <span style="color:var(--connection-color-on)">high</span>, to <span style="color:var(--connection-color-off)">low</span> 
+        <span style="color:var(--connection-color-on)">high</span> to <span style="color:var(--connection-color-off)">low</span> 
         and <span style="color:var(--connection-color-off)">low</span> to <span style="color:var(--connection-color-on)">high</span>
     </div>
     </TutorialText>
