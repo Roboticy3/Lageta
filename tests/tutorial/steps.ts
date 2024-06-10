@@ -157,3 +157,13 @@ export async function step23(page: Page) {
 
     await page.waitForTimeout(clickDelayMS)
 }
+
+export async function step24(page: Page) {
+    await step23(page)
+    await page.locator('#signal-play-button').click({ force: true });
+}
+
+export async function step25(page: Page) {
+    await step24(page)
+    await page.waitForTimeout(8000);
+}

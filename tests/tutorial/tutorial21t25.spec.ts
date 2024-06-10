@@ -1,6 +1,6 @@
 import { test, expect } from "playwright/test";
 import { gotoTutorial, locateConnectionPoint } from "../resources";
-import { step20, step21, step22, step23 } from "./steps";
+import { step20, step21, step22, step23, step24, step25 } from "./steps";
 
 test('tutorial progression 21', async ({page}) => {
     await gotoTutorial(page)
@@ -42,4 +42,22 @@ test('tutorial progression 23', async ({page}) => {
     await expect(page.getByText("still not working")).toHaveCount(0);
     await expect(page.getByText("second wire")).toHaveCount(0);
     await expect(page.getByText("much better")).toHaveCount(1);
+})
+
+test('tutorial progression 24', async ({page}) => {
+    await gotoTutorial(page)
+
+    await step24(page)
+
+    await expect(page.getByText("much better")).toHaveCount(0);
+    await expect(page.getByText("play all the way through")).toHaveCount(1);
+})
+
+test('tutorial progression 25', async ({page}) => {
+    await gotoTutorial(page)
+
+    await step25(page)
+
+    await expect(page.getByText("play all the way through")).toHaveCount(0);
+    await expect(page.getByText("not gate")).toHaveCount(0);
 })
