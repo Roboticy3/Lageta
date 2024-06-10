@@ -62,6 +62,7 @@ test('tutorial progression 20', async ({ page }) => {
     await expect(page.getByText("still not working")).toHaveCount(1);
     await expect(page.getByText("affect the circuit")).toHaveCount(1);
 });
+
 /**
  * Step should not progress if the gate is deleted first. In fact, the tutorial should go back to the step that asks the user to place a gate
  */

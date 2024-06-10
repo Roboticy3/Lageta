@@ -127,4 +127,33 @@ export async function step20(page: Page) {
 
     const firstConnectionPoint = await locateConnectionPoint(page, { id: 0, type: "Output", index: 0 });
     await firstConnectionPoint.click({ force: true });
+
+    await page.waitForTimeout(clickDelayMS)
+}
+
+export async function step21(page: Page) {
+    await step20(page)
+
+    const thirdConnectionPoint = await locateConnectionPoint(page, { id: 2, type: "Input", index: 0 });
+    await thirdConnectionPoint.click({ force: true });
+
+    await page.waitForTimeout(clickDelayMS)
+}
+
+export async function step22(page: Page) {
+    await step21(page)
+
+    const fourthConnectionPoint = await locateConnectionPoint(page, { id: 2, type: "Output", index: 0 });
+    await fourthConnectionPoint.click({ force: true });
+
+    await page.waitForTimeout(clickDelayMS)
+}
+
+export async function step23(page: Page) {
+    await step22(page)
+
+    const secondConnectionPoint = await locateConnectionPoint(page, { id: 1, type: "Input", index: 0 });
+    await secondConnectionPoint.click({ force: true });
+
+    await page.waitForTimeout(clickDelayMS)
 }
