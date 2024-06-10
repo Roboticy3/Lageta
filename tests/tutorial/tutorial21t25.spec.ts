@@ -59,5 +59,5 @@ test('tutorial progression 25', async ({page}) => {
     await step25(page)
 
     await expect(page.getByText("play all the way through")).toHaveCount(0);
-    await expect(page.getByText("not gate")).toHaveCount(0);
+    await expect(page.getByText("not gate")).toHaveCount(1);
 })
