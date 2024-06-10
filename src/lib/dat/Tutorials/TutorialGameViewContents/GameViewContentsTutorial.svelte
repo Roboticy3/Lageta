@@ -35,19 +35,12 @@
                         await delayedContinue()
                         break
                     case 17:
-                    case 24:
-                        eventStagesController.signalEventTarget.dispatchEvent(
-                            createCustomEvent(
-                                {
-                                    frame:0,
-                                    value:[]
-                                },
-                                "restart",
-                                null
-                            )
-                        )
+                        restartSignalPlayer()
                         document.querySelector('#signal-play-button')?.setAttribute('disabled', 'disabled')
                         document.querySelector('#signal-play-button')?.classList.add('unavailable')
+                        break
+                    case 24:
+                        restartSignalPlayer()
                         break
                 }
             },
@@ -66,6 +59,19 @@
             }
         )
     });
+
+    function restartSignalPlayer() {
+        eventStagesController.signalEventTarget.dispatchEvent(
+            createCustomEvent(
+                {
+                    frame:0,
+                    value:[]
+                },
+                "restart",
+                null
+            )
+        )
+    }
 
     function onContinue() {
         // @ts-ignore

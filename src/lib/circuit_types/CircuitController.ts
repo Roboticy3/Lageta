@@ -323,6 +323,7 @@ export class CircuitController {
         }
 
         this.renderer?.updateGate(gate.id)
+        this.renderer?.clearActiveGate()
 
         return "Ok"
     }
@@ -410,6 +411,7 @@ export class CircuitController {
         }
 
         this.renderer?.updateGate(id)
+        this.renderer?.clearActiveGate()
 
         return "Ok"
     }
@@ -437,6 +439,7 @@ export class CircuitController {
         })
 
         this.renderer?.updateGate(id)
+        this.renderer?.clearActiveGate()
 
         console.log(this.gateGrid)
     }
@@ -468,6 +471,7 @@ export class CircuitController {
         if (existing) {
             this.renderer?.updateWire(existing, outputValue)
         }
+        this.renderer?.clearActiveWire()
 
         return result
     }
@@ -499,6 +503,8 @@ export class CircuitController {
                 this.renderer?.updateWire(c.from)
                 break
         }
+
+        this.renderer?.clearActiveWire()
 
         console.log(graph)
     }

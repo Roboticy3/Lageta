@@ -110,23 +110,39 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
 
         editorEventTarget?.addEventListener("drag", drawActive)
         editorEventTarget?.addEventListener("drop", clearActives)
+
+        circuitController.addGraphListener("update", evt => {
+            const q = circuitDraggable.getQuery()
+            const [id, connectionIndex] = [q.getId(), q.connectionIndex]
+            if (q.type === "Output" && evt.id === id && connectionIndex !== undefined) {
+                console.log("wire should update here!")
+                updateItem(
+                    "wire-active",
+                    activeWireRefresher.bind(
+                        activeGateRefresher, undefined, undefined, 
+                        circuitController.getGateOutputs(id)?.override[connectionIndex]
+                    ),
+                    activeWireConstructor
+                )
+            }
+        })
     })
 
     /**
      * @param {string} id the id of the item, whether it already exists or not
-     * @param {((arg0: Element) => void) | undefined} action update the item by changing its attributes
+     * @param {((arg0: Element) => void) | undefined} refresher update the item by changing its attributes
      * @param {(() => SVGGElement) | undefined} constructor create a new element and add it to the appropriate parent
      */
-     export function updateItem(id, action = undefined, constructor = undefined) {
-        if (!action) return
+     export function updateItem(id, refresher = undefined, constructor = undefined) {
+        if (!refresher) return
         const item = svgHead.querySelector(`#${id}`)
         if (!item && constructor) {
             const newItem = constructor()
             newItem.setAttribute('id', id)
-            action(newItem)
+            refresher(newItem)
         }
         else if (item) {
-            action(item)
+            refresher(item)
         }
     }
 
@@ -337,8 +353,6 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
         }
 
         console.log("drawing gate:",id)
-
-        clearActiveGate()
     }
 
     /**
@@ -423,8 +437,6 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
             wireRefresher.bind(wireRefresher, fromOffset, toOffsets, value),
             wireConstructor.bind(wireConstructor)
         )
-
-        clearActiveWire()
     }
 
     /**
@@ -450,15 +462,17 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
     }
 
     /**
+     * @param {[number, number] | undefined} fromOffset
+     * @param {[number, number] | undefined} toOffset
      * @param {import("$lib/circuit_types/GateType").ConnectionValue} value
-     * @param {[number, number]} fromOffset
-     * @param {[number, number]} toOffset
      * @param {Element} wire
      */
-    function activeWireRefresher(value, fromOffset, toOffset, wire) {
-        const wireInner = drawWire(fromOffset, toOffset)
-
-        wire.innerHTML = wireInner
+    function activeWireRefresher(fromOffset, toOffset, value, wire) {
+        if (fromOffset && toOffset) {
+            const wireInner = drawWire(fromOffset, toOffset)
+            wire.innerHTML = wireInner
+        }
+        
         wire.setAttribute('stroke', connectionValueToColor(value))
     }
 
@@ -494,7 +508,7 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
         
         updateItem(
             idString,
-            activeWireRefresher.bind(activeGateRefresher, value, fromOffset, toOffset),
+            activeWireRefresher.bind(activeGateRefresher, fromOffset, toOffset, value),
             activeWireConstructor
         )
 
