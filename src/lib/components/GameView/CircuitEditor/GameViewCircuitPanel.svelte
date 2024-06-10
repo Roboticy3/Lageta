@@ -200,27 +200,33 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
         const [id, index] = [q.getId(), q.connectionIndex]
 
         if (
-            id === undefined || index === undefined || !circuitContainer || 
+            id === undefined || !circuitContainer || 
             editorParams.dispatchEvents === false
         ) return
-        console.log("started drag from ", q)
 
-        if (q.type === "Input") {     
+        if (q.type === "Input" || q.type === "Output") { 
+            if (index === undefined) return
 
-            const connected = circuitController.getConnectedTo(id, index)
+            if (q.type === "Input") {
 
-            if (connected && circuitContainer) {
-                //we can coerce the onDrag functions to do circuitController by simply switching out the query for one originating from the output
-                //SKETCHY: query loses localOffset and pageOffset data
-                q = circuitController.toQuery(
-                    connected[0], "Output", connected[1], undefined, undefined, q.timeStamp
-                )   
-                //then we can delete the old connection
-                circuitController.removeConnection(
-                    {id:id, type:"Input", index:index}
-                )
+                const connected = circuitController.getConnectedTo(id, index)
+
+                if (connected && circuitContainer) {
+                    //we can coerce the onDrag functions to do circuitController by simply switching out the query for one originating from the output
+                    //SKETCHY: query loses localOffset and pageOffset data
+                    q = circuitController.toQuery(
+                        connected[0], "Output", connected[1], undefined, undefined, q.timeStamp
+                    )   
+                    //then we can delete the old connection
+                    circuitController.removeConnection(
+                        {id:id, type:"Input", index:index}
+                    )
+                }
             }
-        }
+        } 
+
+        console.log("started drag from ", q)
+        
 
         editorEventTarget?.dispatchEvent(
             createGameViewCircuitPanelEvent(
@@ -401,7 +407,6 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
         ) return
 
         const from = circuitDraggable.getQuery()
-        console.log("dropping drag from ", from, " to ", to)
 
         //check that the from and to queries weren't too close together in time,
         //this allows the mouse to be clicked once to pick up, and again to drop later
@@ -414,6 +419,8 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
         {
             return
         }
+
+        console.log("dropping drag from ", from, " to ", to)
 
         editorEventTarget?.dispatchEvent(
             createGameViewCircuitPanelEvent(

@@ -130,6 +130,13 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
         }
     }
 
+    /**
+     * @param {Element} svg
+     */
+    function clearRefresher(svg) {
+        svg.innerHTML = ""
+    }
+
     function gridConstructor() {
         let grid = new Array(gridSize[0] + gridSize[1] - 2).fill("")
         const endX = cellOffset * gridSize[0]
@@ -312,15 +319,22 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
         const cType = circuitController.getGateTypeController(id)
         const gPos = circuitController.getGatePosition(id)
 
-        if (!cType || !gPos) return
-
         const idString = idSpace.gateIdString(id)
 
-        updateItem(
-            idString,
-            gateRefresher.bind(gateRefresher, id, cType, gPos),
-            gateConstructor.bind(gateConstructor, id, cType, gPos)
-        )
+        if (!cType || !gPos) {
+            updateItem(
+                idString,
+                clearRefresher,
+                () => document.createElementNS("http://www.w3.org/2000/svg", 'g')
+            )
+        }
+        else {
+            updateItem(
+                idString,
+                gateRefresher.bind(gateRefresher, id, cType, gPos),
+                gateConstructor.bind(gateConstructor, id, cType, gPos)
+            )
+        }
 
         console.log("drawing gate:",id)
 
@@ -648,7 +662,7 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
     }
 
     function svgConnectionPoint(extraParams = `fill="white"`) {
-        return `<path d="M -1 -1 l 2 1 l -2 1 Z" stroke-width=".25px" ${extraParams}/>`
+        return `<path d="M -1 -1 l 2 1 l -2 1 Z" stroke-width=".25px" style="pointer-events:none;" ${extraParams}/>`
     }
 
     /**
@@ -678,7 +692,7 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
      */
     function svgConnectionPointDesiredValue(value) {
         const color = connectionValueToColor(value)
-        return `<circle r="2.5" stroke="${color}" stroke-dasharray="1" fill="none", style="pointer-events:none;"/>`
+        return `<circle r="2.5" stroke="${color}" stroke-dasharray="1" fill="none" style="pointer-events:none;" />`
     }
 
     /**
