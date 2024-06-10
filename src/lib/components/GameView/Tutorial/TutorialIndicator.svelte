@@ -56,7 +56,7 @@
         /**
          * @type {[number, number]}
          */
-        const offset2 = [(gPos[0] + offset1[0] / 10) - 0.5, (gPos[1] + offset1[1] / 10) - 1]
+        const offset2 = [(gPos[0] + offset1[0] / 10) - 0.5, (gPos[1] + offset1[1] / 10) - 1.5]
         setPosition(offset2)
     }
 

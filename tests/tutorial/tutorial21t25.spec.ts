@@ -39,7 +39,7 @@ test('tutorial progression 23', async ({page}) => {
 
     await step23(page)
 
-    await expect(page.getByText("still not working")).toHaveCount(1);
+    await expect(page.getByText("still not working")).toHaveCount(0);
     await expect(page.getByText("second wire")).toHaveCount(0);
     await expect(page.getByText("much better")).toHaveCount(1);
 })

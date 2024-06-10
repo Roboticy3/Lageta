@@ -35,6 +35,7 @@
                         await delayedContinue()
                         break
                     case 17:
+                    case 24:
                         eventStagesController.signalEventTarget.dispatchEvent(
                             createCustomEvent(
                                 {
@@ -81,13 +82,37 @@
     }
 </script>
 
-{#if state.currentEvent >= 21 && state.currentEvent <= 24}
+{#if state.currentEvent === 24}
+    <TutorialText
+        position={[85, 45]}
+        initialPosition={[85, 30]}
+        showButton={false}
+    >
+    <div style="color:black; width:25vw">
+        That looks much better, play the signal again to see how the circuit performs.
+    </div>
+    </TutorialText>
+{/if}
+
+{#if state.currentEvent >= 22 && state.currentEvent <= 23}
+    <TutorialText
+        position={[85, 30]}
+        initialPosition={[85, 15]}
+        showButton={false}
+    >
+    <div style="color:black; width:25vw">
+        Now, draw a second wire between the gate and the output of the circuit.
+    </div>
+    </TutorialText>
+{/if}
+
+{#if state.currentEvent === 21}
     <TutorialText
         position={[85, 15]}
         initialPosition={[20,90]}
         showButton={false}
     >
-    <div style="color:black; wdith:25vw">
+    <div style="color:black; width:25vw">
         For the gate to affect the circuit, it needs to be connected.
     </div>
     </TutorialText>
