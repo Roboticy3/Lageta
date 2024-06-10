@@ -224,6 +224,11 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
                 }
             }
         } 
+        else if (q.type === "Gate") {
+            if (!(q.getGateType()?.view.moveable)) {
+                return
+            }
+        }
 
         console.log("started drag from ", q)
         
