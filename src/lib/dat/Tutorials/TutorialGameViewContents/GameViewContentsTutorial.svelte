@@ -36,12 +36,10 @@
                         await delayedContinue()
                         break
                     case 17:
+                    case 23:
                         restartSignalPlayer()
                         document.querySelector('#signal-play-button')?.setAttribute('disabled', 'disabled')
                         document.querySelector('#signal-play-button')?.classList.add('unavailable')
-                        break
-                    case 23:
-                        restartSignalPlayer()
                         break
                 }
             },

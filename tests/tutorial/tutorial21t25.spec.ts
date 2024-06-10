@@ -30,7 +30,7 @@ test('tutorial progression 22', async ({page}) => {
 
     await step22(page)
 
-    await expect(page.getByText("still not working")).toHaveCount(1);
+    await expect(page.getByText("still not working")).toHaveCount(0);
     await expect(page.getByText("second wire")).toHaveCount(1);
 })
 
@@ -59,5 +59,5 @@ test('tutorial progression 25', async ({page}) => {
     await step25(page)
 
     await expect(page.getByText("play all the way through")).toHaveCount(0);
-    await expect(page.getByText("not gate")).toHaveCount(1);
+    await expect(page.getByText("each gate has a name")).toHaveCount(1);
 })
