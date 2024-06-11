@@ -566,7 +566,7 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
     >
     </CircuitRenderer>
 
-    {#if editorParams.inputCheckBoxes !== false}
+    {#if editorParams.inputCheckboxes !== false}
         {#each circuitController.getInputIds() as id}
             <InputCheckBox gridController={circuitController} from={id} editorEventTarget={editorEventTarget}/>
         {/each} 

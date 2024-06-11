@@ -1,6 +1,6 @@
 import { Connection } from "$lib/circuit_types/GateGraph";
 import { GateType, GateTypeController, type ConnectionValue } from "$lib/circuit_types/GateType";
-import { Adder2c, And, Buf, Decoder2t4, Encoder4t2, Input, InputDecodePrebaked, InputLabelledPrebaked, Nand, Not, Or, Output, OutputDecodePrebaked, OutputLabelledPrebaked, Xor, drawGateTypeDecode, getGateType, type GateTypeParameters } from "$lib/dat/GateTypes/GateTypes";
+import { Adder2c, And, Buf, Decoder2t4, Encoder4t2, Input, InputDecodePrebaked, InputLabelledPrebaked, InputVariable, Nand, Not, Or, Output, OutputDecodePrebaked, OutputLabelledPrebaked, Xor, drawGateTypeDecode, getGateType, type GateTypeParameters } from "$lib/dat/GateTypes/GateTypes";
 import { ConnectionValueSignalSet, Signal, SignalSet, oscillator, repeater } from "$lib/signal_types/Signal";
 import type { OrganizedCircuitContents, SerializableGate } from "$lib/storage_types/CircuitStorage";
 import { ProgressStorage } from "$lib/storage_types/ProgressStore";
@@ -85,21 +85,25 @@ export const AdderLevel = {
         `,
         {
             gateTypes: [
-                getGateType(InputDecodePrebaked[2]),
-                getGateType(InputDecodePrebaked[2]),
+                getGateType(InputVariable(1, 'A')),
+                getGateType(InputVariable(1, 'B')),
                 getGateType(OutputDecodePrebaked[2]),
                 getGateType(Output(1, {name:"Carry",inputLabels:["Carry"]}))
             ],
             gates: [
-                { x:0, y:3, type:"Input2Decode", id:0} as SerializableGate,
-                { x:0, y:7, type:"Input2Decode", id:1} as SerializableGate,
+                { x:0, y:3, type:"InputVariableA2", id:0} as SerializableGate,
+                { x:0, y:7, type:"InputVariableB2", id:1} as SerializableGate,
                 { x:18, y:3, type:"Output2Decode", id:2} as SerializableGate,
                 { x:18, y:7, type:"Carry", id:3} as SerializableGate,
             ],
             size:[20,11]
         },
         countingSignal(getGateType(Adder2c), 5, 3),
-        []
+        [],
+        false,
+        {
+            inputCheckboxes:false
+        }
     ),
     x:16,y:2,
     type:Adder2c,
@@ -130,7 +134,11 @@ export const EncoderLevel = {
         [
             getGateType(Encoder4t2).name,
             AdderLevel.params.name
-        ]
+        ],
+        false,
+        {
+            inputCheckboxes:false
+        }
     ),
     x:13,y:3,
     type:Encoder4t2,
@@ -162,7 +170,11 @@ export const DecoderLevel = {
         [
             getGateType(Decoder2t4).name,
             EncoderLevel.params.name
-        ]
+        ],
+        false,
+        {
+            inputCheckboxes:false
+        }
     ),
     x:10,y:3,
     type:Decoder2t4,
