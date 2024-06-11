@@ -60,6 +60,13 @@ export function getGateType(params:GateTypeParameters) {
     return c
 }
 
+export function getGateTypeNoRegister(params:GateTypeParameters) {
+    const result = all_gates.get(params.name)
+    if (result) {
+        return result
+    }
+}
+
 export const registerGateType = (gateType: GateTypeController) => {
     console.log("registering ", gateType)
     all_gates.set(gateType.name, gateType);

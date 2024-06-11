@@ -10,11 +10,16 @@
     import { onMount, tick } from "svelte";
     import { CircuitSignalSetViewEventTarget, SignalSetViewEventTarget } from "$lib/signal_types/SignalSetViewEvent";
     import { GameViewCircuitPanelEventTarget } from "$lib/circuit_types/GameViewCircuitPanelEvent";
+    import { getGateType, getGateTypeNoRegister } from "$lib/dat/GateTypes/GateTypes";
+    import { getLevelParams } from "$lib/dat/Levels/Levels";
 
     /**
      * @type {import("$lib/level_types/GameViewParameters").GameViewParameters}
      */
     export let gameParams
+    $: gateRewards = gameParams.completeRewards.filter(v => getGateTypeNoRegister({name:v}) !== undefined)
+    $: levelRewards = gameParams.completeRewards.filter(v => getLevelParams(v) !== undefined)
+
     /**
      * @type {any}
      */
@@ -65,10 +70,8 @@
     let editorContainerResizeObserver
 
     function onComplete() {
-        const rewards = gameParams.completeRewards
-        progressStorage.addGate(gameParams.name)
-        rewards.map(progressStorage.addLevel.bind(progressStorage))
-        rewards.map(progressStorage.addGate.bind(progressStorage))
+        levelRewards.map(progressStorage.addLevel.bind(progressStorage))
+        gateRewards.map(progressStorage.addGate.bind(progressStorage))
         
         completionPopup.show()
     }
@@ -161,7 +164,7 @@
     <slot />
 </div>
 
-<CompletionPopup bind:this={completionPopup} unlocks={gameParams.completeRewards} />
+<CompletionPopup bind:this={completionPopup} newGates={gateRewards} newLevels={levelRewards}/>
 
 <style>
     
