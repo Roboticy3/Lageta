@@ -61,6 +61,13 @@ export async function passTutorial(page:Page) {
     )
 }
 
+export async function gotoCampaign(page:Page) {
+    await passTutorial(page)
+
+    await page.locator('button', {hasText: /Continue/}).click()
+    await page.waitForURL(/campaign/)
+}
+
 export async function locateConnectionPoint(page:Page, index:ConnectionIndex) {
     const idSpace = new CircuitRendererIDStandard()
     return await page.locator(`#${idSpace.connectionPointIdString(index)}`)
