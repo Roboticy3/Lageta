@@ -257,6 +257,18 @@ export const OutputDecodePrebaked = [
     Output(4,{ name:"Output4Decode", inputLabels: ["Output 0", "Output 1", "Output 2", "Output 3"], gridSize: [2, 4], draw:(s) => drawGateTypeDecode(s, 2, 4)}),
 ]
 
+export function InputVariable(bits:number, variableName:string) {
+    const len = Math.pow(2, bits)
+    return Input(len, 
+        {
+            name:`InputVariable${variableName}${len}`, 
+            outputLabels: (new Array(len).fill("").map((_v, i) => `${variableName}${i}`)),
+            gridSize:[2,len], 
+            draw:(s) => drawGateTypeDecode(s, 2, len)
+        }
+    )
+}
+
 function decodeInternal(s:GateState, bits:number) {
     let idx = 0
     let pow = 1
