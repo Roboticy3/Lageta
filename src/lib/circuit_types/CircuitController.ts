@@ -465,11 +465,14 @@ export class CircuitController {
 
         const result = graph.addConnection(c)
 
-        const outputValue = this.getGateOutputs(from)?.override.at(output)
+        const outputValue = this.getConnectionValue({id:from, type:"Output", index:output})
 
         this.renderer?.updateWire([from, output], outputValue)
         if (existing) {
-            this.renderer?.updateWire(existing, outputValue)
+            this.renderer?.updateWire(
+                existing, 
+                this.getConnectionValue({id:existing[0], type:"Output", index:existing[1]})
+            )
         }
         this.renderer?.clearActiveWire()
 

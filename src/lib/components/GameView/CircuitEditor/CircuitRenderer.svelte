@@ -113,18 +113,8 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
 
         circuitController.addGraphListener("update", evt => {
             const q = circuitDraggable.getQuery()
-            const [id, connectionIndex] = [q.getId(), q.connectionIndex]
-            if (q.type === "Output" && evt.id === id && connectionIndex !== undefined) {
-                console.log("wire should update here!")
-                updateItem(
-                    "wire-active",
-                    activeWireRefresher.bind(
-                        activeGateRefresher, undefined, undefined, 
-                        circuitController.getGateOutputs(id)?.override[connectionIndex]
-                    ),
-                    activeWireConstructor
-                )
-            }
+            const id = q.getId()
+            if (id !== undefined) updateGate(id)
         })
     })
 
@@ -232,6 +222,7 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
                 connectionPointConstructor.bind(connectionPointConstructor, index, cType, gPos)
             )
 
+            console.log("updating wire ", [id, i], " with output ", outputs?.at(i))
             updateWire([id, i], outputs?.at(i))
         }
         const inputs = circuitController.getGateInputs(id)
@@ -247,7 +238,13 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
             )
 
             const fromIndex = circuitController.getConnectedTo(id, i)
-            if (fromIndex) updateWire(fromIndex, inputs?.at(i))
+            if (fromIndex) {
+                const fromValue = circuitController.getConnectionValue(
+                    {id:fromIndex[0], type:"Output", index:fromIndex[1]}
+                )
+                updateWire(fromIndex, fromValue)
+                console.log("updating wire ", fromIndex, " with output ", fromValue)
+            }
         }
     }
 
@@ -430,6 +427,8 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
      * @param {import("$lib/circuit_types/GateType").ConnectionValue} value
      */
     export function updateWire(index, value = undefined) {
+
+        console.log("copy that!, updating wire ", index, " with ", value)
 
         const fCType = circuitController.getGateTypeController(index[0])
         const fGPos = circuitController.getGatePosition(index[0])
