@@ -9,3 +9,7 @@ test('page up', async ({ page }) => {
 test('tutorial button', async ({ page }) => {
   await gotoTutorial(page)
 })
+
+test('campaign button', async ({ page }) => {
+  await gotoTutorial(page)
+})
