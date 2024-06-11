@@ -25,7 +25,7 @@
 </script>
 
 <dialog bind:this={dialog}>
-    Congradulations!
+    You win!
     <div>
         Unlocks:
         <ul>

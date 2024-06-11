@@ -77,6 +77,7 @@
         if (!existingEditor) return
 
         existingEditor.pickup()
+        circuitController.onComplete = onComplete
         editorContainerResizeObserver = new ResizeObserver(moveExistingEditor)
         editorContainerResizeObserver.observe(editorContainer)
         moveExistingEditor()
