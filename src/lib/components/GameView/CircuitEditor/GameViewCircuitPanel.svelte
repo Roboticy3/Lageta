@@ -474,12 +474,16 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
      */
     function dropGate({from, to}) {
         const localOffset = to.localOffset
-        if (!localOffset) return
+        const id = from.getId()
+
+        if (!localOffset) {
+            if (id) circuitController.removeGate(id)
+            return
+        }
+        
         const [localX, localY] = localOffset
 
         console.log("localOffset found")
-
-        const id = from.getId()
         
         const cType = from.gateTypeController || getGateType(Buf)
         let controllerResult = "Ok"
