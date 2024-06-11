@@ -78,7 +78,7 @@
             <button 
                 style="width:100%;height:100%;" 
                 on:click={() => {
-                    history.back()
+                    window.location.pathname = "/"
                 }}
             >
                 Back
