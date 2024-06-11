@@ -40,8 +40,26 @@
             checkbox.setAttribute("hidden","hidden")
         }
 
-        onChange()
+        gridController.addGraphListener("update", ({id}) => {
+            onChangeExternal(id)
+        })
+
+        onChangeExternal(from[0])
     })
+
+    /**
+     * @param {number} id
+     */
+    function onChangeExternal(id) {
+        if (id === from[0]) {
+            const value = gridController.getGateOutputs(from[0])?.override[from[1]]
+            if (value) {
+                checkbox.checked = true
+            } else {
+                checkbox.checked = false
+            }
+        }
+    }
 
     function onChange() {
         if (from === null) {
