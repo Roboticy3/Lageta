@@ -110,18 +110,35 @@ export class ProgressStorage {
         this.commit()
         console.log("Unlocked level ", item)
     }
+
+    setCurrentTutorial(name:string) {
+        this.progressStorage.currentTutorial = name
+        this.commit()
+    }
+
+    passTutorial(name:string) {
+        this.progressStorage.passedTutorials.push(name)
+        this.commit()
+    }
+
+    getCurrentTutorial() {
+        return this.progressStorage.currentTutorial
+    }
+
+
 }
 
 class ProgressStorageObject {
     gates:Array<string> = [
-        
+        "Not"
     ]
-    levels:Array<string> = [
-        "A Simple Start"
-    ]
+    levels:Array<string> = []
+    currentTutorial:string = "Tutorial"
+    passedTutorials:Array<string> = []
 
     push(p:ProgressStorageObject) {
         this.gates.push(...p.gates)
         this.levels.push(...p.levels)
+        this.passedTutorials.push(...p.passedTutorials)
     }
 }

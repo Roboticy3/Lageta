@@ -1,15 +1,16 @@
 import type { CircuitController } from "$lib/circuit_types/CircuitController";
 import type { ConnectionValue } from "$lib/circuit_types/GateType";
+import type { WinCondition } from "$lib/circuit_types/WinCondition";
+import { createCustomEvent } from "$lib/misc_types/CustomEventSystem";
 import { SignalSet, Signal, type SignalKeyFrame, SignalPlayer, type SignalFrameReader, type SignalPointResult, ConnectionValueSignalSet } from "./Signal";
-
-type SignalSetDrawChannel = (channel:number, to:number, pathParams:string) => string
+import { CircuitSignalSetViewEventTarget, SignalSetViewEventTarget, type SignalSetViewEventKey } from "./SignalSetViewEvent";
 
 export class SignalSetView<T> {
     readonly signalSet:SignalSet<T>
     readonly height=20
 
     constructor(
-        from:SignalSet<T> | number | T[],
+        from:SignalSet<T> | number | T[]
     ) {
         if (from instanceof SignalSet) {
             this.signalSet = from
@@ -46,7 +47,7 @@ export class SignalSetView<T> {
         )
     }
 
-    drawChannel(channel:number, to:number, pathParams:string) {}
+    drawChannel: (channel:number, to:number, pathParams:string)=> string = () => ""
 
     drawChannels(
         to:number = this.signalSet.length, 
@@ -98,15 +99,55 @@ export class SignalSetView<T> {
             signal.push(newSignal)
         }
     }
+    
+    protected player:SignalPlayer<T> | undefined = undefined
+    createPlayer(frameTime=250) {
+        this.player = new SignalPlayer(
+            this.signalSet,
+            frameTime
+        )
+    }
+
+    startPlayer(iter: SignalFrameReader<T> | undefined, reset:boolean = false) {
+        if (this.player) {
+            this.player.scrub(
+                iter,
+                reset
+            )
+        } 
+    }
+
+    pausePlayer() {
+        if (this.player) {
+            this.player.abortScrub()
+        }
+    }
+
+    getPlayerValue() {
+        if (this.player) return this.player.getCurrentValue()
+    }
+
+    getPlayerFrame() {
+        if (this.player) return this.player.getCurrentFrame()
+    }
+
+    isPlayerActive() {
+        return this.player !== undefined
+    }
+
+    resetPlayer() {
+        if (this.player) {
+            this.player.resetScrub()
+        }
+    }
+
+    setPlayer(player:SignalPlayer<T>) {
+        this.player = player
+    }
+
 }
 
-export class CircuitSignalSetView extends SignalSetView<ConnectionValue> {
-
-    constructor(
-        from:ConnectionValueSignalSet | SignalSet<ConnectionValue> | number | ConnectionValue[],
-    ) {
-        super(from)
-    }
+export class CircuitSignalSetView extends SignalSetView<ConnectionValue> implements WinCondition {
 
     frameWidth = 3
     frameTime = 250
@@ -190,72 +231,73 @@ export class CircuitSignalSetView extends SignalSetView<ConnectionValue> {
         return this.toSigStrengthRev(x) * this.height
     }
 
-    private player:SignalPlayer<ConnectionValue> | undefined = undefined
-    createPlayer(frameTime=250) {
-        this.player = new SignalPlayer(
-            this.signalSet,
-            frameTime
-        )
-    }
-
-    startPlayer(iter: SignalFrameReader<ConnectionValue> | undefined, reset:boolean = false) {
-        if (this.player) this.player.scrub(iter, reset)
-    }
-
-    pausePlayer() {
-        if (this.player) this.player.abortScrub()
-    }
-
-    getPlayerValue() {
-        if (this.player) return this.player.getCurrentValue()
-    }
-
-    isPlayerActive() {
-        return this.player !== undefined
-    }
-
-    resetPlayer() {
-        if (this.player) this.player.resetScrub()
-        this.circuitIsValid = true
-    }
-
     sendPlayerToController(circuitController:CircuitController | CircuitSignalSetView) {
         if (this.player) circuitController.setPlayer(this.player)
     }
-
-    setPlayer(player:SignalPlayer<ConnectionValue>) {
-        this.player = player
+    
+    private circuitIsValid = true
+    private signalChangeListeners:Set<(cond: ConnectionValue[]) => any> = new Set()
+    getCondition(): ConnectionValue[] {
+        if (this.player?.isScrubbing())
+            return this.player.getCurrentValue()
+        return []
+    }
+    addListener(listener: (cond: ConnectionValue[]) => any): boolean {
+        if (this.signalChangeListeners.has(listener)) return false
+        this.signalChangeListeners.add(listener)
+        return true
+    }
+    removeListener(listener: (cond: ConnectionValue[]) => any): boolean {
+        return this.signalChangeListeners.delete(listener)
+    }
+    dispatch(cond:ConnectionValue[]) {
+       this.signalChangeListeners.forEach((l) => {l(cond)})     
     }
 
-    private circuitIsValid = true
-    validateControllerWith(circuitController:CircuitController) {
+    isCircuitValid() { return this.circuitIsValid }
 
+    private validateWithOutputs(outputs:ConnectionValue[]) {
         if (this.circuitIsValid === false) return
 
-        const outputs = this.getPlayerValue()?.slice(this.signalSet.inputs)
-        if (outputs === undefined) {
+        const expectedOutputs = this.getPlayerValue()?.slice(this.signalSet.inputs)
+        if (expectedOutputs === undefined) {
             this.circuitIsValid = false
             return
         }
-        const result = circuitController.getOutputs()
-        //console.log("validating ", result, " against ", outputs)
+        console.log("validating ", outputs, " against ", expectedOutputs)
         
-        for (let i = 0; i < outputs.length; i++) {
-            if (outputs[i] !== result[i]) {
-                this.circuitIsValid = false
-                break
-            }
-        }
+        this.circuitIsValid = expectedOutputs.every((v, i) => {return v === outputs[i]})
     }
-    
-    validatedWithController() {
-        return this.circuitIsValid
+
+    private ourIterTemplate(
+        iter: SignalFrameReader<ConnectionValue>,
+        circuitController:CircuitController,
+        currentValue: ConnectionValue[], 
+        currentFrame: number, 
+        update: boolean, 
+        done: boolean
+    ) {
+        iter(currentValue, currentFrame, update, done)
+        if (update) {
+            this.validateWithOutputs(circuitController.getOutputs())
+            this.dispatch(currentValue.slice(this.getInputSize()))
+        }
+        console.log("playing signal, valid: ", this.circuitIsValid)
+    }
+
+    playVerify(circuitController:CircuitController, iter: SignalFrameReader<ConnectionValue>, reset:boolean = false) {
+        const ourIter = (this.ourIterTemplate).bind(this, iter, circuitController)
+        this.startPlayer(ourIter, reset)
     }
 
     forceValidate() {
         this.circuitIsValid = true
     }
 
+    resetPlayer(): void {
+        super.resetPlayer()
+        this.circuitIsValid = true
+    }
    
 }
 

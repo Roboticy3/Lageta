@@ -40,7 +40,7 @@
             console.log("Unable to set gateId of ", level, "!")
             return
         }
-        circuitController.addConnectionListener((id) => {
+        circuitController.addGraphListener("update", ({id}) => {
             if (id === gateId) {
                 updateAvailability()
             }
@@ -50,7 +50,7 @@
 
     function updateAvailability() {
         if (gateId === undefined) return
-        const value = circuitController.getGateOutputs(gateId)
+        const value = circuitController.getGateOutputs(gateId)?.override
         if (value === undefined) return
 
         let activate = true
@@ -68,16 +68,14 @@
     function playLevel() {
         window.location.href = '/level/' + level.name()
     }
-
 </script>
 
 <CircuitDiv 
     circuitController={circuitController} 
-    position={[level.x, level.y]} 
-    size={[level.type.model.gridWidth, level.type.model.gridHeight]}
-    title={level.name()}
+    position={[level.x + 0.25, level.y + 0.25]} 
+    size={[level.type.model.gridWidth - 0.75, level.type.model.gridHeight - 0.75]}
     bind:this={container}
 >
     <p>{level.name()}</p>
-    <button on:click={playLevel} bind:this={button} id={`level-${gateId}-play`} disabled>Play</button>
+    <button on:click={playLevel} bind:this={button}>Play</button>
 </CircuitDiv>

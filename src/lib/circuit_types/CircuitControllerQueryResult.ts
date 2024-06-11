@@ -1,0 +1,80 @@
+import type { ConnectionIndex } from "./CircuitController";
+import { Gate } from "./Gate";
+import { GateTypeController } from "./GateType";
+
+//
+/**
+ * return type of CircuitController.query()
+ * @member gate readonly reference to a gate. This exposes the model class Gate to the view, but does not allow modification.
+ * @member type result can refer to either a Gate, Connection (Input or Output), or nothing, if the query didn't hit anything on it's grid.
+ * @member connectionIndex if type is Input or Output, connectionIndex will store a number telling where to find or put a connection later.
+ */
+
+export class CircuitControllerQueryResult {
+    readonly gate: Gate | undefined;
+
+    readonly gateTypeController: GateTypeController | undefined;
+
+    readonly type: CircuitControllerQueryResultContentType;
+    readonly connectionIndex: number | undefined;
+
+    readonly localOffset: [number, number] | undefined
+
+    readonly pageOffset: [number, number] | undefined
+
+    readonly timeStamp: number | undefined
+
+    constructor(
+        gate?: Gate,
+        type: CircuitControllerQueryResultContentType = "",
+        connectionIndex?: number,
+        gateTypeController?: GateTypeController,
+        localOffset?: [number, number],
+        pageOffset?: [number, number],
+        timeStamp?: number
+    ) {
+        this.gate = gate;
+        this.gateTypeController = gateTypeController;
+        this.type = type;
+        if ((type === "Input" || type === "Output") &&
+            gate !== undefined && connectionIndex !== undefined) {
+            this.connectionIndex = connectionIndex;
+        }
+
+        this.localOffset = localOffset
+        this.pageOffset = pageOffset
+
+        this.timeStamp = timeStamp
+    }
+
+    getId() { return this.gate?.id; }
+
+    getPos() { return this.gate ? [this.gate.x, this.gate.y] : undefined; }
+
+    getGateType() { return this.gateTypeController }
+
+    getLocalOffset() { return this.localOffset}
+
+    getPageOffset() { return this.pageOffset }
+
+    contentEquals(other:CircuitControllerQueryResult | ConnectionIndex, includeOffset?:boolean) {
+        if (other instanceof CircuitControllerQueryResult)
+            return (
+                other.type === this.type &&
+                other.connectionIndex === this.connectionIndex &&
+                other.gate === this.gate &&
+                (!includeOffset || ( 
+                    other.localOffset?.at(0) === this.localOffset?.at(0) &&
+                    other.localOffset?.at(1) === this.localOffset?.at(1)
+                ))
+            )
+        else
+            return (
+                other.type === this.type &&
+                other.index === this.connectionIndex &&
+                other.id === this.gate?.id
+            )
+    }
+}
+
+export type CircuitControllerQueryResultContentType = "Gate" | "Input" | "Output" | ""

@@ -1,8 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" title="Lageta">
-	<title>
-		Lageta.
-	</title>
+<html lang="en">
 	<head>
 		<meta charset="utf-8" />
 		<link rel="icon" href="%sveltekit.assets%/favicon.png" />
@@ -25,6 +22,7 @@
 		--text-color: var(--gate-color);
 		--connection-color-off: cornflowerblue;
 		--connection-color-on: brown;
+		--connection-color-x: grey;
 		--grid-color: purple;
 	}
 
@@ -46,8 +44,14 @@
 		background-color: var(--main-bg-color);
 	}
 
-	button:enabled:hover {
+	button:hover {
 		font-size:large;
 		background-color: var(--secondary-bg-color);
 	}
+
+	.unavailable {
+        filter:blur(2px) brightness(50%);
+        pointer-events: none;
+        
+    }
 </style>

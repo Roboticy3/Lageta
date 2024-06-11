@@ -1,29 +1,21 @@
 <script>
-    import { goto } from "$app/navigation";
+    import { goto, invalidateAll } from "$app/navigation";
     import { Buf, getGateType, wrapGateTypeViewInSvgHeader } from "$lib/dat/GateTypes/GateTypes";
     import ResizingSvg from "../Misc/ResizingSvg.svelte";
 
     export let vType = getGateType(Buf).view
 
-    /**
-     * @type {string | URL}
-     */
-     export let path
-
-    /**
-     * @type {string}
-     */
-     export let name
+    export let path = ""
 
     /**
      * @param {MouseEvent} e
      */
     function onClick(e) {
-        goto(path)
+        window.location.pathname = path
     }
 </script>
 
-<button class="option" on:click={onClick} title={name}>
+<button class="option" on:click={onClick}>
     {@html wrapGateTypeViewInSvgHeader(vType.gridWidth, vType.gridHeight, vType.draw(), `height="20px"`)}
     
     <div class="option-text">

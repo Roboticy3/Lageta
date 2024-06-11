@@ -1,14 +1,24 @@
 
+import { CustomEventTarget, createCustomEvent, type CustomEventListener } from "$lib/misc_types/CustomEventSystem";
 import { Flow, Gate, type GateState } from "./Gate";
 import type { GateGrid } from "./GateGrid";
 import type { ConnectionValue } from "./GateType";
 
-export class GateGraph {
+export type GateGraphEventKey = "update"
+
+export interface GateGraphEvent {id:number}
+
+export type GateGraphEventListener = CustomEventListener<GateGraphEvent, GateGraphEventKey>
+
+export class GateGraphEventTarget extends CustomEventTarget<GateGraphEvent, GateGraphEventKey> {}
+
+export class GateGraph extends GateGraphEventTarget {
     inputs:Array<Array<Connection | undefined>> = []
     outputs:Array<Array<Connection | undefined>> = []
     gates:Array<Gate | undefined> = []
 
     constructor(grid?:GateGrid) {
+        super()
         if (grid === undefined) {
             return
         }
@@ -480,10 +490,9 @@ export class GateGraph {
             depth + 1
         )
         const output = newGate.execute(result.result)
-        for (let l of this.connectionListeners) {
-            l(newGate.id)
-        }
-        
+
+        this.dispatchEvent(createCustomEvent({id:gate.id}, "update", null))
+
         gate.state.override[inputIndex] = output.override[from[1]]
         return result
     }
@@ -523,9 +532,8 @@ export class GateGraph {
         }
 
         let outputs = gate.execute()
-        for (let l of this.connectionListeners) {
-            l(gate.id)
-        }
+        
+        this.dispatchEvent(createCustomEvent({id:gate.id}, "update", null))
 
         for (let i = 0; i < gType.sizeOut; i++) {
             const c = this.outputs[gate.id][i]

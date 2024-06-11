@@ -5,22 +5,24 @@
     import { AndLevel, Freeplay, NotLevel, OrLevel } from "$lib/dat/Levels/Levels";
     import { ProgressStorage } from "$lib/storage_types/ProgressStore";
     import { onMount, tick } from "svelte";
-    import GameViewCircuitPanel from "../GameView/GameViewCircuitPanel.svelte";
+    import GameViewCircuitPanel from "$lib/components/GameView/CircuitEditor/GameViewCircuitPanel.svelte";
     import { CircuitController } from "$lib/circuit_types/CircuitController";
-    import CircuitDraggable from "../GameView/CircuitDraggable.svelte";
+    import CircuitDraggable from "$lib/components/GameView/CircuitEditor/CircuitDraggable.svelte";
     import LevelViewer from "./LevelViewer.svelte";
-    import InputCheckBox from "../GameView/InputCheckBox.svelte";
+    import InputCheckBox from "$lib/components/GameView/CircuitEditor/InputCheckBox.svelte";
     import CircuitDiv from "../GameView/CircuitDiv.svelte";
     import { goto } from "$app/navigation";
     import { Input } from "$lib/dat/GateTypes/GateTypes";
     import { browser } from "$app/environment";
+    import CircuitEditorComponent from "../GameView/CircuitEditor/CircuitEditorComponent.svelte";
+    import { GameViewCircuitPanelEventTarget } from "$lib/circuit_types/GameViewCircuitPanelEvent";
 
-    const gridWidth = 20
+    const gridWidth = 15
     const gridHeight = 10
-    const params = new GameViewParameters(
+    const gameParams = new GameViewParameters(
         "LevelSelect", "", 
-        {size:[gridWidth, gridHeight] }, undefined, [], 
-        {showGates:false, showGrid:false, initialScale:[8, 8]})
+        {size:[gridWidth, gridHeight] }, undefined, [])
+    const editorParams = {showGates:false, showGrid:false, initialScale:[8, 8]}
 
     let progress = browser ? new ProgressStorage() : undefined
     let levelSet = progress?.levels() || []
@@ -31,24 +33,12 @@
     let circuitPanel
     
     onMount(() => {
-        circuitController.addGateAtCell(Input(1, {name:"LevelSelectInput1", outputLabels:["Click Me!"]}), 1, 1)
-        console.log("Mounting level set: ",levelSet)
-        if (browser) {
-            resize()
-            window.addEventListener('resize', resize)
-        }
+        circuitController.addGateAtCell(Input(1, {name:"LevelSelectInput1", inputLabels:[""]}), 1, 1)
+        circuitEventTarget.addEventListener("setinput", readInputCheckBox)
     })
 
-    async function resize() {
-        const width = window.innerWidth
-        const height = window.innerHeight
-        const cellOffset = width / gridWidth
-        
-    }
-
-    let circuitController = params.initializeGrid()
-    
-    let circuitDraggable
+    const circuitController = gameParams.initializeGrid()
+    const circuitEventTarget = new GameViewCircuitPanelEventTarget()
 
     /**
      * @type {InputCheckBox}
@@ -61,36 +51,28 @@
     }
 
 </script>
-<CircuitDraggable 
-    bind:this={circuitDraggable}
-    circuitController={circuitController}  
-/>
-<div class="level-panel">
-    <GameViewCircuitPanel 
-        bind:this={circuitPanel} 
-        params={params}
-        gridController={circuitController}
-        circuitDraggable={circuitDraggable}
-        canDragGates={false}
+<div class="level-panel" data-sveltekit-noscroll>
+    <CircuitEditorComponent
+        gameParams={gameParams}
+        circuitController={circuitController}
+        editorParams={editorParams}
     >
         {#each levelSet as params}
             <LevelViewer params={params} circuitController={circuitController} />
         {/each}
 
         <InputCheckBox 
-            
+            circuitEventTarget={circuitEventTarget}
             gridController={circuitController} 
             from={[0,0]}
-            onChangeListener={readInputCheckBox}
             bind:this={inputCheckBox}
         />
 
         <CircuitDiv 
             circuitController={circuitController} 
-            position={[0, 0]} 
-            size={[3, 1.5]} 
+            position={[0.5, 0.5]} 
+            size={[2, 0.5]} 
             active={true}
-            title={"Return to Menu"}
         >
             <button 
                 style="width:100%;height:100%;" 
@@ -104,18 +86,20 @@
 
         <CircuitDiv
             circuitController={circuitController}
-            position={[0, 1.5]}
-            size={[4, 4]}
+            position={[0.5, 2]}
+            size={[3, 3]}
             active={true}
-            title={"Read Me!"}
         >
             <p>Click on the <span style="color:{tutorialHighlightColor};">triangular connection point</span> to drag out a wire.</p>
             <p>Then, click on another connection point to connect the wire.</p>
             <p>If power is flowing through the wire, the wire will <span style="color:var(--connection-color-on);">glow</span>.</p>
         </CircuitDiv>
-    </GameViewCircuitPanel>
+    </CircuitEditorComponent>
 </div>
 
 <style>
-
+    .level-panel {
+        width:100%;
+        height:100%;
+    }
 </style>

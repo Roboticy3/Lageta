@@ -5,7 +5,6 @@ import { Buf, getGateType } from "$lib/dat/GateTypes/GateTypes"
 import { ConnectionValueSignalSet, SignalSet } from "$lib/signal_types/Signal"
 import { CircuitSignalSetView } from "$lib/signal_types/SignalSetView"
 import { OrganizedCircuit, type OrganizedCircuitContents } from "$lib/storage_types/CircuitStorage"
-import { type RendererParameters } from "../renderer_types/RendererParameters"
 
 export class GameViewParameters {
     readonly name:string
@@ -13,7 +12,6 @@ export class GameViewParameters {
     readonly grid:GateGrid | undefined
     readonly completeCondition:CompleteConditionSource
     readonly completeRewards:string[]
-    readonly rendererParams:RendererParameters
     readonly allUnlocks:boolean
     
     constructor(
@@ -22,7 +20,6 @@ export class GameViewParameters {
         grid:GridSource = undefined,
         completeCondition:CompleteConditionSource = undefined,
         completeRewards:string[] = [],
-        rendererParams:RendererParameters = {},
         allUnlocks:boolean = false
     ) {
         this.name = name
@@ -37,7 +34,6 @@ export class GameViewParameters {
 
         this.completeCondition = completeCondition
         this.completeRewards = completeRewards
-        this.rendererParams = rendererParams
         this.allUnlocks = allUnlocks
     }
 

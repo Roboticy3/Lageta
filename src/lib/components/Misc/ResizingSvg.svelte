@@ -1,69 +1,108 @@
 <script>
-    import { onMount } from "svelte";
+    import { onMount, tick } from "svelte";
+    import { compose, scale, translate } from "transformation-matrix";
 
     export let [offsetX, offsetY] = [0, 0]
 
-    export let ancestry = 2
+    export let ancestry = 1
 
     export let [minHeight, minWidth] = [0, 0]
 
     /**
-     * @type {SVGSVGElement}
+     * @type {SVGElement | null}
      */
-    let svg
-    /**
-     * @type {SVGGraphicsElement}
-     */
-    let scaleGroup
+    export let svg = null
+
     /**
      * @type {SVGGraphicsElement}
      */
     let contentGroup
 
     let [outerWidth, outerHeight] = [0, 0]
+    
+    let innerScale = 0
 
     /**
      * @type {HTMLElement | null}
      */
     let parent
 
-    function correct() {
-        if (svg) {
-            parent = svg.parentElement
-            for (let i = 1; i < ancestry; i++) {
-                if (parent === null) break
-                parent = parent.parentElement
-            }
+    function ancestor() {
+        parent = svg?.parentElement || null
+        for (let i = 1; i < ancestry; i++) {
+            if (parent === null) break
+            parent = parent.parentElement
         }
-        if (!parent || !svg || !scaleGroup || !contentGroup) return
-        
-        const outer = parent.getBoundingClientRect()
-        outerHeight = Math.max(outer.height, minHeight)
-        outerWidth = Math.max(outer.width, minWidth)
-
-        const inner = contentGroup.getBBox()
-        const scale = outerHeight / inner.height
-
-        console.log(outer, inner)
-
-        scaleGroup.setAttribute(
-            "transform",
-            `scale(${scale} ${scale})`
-        )
+        return parent
     }
 
-    onMount(() => {
-        window.addEventListener('resize', correct)
+    export function correct() {
+
+        if (!parent || !svg || !contentGroup) return
+        
+        const outer = parent.getBoundingClientRect()
+        outerWidth = Math.max(outer.width, minWidth) 
+        outerHeight = Math.max(outer.height, minHeight)
+
+        innerScale = getCurrentScale()
+
+
+    }
+
+    function getCurrentScale() {
+        const inner = contentGroup.getBBox()
+        return Math.min(outerHeight / inner.height, outerWidth / inner.width)
+    }
+
+    /**
+     * @param {[number, number]} offset
+     */
+    export function outerOffsetToInner(offset) {
+        const scale = getCurrentScale()
+        const normalized = [offset[0] / scale, offset[1] / scale]
+        const translated = [normalized[0] + offsetX, normalized[1] + offsetY]
+        return translated
+    }
+
+    /**
+     * @param {[number, number]} offset
+     */
+    export function innerOffsetToOuter(offset) {
+        const scale = getCurrentScale()
+        const normalized = [offset[0] * scale, offset[1] * scale]
+        const translated = [normalized[0] - offsetX, normalized[1] - offsetY]
+        return translated
+    }
+
+    /**
+     * @type {ResizeObserver | null}
+     */
+    let resizeObserver = null
+
+    onMount(async () => {
+        
+        const a = ancestor()
+        if (a) {
+            resizeObserver = new ResizeObserver(correct)
+            resizeObserver.observe(a)
+        }
+
+        await tick()
+
         correct()
     })
-</script>
 
+    export function getMatrix() {
+        return compose(translate(offsetX, offsetY),scale(innerScale))
+    }
+</script>
 <svg 
     bind:this={svg}
-    viewBox="{offsetX} {offsetY} {outerWidth} {outerHeight}" 
+    viewBox="{offsetX} {offsetY} {outerWidth + offsetX} {outerHeight + offsetY}" 
+    style="position:absolute;"
 >
     <g
-        bind:this={scaleGroup}
+        transform={`scale(${innerScale} ${innerScale})`}
     >
         <g bind:this={contentGroup}>
             <slot />

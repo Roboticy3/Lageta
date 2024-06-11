@@ -1,7 +1,7 @@
 import { createGate } from "$lib/circuit_types/Gate"
 import { GateType, GateTypeController, type ConnectionValue } from "$lib/circuit_types/GateType"
 
-export type SignalKeyFrame<T> = {
+export interface SignalKeyFrame<T> {
     frame:number,
     value:T
 }
@@ -344,7 +344,7 @@ export class SignalPlayer<T> {
     }
     private currentFrame = 0
     private nextSignal = 0
-    private scrubIntervalId:number | undefined = undefined
+    private scrubIntervalId:NodeJS.Timeout | undefined = undefined
     private scrubbing = false
     scrub(iter:SignalFrameReader<T> | undefined = undefined, reset:boolean = false) {
         if (reset || this.currentFrame >= this.length) {
@@ -423,6 +423,10 @@ export class SignalPlayer<T> {
             return this.initialValue
         }
         return Array.from(this.currentKeyFrame.value)
+    }
+
+    getCurrentFrame() {
+        return this.currentFrame
     }
 
     isScrubbing() {

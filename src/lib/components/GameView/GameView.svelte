@@ -2,30 +2,60 @@
 
 <script>
     import { CircuitController } from "$lib/circuit_types/CircuitController";
-    import { ConnectionValueSignalSet, SignalSet } from "$lib/signal_types/Signal";
     import { CircuitSignalSetView, SignalSetView } from "$lib/signal_types/SignalSetView";
     import { ProgressStorage } from "$lib/storage_types/ProgressStore";
-    import CircuitDiv from "./CircuitDiv.svelte";
-    import CircuitDraggable from "./CircuitDraggable.svelte";
-    import GameViewCircuitPanel from "./GameViewCircuitPanel.svelte";
-    import GameViewShelfButton from "./GameViewShelfButton.svelte";
     import SignalViewer from "./SignalViewer.svelte";
     import CompletionPopup from "./CompletionPopup.svelte";
-
+    import CircuitEditorComponent from "./CircuitEditor/CircuitEditorComponent.svelte";
+    import { onMount, tick } from "svelte";
+    import { CircuitSignalSetViewEventTarget, SignalSetViewEventTarget } from "$lib/signal_types/SignalSetViewEvent";
+    import { GameViewCircuitPanelEventTarget } from "$lib/circuit_types/GameViewCircuitPanelEvent";
+    import { getGateType, getGateTypeNoRegister } from "$lib/dat/GateTypes/GateTypes";
+    import { getLevelParams } from "$lib/dat/Levels/Levels";
 
     /**
      * @type {import("$lib/level_types/GameViewParameters").GameViewParameters}
      */
-    export let params
+    export let gameParams
+    $: gateRewards = gameParams.completeRewards.filter(v => getGateTypeNoRegister({name:v}) !== undefined)
+    $: levelRewards = gameParams.completeRewards.filter(v => getLevelParams(v) !== undefined)
 
-    console.log("initializing GameView with params: ",params)
+    /**
+     * @type {any}
+     */
+    export let editorParams = {}
+    export let rendererParams = {}
+
+    const slidinParams = {
+        navFlex:1,
+        shelfMaxHeight:'15%',
+        signalMaxHeight:'36%',
+        instructionsFlex:3
+    }
+
+    export let circuitController = new CircuitController(gameParams.grid, onComplete)
+
+    /**
+     * Passing an existing editor should induce GameView to "steal" the editor
+     * 
+     * Since the CircuitEditorComponent's job is to take up whatever space is left on screen after the rest of the UI,
+     * It should be sufficient to just not construct the usual editor once one of these is passed and just position the exisitngEditor with some extra code
+     * 
+     * @type {CircuitEditorComponent | null}
+     */
+    export let existingEditor = null
+
+    console.log("initializing GameView with params: ",gameParams)
     
-    const signalSetView = params.completeCondition ? 
-        new CircuitSignalSetView(params.completeCondition) : undefined
-
-    let circuitDraggable
+    const signalSetView = gameParams.completeCondition ? 
+        new CircuitSignalSetView(gameParams.completeCondition) : undefined
 
     let progressStorage = new ProgressStorage()
+
+    /**
+     * @type {CircuitSignalSetViewEventTarget | null}
+     */
+    export let signalSetViewEventTarget = null
 
     
     /**
@@ -33,56 +63,108 @@
      */
     let completionPopup
 
+    /**
+     * @type {HTMLDivElement}
+     */
+    let editorContainer
+    let editorContainerResizeObserver
+
     function onComplete() {
-        const rewards = params.completeRewards
-        progressStorage.addGate(params.name)
-        rewards.map(progressStorage.addLevel.bind(progressStorage))
-        rewards.map(progressStorage.addGate.bind(progressStorage))
+        levelRewards.map(progressStorage.addLevel.bind(progressStorage))
+        gateRewards.map(progressStorage.addGate.bind(progressStorage))
         
         completionPopup.show()
     }
 
-    const circuitController = new CircuitController(params.grid, onComplete)
+    function placeExistingEditor() {
+        if (!existingEditor) return
+
+        existingEditor.pickup()
+        circuitController.onComplete = onComplete
+        editorContainerResizeObserver = new ResizeObserver(moveExistingEditor)
+        editorContainerResizeObserver.observe(editorContainer)
+        moveExistingEditor()
+    }
+
+    function moveExistingEditor() {
+        if (!existingEditor) return
+
+        const bbox = editorContainer.getBoundingClientRect()
+        existingEditor.move(bbox.left, bbox.top)
+        existingEditor.scale(bbox.width, bbox.height)
+    }
+
+    /**
+     * @param {number | string} flex
+     */
+    function initialMaxSize(flex) {
+        return flex ? 0 : flex
+    }
+
+    export let maxSizeState = {
+        navFlex:initialMaxSize(slidinParams.navFlex),
+        shelfMaxHeight:initialMaxSize(slidinParams.shelfMaxHeight),
+        instructionsFlex:initialMaxSize(slidinParams.instructionsFlex),
+        signalMaxHeight:initialMaxSize(slidinParams.signalMaxHeight)
+    }
+
+    function slideIn() {
+        maxSizeState.navFlex = slidinParams.navFlex
+        maxSizeState.shelfMaxHeight = slidinParams.shelfMaxHeight
+        maxSizeState.instructionsFlex = slidinParams.instructionsFlex
+        maxSizeState.signalMaxHeight = slidinParams.signalMaxHeight
+        maxSizeState = maxSizeState
+        console.log("size state", JSON.stringify(maxSizeState))
+    }
+
+    onMount(async () => {
+        console.log("size state", JSON.stringify(maxSizeState))
+        placeExistingEditor()
+
+        await tick()
+        
+        setTimeout(slideIn, 200)
+    })
+
+    
 
 </script>
 
-<div class="base-vertical">
-    <CircuitDraggable 
-        circuitController={circuitController} 
-        bind:this={circuitDraggable}
-    />
-    <div class="nav">
-
+<div class="base-vertical" data-sveltekit-noscroll>
+    <div class="nav {slidinParams ? 'slidein':''}" title="Nav" style="flex:{maxSizeState.navFlex};">
+        
     </div>
-    <div class="sandbox-horizontal">
-        <div class="circuit-editor">
-            <div class="shelf">
-                {#each progressStorage.gates() as gateTypeController}
-                    <GameViewShelfButton circuitDraggable={circuitDraggable} gateType={gateTypeController}/>
-                {/each}
-            </div>
-            <div class="circuit-panel">
-                <GameViewCircuitPanel 
-                    params={params}
-                    gridController={circuitController}
-                    circuitDraggable={circuitDraggable}
-                >
-
-                </GameViewCircuitPanel>
-            </div>
+    <div class="sandbox-horizontal" title="Sandbox">
+        <div class="circuit-editor" title="Editor" bind:this={editorContainer}>
+            {#if !existingEditor}
+                <CircuitEditorComponent 
+                    circuitController={circuitController} 
+                    gameParams={gameParams} 
+                    editorParams={editorParams}
+                    rendererParams={rendererParams}
+                    maxSizeState={maxSizeState}
+                    editorEventTarget={new GameViewCircuitPanelEventTarget()}
+                    shelf={progressStorage.gates()}
+                />
+            {/if}
         </div>
-        <div class="instructions">
-            {@html params.directions}
+        <div class="instructions {slidinParams ? 'slidein':''}" title="Instructions" style="flex:{maxSizeState.instructionsFlex};">
+            {@html gameParams.directions}
         </div>
     </div>
     {#if signalSetView}
-        <div class="signal">
-            <SignalViewer circuitController={circuitController} signalSetView={signalSetView} />
+        <div class="signal {slidinParams ? 'slidein':''}" title="Signal Player" style="max-height:{maxSizeState.signalMaxHeight};">
+            <SignalViewer 
+                circuitController={circuitController} 
+                signalSetView={signalSetView} 
+                signalSetViewEventTarget={signalSetViewEventTarget}
+            />
         </div>
     {/if}
+    <slot />
 </div>
 
-<CompletionPopup bind:this={completionPopup} unlocks={params.completeRewards} />
+<CompletionPopup bind:this={completionPopup} newGates={gateRewards} newLevels={levelRewards}/>
 
 <style>
     
@@ -93,7 +175,6 @@
     }
 
     .base-vertical .nav {
-        flex: 1;
         background-color: var(--secondary-bg-color);
     }
 
@@ -112,25 +193,7 @@
         flex-direction: column;
     }
 
-    .circuit-editor .shelf {
-        flex: 1;
-        background-color: var(--tertiary-bg-color);
-
-        display: flex;
-        flex-direction: row;
-    }
-
-    .circuit-editor .circuit-panel {
-        flex: 7;
-        background-color: var(--main-bg-color);
-        min-height: 0;
-
-        border: thick double;
-        color: var(--grid-color);
-    }
-
     .sandbox-horizontal .instructions {
-        flex: 3;
         background-color: var(--tertiary-bg-color);
 
         padding: 3%;
@@ -138,11 +201,14 @@
     }
 
     .base-vertical .signal {
-        flex: 3;
+        flex:3;
+
         background-color: var(--secondary-bg-color);
         padding:2%;
         width: 96%;
-        padding-bottom: 0%;
-        max-height: 36%;
+    }
+
+    .slidein {
+        transition: max-height 3s, max-width 3s, flex 3s;
     }
 </style>

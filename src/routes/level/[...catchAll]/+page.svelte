@@ -15,7 +15,7 @@
 </script>
 
 {#if level !== undefined}
-<GameView params={level.unpack()}/>
+<GameView gameParams={level.unpack()}/>
 {:else if !browser}
 <h1 class="fullscreen-message">
     Loading
