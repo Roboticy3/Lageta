@@ -228,7 +228,7 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
             const index = {id:id, type:"Output", index:i}
             updateItem(
                 idSpace.connectionPointIdString(index),
-                connectionPointRefresher.bind(connectionPointRefresher, index),
+                connectionPointRefresher.bind(connectionPointRefresher, index, cType, gPos),
                 connectionPointConstructor.bind(connectionPointConstructor, index, cType, gPos)
             )
 
@@ -242,7 +242,7 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
             const index = {id:id, type:"Input", index:i}
             updateItem(
                 idSpace.connectionPointIdString(index),
-                connectionPointRefresher.bind(connectionPointRefresher, index),
+                connectionPointRefresher.bind(connectionPointRefresher, index, cType, gPos),
                 connectionPointConstructor.bind(connectionPointConstructor, index, cType, gPos)
             )
 
@@ -288,13 +288,71 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
 
     /**
      * @param {import("$lib/circuit_types/CircuitController").ConnectionIndex} index
+     * @param {GateTypeController} cType
+     * @param {[number, number]} gPos
      * @param {Element} point
      */
-    function connectionPointRefresher(index, point) {
+    function connectionPointRefresher(index, cType, gPos, point) {
         const value = circuitController.getConnectionValue(index)
         const color = connectionValueToColor(value)
 
         point.setAttribute('stroke', color)
+
+        updateItem(
+            idSpace.connectionPointLabelIdString(index),
+            connectionPointLabelRefresher.bind(connectionPointLabelRefresher, index, cType, gPos),
+            connectionPointLabelConstructor.bind(connectionPointLabelConstructor, index, cType, gPos)
+        )
+    }
+
+    /**
+     * @param {import("$lib/circuit_types/CircuitController").ConnectionIndex} index
+     * @param {GateTypeController} cType
+     * @param {[number, number]} gPos
+     */
+    function connectionPointLabelConstructor(index, cType, gPos) {
+        const id = index.id
+        const gateIdString = idSpace.gateIdString(id)
+        let svg = svgHead.querySelector(`#${gateIdString}`)
+
+        //if no svg is found, construct the parent gate that this connection point is "dependant" on
+        if (!svg) {
+            const g = gateConstructor(id, cType, gPos)
+            svg = g
+            //however, don't update the gate (action = undefined) because that could trigger an infinite recursion if something goes wrong
+            updateItem(gateIdString, undefined, () => { return g })
+        }
+        
+        const vType = cType.view
+        const pointOffset = (index.type === "Input") ? 
+            vType.inputOffsets[index.index] : 
+            vType.outputOffsets[index.index]
+        const labelText = (index.type === "Input") ?
+            vType.inputLabels[index.index] :
+            vType.outputLabels[index.index]
+        const labelInner = svgConnectionPointLabel(labelText, index.type === "Input" ? 'x="-16"':'x="4"')
+
+        const label = svgWrapGroup(
+            labelInner, 
+            `translate(${pointOffset[0]}, ${pointOffset[1]})`, 
+            '' //id is applied in updateItem
+        )
+
+        if (rendererParams.showLabels !== false) svg.appendChild(label)
+        return label
+    }
+
+    /**
+     * @param {import("$lib/circuit_types/CircuitController").ConnectionIndex} index
+     * @param {GateTypeController} cType
+     * @param {[number, number]} gPos
+     * @param {Element} label
+     */
+    function connectionPointLabelRefresher(index, cType, gPos, label) {
+        const value = circuitController.getConnectionValue(index)
+        const color = connectionValueToColor(value)
+
+        label.setAttribute('fill', color)
     }
 
     function wireConstructor() {
@@ -675,8 +733,12 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
         return color
     }
 
-    function svgConnectionPoint(extraParams = `fill="white"`) {
-        return `<path d="M -1 -1 l 2 1 l -2 1 Z" stroke-width=".25px" style="pointer-events:none;" ${extraParams}/>`
+    function svgConnectionPoint(extraParams = '') {
+        return `<path d="M -1 -1 l 2 1 l -2 1 Z" stroke-width=".25px" style="pointer-events:none;" fill="white" ${extraParams}/>`
+    }
+
+    function svgConnectionPointLabel(label = 'bingus', extraParams = '') {
+        return `<text style="pointer-events:none; font-size:min(.5vh, .5vw);" stroke="none" ${extraParams}>${label}</text>`
     }
 
     /**
