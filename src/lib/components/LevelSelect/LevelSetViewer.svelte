@@ -34,11 +34,11 @@
     
     onMount(() => {
         circuitController.addGateAtCell(Input(1, {name:"LevelSelectInput1", inputLabels:[""]}), 1, 1)
-        circuitEventTarget.addEventListener("setinput", readInputCheckBox)
+        editorEventTarget.addEventListener("setinput", readInputCheckBox)
     })
 
     const circuitController = gameParams.initializeGrid()
-    const circuitEventTarget = new GameViewCircuitPanelEventTarget()
+    const editorEventTarget = new GameViewCircuitPanelEventTarget()
 
     /**
      * @type {InputCheckBox}
@@ -53,6 +53,7 @@
 </script>
 <div class="level-panel" data-sveltekit-noscroll>
     <CircuitEditorComponent
+        editorEventTarget={editorEventTarget}
         gameParams={gameParams}
         circuitController={circuitController}
         editorParams={editorParams}
@@ -62,7 +63,7 @@
         {/each}
 
         <InputCheckBox 
-            circuitEventTarget={circuitEventTarget}
+            editorEventTarget={editorEventTarget}
             gridController={circuitController} 
             from={[0,0]}
             bind:this={inputCheckBox}
@@ -82,17 +83,6 @@
             >
                 Back
             </button>
-        </CircuitDiv>
-
-        <CircuitDiv
-            circuitController={circuitController}
-            position={[0.5, 2]}
-            size={[3, 3]}
-            active={true}
-        >
-            <p>Click on the <span style="color:{tutorialHighlightColor};">triangular connection point</span> to drag out a wire.</p>
-            <p>Then, click on another connection point to connect the wire.</p>
-            <p>If power is flowing through the wire, the wire will <span style="color:var(--connection-color-on);">glow</span>.</p>
         </CircuitDiv>
     </CircuitEditorComponent>
 </div>

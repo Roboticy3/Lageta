@@ -39,6 +39,8 @@
         else {
             checkbox.setAttribute("hidden","hidden")
         }
+
+        onChange()
     })
 
     function onChange() {
@@ -53,7 +55,6 @@
         
         const q = gridController.toQuery(from[0], "Input", from[1], undefined, [bbox.x, bbox.y])
         editorEventTarget?.dispatchEvent(createGameViewCircuitPanelEvent("setinput", q, q, checkbox))
-        editorEventTarget?.dispatchEvent(createGameViewCircuitPanelEvent("changed", q, q, checkbox))
     }
 
     export function isChecked() {

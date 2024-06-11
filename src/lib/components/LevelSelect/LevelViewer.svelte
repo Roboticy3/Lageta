@@ -33,10 +33,9 @@
         console.log("Mounting level selector for ",level)
         await tick()
         container.setOffset()
-        gateId = circuitController.getNumGates()
+        gateId = circuitController.getGateIdLength()
         circuitController.addGateAtCell(level.type, level.x, level.y)
-        if (circuitController.getNumGates() !== gateId + 1) {
-            gateId = undefined
+        if (gateId === undefined || circuitController.getNumGates() !== gateId + 1) {
             console.log("Unable to set gateId of ", level, "!")
             return
         }
@@ -44,6 +43,10 @@
             if (id === gateId) {
                 updateAvailability()
             }
+        })
+        const id = gateId
+        level.playCondition.forEach((v, i) => {
+            circuitController.setDesiredValue({id:id, type:"Output", index:i}, v)
         })
         updateAvailability()
     })
@@ -55,7 +58,7 @@
 
         let activate = true
         for (let i = 0; i < value.length; i++) {
-            if( (value[i] || false) !== (level.playCondition[i] || false)) {
+            if( (value[i]) !== (level.playCondition[i])) {
                 activate = false
                 break
             }

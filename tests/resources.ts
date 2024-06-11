@@ -16,6 +16,13 @@ export const gameViewComponentTitles = [
     "ShelfButton.Not"
 ]
 
+export const postTutorialLocalStorage = {
+    gates:["Not","Or","And"],
+    levels:["Some Kind of Combo","Join"],
+    currentTutorial:"",
+    passedTutorials:"Tutorial"
+}
+
 export const clickDelayMS = 250
 
 export async function gotoTutorial(page:Page) {
@@ -24,10 +31,41 @@ export async function gotoTutorial(page:Page) {
   
     //clear local storage
     await page.evaluate(() => {localStorage.clear()})
+
+    await page.reload()
   
     //get the tutorial button and click it to navigate to the tutorial
     await page.locator('button', {hasText: /Tutorial/}).click()
     await page.waitForURL(/Tutorial/)
+}
+
+export async function passTutorial(page:Page) {
+
+    await page.goto(root)
+
+    await page.evaluate(
+        m => {
+            localStorage.clear()
+            localStorage.setItem("ProgressStorage", JSON.stringify(m))
+            console.log("1:", localStorage, JSON.stringify(m), m)
+        },
+        postTutorialLocalStorage
+    )
+
+    await page.reload()
+
+    await page.evaluate(
+        () => {
+            console.log("2:", localStorage)
+        }
+    )
+}
+
+export async function gotoCampaign(page:Page) {
+    await passTutorial(page)
+
+    await page.locator('button', {hasText: /Continue/}).click()
+    await page.waitForURL(/campaign/)
 }
 
 export async function locateConnectionPoint(page:Page, index:ConnectionIndex) {
