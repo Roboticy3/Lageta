@@ -338,8 +338,7 @@ export const AndLevel = {
             getGateType(And)
         ),
         [
-            OrLevel.params.name,
-            getGateType(Or).name
+            NandLevel.params.name
         ]
     ),
     x:6, y:3,
