@@ -13,6 +13,9 @@ export class GameViewParameters {
     readonly completeCondition:CompleteConditionSource
     readonly completeRewards:string[]
     readonly allUnlocks:boolean
+
+    readonly editorParams:Object
+    readonly rendererParams:Object
     
     constructor(
         name:string = "",
@@ -20,7 +23,9 @@ export class GameViewParameters {
         grid:GridSource = undefined,
         completeCondition:CompleteConditionSource = undefined,
         completeRewards:string[] = [],
-        allUnlocks:boolean = false
+        allUnlocks:boolean = false,
+        editorParams = {},
+        rendererParams = {},
     ) {
         this.name = name
 
@@ -35,6 +40,8 @@ export class GameViewParameters {
         this.completeCondition = completeCondition
         this.completeRewards = completeRewards
         this.allUnlocks = allUnlocks
+        this.editorParams = editorParams
+        this.rendererParams = rendererParams
     }
 
     initializeGrid() {

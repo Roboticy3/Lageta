@@ -99,7 +99,11 @@ export const AdderLevel = {
             size:[20,11]
         },
         countingSignal(getGateType(Adder2c), 5, 3),
-        []
+        [],
+        false,
+        {
+            inputCheckboxes:false
+        }
     ),
     x:16,y:2,
     type:Adder2c,
@@ -130,7 +134,11 @@ export const EncoderLevel = {
         [
             getGateType(Encoder4t2).name,
             AdderLevel.params.name
-        ]
+        ],
+        false,
+        {
+            inputCheckboxes:false
+        }
     ),
     x:13,y:3,
     type:Encoder4t2,
@@ -162,7 +170,11 @@ export const DecoderLevel = {
         [
             getGateType(Decoder2t4).name,
             EncoderLevel.params.name
-        ]
+        ],
+        false,
+        {
+            inputCheckboxes:false
+        }
     ),
     x:10,y:3,
     type:Decoder2t4,

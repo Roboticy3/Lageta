@@ -23,8 +23,8 @@
     /**
      * @type {any}
      */
-    export let editorParams = {}
-    export let rendererParams = {}
+    export let editorParams = gameParams.editorParams
+    export let rendererParams = gameParams.rendererParams
 
     const slidinParams = {
         navFlex:1,
