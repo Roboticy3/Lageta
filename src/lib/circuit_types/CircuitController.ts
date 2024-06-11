@@ -783,10 +783,17 @@ export class CircuitController {
             const inputs = g.getInputs()
             
             inputs.forEach(((g:Gate, _v:ConnectionValue, i:number) => {
-                this.renderer?.setConnectionPointDesiredValue({id:g.id, index:i, type:"Input"}, data[d])
+                this.setDesiredValue({id:g.id, index:i, type:"Input"}, data[d])
                 d++
             }).bind(inputs, g))
         }
+    }
+
+    setDesiredValue(
+        index:ConnectionIndex,
+        value:ConnectionValue
+    ) {
+        this.renderer?.setConnectionPointDesiredValue(index, value)
     }
 
     //tell the view that the level has been beaten
