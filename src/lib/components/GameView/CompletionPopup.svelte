@@ -54,7 +54,11 @@
             </div>
         </div>
         <div class="to-level-select">
-            <button>See Level Select Screen</button>
+            <button 
+                on:click={() => {window.location.pathname = "/campaign"}}
+            >
+                See Level Select Screen
+            </button>
         </div>
     </div>
 </dialog>
