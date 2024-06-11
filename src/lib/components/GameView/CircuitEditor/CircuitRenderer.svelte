@@ -748,7 +748,7 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
     }
 
     function svgInputPoint(extraParams = '') {
-        return `<circle r="1" stroke-width=".25px" style="pointer-events:none;" fill="white" ${extraParams} />`
+        return `<path d="M -1.5 -1 l 1 0 l 1.5 1 l -1.5 1 l -1 0 Z" stroke-width=".25px" style="pointer-events:none;" fill="white" ${extraParams} />`
     }
 
     function svgOutputPoint(extraParams = '') {
