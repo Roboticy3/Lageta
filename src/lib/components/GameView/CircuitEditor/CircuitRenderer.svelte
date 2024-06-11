@@ -268,10 +268,21 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
         }
         
         const pointIdString = idSpace.connectionPointIdString(index)
+        const vType = cType.view
         const pointOffset = (index.type === "Input") ? 
-            cType.view.inputOffsets[index.index] : 
-            cType.view.outputOffsets[index.index]
-        const pointInner = svgConnectionPoint()
+            vType.inputOffsets[index.index] : 
+            vType.outputOffsets[index.index]
+
+        let pointInner = ""
+        if (vType.sizeIn === 0) {
+            pointInner = svgInputPoint()
+        }
+        else if (vType.sizeOut === 0) {
+            pointInner = svgOutputPoint()
+        }
+        else {
+            pointInner = svgConnectionPoint()
+        }
 
         const point = svgWrapGroup(
             pointInner, 
@@ -733,7 +744,15 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
     }
 
     function svgConnectionPoint(extraParams = '') {
-        return `<path d="M -1 -1 l 2 1 l -2 1 Z" stroke-width=".25px" style="pointer-events:none;" fill="white" ${extraParams}/>`
+        return `<path d="M -1 -1 l 2 1 l -2 1 Z" stroke-width=".25px" style="pointer-events:none;" fill="white" ${extraParams} />`
+    }
+
+    function svgInputPoint(extraParams = '') {
+        return `<circle r="1" stroke-width=".25px" style="pointer-events:none;" fill="white" ${extraParams} />`
+    }
+
+    function svgOutputPoint(extraParams = '') {
+        return `<rect x="-1" width="2" y="-1" height="2" rx=".25"  stroke-width=".25px" style="pointer-events:none;" fill="white" ${extraParams} />`
     }
 
     function svgConnectionPointLabel(label = 'bingus', extraParams = '') {
