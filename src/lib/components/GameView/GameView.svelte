@@ -70,6 +70,10 @@
     let editorContainerResizeObserver
 
     function onComplete() {
+        if (gameParams.name === progressStorage.getCurrentTutorial()) {
+            progressStorage.setCurrentTutorial("")
+        }
+
         levelRewards.map(progressStorage.addLevel.bind(progressStorage))
         gateRewards.map(progressStorage.addGate.bind(progressStorage))
         
