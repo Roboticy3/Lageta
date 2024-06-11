@@ -448,8 +448,10 @@ export const Tutorial = {
             getGateType(Not)
         ),
         [
+            getGateType(Or).name,
+            getGateType(And).name,
+            AndLevel.params.name,
             OrLevel.params.name,
-            getGateType(Or).name
         ]
     ),
     x:6, y:1,
