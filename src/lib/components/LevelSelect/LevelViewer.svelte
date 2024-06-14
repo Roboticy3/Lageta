@@ -77,7 +77,7 @@
     circuitController={circuitController} 
     position={[level.x + 0.35, level.y + 0.1]} 
     bob={false}
-    smooth={true}
+    smooth={false}
     size={[level.type.model.gridWidth - 1.05, level.type.model.gridHeight - 0.3]}
     bind:this={container}
 >
