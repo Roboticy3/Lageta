@@ -839,8 +839,10 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
     function queryToElement(q) {
         switch (q.type) {
             case "Gate":
+                const id = q.getId()
+                if (id === undefined) return null
                 return gateGroup.querySelector(
-                    `#${idSpace.gateIdString(q.getId() || 0)}-body`
+                    `#${idSpace.gateIdString(id)}-body`
                 )
             case "Input":
             case "Output":
@@ -858,17 +860,23 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
      * @param {CircuitControllerQueryResult} q
      */
     export function onEntered(q) {
-        //console.log("entered", q)
-        const svg = queryToElement(q)
-        if (svg && ((q.type !== "Gate") || q.getGateType()?.view.moveable)) {
-            const existing = svg.getAttribute('transform')
-            svg.setAttribute('transform', (existing === null ? '':existing) + highlightTransformEffect )
-        }   
         if (q.type === "Gate") {
             circuitDraggable.setContentsToName(
                 q.getGateType()?.name || "?"
             )
         }
+
+        let canHighlight = true
+        const drag = circuitDraggable.getQuery()
+        if (drag.type !== "" && drag.type !== "Gate") {
+            canHighlight = q.type !== "Gate" && q.type !== drag.type
+        }
+        //console.log("entered", q)
+        const svg = queryToElement(q)
+        if (canHighlight && svg && ((q.type !== "Gate") || q.getGateType()?.view.moveable)) {
+            const existing = svg.getAttribute('transform')
+            svg.setAttribute('transform', (existing === null ? '':existing) + highlightTransformEffect )
+        }   
     }
 
     /**
@@ -876,6 +884,8 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
      * @param {CircuitControllerQueryResult} q
      */
     export function onExited(q) {
+        if (q.type === "Gate") circuitDraggable.resolveContents()
+
         //console.log("exited", q)
         const svg = queryToElement(q)
         if (svg) {
@@ -885,7 +895,6 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
                 svg.setAttribute('transform', existing.substring(0, i) + existing.substring(i + highlightTransformEffect.length))
             }
         }
-        if (q.type === "Gate") circuitDraggable.setContents("")
     }
 
     /**

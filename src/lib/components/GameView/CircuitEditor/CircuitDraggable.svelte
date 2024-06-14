@@ -34,6 +34,7 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
 
 
     export function resolveContents() {
+        console.log("resolving contents")
         const vType = query.gateTypeController?.view
         if (vType !== undefined) {
             contents = wrapGateTypeViewInSvgHeader(vType.gridWidth, vType.gridHeight, vType.draw())

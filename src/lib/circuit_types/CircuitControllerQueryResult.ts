@@ -63,7 +63,7 @@ export class CircuitControllerQueryResult {
                 other.type === this.type &&
                 other.connectionIndex === this.connectionIndex &&
                 other.gate === this.gate &&
-                (!includeOffset || ( 
+                (includeOffset !== true || ( 
                     other.localOffset?.at(0) === this.localOffset?.at(0) &&
                     other.localOffset?.at(1) === this.localOffset?.at(1)
                 ))

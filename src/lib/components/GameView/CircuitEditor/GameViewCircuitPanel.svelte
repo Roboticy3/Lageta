@@ -355,16 +355,17 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
                 onDragOutput({from, to})
                 break
         }
-
-        console.log("Dragging...")
     }
 
     /**
      * 
      * @param {import('$lib/circuit_types/GameViewCircuitPanelEvent').GameViewCircuitPanelEvent} param0
      */
-    function onDragGate({to}) {
+    function onDragGate({from, to}) {
 
+        if ((to.type === "Gate" || to.type === "")) {
+            checkEntered(to)
+        }
     }
 
     /**
@@ -373,7 +374,7 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
      * @param {import('$lib/circuit_types/GameViewCircuitPanelEvent').GameViewCircuitPanelEvent} param0
      */
     function onDragInput({to}) {
-        if (to.type === "Output") {
+        if (to.type === "Output" || to.type === "Gate") {
             checkEntered(to)
         }
         else {
@@ -387,7 +388,7 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
      * @param {import('$lib/circuit_types/GameViewCircuitPanelEvent').GameViewCircuitPanelEvent} param0
      */
     function onDragOutput({to}) {
-        if (to.type === "Input") {
+        if (to.type === "Input" || to.type === "Gate") {
             checkEntered(to)
         }
         else {
