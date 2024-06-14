@@ -105,7 +105,7 @@ export const AdderLevel = {
             inputCheckboxes:false
         }
     ),
-    x:16,y:2,
+    x:6,y:3,
     type:Adder2c,
     playCondition:[false, false, true]
 }
@@ -140,7 +140,7 @@ export const EncoderLevel = {
             inputCheckboxes:false
         }
     ),
-    x:13,y:3,
+    x:17,y:0,
     type:Encoder4t2,
     playCondition:[true, true]
 }
@@ -176,7 +176,7 @@ export const DecoderLevel = {
             inputCheckboxes:false
         }
     ),
-    x:10,y:3,
+    x:14,y:0,
     type:Decoder2t4,
     playCondition:[false, false, true, false]
 }
@@ -353,7 +353,7 @@ export const AndLevel = {
             NandLevel.params.name
         ]
     ),
-    x:6, y:3,
+    x:4, y:3,
     type:And
 }
 
