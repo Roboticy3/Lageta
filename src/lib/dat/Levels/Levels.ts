@@ -105,7 +105,7 @@ export const AdderLevel = {
             inputCheckboxes:false
         }
     ),
-    x:6,y:3,
+    x:7,y:4,
     type:Adder2c,
     playCondition:[false, false, true]
 }
@@ -140,7 +140,7 @@ export const EncoderLevel = {
             inputCheckboxes:false
         }
     ),
-    x:17,y:0,
+    x:18,y:0,
     type:Encoder4t2,
     playCondition:[true, true]
 }
@@ -220,7 +220,7 @@ export const XorLevel = {
             DecoderLevel.params.name
         ]
     ),
-    x:12,y:1,
+    x:11,y:2,
     type:Xor
 }
 
@@ -264,7 +264,7 @@ export const NandLevel = {
             DecoderLevel.params.name
         ]
     ),
-    x:10,y:1,
+    x:9,y:0,
     type:Nand
 }
 
@@ -320,7 +320,7 @@ export const OrLevel = {
             NandLevel.params.name
         ]
     ),
-    x:8, y:1,
+    x:6, y:1,
     type:Or
 }
 
@@ -384,7 +384,7 @@ export const NotLevel = {
             getGateType(Or).name
         ]
     ),
-    x:6, y:1,
+    x:3, y:0,
     type:Not
 };
 

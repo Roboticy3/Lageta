@@ -18,7 +18,7 @@
     import { GameViewCircuitPanelEventTarget } from "$lib/circuit_types/GameViewCircuitPanelEvent";
     import { Connection } from "$lib/circuit_types/GateGraph";
 
-    const gridWidth = 20
+    const gridWidth = 22
     const gridHeight = 10
     const gameParams = new GameViewParameters(
         "LevelSelect", "", 
