@@ -31,10 +31,10 @@ const In2Out1:OrganizedCircuitContents = {
         getGateType(OutputLabelledPrebaked[2])
     ],
     gates: [
-        { x: 0, y: 1, type: "Input2Labelled", id: 0 } as SerializableGate,
-        { x: 8, y: 2, type: "Output1Labelled", id: 1 } as SerializableGate
+        { x: 0, y: 3, type: "Input2Labelled", id: 0 } as SerializableGate,
+        { x: 14, y: 4, type: "Output1Labelled", id: 1 } as SerializableGate
     ],
-    size: [10, 5]
+    size: [16, 8]
 };
 
 const DecoderLevelSignal = new ConnectionValueSignalSet(
@@ -195,16 +195,16 @@ export const XorLevel = {
                 getGateType(Or)
             ],
             gates: [
-                { x: 0, y: 1, type: "Input2Labelled", id: 0 } as SerializableGate,
-                { x: 8, y: 2, type: "Output1Labelled", id: 1 } as SerializableGate,
-                { x: 4, y: 1, type: "Or", id: 2} as SerializableGate
+                { x: 0, y: 3, type: "Input2Labelled", id: 0 } as SerializableGate,
+                { x: 14, y: 3, type: "Output1Labelled", id: 1 } as SerializableGate,
+                { x: 6, y: 4, type: "Or", id: 2} as SerializableGate
             ],
             connections: [
                 new Connection(0, 0, 2, 0),
                 new Connection(0, 1, 2, 1),
                 new Connection(2, 0, 1, 0)
             ],
-            size: [10, 5]
+            size: [16, 8]
         },
         new ConnectionValueSignalSet(
             [
@@ -237,16 +237,16 @@ export const NandLevel = {
                 getGateType(And)
             ],
             gates: [
-                { x: 0, y: 1, type: "Input2Labelled", id: 0 } as SerializableGate,
-                { x: 8, y: 2, type: "Output1Labelled", id: 1 } as SerializableGate,
-                { x: 4, y: 1, type: "And", id: 2} as SerializableGate
+                { x: 0, y: 3, type: "Input2Labelled", id: 0 } as SerializableGate,
+                { x: 14, y: 4, type: "Output1Labelled", id: 1 } as SerializableGate,
+                { x: 6, y: 3, type: "And", id: 2} as SerializableGate
             ],
             connections: [
                 new Connection(0, 0, 2, 0),
                 new Connection(0, 1, 2, 1),
                 new Connection(2, 0, 1, 0)
             ],
-            size: [10, 5]
+            size: [16, 8]
         },
         new ConnectionValueSignalSet(
             [
