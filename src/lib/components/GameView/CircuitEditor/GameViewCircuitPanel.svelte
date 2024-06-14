@@ -218,15 +218,16 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
                 const connected = circuitController.getConnectedTo(id, index)
 
                 if (connected && circuitContainer) {
-                    //we can coerce the onDrag functions to do circuitController by simply switching out the query for one originating from the output
-                    //SKETCHY: query loses localOffset and pageOffset data
-                    q = circuitController.toQuery(
+                    const newQ = circuitController.toQuery(
                         connected[0], "Output", connected[1], undefined, undefined, q.timeStamp
                     )   
                     //then we can delete the old connection
                     editorEventTarget?.dispatchEvent(
-                        createGameViewCircuitPanelEvent("removewire", q, q, circuitContainer)
+                        createGameViewCircuitPanelEvent("removewire", newQ, q, circuitContainer)
                     )
+                    //we can coerce the onDrag functions to do circuitController by simply switching out the query for one originating from the output
+                    //SKETCHY: query loses localOffset and pageOffset data
+                    q = newQ
                 }
             }
         } 
@@ -574,11 +575,11 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
     /**
      * @param {import('$lib/circuit_types/GameViewCircuitPanelEvent').GameViewCircuitPanelEvent} param0
      */
-    function onRemoveWire({from}) {
-        const [id, index] = [from.getId(), from.connectionIndex]
-        if (id === undefined || index === undefined || from.type === "Gate") return
+    function onRemoveWire({to}) {
+        const [id, index] = [to.getId(), to.connectionIndex]
+        if (id === undefined || index === undefined || to.type === "Gate") return
         circuitController.removeConnection(
-            {id:id, type:from.type, index:index}
+            {id:id, type:to.type, index:index}
         )
     }
 
