@@ -15,6 +15,7 @@
     import { browser } from "$app/environment";
     import CircuitEditorComponent from "../GameView/CircuitEditor/CircuitEditorComponent.svelte";
     import { GameViewCircuitPanelEventTarget } from "$lib/circuit_types/GameViewCircuitPanelEvent";
+    import { CircuitStorage } from "$lib/storage_types/CircuitStorage";
 
     const gridWidth = 22
     const gridHeight = 10
@@ -44,10 +45,14 @@
         {from:0, output:0, to:2, input:1},
         {from:3, output:0, to:4, input:0},
         {from:5, output:2, to:6, input:3},
+        {from:1, output:0, to:7, input:1},
+        {from:2, output:0, to:7, input:3},
     ]
     
     onMount(async () => {
         editorEventTarget.addEventListener("setinput", readInputCheckBox)
+        editorEventTarget.addEventListener("addwire", save)
+        editorEventTarget.addEventListener("removewire", save)
 
         await tick()
 
@@ -56,6 +61,21 @@
 
     const circuitController = gameParams.initializeGrid()
     const editorEventTarget = new GameViewCircuitPanelEventTarget()
+
+    $: {
+        if (browser) {
+            const circuitStorage = new CircuitStorage(circuitController, "Campaign")
+            circuitStorage.load()
+        }
+    }
+
+    function save() {
+        console.log("fucking shit up")
+        if (browser) {
+            const circuitStorage = new CircuitStorage(circuitController, "Campaign")
+            circuitStorage.save()
+        }
+    }
 
     /**
      * @type {InputCheckBox}

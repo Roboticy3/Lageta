@@ -26,7 +26,7 @@ import { parseStorage } from "./ParseStorage";
         .
     ]
 */
-export class CircuitStore {
+export class CircuitStorage {
 
     private grid:GateGrid
     private name:string
@@ -55,7 +55,7 @@ export class CircuitStore {
         localStorage.setItem(this.storageKey, JSON.stringify(storage))
     }
 
-    save(name:string | undefined) {
+    save(name?:string) {
         if (name !== undefined) {
             this.name = name
         }
@@ -72,7 +72,7 @@ export class CircuitStore {
         return true
     }
 
-    load(name:string | undefined, x=0, y=0) {
+    load(name?:string, x=0, y=0) {
         if (name !== undefined) {
             this.name = name
         }
