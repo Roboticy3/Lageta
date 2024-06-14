@@ -177,19 +177,19 @@ export class GateGrid {
         if (gType.sizeIn === 0) {
             const i = this.inputs.indexOf(gate)
             if (i === -1) {
-                console.log(gate, " should be in inputs list!")
-                return
+                return "Gate Not In Inputs List"
             }
             this.inputs[i] = undefined
         }
         if (gType.sizeOut === 0) {
             const i = this.outputs.indexOf(gate)
             if (i === -1) {
-                console.log(gate, " should be in outputs list!")
-                return
+                return "Gate Not In Outputs List"
             }
             this.outputs[i] = undefined
         }
+
+        return "Ok"
     }
 
     moveGate(id:number, toX:number, toY:number) {

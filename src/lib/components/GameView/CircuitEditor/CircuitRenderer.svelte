@@ -439,8 +439,6 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
      */
     export function updateWire(index, value = undefined) {
 
-        console.log("copy that!, updating wire ", index, " with ", value)
-
         const fCType = circuitController.getGateTypeController(index[0])
         const fGPos = circuitController.getGatePosition(index[0])
 

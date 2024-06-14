@@ -319,7 +319,6 @@ export class GateGraph extends GateGraphEventTarget {
                     const tok = to[k]
                     const toGate = this.gates[tok[0]]
                     if (toGate === undefined) {
-                        console.log("there should be a gate here!", tok[0])
                         continue
                     }
                     const input = tok[1]

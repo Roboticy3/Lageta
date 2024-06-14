@@ -60,25 +60,23 @@ export class CircuitStorage {
         }
 
         if (this.grid.gates.length === 0) {
-            console.log("circuit is empty!")
-            return false
+            return "Grid Is Empty"
         }
 
         const organizedCircuit = new OrganizedCircuit(this.grid)
         this.setKey(this.name, organizedCircuit.pack())
         this.commit()
 
-        return true
+        return "Ok"
     }
 
-    load(name?:string, x=0, y=0, inPlaceGraphReplace=false) {
+    load(name?:string, x=0, y=0, inPlaceGraphMerge=false) {
         if (name !== undefined) {
             this.name = name
         }
 
         let existing = this.getKey(this.name)
         if (existing === undefined) {
-            console.log(this.name, " not found in storage")
             return "Grid Not Found In Storage"
         }
 
@@ -93,10 +91,9 @@ export class CircuitStorage {
             return "Grid Failed To Unpack"
         }
 
-        console.log(newGrid)
-        if (inPlaceGraphReplace) {
+        if (inPlaceGraphMerge) {
             this.grid.graph.mergeGraph(newGrid.graph)
-            console.log("merged", this.grid)
+
             return "Ok"
         }
         else {

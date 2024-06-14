@@ -144,7 +144,6 @@ export const EncoderLevel = {
     type:Encoder4t2,
     playCondition:[true, true]
 }
-console.log(EncoderLevel)
 
 export const DecoderLevel = {
     params:new GameViewParameters(

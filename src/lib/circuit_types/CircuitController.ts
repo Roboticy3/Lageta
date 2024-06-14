@@ -430,8 +430,7 @@ export class CircuitController {
 
         const result = this.gateGrid.removeGate(id, true)
         if (result === undefined) {
-            console.log("gate not found! ")
-            return
+            return "Gate Not Found"
         }
 
         existing.forEach((c) => {
@@ -441,7 +440,7 @@ export class CircuitController {
         this.renderer?.updateGate(id)
         this.renderer?.clearActiveGate()
 
-        console.log(this.gateGrid)
+        return "Ok"
     }
 
     /**
@@ -511,8 +510,6 @@ export class CircuitController {
         }
 
         this.renderer?.clearActiveWire()
-
-        console.log(graph)
     }
 
     /**

@@ -88,7 +88,6 @@
     export function setPosition(newPosition) {
         position = newPosition
         setOffset()
-        console.log(start, end)
     }
 
     export function hide() {
