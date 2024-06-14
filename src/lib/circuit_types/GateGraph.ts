@@ -371,6 +371,13 @@ export class GateGraph extends GateGraphEventTarget {
         this.outputs = this.outputs.concat(graph.outputs)
     }
 
+    //add a new graph using the same id space
+    mergeGraph(graph:GateGraph) {
+        graph.iterConnections((_f, _o, _t, _i, c) => {
+            this.addConnection(c)
+        })
+    }
+
     private findInput(c:Connection, input:[number, number]) {
         const to = c.to
         let i = to.length - 1

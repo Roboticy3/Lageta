@@ -55,20 +55,20 @@
         editorEventTarget.addEventListener("removewire", save)
 
         await tick()
-
+        
         connections.forEach(({from, output, to, input}) => circuitController.addConnection(from, output, to, input))
+        if (browser) {
+            const circuitStorage = new CircuitStorage(circuitController, "Campaign")
+            const result = circuitStorage.load(undefined, 0, 0, true)
+            console.log("loaded saved campaign screen with result ", result)
+            if (result === "Ok") loaded = true
+        }
     })
 
     const circuitController = gameParams.initializeGrid()
     const editorEventTarget = new GameViewCircuitPanelEventTarget()
 
-    $: {
-        if (browser) {
-            const circuitStorage = new CircuitStorage(circuitController, "Campaign")
-            const result = circuitStorage.load()
-            console.log("loaded saved campaign screen with result ", result)
-        }
-    }
+    let loaded = false
 
     function save() {
         if (browser) {

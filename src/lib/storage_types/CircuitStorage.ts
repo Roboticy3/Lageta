@@ -48,7 +48,6 @@ export class CircuitStorage {
             localStorage, this.storageKey,
             () => {return new Array<{k:string, v:OrganizedCircuitContents}>()}
         )
-        this.commit()
     }
 
     private commit(storage = this.circuitStorage) {
@@ -72,7 +71,7 @@ export class CircuitStorage {
         return true
     }
 
-    load(name?:string, x=0, y=0) {
+    load(name?:string, x=0, y=0, inPlaceGraphReplace=false) {
         if (name !== undefined) {
             this.name = name
         }
@@ -95,9 +94,15 @@ export class CircuitStorage {
         }
 
         console.log(newGrid)
-        const result = this.grid.addGrid(newGrid, x, y)
-
-        return result
+        if (inPlaceGraphReplace) {
+            this.grid.graph.mergeGraph(newGrid.graph)
+            console.log("merged", this.grid)
+            return "Ok"
+        }
+        else {
+            const result = this.grid.addGrid(newGrid, x, y)
+            return result
+        }
     }
 
     remove(s:string | undefined) {

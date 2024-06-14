@@ -300,16 +300,16 @@ export class GateGrid {
             const gType = g.type
             const gridPos = [(g.x || 0) + x, (g.y || 0) + y]
             
-            const collision = this.getInRange(
+            const collisionId = this.getInRange(
                 gridPos[0],      gridPos[1],
                 gType.gridWidth, gType.gridWidth
             )
-            
-            if (collision !== undefined) {
-                found = g
-                return 2
-            }
 
+            
+            if (collisionId !== undefined) {
+                found = g
+                return
+            }
             //if the gate passes the collision, update it's data to prepare it for addition
             g.x = gridPos[0]
             g.y = gridPos[1]
