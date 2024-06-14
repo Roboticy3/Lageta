@@ -116,6 +116,8 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
         editorEventTarget.addEventListener("addgate", onAddGate)
         editorEventTarget.addEventListener("movegate", onMoveGate)
         editorEventTarget.addEventListener("removegate", onRemoveGate)
+        editorEventTarget.addEventListener("addwire", onAddWire)
+        editorEventTarget.addEventListener("removewire", onRemoveWire)
 
     }
 
@@ -222,8 +224,8 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
                         connected[0], "Output", connected[1], undefined, undefined, q.timeStamp
                     )   
                     //then we can delete the old connection
-                    circuitController.removeConnection(
-                        {id:id, type:"Input", index:index}
+                    editorEventTarget?.dispatchEvent(
+                        createGameViewCircuitPanelEvent("removewire", q, q, circuitContainer)
                     )
                 }
             }
@@ -542,6 +544,17 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
      * @param {import('$lib/circuit_types/GameViewCircuitPanelEvent').GameViewCircuitPanelEvent} param0
      */
     function dropConnection({from, to}) {
+        if (circuitContainer) {
+            editorEventTarget?.dispatchEvent(
+                createGameViewCircuitPanelEvent("addwire", from, to, circuitContainer)
+            )
+        }
+    }
+
+    /**
+     * @param {import('$lib/circuit_types/GameViewCircuitPanelEvent').GameViewCircuitPanelEvent} param0
+     */
+    function onAddWire({from, to}) { 
         const [fId, fC, tId, tC] = [
             from.getId(), from.connectionIndex,
             to.getId(), to.connectionIndex
@@ -556,6 +569,17 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
         circuitController.addConnection(
             fId, fC, tId, tC
         );
+    }
+
+    /**
+     * @param {import('$lib/circuit_types/GameViewCircuitPanelEvent').GameViewCircuitPanelEvent} param0
+     */
+    function onRemoveWire({from}) {
+        const [id, index] = [from.getId(), from.connectionIndex]
+        if (id === undefined || index === undefined || from.type === "Gate") return
+        circuitController.removeConnection(
+            {id:id, type:from.type, index:index}
+        )
     }
 
 
