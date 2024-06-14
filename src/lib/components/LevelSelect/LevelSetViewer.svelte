@@ -65,12 +65,12 @@
     $: {
         if (browser) {
             const circuitStorage = new CircuitStorage(circuitController, "Campaign")
-            circuitStorage.load()
+            const result = circuitStorage.load()
+            console.log("loaded saved campaign screen with result ", result)
         }
     }
 
     function save() {
-        console.log("fucking shit up")
         if (browser) {
             const circuitStorage = new CircuitStorage(circuitController, "Campaign")
             circuitStorage.save()

@@ -80,7 +80,7 @@ export class CircuitStorage {
         let existing = this.getKey(this.name)
         if (existing === undefined) {
             console.log(this.name, " not found in storage")
-            return false
+            return "Grid Not Found In Storage"
         }
 
         let circuit = new OrganizedCircuit(existing)
@@ -91,13 +91,13 @@ export class CircuitStorage {
 
         const newGrid = circuit.unpack()
         if (newGrid === undefined) {
-            return false
+            return "Grid Failed To Unpack"
         }
 
         console.log(newGrid)
         const result = this.grid.addGrid(newGrid, x, y)
 
-        return result === 0
+        return result
     }
 
     remove(s:string | undefined) {

@@ -285,8 +285,7 @@ export class GateGrid {
     addGrid(grid:GateGrid, x:number, y:number) {
         //check size
         if (this.sizeX < grid.sizeX || this.sizeY < grid.sizeY) {    
-            console.log("grid does not fit!")
-            return 1
+            return "Grid Does Not Fit"
         }
 
         //adjust to fit
@@ -319,7 +318,7 @@ export class GateGrid {
 
         if (found !== undefined) {
             console.log("new grid collides with original at ", found)
-            return 2
+            return "Grid Collides With Original"
         }
 
         let newGates = this.gates.concat(grid.gates)
@@ -334,6 +333,6 @@ export class GateGrid {
         this.graph.gates = newGates
         
 
-        return 0
+        return "Ok"
     }
 }
