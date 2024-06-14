@@ -111,15 +111,14 @@
 <style>
     .circuit-div {
         position:absolute;
+        opacity: 100%;  
+        text-align:center;
+        font-size: min(2vh, 2vw);  
         background-color: var(--main-bg-color);
         border-radius: 10%;
-        border: 8px ridge black;
-        text-align:center;
-        font-size: min(2vh, 2vw);
+        border: 4px ridge black;
         color:black;
         overflow: hidden;
-        opacity: 100%;
-        
     }
 
     .bobbing-circuit-div {

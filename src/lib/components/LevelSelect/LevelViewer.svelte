@@ -79,6 +79,6 @@
     size={[level.type.model.gridWidth - 1.05, level.type.model.gridHeight - 0.75]}
     bind:this={container}
 >
-    <p style="max-width=90%; overflow-wrap:break-word;">{level.name()}</p>
+    <p style="overflow-wrap:break-word;">{level.name()}</p>
     <button on:click={playLevel} bind:this={button}>Play</button>
 </CircuitDiv>
