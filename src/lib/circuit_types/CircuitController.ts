@@ -489,21 +489,24 @@ export class CircuitController {
         index:ConnectionIndex
     ) {
         const graph = this.gateGrid.graph
-        
+        let value = undefined
+
         switch (index.type) {
             case "Input":
                 const fromIndex = this.getConnectedTo(index.id, index.index)
                 if (fromIndex === undefined) break
+                value = this.getConnectionValue({id:fromIndex[0], type:"Output", index:fromIndex[1]})
                 graph.removeInput([index.id, index.index])
-                this.renderer?.updateWire(fromIndex) 
+                this.renderer?.updateWire(fromIndex, value) 
                 break
             case "Output":
                 const c = graph.outputs[index.id][index.index]
+                value = this.getConnectionValue(index)
                 if (c === undefined) {
                     break
                 }
                 graph.removeOutput(c)
-                this.renderer?.updateWire(c.from)
+                this.renderer?.updateWire(c.from, value)
                 break
         }
 
