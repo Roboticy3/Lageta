@@ -593,7 +593,7 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
     }
 
     export function clearActiveWire() {
-        const activeWire = wireGroup.querySelector("#wire-active")
+        const activeWire = activeGroup.querySelector("#wire-active")
         if (activeWire === null) return
         console.log("erasing active wire")
         activeWire.innerHTML = ""
@@ -669,7 +669,7 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
     }
 
     export function clearActiveGate() {
-        const activeGate = gateGroup.querySelector("#gate-active")
+        const activeGate = activeGroup.querySelector("#gate-active")
         if (activeGate === null) return
         activeGate.innerHTML = ""
     }
