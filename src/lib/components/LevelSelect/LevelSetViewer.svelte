@@ -28,6 +28,7 @@
         undefined, []
     )
     const editorParams = {showGates:false, showGrid:false, initialScale:[8, 8]}
+    const rendererParams = {showIds:true}
 
     let progress = browser ? new ProgressStorage() : undefined
     let levelSet = progress?.levels() || []
@@ -62,6 +63,7 @@
         gameParams={gameParams}
         circuitController={circuitController}
         editorParams={editorParams}
+        rendererParams={rendererParams}
     >
         {#each levelSet as params}
             <LevelViewer params={params} circuitController={circuitController} />
