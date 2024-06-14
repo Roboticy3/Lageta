@@ -182,7 +182,7 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
     function canDragStartGate(q) {
         const id = q.getId()
         return (
-            editorParams.canDragGates !== false && 
+            (editorParams.canDragGates !== false) && 
             id &&
             circuitController.getGateTypeView(id)?.moveable === true
         )
@@ -225,7 +225,7 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
             }
         } 
         else if (q.type === "Gate") {
-            if (!(q.getGateType()?.view.moveable)) {
+            if (!canDragStartGate(q)) {
                 return
             }
         }
@@ -254,7 +254,7 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
                 if (editorParams.canDragConnections !== false) onDragStartOutput(to)
                 break
             case "Gate":
-                if (canDragStartGate(to)) onDragStartGate(to)
+                onDragStartGate(to)
         }
 
         setDragEventListeners()

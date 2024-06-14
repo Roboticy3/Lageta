@@ -29,13 +29,13 @@
             size:[gridWidth, gridHeight],
             gateTypes:[getGateType(Input(1, {name:"LevelSelectInput1", inputLabels:[""]}))],
             gates:[
-                {type:"LevelSelectInput1",x:1,y:1,id:0,state:{override:[true]}}
+                {type:"LevelSelectInput1",x:0,y:1,id:0,state:{override:[true]}}
             ]
         }, 
         undefined, []
     )
-    const editorParams = {showGates:false, showGrid:false, initialScale:[8, 8]}
-    const rendererParams = {showIds:true}
+    const editorParams = {canDragGates:false}
+    const rendererParams = {showIds:true, showGates:false}
 
     let progress = browser ? new ProgressStorage() : undefined
     let levelSet = progress?.levels() || []
