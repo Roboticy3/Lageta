@@ -797,8 +797,21 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
      * @param {[number, number]} to
      */
     function drawWire(from, to) {
+        const minStride = rendererParams.minimumWireStride || 5
         const [ax, ay, hx, bx, by] = [from[0], from[1], (from[0] + to[0]) / 2, to[0], to[1]]
-        return `<path d="M ${ax} ${ay} L ${hx} ${ay} L ${hx} ${by} L ${bx} ${by}" style="pointer-events:none;"/>`
+        const shouldSnakeFrom = (hx - ax) < minStride
+        const shouldSnakeTo = (bx - hx) < minStride
+        const hy = (ay + by) / 2
+        const minStrideAX = ax + minStride
+        const minStrideBX = bx - minStride
+        const pathPartA = shouldSnakeFrom ? 
+            `M ${ax} ${ay} L ${minStrideAX} ${ay} L ${minStrideAX} ${hy} L ${hx} ${hy}`:
+            `M ${ax} ${ay} L ${hx} ${ay}`
+        const pathPartB = shouldSnakeTo ?
+            `L ${minStrideBX} ${hy} L ${minStrideBX} ${by} L ${bx} ${by}`:
+            `L ${hx} ${by} L ${bx} ${by}`
+
+        return `<path d="${pathPartA} ${pathPartB}" style="pointer-events:none;"/>`
     }
     
     /**
