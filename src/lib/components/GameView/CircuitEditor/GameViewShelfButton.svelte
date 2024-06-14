@@ -64,6 +64,14 @@
         console.log("starting drag from shelf button ", newQuery)
     }
 
+    export let highlight = () => {
+        circuitDraggable.setContentsToName(gateType.name)
+    }
+
+    export let unhighlight = () => {
+        circuitDraggable.resolveContents()
+    }
+
 </script>
 
 <button 
@@ -71,7 +79,12 @@
     id={id} 
     title={title}
     bind:this={element} 
-    on:mousedown={onMouseDown}>
+    on:mousedown={onMouseDown}
+    on:mouseenter={highlight}
+    on:focusin={highlight}
+    on:mouseleave={unhighlight}
+    on:focusout={unhighlight}
+>
     {@html wrapGateTypeViewInSvgHeader(gateType.view.gridWidth, gateType.view.gridHeight, render, `width="100%" height="100%"`)}
 </button>
 

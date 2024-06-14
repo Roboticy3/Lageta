@@ -213,6 +213,6 @@
     }
 
     .slidein {
-        transition: max-height 3s, max-width 3s, flex 3s;
+        transition: max-height calc(var(--animation-speed) * 4), max-width calc(var(--animation-speed) * 4), flex calc(var(--animation-speed) * 4);
     }
 </style>

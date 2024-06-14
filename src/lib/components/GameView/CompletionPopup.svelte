@@ -70,7 +70,7 @@
         top: 20%;
         font-size: 100%;
         animation-name: dialog;
-        animation-duration: 1s;
+        animation-duration: var(--animation-speed);
         overflow-y: hidden;
     }
 

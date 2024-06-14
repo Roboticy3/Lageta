@@ -122,14 +122,14 @@
 
     .bobbing-circuit-div {
         animation-name:bob-y;
-        animation-duration: 1s;
+        animation-duration: calc(var(--animation-speed) * 2);
         animation-iteration-count:infinite;
         animation-direction: alternate;
         animation-timing-function: ease-in-out;
     }
 
     .smooth-circuit-div {
-        transition: left 1s, top 1s, opacity 1s;
+        transition: left var(--animation-speed), top var(--animation-speed), opacity var(--animation-speed);
     }
 
     .hidden {

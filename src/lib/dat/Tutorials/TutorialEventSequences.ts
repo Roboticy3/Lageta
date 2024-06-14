@@ -10,10 +10,10 @@ export function EventSequenceTutorial(state:any): TutorialEventSequence {return 
                 evt.to.contentEquals({id:0,type:"Output",index:0}) && 
                 state.circuitController
             ) {
-                state.circuitController.addGateAtCell(getGateType(OutputLabelledPrebaked[1]), 8, 2) 
+                state.circuitController.addGateAtCell(getGateType(OutputLabelledPrebaked[1]), 14, 4) 
                 state.circuitController.setDesiredOutputs([true])
                 state.expectedOutput = true
-                state.indicator?.setPosition([7.75, 1.25])
+                state.indicator?.setPositionToConnectionPoint({id:1,type:"Input",index:0})
                 return 1
             }
             else if (
@@ -22,7 +22,7 @@ export function EventSequenceTutorial(state:any): TutorialEventSequence {return 
             ) {
                 state.circuitController.setDesiredOutputs([true])
                 state.expectedOutput = true
-                state.indicator?.setPosition([1.35, 1.25])
+                state.indicator?.setPositionToConnectionPoint({id:0,type:"Output",index:0})
                 return 1
             }
         }
@@ -40,7 +40,7 @@ export function EventSequenceTutorial(state:any): TutorialEventSequence {return 
                 return 1
             }
             else {
-                state.indicator?.setPosition([1.35, 1.25])
+                state.indicator?.setPositionToConnectionPoint({id:0,type:"Output",index:0})
                 return -1
             }
         }
@@ -56,7 +56,7 @@ export function EventSequenceTutorial(state:any): TutorialEventSequence {return 
                 state.circuitController.setDesiredOutputs([false])
                 state.expectedOutput = false
                 state.indicator?.show()
-                state.indicator?.setPosition([0.65, 0.75])
+                state.indicator?.setPosition([0.65, 1.5])
                 return 1
             }
         }
@@ -82,7 +82,7 @@ export function EventSequenceTutorial(state:any): TutorialEventSequence {return 
             ) {
                 state.circuitController.setDesiredOutputs([undefined])
                 state.expectedOutput = undefined
-                state.indicator?.setPosition([7.75, 1.25])
+                state.indicator?.setPositionToConnectionPoint({id:1,type:"Input",index:0})
                 return 1
             } 
         }

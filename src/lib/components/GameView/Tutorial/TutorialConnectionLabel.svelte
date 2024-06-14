@@ -51,8 +51,11 @@
 <CircuitDiv 
     position={position} 
     circuitController={circuitController}
-    size={[1, 0.25]}
+    size={[1, 0.5]}
     active={true}
 >
-    {@html valueLabelOptions.get(value)}
+    <div style="font-size:min(2vh, 2vw);">
+        {@html valueLabelOptions.get(value)}
+    </div>
+    
 </CircuitDiv>
