@@ -60,8 +60,8 @@
     .tutorial-container {
         pointer-events: none;
         transition:
-            left 1s,
-            top 1s;
+            left var(--animation-speed),
+            top var(--animation-speed);
     }
 
     .tutorial-text {

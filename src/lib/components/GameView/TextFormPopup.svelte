@@ -89,7 +89,7 @@
         height: 50%;
         top: 20%;
         animation-name: dialog;
-        animation-duration: 1s;
+        animation-duration: var(--animation-speed);
         overflow-y: hidden;
     }
 
