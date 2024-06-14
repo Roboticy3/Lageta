@@ -87,12 +87,17 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
     /**
      * @type {SVGGElement}
      */
+     let wireGroup
+
+    /**
+     * @type {SVGGElement}
+     */
     let gateGroup
 
     /**
-     * @type {SVGElement}
+     * @type {SVGGElement}
      */
-    let wireGroup
+    let activeGroup
 
     const idSpace = new CircuitRendererIDStandard()
 
@@ -523,7 +528,7 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
 
     function activeWireConstructor() {
         const g = document.createElementNS("http://www.w3.org/2000/svg","g")
-        wireGroup.appendChild(g)
+        activeGroup.appendChild(g)
         return g
     }
 
@@ -596,7 +601,7 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
 
     function activeGateConstructor() {
         const g = document.createElementNS("http://www.w3.org/2000/svg","g")
-        gateGroup.appendChild(g)
+        activeGroup.appendChild(g)
         return g
     }
 
@@ -916,6 +921,7 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
         <g bind:this={gridGroup} stroke="var(--grid-color)" stroke-width="0.25px" fill="none"></g>
         <g bind:this={wireGroup} stroke="var(--gate-color)" stroke-width="0.5px" fill="none"></g>
         <g bind:this={gateGroup} stroke="var(--gate-color)" stroke-width="0.5px" fill="none"></g>
+        <g bind:this={activeGroup} stroke="var(--gate-color)" stroke-width="0.5px" fill="none"></g>
     </g>
     <path></path>
     <text></text>
