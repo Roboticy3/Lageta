@@ -382,7 +382,7 @@ export class GateGraph extends GateGraphEventTarget {
         return i
     }
 
-    setFlow(index:[number, number], val:boolean) {
+    setFlow(index:[number, number], val:ConnectionValue) {
         const gate = this.gates[index[0]]
         if (!(gate instanceof Flow)) {
             return false

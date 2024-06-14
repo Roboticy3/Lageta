@@ -259,14 +259,7 @@ export class OrganizedCircuit {
 
         graph.fromGrid(grid)
 
-        for (let i = 0; i < this.connections.length; i++) {
-            const c = this.connections[i]
-            graph.setOutput(c.from, c)
-            const to = c.to
-            for (let j = 0; j < to.length; j++) {
-                graph.setInput(to[j], c)
-            }
-        }
+        this.connections.forEach((c) => graph.addConnection(c))
         return grid
     }
 
@@ -297,6 +290,10 @@ export class OrganizedCircuit {
         let nG = createGate(type)
         nG.givePos(g.x, g.y) 
         nG.giveId(g.id)
+        if (g.state){
+            nG.state = g.state
+            nG.execute()
+        }
         return nG
     }
 }
@@ -314,7 +311,7 @@ export class SerializableGate {
     x:number
     y:number
     id:number
-    state:GateState
+    state?:GateState
     type:string
     constructor(
         gate:Gate,

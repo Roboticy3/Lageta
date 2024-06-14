@@ -624,7 +624,7 @@ export class CircuitController {
         return result
     }
 
-    setInput(index:[number, number], val:boolean) {
+    setInput(index:[number, number], val:ConnectionValue) {
         this.gateGrid.graph.setFlow(index, val)
         this.renderer?.updateGate(index[0])
     }
