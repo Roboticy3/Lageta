@@ -17,7 +17,7 @@
     import CircuitEditorComponent from "../GameView/CircuitEditor/CircuitEditorComponent.svelte";
     import { GameViewCircuitPanelEventTarget } from "$lib/circuit_types/GameViewCircuitPanelEvent";
 
-    const gridWidth = 15
+    const gridWidth = 20
     const gridHeight = 10
     const gameParams = new GameViewParameters(
         "LevelSelect", "", 
