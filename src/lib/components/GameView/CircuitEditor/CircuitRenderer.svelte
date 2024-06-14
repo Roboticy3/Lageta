@@ -839,12 +839,12 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
     function queryToElement(q) {
         switch (q.type) {
             case "Gate":
-                return svgHead.querySelector(
-                    `#${idSpace.gateIdString(q.getId() || 0)}`
+                return gateGroup.querySelector(
+                    `#${idSpace.gateIdString(q.getId() || 0)}-body`
                 )
             case "Input":
             case "Output":
-                return svgHead.querySelector(
+                return gateGroup.querySelector(
                     `#${idSpace.connectionPointIdString({id:q.getId() || 0, type:q.type, index:q.connectionIndex || 0})}`
                 )
         }
@@ -859,11 +859,10 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
      */
     export function onEntered(q) {
         //console.log("entered", q)
-        if (q.type === "Gate") return
         const svg = queryToElement(q)
         if (svg) {
             const existing = svg.getAttribute('transform')
-            svg.setAttribute('transform', (existing || '') + highlightTransformEffect )
+            svg.setAttribute('transform', (existing === null ? '':existing) + highlightTransformEffect )
         }   
     }
 
@@ -873,12 +872,11 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
      */
     export function onExited(q) {
         //console.log("exited", q)
-        if (q.type === "Gate") return
         const svg = queryToElement(q)
         if (svg) {
             const existing = svg.getAttribute('transform')
             if (existing) {
-                const i = existing.lastIndexOf(highlightTransformEffect)
+                const i = existing.indexOf(highlightTransformEffect)
                 svg.setAttribute('transform', existing.substring(0, i) + existing.substring(i + highlightTransformEffect.length))
             }
         }
