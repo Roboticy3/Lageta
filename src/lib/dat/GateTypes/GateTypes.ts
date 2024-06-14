@@ -350,7 +350,6 @@ export function Adder(bits:number, carry:boolean, otherParams?:GateTypeParameter
             const sum = v1 + v2
             const result = encodeInternal(sum, bits)
             result.override.push((sum) >= Math.pow(2, bits))
-            console.log("added!", v1, v2, "=>", result)
             return result
         } : (s) => {
             const v1 = decodeInternal(s, bits)
