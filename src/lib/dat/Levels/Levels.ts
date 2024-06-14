@@ -216,8 +216,7 @@ export const XorLevel = {
             getGateType(Xor)
         ),
         [
-            getGateType(Xor).name,
-            DecoderLevel.params.name
+            getGateType(Xor).name
         ]
     ),
     x:11,y:2,
@@ -317,10 +316,9 @@ export const OrLevel = {
             getGateType(Or)
         ),
         [
-            NandLevel.params.name
         ]
     ),
-    x:6, y:1,
+    x:4, y:3,
     type:Or
 }
 
@@ -353,7 +351,7 @@ export const AndLevel = {
             NandLevel.params.name
         ]
     ),
-    x:4, y:3,
+    x:6, y:1,
     type:And
 }
 

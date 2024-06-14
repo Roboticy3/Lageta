@@ -11,21 +11,16 @@
     import LevelViewer from "./LevelViewer.svelte";
     import InputCheckBox from "$lib/components/GameView/CircuitEditor/InputCheckBox.svelte";
     import CircuitDiv from "../GameView/CircuitDiv.svelte";
-    import { goto } from "$app/navigation";
     import { Input, getGateType } from "$lib/dat/GateTypes/GateTypes";
     import { browser } from "$app/environment";
     import CircuitEditorComponent from "../GameView/CircuitEditor/CircuitEditorComponent.svelte";
     import { GameViewCircuitPanelEventTarget } from "$lib/circuit_types/GameViewCircuitPanelEvent";
-    import { Connection } from "$lib/circuit_types/GateGraph";
 
     const gridWidth = 22
     const gridHeight = 10
     const gameParams = new GameViewParameters(
         "LevelSelect", "", 
         {
-            connections:[
-                new Connection(0, 0, 3, 1)
-            ],
             size:[gridWidth, gridHeight],
             gateTypes:[getGateType(Input(1, {name:"LevelSelectInput1", inputLabels:[""]}))],
             gates:[
@@ -35,7 +30,7 @@
         undefined, []
     )
     const editorParams = {canDragGates:false}
-    const rendererParams = {showIds:true, showGates:false}
+    const rendererParams = {showIds:true}
 
     let progress = browser ? new ProgressStorage() : undefined
     let levelSet = progress?.levels() || []
@@ -44,9 +39,19 @@
      * @type {GameViewCircuitPanel}
      */
     let circuitPanel
+
+    const connections = [
+        {from:0, output:0, to:2, input:1},
+        {from:3, output:0, to:4, input:0},
+        {from:5, output:2, to:6, input:3},
+    ]
     
     onMount(async () => {
         editorEventTarget.addEventListener("setinput", readInputCheckBox)
+
+        await tick()
+
+        connections.forEach(({from, output, to, input}) => circuitController.addConnection(from, output, to, input))
     })
 
     const circuitController = gameParams.initializeGrid()

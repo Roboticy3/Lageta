@@ -251,7 +251,7 @@ export class OrganizedCircuit {
         grid.gates = new Array<Gate | undefined>(this.gates.length)
 
         const offset = this.offset
-        this.iterGates((g) => {
+        this.gates.forEach((g) => {
             const nG = this.unpackGate(g)
             nG.givePos(g.x - offset[0], g.y - offset[1]) 
             grid.addGateExisting(nG)
