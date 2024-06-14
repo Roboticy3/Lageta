@@ -860,10 +860,15 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
     export function onEntered(q) {
         //console.log("entered", q)
         const svg = queryToElement(q)
-        if (svg) {
+        if (svg && ((q.type !== "Gate") || q.getGateType()?.view.moveable)) {
             const existing = svg.getAttribute('transform')
             svg.setAttribute('transform', (existing === null ? '':existing) + highlightTransformEffect )
         }   
+        if (q.type === "Gate") {
+            circuitDraggable.setContentsToName(
+                q.getGateType()?.name || "?"
+            )
+        }
     }
 
     /**
@@ -880,6 +885,7 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
                 svg.setAttribute('transform', existing.substring(0, i) + existing.substring(i + highlightTransformEffect.length))
             }
         }
+        if (q.type === "Gate") circuitDraggable.setContents("")
     }
 
     /**

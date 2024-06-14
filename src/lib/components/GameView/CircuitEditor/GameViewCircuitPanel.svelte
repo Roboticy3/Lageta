@@ -598,8 +598,8 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
      */
     function checkEntered(q) {     
         if (!currentQuery.contentEquals(q)) {
-            circuitRenderer.onEntered(q)
             circuitRenderer.onExited(currentQuery)
+            circuitRenderer.onEntered(q)
         }
         currentQuery = q
     }

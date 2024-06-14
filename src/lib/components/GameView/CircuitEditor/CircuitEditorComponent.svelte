@@ -145,10 +145,6 @@
     bind:this={container}
 >
     {#if circuitController}
-        <CircuitDraggable 
-            editorEventTarget={editorEventTarget}
-            bind:this={circuitDraggable}
-        />
         <div 
             class="shelf" 
             style="max-height:{maxSizeState.shelfMaxHeight};" 
@@ -181,6 +177,10 @@
                 <slot />
             </GameViewCircuitPanel>
         </div>
+        <CircuitDraggable 
+            editorEventTarget={editorEventTarget}
+            bind:this={circuitDraggable}
+        />
     {/if}
 </div>
 

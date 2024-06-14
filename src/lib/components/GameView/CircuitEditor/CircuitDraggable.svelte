@@ -33,13 +33,20 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
     })
 
 
-    function resolveContents() {
+    export function resolveContents() {
         const vType = query.gateTypeController?.view
         if (vType !== undefined) {
             contents = wrapGateTypeViewInSvgHeader(vType.gridWidth, vType.gridHeight, vType.draw())
             return
         }
         contents = ""
+    }
+
+    /**
+     * @param {string} name
+     */
+     export function setContentsToName(name) {
+        contents = `<div style="background:white; width:fit-content;"><p>${name || "?"}</p></div>`
     }
 
     let posX = 0
