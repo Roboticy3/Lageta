@@ -102,7 +102,7 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
      * Add all events needed to edit the circuit, name is a hold-over from when the project used the drag and drop api
      */
     function setInitialEventListeners() {
-        if (circuitContainer == null) {
+        if (circuitContainer === null || editorEventTarget === null) {
             return
         }
 
@@ -112,6 +112,10 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
 
         circuitContainer.removeEventListener("mousemove", drag)
         window.removeEventListener("mouseup", drop)
+
+        editorEventTarget.addEventListener("addgate", onAddGate)
+        editorEventTarget.addEventListener("movegate", onMoveGate)
+        editorEventTarget.addEventListener("removegate", onRemoveGate)
 
     }
 
@@ -473,35 +477,62 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
      * @param {import('$lib/circuit_types/GameViewCircuitPanelEvent').GameViewCircuitPanelEvent} param0
      */
     function dropGate({from, to}) {
-        const localOffset = to.localOffset
+
+        if (!circuitContainer) return
+
         const id = from.getId()
-
-        if (!localOffset) {
-            if (id) circuitController.removeGate(id)
-            return
-        }
-        
-        const [localX, localY] = localOffset
-
-        console.log("localOffset found")
-        
-        const cType = from.gateTypeController || getGateType(Buf)
-        let controllerResult = "Ok"
         if (id === undefined) {
-            controllerResult = circuitController.addGateLocal(cType, localX, localY)
+            editorEventTarget?.dispatchEvent(
+                createGameViewCircuitPanelEvent("addgate", from, to, circuitContainer)
+            )
         }
         else {
-            controllerResult = circuitController.moveGateLocal(id, localX, localY)
+            editorEventTarget?.dispatchEvent(
+                createGameViewCircuitPanelEvent("movegate", from, to, circuitContainer)
+            )
         }
+    }
 
-        console.log("dropped gate with code ", controllerResult)
+    /**
+     * @param {import('$lib/circuit_types/GameViewCircuitPanelEvent').GameViewCircuitPanelEvent} param0
+     */
+    function onAddGate({from, to}) {
+        const localOffset = to.localOffset
+        if (!localOffset) return
+        const [localX, localY] = localOffset
+        const cType = from.gateTypeController
+        if (!cType) return
+        
+        circuitController.addGateLocal(cType, localX, localY)
+    }
 
-        if (controllerResult !== "Ok") {
-            if (id !== undefined) {
-                circuitController.removeGate(id)
-            }
-            return
+    /**
+     * @param {import('$lib/circuit_types/GameViewCircuitPanelEvent').GameViewCircuitPanelEvent} param0
+     */
+    function onMoveGate({from, to}) {
+        const localOffset = to.localOffset
+        if (!localOffset) return
+        const [localX, localY] = localOffset
+        const id = from.getId()
+        if (!id) return
+        
+        const result = circuitController.moveGateLocal(id, localX, localY)
+
+        if (result !== "Ok" && circuitContainer) {
+            editorEventTarget?.dispatchEvent(
+                createGameViewCircuitPanelEvent("removegate", from, to, circuitContainer)
+            )
         }
+    }
+
+    /**
+     * @param {import('$lib/circuit_types/GameViewCircuitPanelEvent').GameViewCircuitPanelEvent} param0
+     */
+    function onRemoveGate({from}) {
+        const id = from.getId()
+        if (!id) return 
+        
+        circuitController.removeGate(id)
     }
 
     /**
