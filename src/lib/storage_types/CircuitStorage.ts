@@ -26,7 +26,7 @@ import { parseStorage } from "./ParseStorage";
         .
     ]
 */
-export class CircuitStore {
+export class CircuitStorage {
 
     private grid:GateGrid
     private name:string
@@ -48,39 +48,36 @@ export class CircuitStore {
             localStorage, this.storageKey,
             () => {return new Array<{k:string, v:OrganizedCircuitContents}>()}
         )
-        this.commit()
     }
 
     private commit(storage = this.circuitStorage) {
         localStorage.setItem(this.storageKey, JSON.stringify(storage))
     }
 
-    save(name:string | undefined) {
+    save(name?:string) {
         if (name !== undefined) {
             this.name = name
         }
 
         if (this.grid.gates.length === 0) {
-            console.log("circuit is empty!")
-            return false
+            return "Grid Is Empty"
         }
 
         const organizedCircuit = new OrganizedCircuit(this.grid)
         this.setKey(this.name, organizedCircuit.pack())
         this.commit()
 
-        return true
+        return "Ok"
     }
 
-    load(name:string | undefined, x=0, y=0) {
+    load(name?:string, x=0, y=0, inPlaceGraphMerge=false) {
         if (name !== undefined) {
             this.name = name
         }
 
         let existing = this.getKey(this.name)
         if (existing === undefined) {
-            console.log(this.name, " not found in storage")
-            return false
+            return "Grid Not Found In Storage"
         }
 
         let circuit = new OrganizedCircuit(existing)
@@ -91,13 +88,18 @@ export class CircuitStore {
 
         const newGrid = circuit.unpack()
         if (newGrid === undefined) {
-            return false
+            return "Grid Failed To Unpack"
         }
 
-        console.log(newGrid)
-        const result = this.grid.addGrid(newGrid, x, y)
+        if (inPlaceGraphMerge) {
+            this.grid.graph.mergeGraph(newGrid.graph)
 
-        return result === 0
+            return "Ok"
+        }
+        else {
+            const result = this.grid.addGrid(newGrid, x, y)
+            return result
+        }
     }
 
     remove(s:string | undefined) {
@@ -251,7 +253,7 @@ export class OrganizedCircuit {
         grid.gates = new Array<Gate | undefined>(this.gates.length)
 
         const offset = this.offset
-        this.iterGates((g) => {
+        this.gates.forEach((g) => {
             const nG = this.unpackGate(g)
             nG.givePos(g.x - offset[0], g.y - offset[1]) 
             grid.addGateExisting(nG)
@@ -259,14 +261,7 @@ export class OrganizedCircuit {
 
         graph.fromGrid(grid)
 
-        for (let i = 0; i < this.connections.length; i++) {
-            const c = this.connections[i]
-            graph.setOutput(c.from, c)
-            const to = c.to
-            for (let j = 0; j < to.length; j++) {
-                graph.setInput(to[j], c)
-            }
-        }
+        this.connections.forEach((c) => graph.addConnection(c))
         return grid
     }
 
@@ -297,6 +292,10 @@ export class OrganizedCircuit {
         let nG = createGate(type)
         nG.givePos(g.x, g.y) 
         nG.giveId(g.id)
+        if (g.state){
+            nG.state = g.state
+            nG.execute()
+        }
         return nG
     }
 }
@@ -314,7 +313,7 @@ export class SerializableGate {
     x:number
     y:number
     id:number
-    state:GateState
+    state?:GateState
     type:string
     constructor(
         gate:Gate,

@@ -177,19 +177,19 @@ export class GateGrid {
         if (gType.sizeIn === 0) {
             const i = this.inputs.indexOf(gate)
             if (i === -1) {
-                console.log(gate, " should be in inputs list!")
-                return
+                return "Gate Not In Inputs List"
             }
             this.inputs[i] = undefined
         }
         if (gType.sizeOut === 0) {
             const i = this.outputs.indexOf(gate)
             if (i === -1) {
-                console.log(gate, " should be in outputs list!")
-                return
+                return "Gate Not In Outputs List"
             }
             this.outputs[i] = undefined
         }
+
+        return "Ok"
     }
 
     moveGate(id:number, toX:number, toY:number) {
@@ -285,8 +285,7 @@ export class GateGrid {
     addGrid(grid:GateGrid, x:number, y:number) {
         //check size
         if (this.sizeX < grid.sizeX || this.sizeY < grid.sizeY) {    
-            console.log("grid does not fit!")
-            return 1
+            return "Grid Does Not Fit"
         }
 
         //adjust to fit
@@ -301,16 +300,16 @@ export class GateGrid {
             const gType = g.type
             const gridPos = [(g.x || 0) + x, (g.y || 0) + y]
             
-            const collision = this.getInRange(
+            const collisionId = this.getInRange(
                 gridPos[0],      gridPos[1],
                 gType.gridWidth, gType.gridWidth
             )
-            
-            if (collision !== undefined) {
-                found = g
-                return 2
-            }
 
+            
+            if (collisionId !== undefined) {
+                found = g
+                return
+            }
             //if the gate passes the collision, update it's data to prepare it for addition
             g.x = gridPos[0]
             g.y = gridPos[1]
@@ -319,7 +318,7 @@ export class GateGrid {
 
         if (found !== undefined) {
             console.log("new grid collides with original at ", found)
-            return 2
+            return "Grid Collides With Original"
         }
 
         let newGates = this.gates.concat(grid.gates)
@@ -334,6 +333,6 @@ export class GateGrid {
         this.graph.gates = newGates
         
 
-        return 0
+        return "Ok"
     }
 }

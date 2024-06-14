@@ -430,8 +430,7 @@ export class CircuitController {
 
         const result = this.gateGrid.removeGate(id, true)
         if (result === undefined) {
-            console.log("gate not found! ")
-            return
+            return "Gate Not Found"
         }
 
         existing.forEach((c) => {
@@ -441,7 +440,7 @@ export class CircuitController {
         this.renderer?.updateGate(id)
         this.renderer?.clearActiveGate()
 
-        console.log(this.gateGrid)
+        return "Ok"
     }
 
     /**
@@ -489,27 +488,28 @@ export class CircuitController {
         index:ConnectionIndex
     ) {
         const graph = this.gateGrid.graph
-        
+        let value = undefined
+
         switch (index.type) {
             case "Input":
                 const fromIndex = this.getConnectedTo(index.id, index.index)
                 if (fromIndex === undefined) break
+                value = this.getConnectionValue({id:fromIndex[0], type:"Output", index:fromIndex[1]})
                 graph.removeInput([index.id, index.index])
-                this.renderer?.updateWire(fromIndex) 
+                this.renderer?.updateWire(fromIndex, value) 
                 break
             case "Output":
                 const c = graph.outputs[index.id][index.index]
+                value = this.getConnectionValue(index)
                 if (c === undefined) {
                     break
                 }
                 graph.removeOutput(c)
-                this.renderer?.updateWire(c.from)
+                this.renderer?.updateWire(c.from, value)
                 break
         }
 
         this.renderer?.clearActiveWire()
-
-        console.log(graph)
     }
 
     /**
@@ -621,7 +621,7 @@ export class CircuitController {
         return result
     }
 
-    setInput(index:[number, number], val:boolean) {
+    setInput(index:[number, number], val:ConnectionValue) {
         this.gateGrid.graph.setFlow(index, val)
         this.renderer?.updateGate(index[0])
     }

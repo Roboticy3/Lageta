@@ -319,7 +319,6 @@ export class GateGraph extends GateGraphEventTarget {
                     const tok = to[k]
                     const toGate = this.gates[tok[0]]
                     if (toGate === undefined) {
-                        console.log("there should be a gate here!", tok[0])
                         continue
                     }
                     const input = tok[1]
@@ -371,6 +370,13 @@ export class GateGraph extends GateGraphEventTarget {
         this.outputs = this.outputs.concat(graph.outputs)
     }
 
+    //add a new graph using the same id space
+    mergeGraph(graph:GateGraph) {
+        graph.iterConnections((_f, _o, _t, _i, c) => {
+            this.addConnection(c)
+        })
+    }
+
     private findInput(c:Connection, input:[number, number]) {
         const to = c.to
         let i = to.length - 1
@@ -382,7 +388,7 @@ export class GateGraph extends GateGraphEventTarget {
         return i
     }
 
-    setFlow(index:[number, number], val:boolean) {
+    setFlow(index:[number, number], val:ConnectionValue) {
         const gate = this.gates[index[0]]
         if (!(gate instanceof Flow)) {
             return false

@@ -75,10 +75,15 @@
 
 <CircuitDiv 
     circuitController={circuitController} 
-    position={[level.x + 0.35, level.y + 0.25]} 
-    size={[level.type.model.gridWidth - 1.05, level.type.model.gridHeight - 0.75]}
+    position={[level.x + 0.35, level.y + 0.1]} 
+    bob={false}
+    smooth={false}
+    size={[level.type.model.gridWidth - 1.05, level.type.model.gridHeight - 0.3]}
     bind:this={container}
 >
-    <p style="max-width=90%; overflow-wrap:break-word;">{level.name()}</p>
-    <button on:click={playLevel} bind:this={button}>Play</button>
+<div style="display:flex; flex-direction:column; justify-content:center; height:100%;">
+    <p style="overflow-wrap:break-word;">{level.name()}</p>
+    <button style="margin:10%; display:inline-flex; align-self:center;" on:click={playLevel} bind:this={button}>Play</button>
+</div>
+    
 </CircuitDiv>

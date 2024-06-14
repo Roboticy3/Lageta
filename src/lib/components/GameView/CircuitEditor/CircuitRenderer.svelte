@@ -439,8 +439,6 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
      */
     export function updateWire(index, value = undefined) {
 
-        console.log("copy that!, updating wire ", index, " with ", value)
-
         const fCType = circuitController.getGateTypeController(index[0])
         const fGPos = circuitController.getGatePosition(index[0])
 
@@ -721,7 +719,12 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
             )
         )
         const id = typeof idOrState === "number" ? idOrState : undefined
-        return cType.view.draw(state)
+
+        const inner = cType.view.draw(state)
+        if (id !== undefined && rendererParams.showIds) {
+            return `${inner}\n<text stroke="none" fill="black" style="font-size:0.25em;" y="${10 * cType.view.gridHeight}">${id}</text>`
+        }
+        return inner
     }
 
     /**

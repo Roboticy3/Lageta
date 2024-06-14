@@ -51,8 +51,6 @@ export class GateType {
 
         if (params.f) this.f = params.f;
 
-        console.log(this)
-
     }
 }
 

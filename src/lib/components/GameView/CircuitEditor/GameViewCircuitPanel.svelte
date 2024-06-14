@@ -102,7 +102,7 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
      * Add all events needed to edit the circuit, name is a hold-over from when the project used the drag and drop api
      */
     function setInitialEventListeners() {
-        if (circuitContainer == null) {
+        if (circuitContainer === null || editorEventTarget === null) {
             return
         }
 
@@ -112,6 +112,12 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
 
         circuitContainer.removeEventListener("mousemove", drag)
         window.removeEventListener("mouseup", drop)
+
+        editorEventTarget.addEventListener("addgate", onAddGate)
+        editorEventTarget.addEventListener("movegate", onMoveGate)
+        editorEventTarget.addEventListener("removegate", onRemoveGate)
+        editorEventTarget.addEventListener("addwire", onAddWire)
+        editorEventTarget.addEventListener("removewire", onRemoveWire)
 
     }
 
@@ -182,7 +188,7 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
     function canDragStartGate(q) {
         const id = q.getId()
         return (
-            editorParams.canDragGates !== false && 
+            (editorParams.canDragGates !== false) && 
             id &&
             circuitController.getGateTypeView(id)?.moveable === true
         )
@@ -218,14 +224,14 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
                         connected[0], "Output", connected[1], undefined, undefined, q.timeStamp
                     )   
                     //then we can delete the old connection
-                    circuitController.removeConnection(
-                        {id:id, type:"Input", index:index}
+                    editorEventTarget?.dispatchEvent(
+                        createGameViewCircuitPanelEvent("removewire", q, q, circuitContainer)
                     )
                 }
             }
         } 
         else if (q.type === "Gate") {
-            if (!(q.getGateType()?.view.moveable)) {
+            if (!canDragStartGate(q)) {
                 return
             }
         }
@@ -254,7 +260,7 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
                 if (editorParams.canDragConnections !== false) onDragStartOutput(to)
                 break
             case "Gate":
-                if (canDragStartGate(to)) onDragStartGate(to)
+                onDragStartGate(to)
         }
 
         setDragEventListeners()
@@ -473,35 +479,62 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
      * @param {import('$lib/circuit_types/GameViewCircuitPanelEvent').GameViewCircuitPanelEvent} param0
      */
     function dropGate({from, to}) {
-        const localOffset = to.localOffset
+
+        if (!circuitContainer) return
+
         const id = from.getId()
-
-        if (!localOffset) {
-            if (id) circuitController.removeGate(id)
-            return
-        }
-        
-        const [localX, localY] = localOffset
-
-        console.log("localOffset found")
-        
-        const cType = from.gateTypeController || getGateType(Buf)
-        let controllerResult = "Ok"
         if (id === undefined) {
-            controllerResult = circuitController.addGateLocal(cType, localX, localY)
+            editorEventTarget?.dispatchEvent(
+                createGameViewCircuitPanelEvent("addgate", from, to, circuitContainer)
+            )
         }
         else {
-            controllerResult = circuitController.moveGateLocal(id, localX, localY)
+            editorEventTarget?.dispatchEvent(
+                createGameViewCircuitPanelEvent("movegate", from, to, circuitContainer)
+            )
         }
+    }
 
-        console.log("dropped gate with code ", controllerResult)
+    /**
+     * @param {import('$lib/circuit_types/GameViewCircuitPanelEvent').GameViewCircuitPanelEvent} param0
+     */
+    function onAddGate({from, to}) {
+        const localOffset = to.localOffset
+        if (!localOffset) return
+        const [localX, localY] = localOffset
+        const cType = from.gateTypeController
+        if (!cType) return
+        
+        circuitController.addGateLocal(cType, localX, localY)
+    }
 
-        if (controllerResult !== "Ok") {
-            if (id !== undefined) {
-                circuitController.removeGate(id)
-            }
-            return
+    /**
+     * @param {import('$lib/circuit_types/GameViewCircuitPanelEvent').GameViewCircuitPanelEvent} param0
+     */
+    function onMoveGate({from, to}) {
+        const localOffset = to.localOffset
+        if (!localOffset) return
+        const [localX, localY] = localOffset
+        const id = from.getId()
+        if (!id) return
+        
+        const result = circuitController.moveGateLocal(id, localX, localY)
+
+        if (result !== "Ok" && circuitContainer) {
+            editorEventTarget?.dispatchEvent(
+                createGameViewCircuitPanelEvent("removegate", from, to, circuitContainer)
+            )
         }
+    }
+
+    /**
+     * @param {import('$lib/circuit_types/GameViewCircuitPanelEvent').GameViewCircuitPanelEvent} param0
+     */
+    function onRemoveGate({from}) {
+        const id = from.getId()
+        if (!id) return 
+        
+        circuitController.removeGate(id)
     }
 
     /**
@@ -511,6 +544,17 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
      * @param {import('$lib/circuit_types/GameViewCircuitPanelEvent').GameViewCircuitPanelEvent} param0
      */
     function dropConnection({from, to}) {
+        if (circuitContainer) {
+            editorEventTarget?.dispatchEvent(
+                createGameViewCircuitPanelEvent("addwire", from, to, circuitContainer)
+            )
+        }
+    }
+
+    /**
+     * @param {import('$lib/circuit_types/GameViewCircuitPanelEvent').GameViewCircuitPanelEvent} param0
+     */
+    function onAddWire({from, to}) { 
         const [fId, fC, tId, tC] = [
             from.getId(), from.connectionIndex,
             to.getId(), to.connectionIndex
@@ -525,6 +569,17 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
         circuitController.addConnection(
             fId, fC, tId, tC
         );
+    }
+
+    /**
+     * @param {import('$lib/circuit_types/GameViewCircuitPanelEvent').GameViewCircuitPanelEvent} param0
+     */
+    function onRemoveWire({from}) {
+        const [id, index] = [from.getId(), from.connectionIndex]
+        if (id === undefined || index === undefined || from.type === "Gate") return
+        circuitController.removeConnection(
+            {id:id, type:from.type, index:index}
+        )
     }
 
 
