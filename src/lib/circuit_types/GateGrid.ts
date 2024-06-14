@@ -105,13 +105,13 @@ export class GateGrid {
             return "Collision"
         }
 
-        return ""
+        return "Ok"
     }
 
     //add a gate at the given coordinates, and fail to add anything if another gate is in the way
     addGate(x:number, y:number, gate:Gate) {
 
-        if (this.canAddGate(x, y, gate) !== "") return false
+        if (this.canAddGate(x, y, gate) !== "Ok") return false
 
         //add the gate
         this.addGateNoChecks(x, y, gate)
@@ -198,7 +198,7 @@ export class GateGrid {
             return undefined
         }
 
-        if (this.canAddGate(toX, toY, gate) !== "") return false
+        if (this.canAddGate(toX, toY, gate) !== "Ok") return false
 
         const gType = gate.type
         const [sizeX, sizeY] = [gType.gridWidth, gType.gridHeight]

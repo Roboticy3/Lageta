@@ -659,7 +659,7 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
             idString,
             activeGateRefresher.bind(
                 activeGateRefresher, 
-                previewResult.error === "",
+                previewResult.error === "Ok",
                 state,
                 cType,
                 previewResult.at

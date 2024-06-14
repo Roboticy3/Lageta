@@ -406,7 +406,6 @@ export class CircuitController {
 
         const result = this.gateGrid.moveGate(id, x, y)
         if (result !== true) {
-            console.log("failed move!")
             return "Failed Move"
         }
 
