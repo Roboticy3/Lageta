@@ -129,7 +129,7 @@
         gameParams={Tutorial.params}
         circuitController={circuitController}
         editorParams={{
-            inputCheckBoxes:state.showInputCheckboxes,
+            inputCheckboxes:state.showInputCheckboxes,
             showShelf:state.showShelf
         }}
         bind:rendererParams={state.rendererParams}

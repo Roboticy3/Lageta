@@ -19,10 +19,10 @@ export type LevelParameters = {
 const MinCircuit:OrganizedCircuitContents = {
     gateTypes: [getGateType(InputLabelledPrebaked[1]), getGateType(OutputLabelledPrebaked[1])],
     gates: [
-        { x: 0, y: 2, id: 0, type: "Input1Labelled" } as SerializableGate,
-        { x: 8, y: 2, id: 1, type: "Output1Labelled" } as SerializableGate
+        { x: 0, y: 3, id: 0, type: "Input1Labelled" } as SerializableGate,
+        { x: 14, y: 3, id: 1, type: "Output1Labelled" } as SerializableGate
     ],
-    size: [10, 5]
+    size: [16, 8]
 }
 
 const In2Out1:OrganizedCircuitContents = {
@@ -443,9 +443,9 @@ export const Tutorial = {
         {
             gateTypes: [getGateType(InputLabelledPrebaked[1])],
             gates: [
-                { x: 0, y: 2, id: 0, type: "Input1Labelled" } as SerializableGate
+                { x: 0, y: 3, id: 0, type: "Input1Labelled" } as SerializableGate
             ],
-            size: [10, 5]
+            size: [16, 8]
         },
         new ConnectionValueSignalSet(
             [

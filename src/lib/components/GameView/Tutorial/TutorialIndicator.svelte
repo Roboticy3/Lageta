@@ -11,14 +11,14 @@
     /**
      * @type {[number, number]}
      */
-    export let position;
+    export let position = [0, 0];
 
     export let smooth = true;
 
     export let variant = 0;
     const variants = [
         `
-            <div style="justify-content:center;">
+            <div style="justify-content:center; font-size:min(1.5vh, 2vw);">
                 <p>click me!</p>
                 <p>|</p>
                 <p>V</p>

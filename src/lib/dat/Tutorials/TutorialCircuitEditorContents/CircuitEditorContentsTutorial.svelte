@@ -71,6 +71,7 @@
 
     onMount(() => {
         circuitController.addGraphListener("update", setConnectionValues)
+        indicator?.setPositionToConnectionPoint({id:0, type:"Output", index:0})
 
         eventStagesController.editorEventTarget.addEventListener("drop", (evt) => {
             if (state.currentEvent >= 3 && state.currentEvent <= 4) {
@@ -87,7 +88,6 @@
 <TutorialIndicator 
     bind:this={indicator}
     circuitController={circuitController}
-    position={[1.35, 1.25]}
 />
 
 {#if state.currentEvent >= 20 && !(state.isCircuitValid)}
@@ -199,7 +199,7 @@
     <TutorialConnectionLabel
         circuitController={circuitController}
         index={{id:1, type:"Input", index:0}}
-        adjust={[-0.5,-0.75]}
+        adjust={[-0.5,-1]}
     />
     {#if state.output !== false}
         <TutorialText
