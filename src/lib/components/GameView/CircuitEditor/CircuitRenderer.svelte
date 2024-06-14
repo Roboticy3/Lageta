@@ -797,7 +797,8 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
      * @param {[number, number]} to
      */
     function drawWire(from, to) {
-        return `<path d="M ${from[0]} ${from[1]} L ${to[0]} ${to[1]}" style="pointer-events:none;"/>`
+        const [ax, ay, hx, bx, by] = [from[0], from[1], (from[0] + to[0]) / 2, to[0], to[1]]
+        return `<path d="M ${ax} ${ay} L ${hx} ${ay} L ${hx} ${by} L ${bx} ${by}" style="pointer-events:none;"/>`
     }
     
     /**
