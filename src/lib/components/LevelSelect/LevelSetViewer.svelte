@@ -21,7 +21,12 @@
     const gridHeight = 10
     const gameParams = new GameViewParameters(
         "LevelSelect", "", 
-        {size:[gridWidth, gridHeight] }, undefined, [])
+        {
+            connections:[],
+            size:[gridWidth, gridHeight] 
+        }, 
+        undefined, []
+    )
     const editorParams = {showGates:false, showGrid:false, initialScale:[8, 8]}
 
     let progress = browser ? new ProgressStorage() : undefined
