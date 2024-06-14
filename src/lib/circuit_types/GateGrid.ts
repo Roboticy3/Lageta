@@ -108,6 +108,27 @@ export class GateGrid {
         return "Ok"
     }
 
+    canMoveGate(x:number, y:number, gate:Gate) {
+        const gType = gate.type
+
+        const [sizeX, sizeY] = [gType.gridWidth, gType.gridHeight]
+        const clamped = this.clampGate(gate, x, y)
+        if (clamped[0] !== x || clamped[1] !== y) {
+            return "Out of Bounds"
+        }
+        
+        //check for collisions with existing gates
+        const collision = this.getInRange(
+            x, y, sizeX, sizeY, [gate.id]
+        )
+        
+        if (collision !== undefined && collision != gate.id) {
+            return "Collision"
+        }
+
+        return "Ok"
+    }
+
     //add a gate at the given coordinates, and fail to add anything if another gate is in the way
     addGate(x:number, y:number, gate:Gate) {
 
@@ -198,7 +219,7 @@ export class GateGrid {
             return undefined
         }
 
-        if (this.canAddGate(toX, toY, gate) !== "Ok") return false
+        if (this.canMoveGate(toX, toY, gate) !== "Ok") return false
 
         const gType = gate.type
         const [sizeX, sizeY] = [gType.gridWidth, gType.gridHeight]

@@ -366,7 +366,7 @@ export class CircuitController {
         const [x, y] = this.gateGrid.offsetToIndex(localX, localY)
         const gate = this.gateGrid.gates[id]
         if (!gate) return {at:[x, y], error:"Missing Gate"}
-        const error = this.gateGrid.canAddGate(x, y, gate)
+        const error = this.gateGrid.canMoveGate(x, y, gate)
         return {at:[x, y], error:error}
     }
 
