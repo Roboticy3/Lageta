@@ -8,9 +8,10 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
     import { compose, fromString, identity, scale, toSVG, transform, translate } from "transformation-matrix";
     import { draw } from "svelte/transition";
     import ResizingSvg from "$lib/components/Misc/ResizingSvg.svelte";
-    import { CircuitRendererIDStandard } from "$lib/circuit_types/CircuitRendererIDSpace";
+    import { CircuitRendererIDStandard } from "$lib/renderer_types/CircuitRendererIDSpace";
     import { browser } from "$app/environment";
     import { GameViewCircuitPanelEventTarget } from "$lib/circuit_types/GameViewCircuitPanelEvent";
+    import { WireRenderer } from "$lib/renderer_types/WireRenderer";
 
     /**
      * @type {CircuitController}
@@ -804,31 +805,13 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
         return `<circle r="2.5" stroke="${color}" stroke-dasharray="1" fill="none" style="pointer-events:none;" />`
     }
 
+    const wireRenderer = new WireRenderer()
     /**
      * @param {[number, number]} from
      * @param {[number, number]} to
      */
     function drawWire(from, to) {
-        const minStride = rendererParams.minimumWireStride || 5
-        const [ax, ay, hx, bx, by] = [from[0], from[1], (from[0] + to[0]) / 2, to[0], to[1]]
-        //if the points are too close together, fallback to a simple straight line
-        if ((Math.abs(ax - bx) + Math.abs(ay - by)) < 2 * minStride) {
-            return `<path d="M ${ax} ${ay} L ${bx} ${by}" style="pointer-events:none;"/>"`
-        }
-        //if ax is not enough to the left of bx, draw a wire that snakes around
-        //otherwise, draw a wire that's horizontal at a and b, but vertical in between
-        const shouldSnakeFrom = (hx - ax) < minStride
-        const shouldSnakeTo = (bx - hx) < minStride
-        const hy = (ay + by) / 2
-        const minStrideAX = ax + minStride
-        const minStrideBX = bx - minStride
-        const pathPartA = shouldSnakeFrom ? 
-            `M ${ax} ${ay} L ${minStrideAX} ${ay} L ${minStrideAX} ${hy} L ${hx} ${hy}`:
-            `M ${ax} ${ay} L ${hx} ${ay}`
-        const pathPartB = shouldSnakeTo ?
-            `L ${minStrideBX} ${hy} L ${minStrideBX} ${by} L ${bx} ${by}`:
-            `L ${hx} ${by} L ${bx} ${by}`
-        return `<path d="${pathPartA} ${pathPartB}" style="pointer-events:none;"/>`
+        return wireRenderer.drawWire(from, to, rendererParams.minStride || 5, svgHead)
     }
     
     /**
