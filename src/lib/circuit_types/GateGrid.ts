@@ -368,17 +368,22 @@ export class GateGrid {
      * @param dy 
      * @returns 
      */
-    rayCast(x:number, y:number, dx:number, dy:number, ignoreStart=true): number | undefined {
+    rayCast(x:number, y:number, dx:number, dy:number, length?:number, ignoreStart=true): number | undefined {
         const N = Math.sqrt(dx * dx + dy * dy)
         const stepX = dx / (N + 1)
         const stepY = dy / (N + 1)
+
+        let steps = 0
+        const maxSteps = length ? ((N + 1) * length / N) : Infinity
+
         let px = x
         let py = y
         let hit = ignoreStart ? undefined : this.atCell(x, y)
 
-        while (hit === undefined) {
+        while (hit === undefined && steps < maxSteps) {
             px += stepX
             py += stepY
+            steps++
 
             const gridX = Math.round(px)
             const gridY = Math.round(py)
