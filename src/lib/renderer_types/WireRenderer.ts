@@ -6,18 +6,19 @@ export class WireRenderer {
     }
 
     //i desparately need a vector library
-    private projectPointOntoLine(p:[number, number], u:[number, number], v:[number, number]) {
+    private projectPointOntoLine(p:[number, number], u:[number, number], v:[number, number], minStride:number) {
         const uv = [v[0] - u[0], v[1] - u[1]]
         const up = [p[0] - u[0], p[1] - u[1]]
         const upDotUv = up[0] * uv[0] + up[1] * uv[1]
         const uvDotUv = uv[0] * uv[0] + uv[1] * uv[1]
+        const uvL = Math.sqrt(uvDotUv)
         const scalarProject = upDotUv / uvDotUv
-        if (scalarProject >= 0 && scalarProject <= 1) 
+        if (scalarProject * uvL >= minStride && scalarProject * uvL <= uvL - minStride) 
             return [scalarProject * uv[0], scalarProject * uv[1]]
     }
 
     private tryCollidePointOnLine(p:[number, number], u:[number, number], v:[number, number], minStride:number) {
-        const project = this.projectPointOntoLine(p, u, v)
+        const project = this.projectPointOntoLine(p, u, v, minStride)
         if (!project) return undefined
         const pAligned = [u[0] + project[0], u[1] + project[1]]
         const reject = [p[0] - pAligned[0], p[1] -  pAligned[1]]
