@@ -36,7 +36,7 @@
 
     export function setOffset() {
 
-        const localStart = circuitController.indexToOffset(position[0], position[1])
+        const localStart = circuitController.indexToLocalOffset(position[0], position[1])
         const transform = circuitController.getMatrix()
         if (!transform) return
 
@@ -46,7 +46,7 @@
         )
 
         const gridEnd = [position[0] + size[0], position[1] + size[1]]
-        const localEnd = circuitController.indexToOffset(gridEnd[0], gridEnd[1])
+        const localEnd = circuitController.indexToLocalOffset(gridEnd[0], gridEnd[1])
 
         end = circuitController.projectOffset(
             localEnd[0],

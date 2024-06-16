@@ -10,7 +10,7 @@
 
     
     /**
-     * @type {HTMLInputElement}
+     * @type {HTMLElement}
      */
     let checkbox
 
@@ -29,11 +29,10 @@
     export let from
 
     export let startChecked = true
+    let checked = startChecked
 
     onMount(async () => {
         if (browser) {
-            
-            checkbox.checked = startChecked
             window.addEventListener('load', onChange)
         }
         else {
@@ -54,9 +53,9 @@
         if (id === from[0]) {
             const value = gridController.getGateOutputs(from[0])?.override[from[1]]
             if (value) {
-                checkbox.checked = true
+                checked = true
             } else {
-                checkbox.checked = false
+                checked = false
             }
         }
     }
@@ -65,8 +64,11 @@
         if (from === null) {
             return
         }
+
+        checked = !checked
+
         if (gridController) {
-            gridController.setInput(from, checkbox.checked)
+            gridController.setInput(from, checked)
         }
 
         const bbox = checkbox.getBoundingClientRect()
@@ -76,7 +78,7 @@
     }
 
     export function isChecked() {
-        return checkbox.checked
+        return checked
     }
     
     /**
@@ -99,24 +101,27 @@
     smooth={true}
     >
     <div>
-        <input 
-            type="checkbox" 
+        <button 
             class="input-checkbox" 
             bind:this={checkbox} 
-            on:change={onChange}
-        />
+            on:click={onChange}
+        >
+            <div>
+                +
+            </div>
+        </button>
     </div>
     
 </CircuitDiv>
 
 
 <style>
+
     .input-checkbox {
-        background-color: 2px solid var(--connection-color-off);
-        accent-color:var(--connection-color-on);
+        font-size:min(3vw, 4vh);
     }
 
     .input-checkbox:hover {
-        transform: scale(1.2);
+        transform:scale(1.2);
     }
 </style>
