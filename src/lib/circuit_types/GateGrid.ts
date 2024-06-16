@@ -378,6 +378,7 @@ export class GateGrid {
         const stepY = dy / (N + 1)
 
         let steps = 0
+        const length = Math.sqrt(dx * dx + dy * dy)
         const maxSteps = Math.round((N + 1) * length / N)
 
         let px = x
