@@ -807,6 +807,7 @@ export class CircuitController {
         const [gridX, gridY] = this.gateGrid.offsetToIndexUnrounded(localX, localY)
         const [gridDX, gridDY] = this.gateGrid.offsetToIndexUnrounded(dx, dy)
         const hit = this.gateGrid.castLine(gridX, gridY, gridDX, gridDY, ignoreStart)
+        console.log("cast line", gridX, gridY, "to", gridX + gridDX, gridY + gridDY, "and hit", hit)
         if (hit) {
             return {
                 cType:this.getGateTypeController(hit),

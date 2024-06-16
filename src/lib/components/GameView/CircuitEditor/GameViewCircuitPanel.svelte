@@ -327,7 +327,6 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
             editorParams.dispatchEvents === false
         ) return
         const from = circuitDraggable.getQuery()
-        console.log("dragging from ", from, " to ", to)
         editorEventTarget?.dispatchEvent(
             createGameViewCircuitPanelEvent(
                 "drag",

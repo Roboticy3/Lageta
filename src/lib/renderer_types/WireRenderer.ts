@@ -33,6 +33,7 @@ export class WireRenderer {
         const {cType, gPos} = circuitController.castLineOnGrid(u[0], u[1], uv[0], uv[1])
 
         //if not, return
+        console.log(cType, gPos)
         if (!cType || !gPos) return [u, v, w]
 
         let newPoints = new Array<[number, number]>(5)
@@ -45,6 +46,7 @@ export class WireRenderer {
         for (let o of cType.view.inputOffsets) {
             const p:[number, number] = [o[0] + gOffset[0], o[1] + gOffset[1]]
             const distance = this.pointDistanceToLine(p, u, uv)
+            console.log(distance)
             if (distance < minStride) {
                 newPoints[1] = [p[0] - uv[0] * minStride, p[1] - uv[1] * minStride]
                 break
@@ -53,6 +55,7 @@ export class WireRenderer {
         if (!newPoints[1]) for (let o of cType.view.outputOffsets) {
             const p:[number, number] = [o[0] + gOffset[0], o[1] + gOffset[1]]
             const distance = this.pointDistanceToLine(p, u, uv)
+            console.log(distance)
             if (distance < minStride) {
                 newPoints[1] = [p[0] - uv[0] * minStride, p[1] - uv[1] * minStride]
                 break
