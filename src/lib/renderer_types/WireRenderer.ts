@@ -93,40 +93,10 @@ export class WireRenderer {
         points:[number, number][], circuitController:CircuitController,
         minStride:number
     ): [number, number][] {
-        if (points.length < 3) return points
+        
+        let tree = new PointListTree([points])
 
-        let newPoints:[number, number][] = []
-
-        let i = 0
-        let j = 0
-        while (i < points.length - 2) {
-
-            const processedPoints = this.processPointTriple(
-                {u:points[j], v:points[j + 1], w:points[j + 2]},
-                circuitController, minStride
-            )
-
-            if (processedPoints.length === 5) {
-                newPoints.push(...processedPoints)
-
-                j += 5
-                i += 3
-                continue
-            }
-
-            newPoints.push(...processedPoints)
-            
-            i += 3
-            j += 3
-        }
-
-        while (i < points.length) {
-            newPoints[j] = points[i]
-            i++
-            j++
-        }
-
-        return newPoints
+        return pointListTreeToPointList(tree)
     }
 
     pointsToSvgPath(points:[number, number][], extraParams=""): string {
@@ -152,7 +122,6 @@ export class WireRenderer {
         //if ax is not enough to the left of bx, draw a wire that snakes around
         //otherwise, draw a wire that's horizontal at a and b, but vertical in between
         const shouldSnakeFrom = (hx - ax) < minStride
-        const shouldSnakeTo = (bx - hx) < minStride
 
         const minStrideAX = ax + minStride
         const minStrideBX = bx - minStride
@@ -166,4 +135,34 @@ export class WireRenderer {
 
         return this.pointsToSvgPath(this.processWirePoints(points, circuitController, minStride))
     }
+}
+
+class PointListTree {
+    children:([number, number][] | PointListTree)[] //leaf contains points, branches contain references to trees
+
+    constructor(
+        children:([number, number][] | PointListTree)[]
+    ) {
+        this.children = children
+    }
+}
+
+function pointListTreeToPointList(root:PointListTree) {
+    const s:PointListTree[] = [root]
+    const points:[number, number][] = []
+    while (true) {
+        const v = s.pop()
+        if (!v) break
+
+        for (const c of v.children) {
+            if (c instanceof PointListTree) {
+                s.push(c)
+            }
+            else {
+                points.push(...c)
+            }
+        }
+    }
+
+    return points
 }
