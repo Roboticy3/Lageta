@@ -7,10 +7,12 @@
     import CircuitDiv from "../CircuitDiv.svelte";
     import { GameViewCircuitPanelEventTarget, createGameViewCircuitPanelEvent } from "$lib/circuit_types/GameViewCircuitPanelEvent";
     import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControllerQueryResult";
+    import ResizingSvg from "$lib/components/Misc/ResizingSvg.svelte";
+    import { Buf, getGateType } from "$lib/dat/GateTypes/GateTypes";
 
     
     /**
-     * @type {HTMLElement}
+     * @type {Element}
      */
     let checkbox
 
@@ -101,17 +103,16 @@
     active={true}
     smooth={true}
     >
-    <div>
-        <button 
-            class="input-checkbox {checked ? 'input-checkbox-checked':'input-checkbox-unchecked'}" 
-            bind:this={checkbox} 
-            on:click={onChange}
-        >
-            <div>
-                {content}
-            </div>
-        </button>
-    </div>
+    
+    <button
+        bind:this={checkbox}
+        on:click={onChange}
+    >
+        <svg class="input-checkbox" viewBox="0 0 10 10">
+            <circle r="5" cx="5" cy="5"/>
+        </svg>
+    </button>
+    
     
 </CircuitDiv>
 
@@ -120,6 +121,8 @@
 
     .input-checkbox {
         font-size:min(3vw, 4vh);
+        height:100%;
+        width:100%;
     }
 
     .input-checkbox-checked {
