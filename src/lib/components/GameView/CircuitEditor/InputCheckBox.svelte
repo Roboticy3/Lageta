@@ -30,6 +30,7 @@
 
     export let startChecked = true
     let checked = startChecked
+    $: content = checked ? "+":"-"
 
     onMount(async () => {
         if (browser) {
@@ -102,12 +103,12 @@
     >
     <div>
         <button 
-            class="input-checkbox" 
+            class="input-checkbox {checked ? 'input-checkbox-checked':'input-checkbox-unchecked'}" 
             bind:this={checkbox} 
             on:click={onChange}
         >
             <div>
-                +
+                {content}
             </div>
         </button>
     </div>
@@ -119,6 +120,16 @@
 
     .input-checkbox {
         font-size:min(3vw, 4vh);
+    }
+
+    .input-checkbox-checked {
+        background-color: var(--connection-color-on);
+        color: white;
+    }
+
+    .input-checkbox-unchecked {
+        background-color: var(--connection-color-off);
+        color: black;
     }
 
     .input-checkbox:hover {
