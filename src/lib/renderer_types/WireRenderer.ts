@@ -6,12 +6,25 @@ export class WireRenderer {
     }
 
     //i desparately need a vector library
-    private projectPointOntoLine(p:[number, number], u:[number, number], uv:[number, number]) {
+    private projectPointOntoLine(p:[number, number], u:[number, number], v:[number, number]) {
+        const uv = [v[0] - u[0], v[1] - u[1]]
         const up = [p[0] - u[0], p[1] - u[1]]
         const upDotUv = up[0] * uv[0] + up[1] * uv[1]
         const uvDotUv = uv[0] * uv[0] + uv[1] * uv[1]
         const scalarProject = upDotUv / uvDotUv
-        return [scalarProject * uv[0], scalarProject * uv[1]]
+        if (scalarProject >= 0 && scalarProject <= 1) 
+            return [scalarProject * uv[0], scalarProject * uv[1]]
+    }
+
+    private tryCollidePointOnLine(p:[number, number], u:[number, number], v:[number, number], minStride:number) {
+        const project = this.projectPointOntoLine(p, u, v)
+        if (!project) return undefined
+        const pAligned = [u[0] + project[0], u[1] + project[1]]
+        const reject = [p[0] - pAligned[0], p[1] -  pAligned[1]]
+        const distance = Math.sqrt(reject[0] * reject[0] + reject[1] * reject[1])
+        if (distance < minStride) {
+            return pAligned
+        }
     }
 
     /**
@@ -45,23 +58,17 @@ export class WireRenderer {
         const gOffset = circuitController.indexToLocalOffset(gPos[0], gPos[1])
         for (let o of cType.view.inputOffsets) {
             const p:[number, number] = [o[0] + gOffset[0], o[1] + gOffset[1]]
-            const project = this.projectPointOntoLine(p, u, uv)
-            const pAligned = [u[0] + project[0], u[1] + project[1]]
-            const reject = [p[0] - pAligned[0], p[1] -  pAligned[1]]
-            const distance = Math.sqrt(reject[0] * reject[0] + reject[1] * reject[1])
-            if (distance < minStride) {
-                newPoints[1] = [pAligned[0] - uvN[0] * minStride, pAligned[1] - uvN[1] * minStride]
+            const result = this.tryCollidePointOnLine(p, u, v, minStride)
+            if (result) {
+                newPoints[1] = [result[0] - uvN[0] * minStride, result[1] - uvN[1] * minStride]
                 break
             }
         }
         if (newPoints[1] === undefined) for (let o of cType.view.outputOffsets) {
             const p:[number, number] = [o[0] + gOffset[0], o[1] + gOffset[1]]
-            const project = this.projectPointOntoLine(p, u, uv)
-            const pAligned = [u[0] + project[0], u[1] + project[1]]
-            const reject = [p[0] - pAligned[0], p[1] -  pAligned[1]]
-            const distance = Math.sqrt(reject[0] * reject[0] + reject[1] * reject[1])
-            if (distance < minStride) {
-                newPoints[1] = [pAligned[0] - uvN[0] * minStride, pAligned[1] - uvN[1] * minStride]
+            const result = this.tryCollidePointOnLine(p, u, v, minStride)
+            if (result) {
+                newPoints[1] = [result[0] - uvN[0] * minStride, result[1] - uvN[1] * minStride]
                 break
             }
         }
@@ -88,31 +95,26 @@ export class WireRenderer {
     ): [number, number][] {
         if (points.length < 3) return points
 
-        let newPoints:[number, number][] = new Array(Math.ceil(points.length * 1.5))
+        let newPoints:[number, number][] = []
 
         let i = 0
         let j = 0
         while (i < points.length - 2) {
 
-            newPoints[j] = points[i]
-            newPoints[j + 1] = points[i + 1]
-            newPoints[j + 2] = points[i + 2]
-
             const processedPoints = this.processPointTriple(
-                {u:newPoints[j], v:newPoints[j + 1], w:newPoints[j + 2]},
+                {u:points[j], v:points[j + 1], w:points[j + 2]},
                 circuitController, minStride
             )
 
             if (processedPoints.length === 5) {
-                newPoints[j] = processedPoints[0]
-                newPoints[j + 1] = processedPoints[1]
-                newPoints[j + 2] = processedPoints[2]
-                newPoints[j + 3] = processedPoints[3]
-                newPoints[j + 4] = processedPoints[4]
+                newPoints.push(...processedPoints)
+
                 j += 5
                 i += 3
                 continue
             }
+
+            newPoints.push(...processedPoints)
             
             i += 3
             j += 3
