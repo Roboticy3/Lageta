@@ -41,6 +41,10 @@ export class GateGrid {
         return [x, y]
     }
 
+    offsetToIndexUnrounded(offsetX:number, offsetY:number) {
+        return [offsetX / 10, offsetY / 10]
+    }
+
     indexToOffset(x:number, y:number): [number, number] {
         return [10 * x, 10 * y]
     }
@@ -368,13 +372,13 @@ export class GateGrid {
      * @param dy 
      * @returns 
      */
-    rayCast(x:number, y:number, dx:number, dy:number, length?:number, ignoreStart=true): number | undefined {
+    castLine(x:number, y:number, dx:number, dy:number, ignoreStart?:boolean): number | undefined {
         const N = Math.sqrt(dx * dx + dy * dy)
         const stepX = dx / (N + 1)
         const stepY = dy / (N + 1)
 
         let steps = 0
-        const maxSteps = length ? ((N + 1) * length / N) : Infinity
+        const maxSteps = Math.round((N + 1) * length / N)
 
         let px = x
         let py = y
@@ -396,6 +400,8 @@ export class GateGrid {
 
         return hit
     }
+
+
 
     atCell(x:number, y:number) {
         return this.grid[x + this.sizeX * y]

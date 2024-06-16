@@ -486,8 +486,8 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
         }     
 
         //process the gate positions 
-        const fromGateOffset = circuitController.indexToOffset(fGPos[0], fGPos[1])
-        const toGateOffsets = tGPoss.map(v => circuitController.indexToOffset(v[0], v[1]))
+        const fromGateOffset = circuitController.indexToLocalOffset(fGPos[0], fGPos[1])
+        const toGateOffsets = tGPoss.map(v => circuitController.indexToLocalOffset(v[0], v[1]))
         
         const fromConnectionOffset = fCType.view.outputOffsets[index[1]]
         const toConnectionOffsets = tCTypes.map((v, i) => v.view.inputOffsets[to[i][1]])
@@ -563,7 +563,7 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
 
         if (!fCType || !fGPos) return
 
-        const fromGateOffset = circuitController.indexToOffset(fGPos[0], fGPos[1])
+        const fromGateOffset = circuitController.indexToLocalOffset(fGPos[0], fGPos[1])
         const fromConnectionOffset = from.type === "Output" ? 
             fCType.view.outputOffsets[index]:
             fCType.view.inputOffsets[index]
@@ -811,7 +811,7 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
      * @param {[number, number]} to
      */
     function drawWire(from, to) {
-        return wireRenderer.drawWire(from, to, rendererParams.minStride || 5, svgHead)
+        return wireRenderer.drawWire(from, to, rendererParams.minStride || 5, circuitController)
     }
     
     /**
