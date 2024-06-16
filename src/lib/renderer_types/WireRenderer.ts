@@ -93,10 +93,40 @@ export class WireRenderer {
         points:[number, number][], circuitController:CircuitController,
         minStride:number
     ): [number, number][] {
-        
-        let tree = new PointListTree([points])
+        if (points.length < 3) return points
 
-        return pointListTreeToPointList(tree)
+        let newPoints:[number, number][] = []
+
+        let i = 0
+        let j = 0
+        while (i < points.length - 2) {
+
+            const processedPoints = this.processPointTriple(
+                {u:points[j], v:points[j + 1], w:points[j + 2]},
+                circuitController, minStride
+            )
+
+            if (processedPoints.length === 5) {
+                newPoints.push(...processedPoints)
+
+                j += 5
+                i += 3
+                continue
+            }
+
+            newPoints.push(...processedPoints)
+            
+            i += 3
+            j += 3
+        }
+
+        while (i < points.length) {
+            newPoints[j] = points[i]
+            i++
+            j++
+        }
+
+        return newPoints
     }
 
     pointsToSvgPath(points:[number, number][], extraParams=""): string {
@@ -135,34 +165,4 @@ export class WireRenderer {
 
         return this.pointsToSvgPath(this.processWirePoints(points, circuitController, minStride))
     }
-}
-
-class PointListTree {
-    children:([number, number][] | PointListTree)[] //leaf contains points, branches contain references to trees
-
-    constructor(
-        children:([number, number][] | PointListTree)[]
-    ) {
-        this.children = children
-    }
-}
-
-function pointListTreeToPointList(root:PointListTree) {
-    const s:PointListTree[] = [root]
-    const points:[number, number][] = []
-    while (true) {
-        const v = s.pop()
-        if (!v) break
-
-        for (const c of v.children) {
-            if (c instanceof PointListTree) {
-                s.push(c)
-            }
-            else {
-                points.push(...c)
-            }
-        }
-    }
-
-    return points
 }
