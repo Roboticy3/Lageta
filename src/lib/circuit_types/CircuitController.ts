@@ -194,12 +194,12 @@ export class CircuitController {
      * @param y 
      * @returns 
      */
-    indexToOffset(x:number, y:number): [number, number] {
+    indexToLocalOffset(x:number, y:number): [number, number] {
         return this.gateGrid.indexToOffset(x,y)
     }
 
-    localOffsetToIndex(offsetX:number, offsetY:number) {
-        return this.gateGrid.offsetToIndex(offsetX, offsetY)
+    localOffsetToIndex(offsetX:number, offsetY:number, round=true) {
+        return round ? this.gateGrid.offsetToIndex(offsetX, offsetY) : this.gateGrid.offsetToIndexUnrounded(offsetX, offsetY)
     }
 
     /**
@@ -801,6 +801,22 @@ export class CircuitController {
     //tell the view that the level has been beaten
     complete() {
         this.onComplete()
+    }
+
+    castLineOnGrid(localX:number, localY:number, dx:number, dy:number, ignoreStart?:boolean) {
+        const [gridX, gridY] = this.gateGrid.offsetToIndexUnrounded(localX, localY)
+        const [gridDX, gridDY] = this.gateGrid.offsetToIndexUnrounded(dx, dy)
+        const hit = this.gateGrid.castLine(gridX, gridY, gridDX, gridDY, ignoreStart)
+
+        if (hit) {
+            return {
+                cType:this.getGateTypeController(hit),
+                gPos:this.getGatePosition(hit)
+            }
+        }
+        return {
+            cType:undefined, gPos:undefined
+        }
     }
 
 }

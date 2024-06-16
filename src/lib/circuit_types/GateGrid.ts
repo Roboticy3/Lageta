@@ -41,6 +41,10 @@ export class GateGrid {
         return [x, y]
     }
 
+    offsetToIndexUnrounded(offsetX:number, offsetY:number) {
+        return [offsetX / 10, offsetY / 10]
+    }
+
     indexToOffset(x:number, y:number): [number, number] {
         return [10 * x, 10 * y]
     }
@@ -73,11 +77,7 @@ export class GateGrid {
     }
 
     indexToId(x:number, y:number) {
-        return this.grid[x + this.sizeX * y]
-    }
-
-    canFit(x:number, y:number, ) {
-
+        return this.atCell(x, y) //lol
     }
 
     /**
@@ -243,11 +243,10 @@ export class GateGrid {
         }
     }
 
-    private iterRange(x:number, y:number, sizeX:number, sizeY:number, iter:(index:number) => any) {
+    private iterRange(x:number, y:number, sizeX:number, sizeY:number, iter:(x:number, y:number) => any) {
         for (let i = 0; i < sizeY; i++) {
             for (let j = 0; j < sizeX; j++) {
-                const index = x + j + (y + i) * this.sizeX
-                if (iter(index)) {
+                if (iter(x + j, y + i)) {
                     break
                 }
             }
@@ -286,12 +285,19 @@ export class GateGrid {
     }
 
     private setIndexToRange(id:number | undefined, x:number, y:number, sizeX:number, sizeY:number) {
-        this.iterRange(x, y, sizeX, sizeY, (index) => {
-            this.grid[index] = id
+        this.iterRange(x, y, sizeX, sizeY, (x, y) => {
+            this.setCell(x, y, id)
         })
     }
 
-    private clampRect(x:number, y:number, x2:number, y2:number) {
+    clampPos(x:number, y:number) {
+        return [
+            Math.max(Math.min(x, this.sizeX), 0),
+            Math.max(Math.min(y, this.sizeY), 0)
+        ]
+    }
+
+    clampRect(x:number, y:number, x2:number, y2:number) {
         return [
             Math.max(Math.min(x, this.sizeX - x2), 0),
             Math.max(Math.min(y, this.sizeY - y2), 0)
@@ -355,5 +361,54 @@ export class GateGrid {
         
 
         return "Ok"
+    }
+
+    /**
+     * Shoot a ray through the grid 
+     * https://www.redblobgames.com/grids/line-drawing/ helped
+     * @param x 
+     * @param y 
+     * @param dx 
+     * @param dy 
+     * @returns 
+     */
+    castLine(x:number, y:number, dx:number, dy:number, ignoreStart?:boolean): number | undefined {
+        const N = Math.sqrt(dx * dx + dy * dy)
+        const stepX = dx / (N + 1)
+        const stepY = dy / (N + 1)
+
+        let steps = 0
+        const length = Math.sqrt(dx * dx + dy * dy)
+        const maxSteps = Math.round((N + 1) * length / N)
+
+        let px = x
+        let py = y
+        let hit = ignoreStart ? undefined : this.atCell(x, y)
+
+        while (hit === undefined && steps < maxSteps) {
+            px += stepX
+            py += stepY
+            steps++
+
+            const gridX = Math.round(px)
+            const gridY = Math.round(py)
+            const clamped = this.clampPos(gridX, gridY)
+
+            if ((clamped[0] !== gridX) || (clamped[1] !== gridY)) break
+
+            hit = this.atCell(gridX, gridY)
+        }
+
+        return hit
+    }
+
+
+
+    atCell(x:number, y:number) {
+        return this.grid[x + this.sizeX * y]
+    }
+
+    private setCell(x:number, y:number, id:number | undefined) {
+        this.grid[x + this.sizeX * y] = id
     }
 }

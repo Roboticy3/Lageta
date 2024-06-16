@@ -1,4 +1,4 @@
-import type { ConnectionIndex } from "./CircuitController"
+import type { ConnectionIndex } from "../circuit_types/CircuitController"
 
 export interface CircuitRendererIDSpace {
 
