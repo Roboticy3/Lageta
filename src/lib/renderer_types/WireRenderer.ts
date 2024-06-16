@@ -185,7 +185,7 @@ export class WireRenderer {
             const p = points[i]
             if (p) path += ` L ${p[0]} ${p[1]}`
         }
-        path += `" ${extraParams} />`
+        path += `" ${extraParams} style="pointer-events:none;" />`
         return path
     }
 
