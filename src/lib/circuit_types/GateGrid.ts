@@ -154,6 +154,7 @@ export class GateGrid {
         this.gates[id] = g
         this.setIndexToRange(id, g.x || 0, g.y || 0, gType.gridWidth, gType.gridHeight)
         this.addInputOutput(g)
+        this.graph.resetConnectionsAt(id)
     }
 
     /**

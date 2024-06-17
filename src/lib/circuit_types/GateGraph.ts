@@ -259,6 +259,11 @@ export class GateGraph extends GateGraphEventTarget {
             sizeIn = gType.sizeIn
             sizeOut = gType.sizeOut
         }
+
+        if (id > this.inputs.length) {
+            this.inputs.length = id + 1
+            this.outputs.length = id + 1
+        }
         
         this.inputs[id] = new Array<Connection | undefined>(sizeIn)
         this.outputs[id] = new Array<Connection | undefined>(sizeOut)

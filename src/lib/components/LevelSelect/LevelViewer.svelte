@@ -33,9 +33,9 @@
         console.log("Mounting level selector for ",level)
         await tick()
         container.setOffset()
-        gateId = circuitController.getGateIdLength()
+        gateId = level.desiredId
         circuitController.addGateAtCell(level.type, level.x, level.y, level.desiredId)
-        if (gateId === undefined || circuitController.getNumGates() !== gateId + 1) {
+        if (gateId === undefined) {
             console.log("Unable to set gateId of ", level, "!")
             return
         }
