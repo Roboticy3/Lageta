@@ -138,6 +138,8 @@
         setPlayBarProgress()
         atStart = true
         atEnd = false
+
+        signalSvg.setOffset([0, 0])
     }
 
     /**
@@ -208,11 +210,24 @@
         document.querySelectorAll("input").forEach((n) => n.removeAttribute('disabled'))
     }
 
+    /**
+     * @type {ResizingSvg}
+     */
+    let signalSvg
+
     function setPlayBarProgress(frame = 0) {
         let adjustedFrame = frame + 1
         if (frame === 0) adjustedFrame = 0
         else if (frame === signalSetView.getLength()) adjustedFrame = signalSetView.getLength()
-        if (playBarGroup) playBarGroup.style.translate = `${labelOffset + signalSetView.getDesiredFrameWidth() * (adjustedFrame)}px`
+        const frameWidth = signalSetView.getDesiredFrameWidth()
+        const translateX = labelOffset + frameWidth * (adjustedFrame)
+        console.log("moving play bar to frame ", frame)
+        if (playBarGroup) playBarGroup.style.translate = `${translateX}px`
+        const shouldScroll = !(signalSvg.isInnerOffsetInBounds([translateX + 16 * frameWidth, 0]))
+        if (shouldScroll) {
+            const offset = signalSvg.getOffset()
+            signalSvg.setOffset([offset[0] + frameWidth, offset[1]])
+        }
     }
 
 </script>
@@ -229,6 +244,7 @@
 
     <div class="svg-container">
         <ResizingSvg
+        bind:this={signalSvg}
             overflowWidth={true}
             ancestry={1}
         >
@@ -241,7 +257,7 @@
                         <text>{labels[index]}</text>
                     </g>
                 {/each}
-                <g id="signal-svg-play-bar" style="transition:translate 200ms;">
+                <g id="signal-svg-play-bar">
                     <path d="M -4 -8 L 4 -8 L 0 0 L 0 {signalSetView.getDesiredHeight()} L 0 0 Z" stroke="var(--grid-color)" stroke-width="1px" fill="none"/>
                 </g>
                 {#each liveChannelSvgs as channel, index}
