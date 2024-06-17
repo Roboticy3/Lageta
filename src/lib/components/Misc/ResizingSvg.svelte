@@ -3,10 +3,25 @@
     import { compose, scale, translate } from "transformation-matrix";
 
     export let [offsetX, offsetY] = [0, 0]
+    /**
+     * @returns {[number, number]}
+     */
+    export function getOffset() {
+        return [offsetX, offsetY]
+    }
+    /**
+     * @param {[number, number]} offset
+     */
+     export function setOffset(offset) {
+        offsetX = offset[0]
+        offsetY = offset[1]
+    }
 
     export let ancestry = 1
 
     export let [minHeight, minWidth] = [0, 0]
+
+    export let [overflowHeight, overflowWidth] = [false, false]
 
     /**
      * @type {SVGElement | null}
@@ -50,8 +65,11 @@
     }
 
     function getCurrentScale() {
+        if (overflowWidth && overflowHeight) return 1
         const inner = contentGroup.getBBox()
-        return Math.min(outerHeight / inner.height, outerWidth / inner.width)
+        const widthScale = overflowWidth ? Infinity : outerWidth / inner.width
+        const heightScale = overflowHeight ? Infinity : outerHeight / inner.height
+        return Math.min(widthScale, heightScale)
     }
 
     /**
@@ -72,6 +90,14 @@
         const normalized = [offset[0] * scale, offset[1] * scale]
         const translated = [normalized[0] - offsetX, normalized[1] - offsetY]
         return translated
+    }
+
+    /**
+     * @param {[number, number]} offset
+     */
+    export function isInnerOffsetInBounds(offset) {
+        let [x, y] = innerOffsetToOuter(offset)
+        return (x >= 0) && (x <= outerWidth) && (y >= 0) && (y <= outerHeight)
     }
 
     /**
@@ -98,14 +124,21 @@
 </script>
 <svg 
     bind:this={svg}
-    viewBox="{offsetX} {offsetY} {outerWidth + offsetX} {outerHeight + offsetY}" 
+    viewBox="0 0 {outerWidth} {outerHeight}" 
     style="position:absolute; top:0%; left:0%; width:{outerWidth}px; height:{outerHeight}px;"
 >
     <g
-        transform={`scale(${innerScale} ${innerScale})`}
+        transform="scale({innerScale} {innerScale}) translate({-offsetX} {-offsetY}) "
     >
         <g bind:this={contentGroup}>
             <slot />
         </g>
     </g>
 </svg>
+
+
+<style>
+    .transform-group {
+        
+    }
+</style>
