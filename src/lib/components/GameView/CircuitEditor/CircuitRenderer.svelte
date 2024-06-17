@@ -810,8 +810,14 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
      * @param {[number, number]} from
      * @param {[number, number]} to
      */
-    function drawWire(from, to) {
-        return wireRenderer.drawWireBordered(from, to, rendererParams.minStride || 3, circuitController, 2)
+    function drawWire(from, to, seedWithTo=true) {
+        const seed = seedWithTo ? 
+            JSON.stringify(to) : JSON.stringify(from)
+        return wireRenderer.drawWireBordered(
+            from, to, 
+            rendererParams.minStride || 3, circuitController, 
+            seed, 2
+        )
     }
     
     /**
