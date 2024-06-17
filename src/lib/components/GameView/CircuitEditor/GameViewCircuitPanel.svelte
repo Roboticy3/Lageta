@@ -361,10 +361,7 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
      * @param {import('$lib/circuit_types/GameViewCircuitPanelEvent').GameViewCircuitPanelEvent} param0
      */
     function onDragGate({from, to}) {
-
-        if ((to.type === "Gate" || to.type === "")) {
-            checkEntered(to)
-        }
+        
     }
 
     /**
