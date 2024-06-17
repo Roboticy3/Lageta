@@ -1,4 +1,5 @@
 import { CircuitController } from "$lib/circuit_types/CircuitController"
+import Rand, {PRNG} from 'rand-seed';
 
 export class WireRenderer {
     private intersectLineRect(a:[number, number], b:[number, number], ra:[number, number], rb:[number, number]) {
@@ -218,7 +219,11 @@ export class WireRenderer {
         return path
     }
 
-    drawWirePoints(a:[number, number], b:[number, number], minStride:number, circuitController:CircuitController) {
+    drawWirePoints(
+        a:[number, number], b:[number, number], 
+        minStride:number, circuitController:CircuitController,
+        seed:string
+    ) {
         const [ax, ay, bx, by] = [a[0], a[1], b[0], b[1]]
 
         //if the points are too close together, fallback to a simple straight line
@@ -227,7 +232,8 @@ export class WireRenderer {
         }
 
         const ab = [b[0] - a[0], b[1] - a[1]]
-        const t = (Math.random() / 2) + 0.25 //random number from 0.25 to 0.75
+        const rand = new Rand(seed)
+        const t = rand.next()
         const [hx, hy] = [a[0] + t * ab[0], a[1] + t * ab[1]]
 
         //if ax is not enough to the left of bx, draw a wire that snakes around
@@ -247,13 +253,21 @@ export class WireRenderer {
         return this.processWirePoints(points, circuitController, minStride)
     }
 
-    drawWire(a:[number, number], b:[number, number], minStride:number, circuitController:CircuitController, extraParams="") {  
-        const points = this.drawWirePoints(a, b, minStride, circuitController)
+    drawWire(
+        a:[number, number], b:[number, number], 
+        minStride:number, circuitController:CircuitController, 
+        seed:string, extraParams=""
+    ) {  
+        const points = this.drawWirePoints(a, b, minStride, circuitController, seed)
         return this.pointsToSvgPath(points, extraParams)
     }
 
-    drawWireBordered(a:[number, number], b:[number, number], minStride:number, circuitController:CircuitController, borderWidth=2) {
-        const points = this.drawWirePoints(a, b, minStride, circuitController)
+    drawWireBordered(
+        a:[number, number], b:[number, number], 
+        minStride:number, circuitController:CircuitController, 
+        seed:string, borderWidth=2
+    ) {
+        const points = this.drawWirePoints(a, b, minStride, circuitController, seed)
 
         const inner = this.pointsToSvgPath(points)
         const border = this.pointsToSvgPath(points, `stroke-width="${borderWidth}" stroke="white"`)
