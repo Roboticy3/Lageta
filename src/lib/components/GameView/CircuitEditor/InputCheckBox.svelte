@@ -104,14 +104,12 @@
     smooth={true}
     >
     
-    <button
-        bind:this={checkbox}
-        on:click={onChange}
-    >
-        <svg class="input-checkbox" viewBox="0 0 10 10">
+    <div class="input-checkbox">
+        <ResizingSvg>
             <circle r="5" cx="5" cy="5"/>
-        </svg>
-    </button>
+        </ResizingSvg>
+    </div>
+    
     
     
 </CircuitDiv>
@@ -133,9 +131,5 @@
     .input-checkbox-unchecked {
         background-color: var(--connection-color-off);
         color: black;
-    }
-
-    .input-checkbox:hover {
-        transform:scale(1.2);
     }
 </style>

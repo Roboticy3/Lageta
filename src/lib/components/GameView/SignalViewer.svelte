@@ -265,6 +265,7 @@
 
     .svg-container {
         grid-column: 3 / 4;
+        position:relative;
     }
 
     .button-container {
