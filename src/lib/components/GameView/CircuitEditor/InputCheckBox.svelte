@@ -7,10 +7,12 @@
     import CircuitDiv from "../CircuitDiv.svelte";
     import { GameViewCircuitPanelEventTarget, createGameViewCircuitPanelEvent } from "$lib/circuit_types/GameViewCircuitPanelEvent";
     import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControllerQueryResult";
+    import ResizingSvg from "$lib/components/Misc/ResizingSvg.svelte";
+    import { Buf, getGateType } from "$lib/dat/GateTypes/GateTypes";
 
     
     /**
-     * @type {HTMLInputElement}
+     * @type {Element}
      */
     let checkbox
 
@@ -29,11 +31,11 @@
     export let from
 
     export let startChecked = true
+    let checked = startChecked
+    $: color = checked ? 'var(--connection-color-on)':'var(--connection-color-off)'
 
     onMount(async () => {
         if (browser) {
-            
-            checkbox.checked = startChecked
             window.addEventListener('load', onChange)
         }
         else {
@@ -54,9 +56,9 @@
         if (id === from[0]) {
             const value = gridController.getGateOutputs(from[0])?.override[from[1]]
             if (value) {
-                checkbox.checked = true
+                checked = true
             } else {
-                checkbox.checked = false
+                checked = false
             }
         }
     }
@@ -65,8 +67,11 @@
         if (from === null) {
             return
         }
+
+        checked = !checked
+
         if (gridController) {
-            gridController.setInput(from, checkbox.checked)
+            gridController.setInput(from, checked)
         }
 
         const bbox = checkbox.getBoundingClientRect()
@@ -76,7 +81,7 @@
     }
 
     export function isChecked() {
-        return checkbox.checked
+        return checked
     }
     
     /**
@@ -94,29 +99,40 @@
 <CircuitDiv
     circuitController={gridController}
     position={getPosition()}
-    size={[0.5, 0.5]}
+    size={[0.5, 0.75]}
     active={true}
     smooth={true}
     >
-    <div>
-        <input 
-            type="checkbox" 
-            class="input-checkbox" 
-            bind:this={checkbox} 
-            on:change={onChange}
-        />
-    </div>
+    
+    <button class="input-checkbox" bind:this={checkbox} on:click={onChange} title="Input Checkbox">
+        <ResizingSvg>
+            <g font-size="10">
+                <text x="5" y="10" fill="var(--connection-color-on)">H</text>
+                <g transform="rotate(12)"><text x="7" y="9" fill="black">_</text></g>
+                <text x="5" y="20" fill="var(--connection-color-off)">L</text>
+                <circle fill="none" stroke="{color}" cx="8" r="6" cy="{checked ? 6:17}"/>
+            </g>
+            
+        </ResizingSvg>
+    </button>
+    
+    
     
 </CircuitDiv>
 
 
 <style>
+
     .input-checkbox {
-        background-color: 2px solid var(--connection-color-off);
-        accent-color:var(--connection-color-on);
+        font-size:min(3vw, 4vh);
+        height:100%;
+        width:100%;
+        top:-10%;
+        left:-5%;
+        position:relative;
     }
 
     .input-checkbox:hover {
-        transform: scale(1.2);
+        scale:1.2;
     }
 </style>

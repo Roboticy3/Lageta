@@ -6,32 +6,35 @@ export class WireRenderer {
     }
 
     //i desparately need a vector library
-    private projectPointOntoLine(p:[number, number], u:[number, number], v:[number, number], minStride:number) {
+    private projectPointOntoLine(p:[number, number], u:[number, number], v:[number, number]) {
         const uv = [v[0] - u[0], v[1] - u[1]]
         const up = [p[0] - u[0], p[1] - u[1]]
         const upDotUv = up[0] * uv[0] + up[1] * uv[1]
         const uvDotUv = uv[0] * uv[0] + uv[1] * uv[1]
         const uvL = Math.sqrt(uvDotUv)
         const scalarProject = upDotUv / uvDotUv
-        if (scalarProject * uvL >= minStride && scalarProject * uvL <= uvL - minStride) 
+        if (scalarProject >= 0.01 && scalarProject <= 0.99) 
             return [scalarProject * uv[0], scalarProject * uv[1]]
     }
 
-    private tryCollidePointOnLine(p:[number, number], u:[number, number], v:[number, number], minStride:number) {
-        const project = this.projectPointOntoLine(p, u, v, minStride)
+    private tryCollidePointOnLine(
+        p:[number, number], u:[number, number], v:[number, number], 
+        minStride:number) : [number, number][] | undefined
+    {
+        const project = this.projectPointOntoLine(p, u, v)
         if (!project) return undefined
-        const pAligned = [u[0] + project[0], u[1] + project[1]]
-        const reject = [p[0] - pAligned[0], p[1] -  pAligned[1]]
+        const pAligned:[number, number]= [u[0] + project[0], u[1] + project[1]]
+        const reject:[number, number] = [p[0] - pAligned[0], p[1] -  pAligned[1]]
         const distance = Math.sqrt(reject[0] * reject[0] + reject[1] * reject[1])
         if (distance < minStride) {
-            return pAligned
+            return [pAligned, reject]
         }
     }
 
     private cutLineBeforeConnectionPoint(
         u:[number, number], v:[number, number],
         circuitController:CircuitController, minStride:number
-    ): [number, number] | undefined {
+    ): [number, number][] | undefined {
         const uv:[number, number] = [v[0] - u[0], v[1] - u[1]]
         const uvDotUv = uv[0] * uv[0] + uv[1] * uv[1]
         const uvL = Math.sqrt(uvDotUv)
@@ -51,14 +54,16 @@ export class WireRenderer {
             const p:[number, number] = [o[0] + gOffset[0], o[1] + gOffset[1]]
             const result = this.tryCollidePointOnLine(p, u, v, minStride)
             if (result) {
-                return [result[0] - uvN[0] * minStride, result[1] - uvN[1] * minStride]
+                const pAligned = result[0]
+                return [[pAligned[0] - uvN[0] * minStride, pAligned[1] - uvN[1] * minStride], result[0], result[1]]
             }
         }
         for (let o of cType.view.outputOffsets) {
             const p:[number, number] = [o[0] + gOffset[0], o[1] + gOffset[1]]
             const result = this.tryCollidePointOnLine(p, u, v, minStride)
             if (result) {
-                return [result[0] - uvN[0] * minStride, result[1] - uvN[1] * minStride]
+                const pAligned = result[0]
+                return [[pAligned[0] - uvN[0] * minStride, pAligned[1] - uvN[1] * minStride], result[0], result[1]]
             }
         }
     }
@@ -76,14 +81,14 @@ export class WireRenderer {
         
         let newPoints = new Array<[number, number]>(5)
 
-        const cut = this.cutLineBeforeConnectionPoint(
+        const result = this.cutLineBeforeConnectionPoint(
             u, v, circuitController, minStride
         )
-
         //if the next point was not set by the previous checks, there was no collision inside the gate, return
-        if (cut === undefined) {
+        if (result === undefined) {
             return [u, v, w]
         }
+        const cut = result[0]
 
         newPoints[0] = u
         newPoints[1] = cut
@@ -105,26 +110,33 @@ export class WireRenderer {
     ) {
         let newPoints = new Array<[number, number]>(6)
 
-        const cut = this.cutLineBeforeConnectionPoint(
+        const result = this.cutLineBeforeConnectionPoint(
             u, v, circuitController, minStride
         )
-
-        //if the next point was not set by the previous checks, there was no collision inside the gate, return
-        if (cut === undefined) {
+        if (result === undefined) {
             return [u, v]
         }
+        const cut = result[0]
+        const reject = result[2]
 
         newPoints[0] = u
         newPoints[1] = cut
 
-        //place the next point along vw from newPoints[1], and connect it back up to w
+        //get the normalized vector from u to v
         const uv:[number, number] = [v[0] - u[0], v[1] - u[1]]
         const uvDotUv = uv[0] * uv[0] + uv[1] * uv[1]
         const uvL = Math.sqrt(uvDotUv)
         const uvN:[number, number] = [uv[0] / uvL, uv[1] / uvL]
+
+        //get a perpendicular vector
         const perpUv:[number, number] = [uv[1], -uv[0]]
         const perpUvL = Math.sqrt(perpUv[0] * perpUv[0] + perpUv[1] * perpUv[1])
-        const perpUvN = [perpUv[0] / perpUvL, perpUv[1] / perpUvL]
+        let perpUvN = [perpUv[0] / perpUvL, perpUv[1] / perpUvL]
+
+        //flip the perpendicular vector if its not pointing towards the connection point
+        const perpUvDotReject = reject[0] * perpUv[0] + reject[1] * perpUv[1]
+        if (perpUvDotReject >= 0) perpUvN = [-perpUvN[0], -perpUvN[1]]
+
         newPoints[2] = [newPoints[1][0] + perpUvN[0] * minStride, newPoints[1][1] + perpUvN[1] * minStride]
         newPoints[3] = [newPoints[2][0] + uvN[0] * 2 * minStride, newPoints[2][1] + uvN[1] * 2 * minStride]
         newPoints[4] = [newPoints[3][0] - perpUvN[0] * minStride, newPoints[3][1] - perpUvN[1] * minStride]
@@ -133,49 +145,66 @@ export class WireRenderer {
         return newPoints
     }
 
+    static readonly passes:(2 | 3)[] = [3, 2]
+
+    private processWirePointsSinglePass(
+        points:[number, number][], circuitController:CircuitController,
+        minStride:number, pass:number
+    ) {
+        const passType = WireRenderer.passes[pass]
+        if (points.length < passType) return points
+
+        const newPoints:[number, number][] = []
+
+        let i = 0
+
+        switch (passType) {
+            case 3: 
+                while (i < points.length - 2) {
+                    const processedPoints = this.processPointTriple(
+                        points[i], points[i + 1], points[i + 2],
+                        circuitController, minStride
+                    )
+        
+                    newPoints.push(...processedPoints)
+                    i += 3
+                } 
+                break
+            case 2: 
+                while (i < points.length - 1) {
+                    const processedPoints = this.processPointDouble(
+                        points[i], points[i + 1],
+                        circuitController, minStride
+                    )
+        
+                    newPoints.push(...processedPoints)
+                    i += 2
+                } 
+                break
+        }
+        
+        while (i < points.length) {
+            newPoints.push(points[i])
+            i++
+        }
+
+        return newPoints
+    }
+
     private processWirePoints(
         points:[number, number][], circuitController:CircuitController,
         minStride:number
     ): [number, number][] {
-        if (points.length < 3) return points
 
-        let firstPass:[number, number][] = []
+        let newPoints = points
 
-        let i = 0
-        //process points in groups of 3 for more elegant obstacle avoidance
-        while (i < points.length - 2) {
-            const processedPoints = this.processPointTriple(
-                points[i], points[i + 1], points[i + 2],
-                circuitController, minStride
+        for (let i = 0; i < WireRenderer.passes.length; i++) {
+            newPoints = this.processWirePointsSinglePass(
+                newPoints, circuitController, minStride, i
             )
-
-            firstPass.push(...processedPoints)
-            i += 3
-        }
-        while (i < points.length) {
-            firstPass.push(points[i])
-            i++
         }
 
-        let secondPass:[number, number][] = []
-
-        //then process the points in pairs
-        i = 0
-        while (i < firstPass.length - 1) {
-            const processedPoints = this.processPointDouble(
-                firstPass[i], firstPass[i + 1],
-                circuitController, minStride
-            )
-    
-            secondPass.push(...processedPoints)
-            i += 2
-        }
-        while (i < points.length) {
-            secondPass.push(points[i])
-            i++
-        }
-
-        return secondPass
+        return newPoints
     }
 
     pointsToSvgPath(points:[number, number][], extraParams=""): string {
@@ -185,7 +214,7 @@ export class WireRenderer {
             const p = points[i]
             if (p) path += ` L ${p[0]} ${p[1]}`
         }
-        path += `" ${extraParams} />`
+        path += `" ${extraParams} style="pointer-events:none;" />`
         return path
     }
 

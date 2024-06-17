@@ -99,7 +99,7 @@
 <svg 
     bind:this={svg}
     viewBox="{offsetX} {offsetY} {outerWidth + offsetX} {outerHeight + offsetY}" 
-    style="position:absolute;"
+    style="position:absolute; top:0%; left:0%; width:{outerWidth}px; height:{outerHeight}px;"
 >
     <g
         transform={`scale(${innerScale} ${innerScale})`}
