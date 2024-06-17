@@ -219,6 +219,8 @@ export class WireRenderer {
         return path
     }
 
+    static readonly halfwayVariety = 0.4
+
     drawWirePoints(
         a:[number, number], b:[number, number], 
         minStride:number, circuitController:CircuitController,
@@ -233,7 +235,7 @@ export class WireRenderer {
 
         const ab = [b[0] - a[0], b[1] - a[1]]
         const rand = new Rand(seed)
-        const t = rand.next()
+        const t = rand.next() * WireRenderer.halfwayVariety + (0.5 - WireRenderer.halfwayVariety / 2)
         const [hx, hy] = [a[0] + t * ab[0], a[1] + t * ab[1]]
 
         //if ax is not enough to the left of bx, draw a wire that snakes around
