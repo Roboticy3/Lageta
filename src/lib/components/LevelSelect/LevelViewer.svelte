@@ -32,10 +32,12 @@
     onMount(async () => {
         console.log("Mounting level selector for ",level)
         await tick()
+
+        console.log("My name is ", level.name(), " and I am located at ", level.desiredId)
         container.setOffset()
-        gateId = circuitController.getGateIdLength()
-        circuitController.addGateAtCell(level.type, level.x, level.y)
-        if (gateId === undefined || circuitController.getNumGates() !== gateId + 1) {
+        gateId = level.desiredId
+        circuitController.addGateAtCell(level.type, level.x, level.y, level.desiredId)
+        if (gateId === undefined) {
             console.log("Unable to set gateId of ", level, "!")
             return
         }

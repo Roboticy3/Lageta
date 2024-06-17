@@ -1,7 +1,7 @@
 import { Connection } from "$lib/circuit_types/GateGraph";
 import { GateType, GateTypeController, type ConnectionValue } from "$lib/circuit_types/GateType";
-import { Adder2c, And, Buf, Decoder2t4, Encoder4t2, Input, InputDecodePrebaked, InputLabelledPrebaked, InputVariable, Nand, Not, Or, Output, OutputDecodePrebaked, OutputLabelledPrebaked, Xor, drawGateTypeDecode, getGateType, type GateTypeParameters } from "$lib/dat/GateTypes/GateTypes";
-import { ConnectionValueSignalSet, Signal, SignalSet, oscillator, repeater } from "$lib/signal_types/Signal";
+import { Adder2c, And, And3, Buf, Decoder2t4, Encoder4t2, Input, InputDecodePrebaked, InputLabelledPrebaked, InputVariable, Nand, Not, Or, Or3, Output, OutputDecodePrebaked, OutputLabelledPrebaked, Xor, drawGateTypeDecode, getGateType, type GateTypeParameters } from "$lib/dat/GateTypes/GateTypes";
+import { ConnectionValueSignalSet, Signal, SignalSet, inverter, oscillator, repeater } from "$lib/signal_types/Signal";
 import type { OrganizedCircuitContents, SerializableGate } from "$lib/storage_types/CircuitStorage";
 import { ProgressStorage } from "$lib/storage_types/ProgressStore";
 import { GameViewParameters } from "../../level_types/GameViewParameters";
@@ -11,6 +11,7 @@ export type LevelParameters = {
     params?:GameViewParameters,
     x?:number,
     y?:number,
+    desiredId?:number,
     type?:GateTypeParameters,
     playCondition?:boolean[],
     register?:boolean
@@ -28,7 +29,7 @@ const MinCircuit:OrganizedCircuitContents = {
 const In2Out1:OrganizedCircuitContents = {
     gateTypes: [
         getGateType(InputLabelledPrebaked[2]),
-        getGateType(OutputLabelledPrebaked[2])
+        getGateType(OutputLabelledPrebaked[1])
     ],
     gates: [
         { x: 0, y: 3, type: "Input2Labelled", id: 0 } as SerializableGate,
@@ -36,6 +37,18 @@ const In2Out1:OrganizedCircuitContents = {
     ],
     size: [16, 8]
 };
+
+const In3Out1:OrganizedCircuitContents = {
+    gateTypes: [
+        getGateType(InputLabelledPrebaked[3]),
+        getGateType(OutputLabelledPrebaked[1])
+    ],
+    gates: [
+        { x: 0, y: 3, type: "Input3Labelled", id: 0 } as SerializableGate,
+        { x: 14, y: 4, type: "Output1Labelled", id: 1 } as SerializableGate
+    ],
+    size: [16, 9]
+}
 
 const DecoderLevelSignal = new ConnectionValueSignalSet(
     [
@@ -105,7 +118,7 @@ export const AdderLevel = {
             inputCheckboxes:false
         }
     ),
-    x:7,y:4,
+    x:11,y:5, desiredId:9,
     type:Adder2c,
     playCondition:[false, false, true]
 }
@@ -130,7 +143,7 @@ export const EncoderLevel = {
             ],
             size: [20, 11]
         },
-        DecoderLevelSignal.inverted(),
+        DecoderLevelSignal.flipInputsOutputs(),
         [
             getGateType(Encoder4t2).name,
             AdderLevel.params.name
@@ -140,7 +153,7 @@ export const EncoderLevel = {
             inputCheckboxes:false
         }
     ),
-    x:18,y:0,
+    x:18,y:0, desiredId:8,
     type:Encoder4t2,
     playCondition:[true, true]
 }
@@ -175,18 +188,18 @@ export const DecoderLevel = {
             inputCheckboxes:false
         }
     ),
-    x:14,y:0,
+    x:14,y:0, desiredId:7,
     type:Decoder2t4,
     playCondition:[false, false, true, false]
 }
 
 export const XorLevel = {
     params:new GameViewParameters(
-        "Making a Gate 2",
+        "Exclusion",
         `
         <p>Here's an example of making a more advanced gate</p>
-        <p>The behavior here is called an "Xor" gate, short for exclusive or. Like an Or gate but more... exclusive.</p>
-        <p>There's already an Or gate in the circuit, try pressing play just to see how it's different from a Xor gate.</p>
+        <p>Beating this level requires a "Xor" gate, short for "Exclusive Or." Like an Or gate but more... exclusive.</p>
+        <p>It's up to you to analyze the signal and construct the correct circuit.</p>
         `,
         {
             gateTypes: [
@@ -218,17 +231,16 @@ export const XorLevel = {
             getGateType(Xor).name
         ]
     ),
-    x:11,y:2,
+    x:11,y:2,desiredId:6,
     type:Xor
 }
 
 export const NandLevel = {
     params:new GameViewParameters(
-        "Making a Gate 1",
+        "No Combo",
         `
-        <p>Most levels will have you making a gate. Connect multiple gates together to get more interesting effects!</p>
-        <p>Try and make your circuit match the expected output. If you succeed, you'll unlock a gate with the same behavior to use in later levels.</p>
-        <p>The behavior here is called an "Nand" gate, the opposite of And.</p>
+        <p>This level requires making a "Nand" gate to win.</p>
+        <p>Nand stands for "Not And" and will always output the opposite of an And gate.</p>
         `,
         {
             gateTypes: [
@@ -262,8 +274,89 @@ export const NandLevel = {
             DecoderLevel.params.name
         ]
     ),
-    x:9,y:0,
+    x:9,y:0,desiredId:5,
     type:Nand
+}
+
+const Or3LevelInputs = [
+    new Signal<ConnectionValue>([
+        {frame:0,value:false},
+        {frame:3,value:true},
+        {frame:3,value:false},
+        {frame:15,value:true},
+        {frame:3,value:false},
+        {frame:9,value:true},
+        {frame:3,value:false},
+    ]).push(
+        oscillator(3, 3)
+    ),
+    new Signal<ConnectionValue>([
+        {frame:0,value:false},
+        {frame:9,value:true},
+        {frame:3,value:false},
+        {frame:9,value:true},
+        {frame:3,value:false},
+        {frame:3,value:true},
+        {frame:3,value:false},
+        {frame:6,value:false},
+    ]).push(
+        oscillator(3, 3)
+    ),
+    new Signal<ConnectionValue>([
+        {frame:0,value:false},
+        {frame:15,value:true},
+        {frame:3,value:false},
+        {frame:9,value:true},
+        {frame:3,value:false},
+        {frame:3,value:true},
+        {frame:3,value:false},
+    ]).push(
+        oscillator(3, 3)
+    ),
+]
+
+export const And3Level = {
+    params:new GameViewParameters(
+        "Bigger Combo",
+        `
+        <p>This level requires a 3-Input And gate, which outputs high when 
+        all of its inputs are high.</p>
+        <p>However, you might not have this exact gate already. If not, you'll have to connect multiple gates together to win.</p>
+        `,
+        In3Out1,
+        new ConnectionValueSignalSet(
+            Or3LevelInputs.map((s) => inverter(s)),
+            60,
+            getGateType(And3)
+        ),
+        [
+            getGateType(And3).name
+        ]
+    ),
+    x:8, y:2, desiredId:4,
+    type:And3
+}
+
+export const Or3Level = {
+    params:new GameViewParameters(
+        "Joinyer",
+        `
+        <p>This level requires a 3-Input Or gate, which outputs high when 
+        any of its inputs are high.</p>
+        <p>However, you might not have this exact gate already. If not, you'll have to connect multiple gates together to win.</p>
+        `,
+        In3Out1,
+        new ConnectionValueSignalSet(
+            Or3LevelInputs,
+            60,
+            getGateType(Or3)
+        ),
+        [
+            getGateType(Or3).name
+        ]
+    ),
+    x:4, y:5, desiredId:3,
+    type:Or3
 }
 
 export const OrLevel = {
@@ -315,9 +408,10 @@ export const OrLevel = {
             getGateType(Or)
         ),
         [
+            Or3Level.params.name
         ]
     ),
-    x:4, y:3,
+    x:4, y:3, desiredId:2,
     type:Or
 }
 
@@ -326,10 +420,6 @@ export const AndLevel = {
         "Some Kind of Combo",
         `
         <p>This level requires an "And" Gate, which takes two inputs and only outputs power when both inputs (Input 1 AND Input 2) are enabled.</p>
-        <p>The And gate is represented by a shape that's flat on one side and rounded on the other.</p>
-        <p>Click on the symbols on the top shelf to produce a gate, and drop it in the grid.</p>
-        <p>A Gate takes inputs and transforms them into outputs.</p>
-        <p>After placing the gate, connect a wire to one of its inputs, then connect its output to the output of the level.</p>
         `,
         In2Out1,
         new ConnectionValueSignalSet(
@@ -347,43 +437,13 @@ export const AndLevel = {
             getGateType(And)
         ),
         [
+            And3Level.params.name,
             NandLevel.params.name
         ]
     ),
-    x:6, y:1,
+    x:6, y:1, desiredId:1,
     type:And
 }
-
-export const NotLevel = {
-    params:new GameViewParameters(
-        "Inverter",
-        `
-        <p>This level requires a "Not" Gate, also called an inverter, which takes one input and produces its opposite.</p>
-        <p>The Not gate is represented by a triangle with a circle at the end.</p>
-        <p>Click on the symbols on the top shelf to produce a gate, and drop it in the grid.</p>
-        <p>A Gate takes inputs and transforms them into outputs.</p>
-        <p>After placing the gate, connect a wire to the input, and connect the output to the level's output.</p>
-        `,
-        MinCircuit,
-        new ConnectionValueSignalSet(
-            [
-                new Signal<ConnectionValue>([{frame:0,value:false}])
-                    .push(oscillator(10, 2))
-                    .push(oscillator(5, 3))
-                    .push(oscillator(3, 3))
-                    .push(oscillator(1, 6))
-            ],
-            101,
-            getGateType(Not)
-        ),
-        [
-            OrLevel.params.name,
-            getGateType(Or).name
-        ]
-    ),
-    x:3, y:0,
-    type:Not
-};
 
 export const BufLevel = {
     params:new GameViewParameters(
@@ -404,11 +464,6 @@ export const BufLevel = {
             getGateType(Buf)
         ),
         [
-            getGateType(Not).name,
-            getGateType(And).name,
-            getGateType(Buf).name,
-            NotLevel.params.name,
-            AndLevel.params.name
         ]
     ),
     x:4, y:1,
@@ -469,9 +524,10 @@ export const Tutorial = {
 const all_params = new Map<string, LevelParameters>([
     [Freeplay.params.name,Freeplay],
     [BufLevel.params.name,BufLevel],
-    [NotLevel.params.name,NotLevel],
     [AndLevel.params.name,AndLevel],
     [OrLevel.params.name,OrLevel],
+    [Or3Level.params.name,Or3Level],
+    [And3Level.params.name,And3Level],
     [NandLevel.params.name, NandLevel],
     [XorLevel.params.name, XorLevel],
     [DecoderLevel.params.name, DecoderLevel],

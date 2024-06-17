@@ -147,10 +147,14 @@ export class GateGrid {
      */
     addGateExisting(g:Gate) {
         const id = g.id || 0
+        if (id > this.gates.length) {
+            this.gates.length = id + 1
+        }
         const gType = g.type
         this.gates[id] = g
         this.setIndexToRange(id, g.x || 0, g.y || 0, gType.gridWidth, gType.gridHeight)
         this.addInputOutput(g)
+        this.graph.resetConnectionsAt(id)
     }
 
     /**

@@ -288,35 +288,49 @@ export class CircuitController {
     addGate(
         cType:GateTypeController, 
         offsetX:number, 
-        offsetY:number
+        offsetY:number,
+        desiredId?:number
     ) {
         const [localX, localY] = this.unprojectOffset(offsetX, offsetY)
-        return this.addGateLocal(cType, localX, localY)
+        return this.addGateLocal(cType, localX, localY, desiredId)
     }
 
     addGateLocal(
         cType:GateTypeController,
         localX:number,
-        localY:number
+        localY:number,
+        desiredId?:number
     ) {
         if (!this.isLocalOffsetInGrid(localX, localY)) {
             return "Out of Bounds"
         }
 
         const [x, y] = this.localOffsetToIndex(localX, localY)       
-        return this.addGateAtCell(cType, x, y)
+        return this.addGateAtCell(cType, x, y, desiredId)
     }
 
     addGateAtCell(
         params:GateTypeParameters,
         x:number,
-        y:number
+        y:number,
+        desiredId?:number
     ) {
         const cType = getGateType(params)
         const gate = createGate(cType)
         console.log("adding gate: ", gate, " at ", x, y)
 
-        const result = this.gateGrid.addGate(x, y, gate)
+        let result = true
+        //SKETCHY: addGateExisting doesn't run any checks, adding a gate at an invalid position will corrupt the circuit!
+        if (desiredId !== undefined) {
+            this.gateGrid.removeGate(desiredId)
+            gate.givePos(x, y)
+            gate.giveId(desiredId)
+            this.gateGrid.addGateExisting(gate)
+        }
+        else {
+            result = this.gateGrid.addGate(x, y, gate)
+        }
+        
         if (result !== true) {
             console.log("failed add!")
             return "Failed Add"
