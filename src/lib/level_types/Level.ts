@@ -14,7 +14,7 @@ export class Level {
     readonly x:number
     readonly y:number
 
-    readonly desiredId:number
+    readonly desiredId:number | undefined
 
     readonly type:GateTypeController
 
@@ -26,7 +26,7 @@ export class Level {
 
         this.x = params.x || 0
         this.y = params.y || 0
-        this.desiredId = params.desiredId || 0
+        this.desiredId = params.desiredId === undefined ? undefined : params.desiredId
         this.params = params.params || new GameViewParameters()
 
         this.type = getGateType(params.type || Buf)

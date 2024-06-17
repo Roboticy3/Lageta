@@ -34,7 +34,7 @@
         await tick()
         container.setOffset()
         gateId = circuitController.getGateIdLength()
-        circuitController.addGateAtCell(level.type, level.x, level.y)
+        circuitController.addGateAtCell(level.type, level.x, level.y, level.desiredId)
         if (gateId === undefined || circuitController.getNumGates() !== gateId + 1) {
             console.log("Unable to set gateId of ", level, "!")
             return
