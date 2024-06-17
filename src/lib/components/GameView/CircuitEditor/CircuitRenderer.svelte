@@ -537,11 +537,12 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
      * @param {[number, number] | undefined} fromOffset
      * @param {[number, number] | undefined} toOffset
      * @param {import("$lib/circuit_types/GateType").ConnectionValue} value
+     * @param {boolean} fromAnchored
      * @param {Element} wire
      */
-    function activeWireRefresher(fromOffset, toOffset, value, wire) {
+    function activeWireRefresher(fromOffset, toOffset, value, fromAnchored, wire) {
         if (fromOffset && toOffset) {
-            const wireInner = drawWire(fromOffset, toOffset)
+            const wireInner = drawWire(fromOffset, toOffset, !fromAnchored)
             wire.innerHTML = wireInner
         }
         
@@ -581,13 +582,13 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
         if (from.type === "Output")
             updateItem(
                 idString,
-                activeWireRefresher.bind(activeGateRefresher, fromOffset, toOffset, value),
+                activeWireRefresher.bind(activeGateRefresher, fromOffset, toOffset, value, true),
                 activeWireConstructor
             )
         else
             updateItem(
                 idString,
-                activeWireRefresher.bind(activeGateRefresher, toOffset, fromOffset, value),
+                activeWireRefresher.bind(activeGateRefresher, toOffset, fromOffset, value, false),
                 activeWireConstructor
             )
 
