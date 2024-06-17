@@ -32,7 +32,7 @@
 
     export let startChecked = true
     let checked = startChecked
-    $: content = checked ? "+":"-"
+    $: color = checked ? 'var(--connection-color-on)':'var(--connection-color-off)'
 
     onMount(async () => {
         if (browser) {
@@ -99,14 +99,20 @@
 <CircuitDiv
     circuitController={gridController}
     position={getPosition()}
-    size={[0.5, 0.5]}
+    size={[0.5, 0.75]}
     active={true}
     smooth={true}
     >
     
-    <button class="input-checkbox">
+    <button class="input-checkbox" bind:this={checkbox} on:click={onChange}>
         <ResizingSvg>
-            <rect x="0" y="0" width="20" height="20" fill="none"/>
+            <g font-size="15">
+                <text x="5" y="10" fill="var(--connection-color-on)">+</text>
+                <g transform="rotate(12)"><text x="7" y="9" fill="var(--connection-color-x)">_</text></g>
+                <text x="5" y="25" fill="var(--connection-color-off)">-</text>
+                <circle fill="none" stroke="{color}" cx="9" r="6" cy="{checked ? 6:21}"/>
+            </g>
+            
         </ResizingSvg>
     </button>
     
