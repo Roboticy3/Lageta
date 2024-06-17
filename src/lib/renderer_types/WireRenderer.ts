@@ -225,7 +225,10 @@ export class WireRenderer {
         if ((Math.abs(ax - bx) + Math.abs(ay - by)) < 2 * minStride) {
             return [a, b]
         }
-        const [hx, hy] = [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2]
+
+        const ab = [b[0] - a[0], b[1] - a[1]]
+        const t = (Math.random() / 2) + 0.25 //random number from 0.25 to 0.75
+        const [hx, hy] = [a[0] + t * ab[0], a[1] + t * ab[1]]
 
         //if ax is not enough to the left of bx, draw a wire that snakes around
         //otherwise, draw a wire that's horizontal at a and b, but vertical in between
