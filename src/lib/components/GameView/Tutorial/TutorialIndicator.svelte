@@ -18,17 +18,18 @@
     export let variant = 0;
     const variants = [
         `
-            <div style="justify-content:center; font-size:min(1.5vh, 2vw);">
-                <p>click me!</p>
-                <p>|</p>
-                <p>V</p>
+            <div style="
+                justify-content:center; 
+                font-size:min(1.5vh, 1.5vw);
+            ">
+                <div>Click below!</div>
+                <div>V</div>
             </div>
         `,
         `
-            <div style="justify-content:center;">
-                <p style="rotate:180deg;">V</p>
-                <p>|</p>
-                <p>click me!</p>
+            <div style="justify-content:center; font-size:min(1.5vh, 1.5vw);">
+                <div style="rotate:180deg;">V</div>
+                <div>Click above!</div>
             </div>
         `,
     ];
