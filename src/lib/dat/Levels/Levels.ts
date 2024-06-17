@@ -118,7 +118,7 @@ export const AdderLevel = {
             inputCheckboxes:false
         }
     ),
-    x:9,y:7, desiredId:9,
+    x:11,y:5, desiredId:9,
     type:Adder2c,
     playCondition:[false, false, true]
 }
@@ -333,7 +333,7 @@ export const And3Level = {
             getGateType(And3).name
         ]
     ),
-    x:7, y:4, desiredId:4,
+    x:8, y:2, desiredId:4,
     type:And3
 }
 
@@ -355,7 +355,7 @@ export const Or3Level = {
             getGateType(Or3).name
         ]
     ),
-    x:3, y:5, desiredId:3,
+    x:4, y:5, desiredId:3,
     type:Or3
 }
 

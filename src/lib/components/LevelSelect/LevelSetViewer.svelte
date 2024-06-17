@@ -28,8 +28,8 @@
     const editorParams = {canDragGates:false}
     const rendererParams = {showIds:true}
 
-    let progress = browser ? new ProgressStorage() : undefined
-    let levelSet = progress?.levels() || []
+    $: progress = browser ? new ProgressStorage() : undefined
+    $: levelSet = progress?.levels() || []
 
     /**
      * @type {GameViewCircuitPanel}
@@ -37,14 +37,17 @@
     let circuitPanel
 
     const connections = [
-        {from:0, output:0, to:2, input:1},
-        {from:0, output:0, to:1, input:0},
-        {from:2, output:0, to:3, input:1},
-        {from:3, output:0, to:1, input:1},
-        {from:4, output:0, to:5, input:0},
-        {from:6, output:2, to:7, input:3},
-        {from:1, output:0, to:8, input:1},
-        {from:2, output:0, to:8, input:3},
+        {from:0, output:0, to:1, input:0}, //fill 1 input of Some Kind of Combo, let the user make the other
+        {from:0, output:0, to:2, input:0}, //enable join by powering 1 input
+        {from:0, output:0, to:3, input:1}, //Join powers Joinyer
+        {from:3, output:0, to:1, input:1}, //Joinyer helps out with Some Kind of Combo
+        {from:1, output:0, to:4, input:0},
+        {from:2, output:0, to:4, input:1}, //fill 2 inputs of bigger combo, leave the other for the user
+        {from:5, output:0, to:6, input:0}, //No Combo powers itself, use to power Exclusion
+        {from:6, output:0, to:7, input:1},
+        {from:7, output:2, to:8, input:3},
+        {from:4, output:0, to:9, input:1},
+        {from:8, output:1, to:9, input:3},
     ]
     
     onMount(async () => {

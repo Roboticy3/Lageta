@@ -32,6 +32,8 @@
     onMount(async () => {
         console.log("Mounting level selector for ",level)
         await tick()
+
+        console.log("My name is ", level.name(), " and I am located at ", level.desiredId)
         container.setOffset()
         gateId = level.desiredId
         circuitController.addGateAtCell(level.type, level.x, level.y, level.desiredId)
