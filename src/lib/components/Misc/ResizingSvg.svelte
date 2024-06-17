@@ -8,6 +8,8 @@
 
     export let [minHeight, minWidth] = [0, 0]
 
+    export let [overflowHeight, overflowWidth] = [false, false]
+
     /**
      * @type {SVGElement | null}
      */
@@ -50,8 +52,11 @@
     }
 
     function getCurrentScale() {
+        if (overflowWidth && overflowHeight) return 1
         const inner = contentGroup.getBBox()
-        return Math.min(outerHeight / inner.height, outerWidth / inner.width)
+        const widthScale = overflowWidth ? Infinity : outerWidth / inner.width
+        const heightScale = overflowHeight ? Infinity : outerHeight / inner.height
+        return Math.min(widthScale, heightScale)
     }
 
     /**

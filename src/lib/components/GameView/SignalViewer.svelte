@@ -229,7 +229,7 @@
 
     <div class="svg-container">
         <ResizingSvg
-            
+            overflowWidth={true}
             ancestry={1}
         >
             <g transform="translate(0, 8)" fill="none">
