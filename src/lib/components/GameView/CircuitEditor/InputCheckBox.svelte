@@ -104,11 +104,11 @@
     smooth={true}
     >
     
-    <div class="input-checkbox">
+    <button class="input-checkbox">
         <ResizingSvg>
-            <circle r="5" cx="5" cy="5"/>
+            <rect x="0" y="0" width="20" height="20" fill="none"/>
         </ResizingSvg>
-    </div>
+    </button>
     
     
     
@@ -121,6 +121,9 @@
         font-size:min(3vw, 4vh);
         height:100%;
         width:100%;
+        top:-10%;
+        left:-5%;
+        position:relative;
     }
 
     .input-checkbox-checked {
