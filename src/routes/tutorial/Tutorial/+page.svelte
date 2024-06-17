@@ -4,7 +4,7 @@
     import CircuitEditorComponent from "$lib/components/GameView/CircuitEditor/CircuitEditorComponent.svelte";
     import { Tutorial } from "$lib/dat/Levels/Levels";
     import { CircuitController } from "$lib/circuit_types/CircuitController";
-    import { onMount } from "svelte";
+    import { onMount, tick } from "svelte";
     import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControllerQueryResult";
     import { TutorialEventSequenceController } from "$lib/tutorial_types/TutorialEventSequence";
     import { createGameViewCircuitPanelEvent } from "$lib/circuit_types/GameViewCircuitPanelEvent";
@@ -15,6 +15,7 @@
     import GameViewContentsTutorial from "$lib/dat/Tutorials/TutorialGameViewContents/GameViewContentsTutorial.svelte";
     import { ProgressStorage } from "$lib/storage_types/ProgressStore";
     import { browser } from "$app/environment";
+    import TutorialFrame from "$lib/components/GameView/Tutorial/TutorialFrame.svelte";
 
     /**
      * @type {CircuitController}
@@ -122,48 +123,58 @@
 
 </script>
 
+<TutorialFrame
+    tutorial={"Tutorial"}
+    on:skip={async () => {
+        eventStagesController.prepareEvent(state.currentEvent, 26)
 
-<div style="width:{size}%; height:{size}%;" data-sveltekit-noscroll>
-    <CircuitEditorComponent
-        bind:this={editor}
-        gameParams={Tutorial.params}
-        circuitController={circuitController}
-        editorParams={{
-            inputCheckboxes:state.showInputCheckboxes,
-            showShelf:state.showShelf
-        }}
-        bind:rendererParams={state.rendererParams}
-        editorEventTarget={eventStagesController.editorEventTarget}
-        shelf={progressStorage?.gates()}
-        maxSizeState={maxSizeState}
-    >
-        <CircuitEditorContentsTutorial
+        await tick()
+
+        circuitController.onComplete()
+    }}
+>
+    <div style="width:{size}%; height:{size}%;" data-sveltekit-noscroll>
+        <CircuitEditorComponent
+            bind:this={editor}
+            gameParams={Tutorial.params}
             circuitController={circuitController}
-            eventStagesController={eventStagesController}
-            state={state}
-            on:continue={onContinue}
-        />
-    </CircuitEditorComponent>
-</div>
-
-{#if state.currentEvent >= 9}
-    <GameView
-        
-        gameParams={Tutorial.params}
-        circuitController={circuitController}
-        editorParams={{
-            canDragGates:false,
-            inputCheckBoxes:state.showInputCheckboxes
-        }}
-        existingEditor={editor}
-        signalSetViewEventTarget={eventStagesController.signalEventTarget}
-        bind:maxSizeState={maxSizeState}
-    >
-        <GameViewContentsTutorial 
-            state={state}
-            eventStagesController={eventStagesController}
-            on:continue={onContinue}
-        />
-    </GameView>
-    <div use:delayedContinue></div>
-{/if}
+            editorParams={{
+                inputCheckboxes:state.showInputCheckboxes,
+                showShelf:state.showShelf
+            }}
+            bind:rendererParams={state.rendererParams}
+            editorEventTarget={eventStagesController.editorEventTarget}
+            shelf={progressStorage?.gates()}
+            maxSizeState={maxSizeState}
+        >
+            <CircuitEditorContentsTutorial
+                circuitController={circuitController}
+                eventStagesController={eventStagesController}
+                state={state}
+                on:continue={onContinue}
+            />
+        </CircuitEditorComponent>
+    </div>
+    
+    {#if state.currentEvent >= 9}
+        <GameView
+            
+            gameParams={Tutorial.params}
+            circuitController={circuitController}
+            editorParams={{
+                canDragGates:false,
+                inputCheckBoxes:state.showInputCheckboxes
+            }}
+            existingEditor={editor}
+            signalSetViewEventTarget={eventStagesController.signalEventTarget}
+            bind:maxSizeState={maxSizeState}
+        >
+            <GameViewContentsTutorial 
+                state={state}
+                eventStagesController={eventStagesController}
+                on:continue={onContinue}
+            />
+        </GameView>
+        <div use:delayedContinue></div>
+    {/if}
+</TutorialFrame>
