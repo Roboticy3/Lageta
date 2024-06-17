@@ -104,13 +104,13 @@
     smooth={true}
     >
     
-    <button class="input-checkbox" bind:this={checkbox} on:click={onChange}>
+    <button class="input-checkbox" bind:this={checkbox} on:click={onChange} title="Input Checkbox">
         <ResizingSvg>
-            <g font-size="15">
-                <text x="5" y="10" fill="var(--connection-color-on)">+</text>
-                <g transform="rotate(12)"><text x="7" y="9" fill="var(--connection-color-x)">_</text></g>
-                <text x="5" y="25" fill="var(--connection-color-off)">-</text>
-                <circle fill="none" stroke="{color}" cx="9" r="6" cy="{checked ? 6:21}"/>
+            <g font-size="10">
+                <text x="5" y="10" fill="var(--connection-color-on)">H</text>
+                <g transform="rotate(12)"><text x="7" y="9" fill="black">_</text></g>
+                <text x="5" y="20" fill="var(--connection-color-off)">L</text>
+                <circle fill="none" stroke="{color}" cx="8" r="6" cy="{checked ? 6:17}"/>
             </g>
             
         </ResizingSvg>
@@ -132,13 +132,7 @@
         position:relative;
     }
 
-    .input-checkbox-checked {
-        background-color: var(--connection-color-on);
-        color: white;
-    }
-
-    .input-checkbox-unchecked {
-        background-color: var(--connection-color-off);
-        color: black;
+    .input-checkbox:hover {
+        scale:1.2;
     }
 </style>
