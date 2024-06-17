@@ -43,7 +43,9 @@
 
     const connections = [
         {from:0, output:0, to:2, input:1},
+        {from:0, output:0, to:1, input:0},
         {from:2, output:0, to:3, input:1},
+        {from:3, output:0, to:1, input:1},
         {from:4, output:0, to:5, input:0},
         {from:6, output:2, to:7, input:3},
         {from:1, output:0, to:8, input:1},

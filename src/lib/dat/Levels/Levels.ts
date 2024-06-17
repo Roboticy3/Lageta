@@ -329,7 +329,7 @@ export const Or3Level = {
         [
         ]
     ),
-    x:4, y:5,
+    x:3, y:5,
     type:Or3
 }
 
