@@ -258,13 +258,14 @@
 <style>
     .signal-viewer-container {
         display:grid;
-        grid-template-columns: 1fr 1fr 9fr;
+        grid-template-columns: 1fr 1fr 8fr 1fr;
         gap: 5%;
         height:100%;
     }
 
     .svg-container {
         grid-column: 3 / 4;
+        overflow-x: hidden;
         position:relative;
     }
 
