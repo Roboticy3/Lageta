@@ -195,7 +195,7 @@ export const DecoderLevel = {
 
 export const XorLevel = {
     params:new GameViewParameters(
-        "Exclusion",
+        "Exclude",
         `
         <p>Here's an example of making a more advanced gate</p>
         <p>Beating this level requires a "Xor" gate, short for "Exclusive Or." Like an Or gate but more... exclusive.</p>
@@ -352,7 +352,8 @@ export const Or3Level = {
             getGateType(Or3)
         ),
         [
-            getGateType(Or3).name
+            getGateType(Or3).name,
+            XorLevel.params.name
         ]
     ),
     x:4, y:5, desiredId:3,
