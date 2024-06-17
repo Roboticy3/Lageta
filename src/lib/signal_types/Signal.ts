@@ -80,6 +80,24 @@ export function repeater<T>(source:Signal<T>, repeat:number=1) {
     return result
 }
 
+export function inverter(source:Signal<ConnectionValue>) {
+    const newBlock:Array<SignalKeyFrame<ConnectionValue>> = []
+    for (let k of source.unpack()) {
+        switch (k.value) {
+            case undefined:
+                newBlock.push({frame:k.frame,value:undefined})
+                break
+            case true:
+                newBlock.push({frame:k.frame,value:false})
+                break
+            case false:
+                newBlock.push({frame:k.frame,value:true})
+                break
+        }
+    }
+    return new Signal(newBlock)
+}
+
 export class SignalSet<T> implements Iterable<Array<T>>{
     readonly block:Array<Signal<T>>
     length:number
@@ -264,7 +282,7 @@ export class SignalSet<T> implements Iterable<Array<T>>{
         return signal
     }
 
-    inverted(): SignalSet<T> {
+    flipInputsOutputs(): SignalSet<T> {
         let newBlock = this.block.slice(this.inputs);
         newBlock.push(...this.block.slice(0, this.inputs))
         return new SignalSet(
