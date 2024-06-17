@@ -71,7 +71,7 @@
 
     function onComplete() {
         if (gameParams.name === progressStorage.getCurrentTutorial()) {
-            progressStorage.setCurrentTutorial("")
+            progressStorage.passTutorial()
         }
 
         levelRewards.map(progressStorage.addLevel.bind(progressStorage))
