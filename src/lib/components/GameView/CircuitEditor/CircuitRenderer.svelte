@@ -811,7 +811,7 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
      * @param {[number, number]} to
      */
     function drawWire(from, to) {
-        return wireRenderer.drawWire(from, to, rendererParams.minStride || 3, circuitController)
+        return wireRenderer.drawWireBordered(from, to, rendererParams.minStride || 3, circuitController, 2)
     }
     
     /**
