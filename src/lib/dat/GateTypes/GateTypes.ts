@@ -362,3 +362,56 @@ export function Adder(bits:number, carry:boolean, otherParams?:GateTypeParameter
 }
 
 export const Adder2c = Adder(2, true)
+
+export function NInputAnd(bits:number, otherParams?:GateTypeParameters) {
+    let params: GateTypeParameters = {
+        name: `${bits}-Input And`,
+        inputs: bits, outputs: 1,
+        gridSize: [2, bits],
+        f: (s) => {
+            const o = s.override
+            let result:ConnectionValue = true
+            //break on false, but continue on undefined to avoid "ordered" behavior where earlier undefined values with negate false values
+            for (let i of o) {
+                if (i === undefined)
+                    result = undefined
+                else if (i === false) {
+                    result = false
+                    break
+                }
+            }
+            
+            return {override:[result]}
+        }
+    }
+    if (otherParams) params = combineGateTypeParameters(params, otherParams)
+    return params;
+}
+
+export function NInputOr(bits:number, otherParams?:GateTypeParameters) {
+    let params: GateTypeParameters = {
+        name: `${bits}-Input Or`,
+        inputs: bits, outputs: 1,
+        gridSize: [2, bits],
+        f: (s) => {
+            const o = s.override
+            let result:ConnectionValue = undefined
+            //reverse of NInputAnd's function
+            for (let i of o) {
+                if (i === false)
+                    result = false
+                else if (i === true) {
+                    result = true
+                    break
+                }
+            }
+            
+            return {override:[result]}
+        }
+    }
+    if (otherParams) params = combineGateTypeParameters(params, otherParams)
+    return params;
+}
+
+export const And3 = NInputAnd(3)
+export const Or3 = NInputOr(3)

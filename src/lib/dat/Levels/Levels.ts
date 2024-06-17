@@ -1,6 +1,6 @@
 import { Connection } from "$lib/circuit_types/GateGraph";
 import { GateType, GateTypeController, type ConnectionValue } from "$lib/circuit_types/GateType";
-import { Adder2c, And, Buf, Decoder2t4, Encoder4t2, Input, InputDecodePrebaked, InputLabelledPrebaked, InputVariable, Nand, Not, Or, Output, OutputDecodePrebaked, OutputLabelledPrebaked, Xor, drawGateTypeDecode, getGateType, type GateTypeParameters } from "$lib/dat/GateTypes/GateTypes";
+import { Adder2c, And, Buf, Decoder2t4, Encoder4t2, Input, InputDecodePrebaked, InputLabelledPrebaked, InputVariable, Nand, Not, Or, Or3, Output, OutputDecodePrebaked, OutputLabelledPrebaked, Xor, drawGateTypeDecode, getGateType, type GateTypeParameters } from "$lib/dat/GateTypes/GateTypes";
 import { ConnectionValueSignalSet, Signal, SignalSet, oscillator, repeater } from "$lib/signal_types/Signal";
 import type { OrganizedCircuitContents, SerializableGate } from "$lib/storage_types/CircuitStorage";
 import { ProgressStorage } from "$lib/storage_types/ProgressStore";
@@ -28,7 +28,7 @@ const MinCircuit:OrganizedCircuitContents = {
 const In2Out1:OrganizedCircuitContents = {
     gateTypes: [
         getGateType(InputLabelledPrebaked[2]),
-        getGateType(OutputLabelledPrebaked[2])
+        getGateType(OutputLabelledPrebaked[1])
     ],
     gates: [
         { x: 0, y: 3, type: "Input2Labelled", id: 0 } as SerializableGate,
@@ -36,6 +36,18 @@ const In2Out1:OrganizedCircuitContents = {
     ],
     size: [16, 8]
 };
+
+const In3Out1:OrganizedCircuitContents = {
+    gateTypes: [
+        getGateType(InputLabelledPrebaked[3]),
+        getGateType(OutputLabelledPrebaked[1])
+    ],
+    gates: [
+        { x: 0, y: 3, type: "Input3Labelled", id: 0 } as SerializableGate,
+        { x: 14, y: 4, type: "Output1Labelled", id: 1 } as SerializableGate
+    ],
+    size: [16, 9]
+}
 
 const DecoderLevelSignal = new ConnectionValueSignalSet(
     [
@@ -266,6 +278,61 @@ export const NandLevel = {
     type:Nand
 }
 
+export const Or3Level = {
+    params:new GameViewParameters(
+        "Joinyer",
+        `
+        <p>This level requires a 3-Input Or gate, which outputs high when 
+        any of its inputs output high.</p>
+        `,
+        In3Out1,
+        new ConnectionValueSignalSet(
+            [
+                new Signal<ConnectionValue>([
+                    {frame:0,value:false},
+                    {frame:3,value:true},
+                    {frame:3,value:false},
+                    {frame:15,value:true},
+                    {frame:3,value:false},
+                    {frame:9,value:true},
+                    {frame:3,value:false},
+                ]).push(
+                    oscillator(3, 3)
+                ),
+                new Signal<ConnectionValue>([
+                    {frame:0,value:false},
+                    {frame:9,value:true},
+                    {frame:3,value:false},
+                    {frame:9,value:true},
+                    {frame:3,value:false},
+                    {frame:3,value:true},
+                    {frame:3,value:false},
+                    {frame:6,value:false},
+                ]).push(
+                    oscillator(3, 3)
+                ),
+                new Signal<ConnectionValue>([
+                    {frame:0,value:false},
+                    {frame:15,value:true},
+                    {frame:3,value:false},
+                    {frame:9,value:true},
+                    {frame:3,value:false},
+                    {frame:3,value:true},
+                    {frame:3,value:false},
+                ]).push(
+                    oscillator(3, 3)
+                ),
+            ],
+            60,
+            getGateType(Or3)
+        ),
+        [
+        ]
+    ),
+    x:4, y:5,
+    type:Or3
+}
+
 export const OrLevel = {
     params:new GameViewParameters(
         "Join",
@@ -315,6 +382,7 @@ export const OrLevel = {
             getGateType(Or)
         ),
         [
+            Or3Level.params.name
         ]
     ),
     x:4, y:3,
@@ -472,6 +540,7 @@ const all_params = new Map<string, LevelParameters>([
     [NotLevel.params.name,NotLevel],
     [AndLevel.params.name,AndLevel],
     [OrLevel.params.name,OrLevel],
+    [Or3Level.params.name,Or3Level],
     [NandLevel.params.name, NandLevel],
     [XorLevel.params.name, XorLevel],
     [DecoderLevel.params.name, DecoderLevel],
