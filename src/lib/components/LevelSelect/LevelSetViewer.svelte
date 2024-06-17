@@ -2,7 +2,7 @@
     import { GameViewParameters } from "$lib/level_types/GameViewParameters";
     //@ts-ignore
     import { Level, all_levels } from "$lib/level_types/Level";
-    import { AndLevel, Freeplay, NotLevel, OrLevel } from "$lib/dat/Levels/Levels";
+    import { AndLevel, Freeplay, OrLevel } from "$lib/dat/Levels/Levels";
     import { ProgressStorage } from "$lib/storage_types/ProgressStore";
     import { onMount, tick } from "svelte";
     import GameViewCircuitPanel from "$lib/components/GameView/CircuitEditor/GameViewCircuitPanel.svelte";

@@ -11,6 +11,7 @@ export type LevelParameters = {
     params?:GameViewParameters,
     x?:number,
     y?:number,
+    desiredId?:number,
     type?:GateTypeParameters,
     playCondition?:boolean[],
     register?:boolean
@@ -117,7 +118,7 @@ export const AdderLevel = {
             inputCheckboxes:false
         }
     ),
-    x:9,y:7,
+    x:9,y:7, desiredId:9,
     type:Adder2c,
     playCondition:[false, false, true]
 }
@@ -152,7 +153,7 @@ export const EncoderLevel = {
             inputCheckboxes:false
         }
     ),
-    x:18,y:0,
+    x:18,y:0, desiredId:8,
     type:Encoder4t2,
     playCondition:[true, true]
 }
@@ -187,7 +188,7 @@ export const DecoderLevel = {
             inputCheckboxes:false
         }
     ),
-    x:14,y:0,
+    x:14,y:0, desiredId:7,
     type:Decoder2t4,
     playCondition:[false, false, true, false]
 }
@@ -230,7 +231,7 @@ export const XorLevel = {
             getGateType(Xor).name
         ]
     ),
-    x:11,y:2,
+    x:11,y:2,desiredId:6,
     type:Xor
 }
 
@@ -273,7 +274,7 @@ export const NandLevel = {
             DecoderLevel.params.name
         ]
     ),
-    x:9,y:0,
+    x:9,y:0,desiredId:5,
     type:Nand
 }
 
@@ -332,7 +333,8 @@ export const And3Level = {
             getGateType(And3).name
         ]
     ),
-    x:7, y:4
+    x:7, y:4, desiredId:4,
+    type:And3
 }
 
 export const Or3Level = {
@@ -353,7 +355,7 @@ export const Or3Level = {
             getGateType(Or3).name
         ]
     ),
-    x:3, y:5,
+    x:3, y:5, desiredId:3,
     type:Or3
 }
 
@@ -409,7 +411,7 @@ export const OrLevel = {
             Or3Level.params.name
         ]
     ),
-    x:4, y:3,
+    x:4, y:3, desiredId:2,
     type:Or
 }
 
@@ -439,40 +441,9 @@ export const AndLevel = {
             NandLevel.params.name
         ]
     ),
-    x:6, y:1,
+    x:6, y:1, desiredId:1,
     type:And
 }
-
-export const NotLevel = {
-    params:new GameViewParameters(
-        "Inverter",
-        `
-        <p>This level requires a "Not" Gate, also called an inverter, which takes one input and produces its opposite.</p>
-        <p>The Not gate is represented by a triangle with a circle at the end.</p>
-        <p>Click on the symbols on the top shelf to produce a gate, and drop it in the grid.</p>
-        <p>A Gate takes inputs and transforms them into outputs.</p>
-        <p>After placing the gate, connect a wire to the input, and connect the output to the level's output.</p>
-        `,
-        MinCircuit,
-        new ConnectionValueSignalSet(
-            [
-                new Signal<ConnectionValue>([{frame:0,value:false}])
-                    .push(oscillator(10, 2))
-                    .push(oscillator(5, 3))
-                    .push(oscillator(3, 3))
-                    .push(oscillator(1, 6))
-            ],
-            101,
-            getGateType(Not)
-        ),
-        [
-            OrLevel.params.name,
-            getGateType(Or).name
-        ]
-    ),
-    x:3, y:0,
-    type:Not
-};
 
 export const BufLevel = {
     params:new GameViewParameters(
@@ -493,11 +464,6 @@ export const BufLevel = {
             getGateType(Buf)
         ),
         [
-            getGateType(Not).name,
-            getGateType(And).name,
-            getGateType(Buf).name,
-            NotLevel.params.name,
-            AndLevel.params.name
         ]
     ),
     x:4, y:1,
@@ -558,7 +524,6 @@ export const Tutorial = {
 const all_params = new Map<string, LevelParameters>([
     [Freeplay.params.name,Freeplay],
     [BufLevel.params.name,BufLevel],
-    [NotLevel.params.name,NotLevel],
     [AndLevel.params.name,AndLevel],
     [OrLevel.params.name,OrLevel],
     [Or3Level.params.name,Or3Level],

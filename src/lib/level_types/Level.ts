@@ -14,6 +14,8 @@ export class Level {
     readonly x:number
     readonly y:number
 
+    readonly desiredId:number
+
     readonly type:GateTypeController
 
     readonly playCondition:Array<ConnectionValue>
@@ -24,6 +26,7 @@ export class Level {
 
         this.x = params.x || 0
         this.y = params.y || 0
+        this.desiredId = params.desiredId || 0
         this.params = params.params || new GameViewParameters()
 
         this.type = getGateType(params.type || Buf)

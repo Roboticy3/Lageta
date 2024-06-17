@@ -1,6 +1,6 @@
 import { Buf, all_gates, getGateType } from "$lib/dat/GateTypes/GateTypes"
 import { all_levels } from "$lib/level_types/Level"
-import { Freeplay, NotLevel, getLevel, getLevelParams, type LevelParameters } from "$lib/dat/Levels/Levels"
+import { Freeplay, getLevel, getLevelParams, type LevelParameters } from "$lib/dat/Levels/Levels"
 import { parseStorage } from "./ParseStorage"
 import { browser } from "$app/environment"
 //storage format
