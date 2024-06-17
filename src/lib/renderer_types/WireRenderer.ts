@@ -6,19 +6,19 @@ export class WireRenderer {
     }
 
     //i desparately need a vector library
-    private projectPointOntoLine(p:[number, number], u:[number, number], v:[number, number], minStride:number) {
+    private projectPointOntoLine(p:[number, number], u:[number, number], v:[number, number]) {
         const uv = [v[0] - u[0], v[1] - u[1]]
         const up = [p[0] - u[0], p[1] - u[1]]
         const upDotUv = up[0] * uv[0] + up[1] * uv[1]
         const uvDotUv = uv[0] * uv[0] + uv[1] * uv[1]
         const uvL = Math.sqrt(uvDotUv)
         const scalarProject = upDotUv / uvDotUv
-        if (scalarProject * uvL >= minStride && scalarProject * uvL <= uvL - minStride) 
+        if (scalarProject >= 0.01 && scalarProject <= 0.99) 
             return [scalarProject * uv[0], scalarProject * uv[1]]
     }
 
     private tryCollidePointOnLine(p:[number, number], u:[number, number], v:[number, number], minStride:number) {
-        const project = this.projectPointOntoLine(p, u, v, minStride)
+        const project = this.projectPointOntoLine(p, u, v)
         if (!project) return undefined
         const pAligned = [u[0] + project[0], u[1] + project[1]]
         const reject = [p[0] - pAligned[0], p[1] -  pAligned[1]]
@@ -133,49 +133,65 @@ export class WireRenderer {
         return newPoints
     }
 
+    static readonly passes:(2 | 3)[] = [3, 2, 2, 2]
+
+    private processWirePointsSinglePass(
+        points:[number, number][], circuitController:CircuitController,
+        minStride:number, pass:number
+    ) {
+        const passType = WireRenderer.passes[pass]
+        if (points.length < passType) return points
+
+        const newPoints:[number, number][] = []
+
+        let i = 0
+
+        switch (passType) {
+            case 3: 
+            while (i < points.length - 2) {
+                const processedPoints = this.processPointTriple(
+                    points[i], points[i + 1], points[i + 2],
+                    circuitController, minStride
+                )
+    
+                newPoints.push(...processedPoints)
+                i += 3
+            } break
+            case 2: 
+            while (i < points.length - 1) {
+                const processedPoints = this.processPointDouble(
+                    points[i], points[i + 1],
+                    circuitController, minStride
+                )
+    
+                newPoints.push(...processedPoints)
+                i += 2
+            } break
+        }
+        
+        while (i < points.length) {
+            newPoints.push(points[i])
+            i++
+        }
+
+        return newPoints
+    }
+
     private processWirePoints(
         points:[number, number][], circuitController:CircuitController,
         minStride:number
     ): [number, number][] {
         if (points.length < 3) return points
 
-        let firstPass:[number, number][] = []
+        let newPoints = points
 
-        let i = 0
-        //process points in groups of 3 for more elegant obstacle avoidance
-        while (i < points.length - 2) {
-            const processedPoints = this.processPointTriple(
-                points[i], points[i + 1], points[i + 2],
-                circuitController, minStride
+        for (const pass of WireRenderer.passes) {
+            newPoints = this.processWirePointsSinglePass(
+                newPoints, circuitController, minStride, pass
             )
-
-            firstPass.push(...processedPoints)
-            i += 3
-        }
-        while (i < points.length) {
-            firstPass.push(points[i])
-            i++
         }
 
-        let secondPass:[number, number][] = []
-
-        //then process the points in pairs
-        i = 0
-        while (i < firstPass.length - 1) {
-            const processedPoints = this.processPointDouble(
-                firstPass[i], firstPass[i + 1],
-                circuitController, minStride
-            )
-    
-            secondPass.push(...processedPoints)
-            i += 2
-        }
-        while (i < points.length) {
-            secondPass.push(points[i])
-            i++
-        }
-
-        return secondPass
+        return newPoints
     }
 
     pointsToSvgPath(points:[number, number][], extraParams=""): string {
