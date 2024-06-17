@@ -124,7 +124,6 @@
 </script>
 
 <TutorialFrame
-    tutorial={"Tutorial"}
     on:skip={async () => {
         eventStagesController.prepareEvent(state.currentEvent, 26)
 

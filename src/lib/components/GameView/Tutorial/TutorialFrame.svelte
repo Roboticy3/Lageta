@@ -2,12 +2,6 @@
 <script>
     import { createEventDispatcher } from "svelte";
 
-
-    /**
-     * @type {string}
-     */
-    export let tutorial
-
     const dispatch = createEventDispatcher()
 
     /**
