@@ -5,37 +5,37 @@ export let all_gates: Map<string, GateTypeController> = new Map();
 
 export const Buf:GateTypeParameters = { 
     name: "Buf", inputs: 1, outputs: 1, 
-    draw: (s) => {return `<path d="M 2 2 L 18 10 L 2 18 Z"/>\n`}
+    draw: (s) => {return `<path d="M 2 2 L 18 10 L 2 18 Z" style="pointer-events:none;" />\n`}
 }
 
 export const Not:GateTypeParameters = { 
     name: "Not", inputs: 1, outputs: 1, 
     f: (s:GateState) => { return {override:[!(s.override[0])]}; },
-    draw: (s) => {return `<path d="M 1 3 L 15 10 L 1 17 Z"/><circle cx="17" cy="10" r="2" />\n`}
+    draw: (s) => {return `<path d="M 1 3 L 15 10 L 1 17 Z" style="pointer-events:none;" /><circle cx="17" cy="10" r="2"  style="pointer-events:none;" />\n`}
 };
 
 export const And:GateTypeParameters = { 
     name: "And", inputs: 2, outputs: 1, 
     f: (s:GateState) => { return {override:[s.override[0] && s.override[1]]}; },
-    draw: (s) => {return `<path d="M 2 2 L 10 2 C 20 2 20 18 10 18 L 2 18 Z"/>\n`}
+    draw: (s) => {return `<path d="M 2 2 L 10 2 C 20 2 20 18 10 18 L 2 18 Z" style="pointer-events:none;" />\n`}
 };
 
 export const Or:GateTypeParameters = { 
     name: "Or", inputs: 2, outputs: 1, 
     f: (s:GateState) => { return {override:[s.override[0] || s.override[1]]}; },
-    draw: (s) => {return `<path d="M 10 2 C 20 2 20 18 10 18 L 2 18 C 5 18 5 2 2 2 Z"/>\n`}
+    draw: (s) => {return `<path d="M 10 2 C 20 2 20 18 10 18 L 2 18 C 5 18 5 2 2 2 Z" style="pointer-events:none;" />\n`}
 };
 
 export const Nand:GateTypeParameters = { 
     name: "Nand", inputs: 2, outputs: 1, 
     f: (s:GateState) => { return {override:[!(s.override[0] && s.override[1])]}; },
-    draw: (s) => {return `<path d="M 2 2 L 10 2 C 20 2 20 18 10 18 L 2 18 Z"/>\n<circle cx=18 cy=10 r="2"/>\n`}
+    draw: (s) => {return `<path d="M 2 2 L 10 2 C 20 2 20 18 10 18 L 2 18 Z" style="pointer-events:none;" />\n<circle cx=18 cy=10 r="2" style="pointer-events:none;" />\n`}
 };
 
 export const Xor:GateTypeParameters = { 
     name: "Xor", inputs: 2, outputs: 1, 
     f: (s:GateState) => { return {override:[(s.override[0] || false) !== (s.override[1] || false)]}; },
-    draw: (s) => {return `<path d="M 10 2 C 20 2 20 18 10 18 L 5 18 C 8 18 8 2 5 2 Z"/>\n<path d="M 2 18 C 5 18 5 2 2 2"/>\n`}
+    draw: (s) => {return `<path d="M 10 2 C 20 2 20 18 10 18 L 5 18 C 8 18 8 2 5 2 Z" style="pointer-events:none;" />\n<path d="M 2 18 C 5 18 5 2 2 2" style="pointer-events:none;" />\n`}
 }
 
 export const LevelGateType:GateTypeParameters = { name: "LevelGateType", gridSize: [2, 2], moveable: false };
@@ -138,13 +138,13 @@ export function spreadHorizontalConnections(gridY: number, gridWidth: number, nu
 export const drawGateTypeEllipse = (gridWidth:number, gridHeight:number) => {
     const w = 10 * (gridWidth / 2)
     const h = 10 * (gridHeight / 2)
-    return `<ellipse rx="${w - 2}" ry="${h - 2}" cx="${w}" cy="${h}" />\n`;
+    return `<ellipse rx="${w - 2}" ry="${h - 2}" cx="${w}" cy="${h}"  style="pointer-events:none;" />\n`;
 }
 
 export const drawGateTypeRect = (gridWidth:number, gridHeight:number) => {
     const w = 10 * (gridWidth)
     const h = 10 * (gridHeight)
-    return `<rect width="${w - 4}" height="${h - 4}" x="${2}" y="${2}" />\n`;
+    return `<rect width="${w - 4}" height="${h - 4}" x="${2}" y="${2}"  style="pointer-events:none;" />\n`;
 }
 
 export const drawGateTypeEncode = (s:GateState, gridWidth:number, gridHeight:number) => {

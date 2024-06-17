@@ -145,7 +145,7 @@ export class WireRenderer {
         return newPoints
     }
 
-    static readonly passes:(2 | 3)[] = [3, 2]
+    static readonly passes:(2 | 3)[] = [3, 2, 3]
 
     private processWirePointsSinglePass(
         points:[number, number][], circuitController:CircuitController,
@@ -218,12 +218,12 @@ export class WireRenderer {
         return path
     }
 
-    drawWire(a:[number, number], b:[number, number], minStride:number, circuitController:CircuitController) {
+    drawWirePoints(a:[number, number], b:[number, number], minStride:number, circuitController:CircuitController) {
         const [ax, ay, bx, by] = [a[0], a[1], b[0], b[1]]
 
         //if the points are too close together, fallback to a simple straight line
         if ((Math.abs(ax - bx) + Math.abs(ay - by)) < 2 * minStride) {
-            return `<path d="M ${ax} ${ay} L ${bx} ${by}" style="pointer-events:none;"/>"`
+            return [a, b]
         }
         const [hx, hy] = [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2]
 
@@ -240,7 +240,21 @@ export class WireRenderer {
             ] 
             :
             [[ax, ay], [hx, ay], [hx, by], [bx, by]]
+        
+        return this.processWirePoints(points, circuitController, minStride)
+    }
 
-        return this.pointsToSvgPath(this.processWirePoints(points, circuitController, minStride))
+    drawWire(a:[number, number], b:[number, number], minStride:number, circuitController:CircuitController, extraParams="") {  
+        const points = this.drawWirePoints(a, b, minStride, circuitController)
+        return this.pointsToSvgPath(points, extraParams)
+    }
+
+    drawWireBordered(a:[number, number], b:[number, number], minStride:number, circuitController:CircuitController, borderWidth=2) {
+        const points = this.drawWirePoints(a, b, minStride, circuitController)
+
+        const inner = this.pointsToSvgPath(points)
+        const border = this.pointsToSvgPath(points, `stroke-width="${borderWidth}" stroke="white"`)
+
+        return `${border}\n${inner}`
     }
 }
