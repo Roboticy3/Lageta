@@ -352,7 +352,8 @@ export const Or3Level = {
             getGateType(Or3)
         ),
         [
-            getGateType(Or3).name
+            getGateType(Or3).name,
+            XorLevel.params.name
         ]
     ),
     x:4, y:5, desiredId:3,
