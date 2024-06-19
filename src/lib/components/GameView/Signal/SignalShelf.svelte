@@ -7,6 +7,7 @@
     import { ConnectionValueSignalSet } from "$lib/signal_types/Signal";
     import { CircuitSignalSetViewEventTarget, SignalSetViewEventTarget } from "$lib/signal_types/SignalSetViewEvent";
     import { createCustomEvent } from "$lib/misc_types/CustomEventSystem";
+    import SignalViewer from "./SignalViewer.svelte";
     /**
      * @type {CircuitSignalSetView}
      */
@@ -248,23 +249,11 @@
             overflowWidth={true}
             ancestry={1}
         >
-            <g transform="translate(0, 8)" fill="none">
-                {#each channelSvgs as channel, index}
-                    <g transform='translate({labelOffset}, {channelSvgHeight(index)})'>
-                        {@html channel}
-                    </g>
-                    <g fill="black" transform='translate(0, {channelSvgHeight(index)  + channelSvgHeight(1) / 2})'>
-                        <text>{labels[index]}</text>
-                    </g>
-                {/each}
-                <g id="signal-svg-play-bar">
-                    <path d="M -4 -8 L 4 -8 L 0 0 L 0 {signalSetView.getDesiredHeight()} L 0 0 Z" stroke="var(--grid-color)" stroke-width="1px" fill="none"/>
-                </g>
-                {#each liveChannelSvgs as channel, index}
-                    <g transform='translate({labelOffset}, {channelSvgHeight(index + signalSetView.getInputSize())})'>
-                        {@html channel}
-                    </g>
-                {/each}
+            <g fill="none">
+                <SignalViewer 
+                    signalSetView={signalSetView}
+                    channels={new Array(signalSetView.channelCount()).fill("").map((_v, i) => i)}
+                />
             </g>
         </ResizingSvg>
     </div>

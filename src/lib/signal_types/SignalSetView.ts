@@ -66,6 +66,10 @@ export class SignalSetView<T> {
         return this.signalSet.inputs
     }
 
+    getChannelType(channel:number) {
+        return (channel < this.signalSet.inputs) ? "Input":"Output"
+    }
+
     getOutputSize() {
         return this.signalSet.outputs
     }
