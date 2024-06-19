@@ -4,7 +4,7 @@
     import { CircuitController } from "$lib/circuit_types/CircuitController";
     import { CircuitSignalSetView, SignalSetView } from "$lib/signal_types/SignalSetView";
     import { ProgressStorage } from "$lib/storage_types/ProgressStore";
-    import SignalViewer from "./SignalViewer.svelte";
+    import SignalViewer from "./SignalShelf.svelte";
     import CompletionPopup from "./CompletionPopup.svelte";
     import CircuitEditorComponent from "./CircuitEditor/CircuitEditorComponent.svelte";
     import { onMount, tick } from "svelte";
