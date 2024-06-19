@@ -13,8 +13,10 @@
      */
     export let signalSetView
 
-    export let height = 20
     export let margin = 4
+
+    export let frameLength = signalSetView.getLength()
+    $: updateChannelSvgs(frameLength)
 
     /**
      * @type {string[]}
@@ -24,7 +26,7 @@
      * @type {string[]}
      */
     let outputChannelSvgs = []
-    function updateChannelSvgs(to=signalSetView.getLength(), extraParams="") {
+    export function updateChannelSvgs(to=frameLength, extraParams="") {
         for (const channel of channels) {
             const channelSvg = signalSetView.drawChannel(channel, to, extraParams)
             switch (signalSetView.getChannelType(channel)) {
@@ -40,20 +42,15 @@
         outputChannelSvgs = outputChannelSvgs
     }
 
-    onMount(() => {
-        updateChannelSvgs()
-        console.log("inputs: ", inputChannelSvgs, "outputs: ", outputChannelSvgs)
-    })
-
 </script>
 
 {#each inputChannelSvgs as inputChannelSvg, index}
-    <g fill="none" stroke="black" stroke-width="1" transform="translate(0, {(height + margin) * index})">
+    <g fill="none" stroke="black" stroke-width="1" transform="translate(0, {(signalSetView.getDesiredChannelHeight() + margin) * index})">
         {@html inputChannelSvg}
     </g>
 {/each}
 {#each outputChannelSvgs as outputChannelSvg, index}
-    <g fill="none" stroke="black" stroke-width="1" transform="translate(0, {(height + margin) * (index + inputChannelSvgs.length)})">
+    <g fill="none" stroke="black" stroke-width="1" transform="translate(0, {(signalSetView.getDesiredChannelHeight() + margin) * (index + inputChannelSvgs.length)})">
         {@html outputChannelSvg}
     </g>
 {/each}
