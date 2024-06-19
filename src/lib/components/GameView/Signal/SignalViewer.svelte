@@ -82,10 +82,10 @@
     }
 
     /**
-     * @param {import("$lib/signal_types/SignalSetViewEvent").CircuitSignalSetViewEvent} param0
+     * @param {{frame:number}} param0
     */
-    function onStep({frame, value}) {        
-        updateLiveChannelSvgs(frame)
+    function onStep({frame}) {        
+        updateLiveChannelSvgs(frame - 1)
     }
 
     /**
@@ -102,7 +102,8 @@
      * @param {import("$lib/signal_types/SignalSetViewEvent").CircuitSignalSetViewEvent} param0
     */
     function onDone({frame}) {
-        onUpdate({frame:frame + 1})
+        onUpdate({frame:frame})
+        onStep({frame:frame + 1})
     }
 
     function onRestart() {
