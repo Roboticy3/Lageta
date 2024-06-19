@@ -118,7 +118,7 @@
         showButton={true}
     >   
         <div style="color:black; white-space: nowrap;">
-            <div style="position:relative; left:5vw;">As the <span style="color:var(--grid-color);">signal</span> changes,</div>
+            <div style="position:relative; left:5vw;">As the <span style="color:var(--circuit-color);">signal</span> changes,</div>
             <div style="
                 display:flex; 
                 flex-direction:row; 

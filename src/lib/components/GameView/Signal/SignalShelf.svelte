@@ -179,7 +179,7 @@
         setPlayBarProgress(frame)
         liveChannelSvgs = outputSignalSetView.drawChannels(
             frame, 
-            `stroke="var(--grid-color)" stroke-width="2" stroke-dasharray="2 1"`
+            `stroke="var(--circuit-color)" stroke-width="2" stroke-dasharray="2 1"`
         )
     }
 
@@ -291,7 +291,7 @@
     }
 
     .button-container button {
-        color: var(--grid-color);
+        color: var(--circuit-color);
         font-size: x-large;
     }
 

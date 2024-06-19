@@ -9,9 +9,9 @@
      */
     export let channels
     const channelTypeParams = new Map([
-        ["Given", `stroke="black", stroke-width="1"`],
-        ["Expected", `stroke="green", stroke-width="1"`],
-        ["Live", `stroke="purple", stroke-width="1"`],
+        ["Given", `stroke="var(--circuit-color)", stroke-width="1"`],
+        ["Expected", `stroke="var(--verification-color)", stroke-width="1"`],
+        ["Live", `stroke="var(--circuit-color)", stroke-width="1" stroke-dasharray="1"`],
     ])
 
     /**
