@@ -8,6 +8,7 @@
     import { CircuitSignalSetViewEventTarget, SignalSetViewEventTarget } from "$lib/signal_types/SignalSetViewEvent";
     import { createCustomEvent } from "$lib/misc_types/CustomEventSystem";
     import SignalViewer from "./SignalViewer.svelte";
+    import SignalPlayBar from "./SignalPlayBar.svelte";
     /**
      * @type {CircuitSignalSetView}
      */
@@ -129,7 +130,7 @@
         playBarGroup = container.querySelector("#signal-svg-play-bar")
         playButton = container.querySelector("#signal-play-button")
 
-        setPlayBarProgress()
+        checkScroll()
         atStart = true
         atEnd = false
 
@@ -160,7 +161,7 @@
      * @param {import("$lib/signal_types/SignalSetViewEvent").CircuitSignalSetViewEvent} param0
      */
     function onStep({frame}) {
-        setPlayBarProgress(frame)
+        checkScroll(frame)
         liveChannelSvgs = outputSignalSetView.drawChannels(
             frame, 
             `stroke="var(--circuit-color)" stroke-width="2" stroke-dasharray="2 1"`
@@ -219,20 +220,17 @@
      */
     let signalSvg
 
-    function setPlayBarProgress(frame = 0) {
-        let adjustedFrame = frame - 1
-        if (frame === 0) adjustedFrame = 0
-        else if (frame === signalSetView.getLength()) adjustedFrame = signalSetView.getLength()
+    function checkScroll(frame = 0) {
         const frameWidth = signalSetView.getDesiredFrameWidth()
-        const translateX = frameWidth * (adjustedFrame)
-        console.log("moving play bar to frame ", frame)
-        if (playBarGroup) playBarGroup.style.translate = `${translateX}px`
+        const translateX = frameWidth * (frame)
         const shouldScroll = !(signalSvg.isInnerOffsetInBounds([translateX + 16 * frameWidth, 0]))
         if (shouldScroll) {
             const offset = signalSvg.getOffset()
             signalSvg.setOffset([offset[0] + frameWidth, offset[1]])
         }
     }
+
+    
 
 </script>
 
@@ -267,7 +265,7 @@
                 </g>
                 <g fill="none" transform="translate(0, {signalSetView.getDesiredChannelHeight(signalSetView.getInputSize())})">
                     <SignalViewer 
-                        eventTarget={signalSetViewEventTarget}
+                        bind:eventTarget={signalSetViewEventTarget}
                         signalSetView={signalSetView}
                         liveChannelSources={circuitController.getOutputPoints()}
                         circuitController={circuitController}
@@ -275,8 +273,11 @@
                         channels={new Array(signalSetView.channelCount() - signalSetView.getInputSize()).fill("").map((_v, i) => {return {idx:i, type:"Live"}})}
                     />
                 </g>
-                <g id="signal-svg-play-bar">
-                    <path d="M -4 -8 L 4 -8 L 0 0 L 0 {signalSetView.getDesiredHeight()} L 0 0 Z" stroke="var(--circuit-color)" stroke-width="1px" fill="none"/>
+                <g>
+                    <SignalPlayBar
+                        signalSetView={signalSetView}
+                        bind:eventTarget={signalSetViewEventTarget}
+                    />
                 </g>
             </g>
 
