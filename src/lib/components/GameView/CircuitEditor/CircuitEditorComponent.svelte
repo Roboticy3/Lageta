@@ -209,7 +209,7 @@
         background-color: var(--main-bg-color);
 
         border: thick double;
-        color: var(--grid-color);
+        color: var(--circuit-color);
     }
 
     .floating {

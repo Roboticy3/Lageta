@@ -660,6 +660,21 @@ export class CircuitController {
         return result
     }
 
+    getOutputPoints() {
+        let result:ConnectionIndex[] = []
+        for (let g of this.gateGrid.outputs) {
+            if (g === undefined) {
+                continue
+            }
+            const points:ConnectionIndex[] = (new Array(g.type.sizeIn)
+                .fill(undefined)).map(
+                    (_v, i) => {return {id:g.id,type:"Input",index:i}}
+                )
+            result.push(...points)
+        }
+        return result
+    }
+
     getOutputLabels() {
         let result:string[] = []
         for (let g of this.gateGrid.outputs) {

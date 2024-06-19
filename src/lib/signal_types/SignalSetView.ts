@@ -66,6 +66,10 @@ export class SignalSetView<T> {
         return this.signalSet.inputs
     }
 
+    getChannelType(channel:number) {
+        return (channel < this.signalSet.inputs) ? "Input":"Output"
+    }
+
     getOutputSize() {
         return this.signalSet.outputs
     }
@@ -208,11 +212,11 @@ export class CircuitSignalSetView extends SignalSetView<ConnectionValue> impleme
     }
 
     getDesiredHeight(overrideHeight?:number) {
-        return ((overrideHeight || this.height) + 2) * this.channelCount()
+        return ((overrideHeight || this.height) + 4) * this.channelCount()
     }
 
-    getDesiredChannelHeight(channel:number, overrideHeight?:number) {
-        return ((overrideHeight || this.height) + 2) * channel
+    getDesiredChannelHeight(channel?:number, overrideHeight?:number) {
+        return ((overrideHeight || this.height) + 4) * ((channel === undefined) ? 1 : channel)
     }
 
     channelCount() {

@@ -3,10 +3,13 @@
     import { CircuitController } from "$lib/circuit_types/CircuitController";
     import { CircuitSignalSetView, SignalSetView } from "$lib/signal_types/SignalSetView";
     import { onMount, tick } from "svelte";
-    import ResizingSvg from "../Misc/ResizingSvg.svelte";
+    import ResizingSvg from "../../Misc/ResizingSvg.svelte";
     import { ConnectionValueSignalSet } from "$lib/signal_types/Signal";
     import { CircuitSignalSetViewEventTarget, SignalSetViewEventTarget } from "$lib/signal_types/SignalSetViewEvent";
     import { createCustomEvent } from "$lib/misc_types/CustomEventSystem";
+    import SignalViewer from "./SignalViewer.svelte";
+    import SignalPlayBar from "./SignalPlayBar.svelte";
+    import SignalVerifier from "./SignalVerifier.svelte";
     /**
      * @type {CircuitSignalSetView}
      */
@@ -24,26 +27,10 @@
      * @type {CircuitController}
     */
     export let circuitController
-    let labels = circuitController.getInputLabels().concat(circuitController.getOutputLabels())
-    console.log(circuitController.getInputLabels(), circuitController.getOutputLabels())
-
     /**
-     * @type {CircuitSignalSetView}
+     * @type {string[]}
      */
-    export let outputSignalSetView =  new CircuitSignalSetView(circuitController.getOutputs())
-    let liveChannelSvgs = outputSignalSetView.drawChannels(0)
-
-    function resetOutputSignalSetView() {
-        outputSignalSetView = new CircuitSignalSetView(circuitController.getOutputs())
-        liveChannelSvgs = outputSignalSetView.drawChannels(0)
-    }
-
-    /**
-     * @param {number} index
-     */
-    function channelSvgHeight(index) {
-        return signalSetView.getDesiredChannelHeight(index)
-    }
+    export let labels = circuitController.getInputLabels().concat(circuitController.getOutputLabels())
 
     onMount(async () => {
         signalSetView.createPlayer(100)
@@ -54,14 +41,13 @@
         if (!signalSetViewEventTarget) signalSetViewEventTarget = new CircuitSignalSetViewEventTarget()
 
         signalSetViewEventTarget.addEventListener("restart", updateDesiredOutputs)
-        signalSetViewEventTarget.addEventListener("play", updateDesiredOutputs)
-        signalSetViewEventTarget.addEventListener("pause", updateDesiredOutputs)
-        signalSetViewEventTarget.addEventListener("step", updateDesiredOutputs)
+        signalSetViewEventTarget.addEventListener("update", updateDesiredOutputs)
 
         signalSetViewEventTarget.addEventListener("restart", onRestart)
         signalSetViewEventTarget.addEventListener("play", onPlay)
         signalSetViewEventTarget.addEventListener("pause", onPause)
         signalSetViewEventTarget.addEventListener("step", onStep)
+        signalSetViewEventTarget.addEventListener("done", onDone)
 
         console.log("channels", labels, channelSvgs)
 
@@ -130,16 +116,12 @@
         pause()
 
         signalSetView.resetPlayer()
-        resetOutputSignalSetView()
 
-        playBarGroup = container.querySelector("#signal-svg-play-bar")
-        playButton = container.querySelector("#signal-play-button")
+        checkScroll()
+        signalSvg.setOffset([0, 0])
 
-        setPlayBarProgress()
         atStart = true
         atEnd = false
-
-        signalSvg.setOffset([0, 0])
     }
 
     /**
@@ -149,37 +131,29 @@
      * @param {boolean} done
      */
     function step(currentValue, currentFrame, update, done) {
-        dispatchSignalEvent("step", {isCircuitValid:signalSetView.isCircuitValid()})
-
+        dispatchSignalEvent("step")   
         if (update) {
             //send input channels to circuit inputs
             circuitController.setInputs(currentValue)
-
-            //send circuit outputs to output channels
-            outputSignalSetView.push(circuitController.getOutputs(), currentFrame - 1);
-        }       
-        
+            dispatchSignalEvent("update")
+        }
         if (done) {
-            atEnd = true
-            dispatchSignalEvent("done")
-            pause()
-            if (signalSetView.isCircuitValid()) {
-                circuitController.complete()
-                dispatchSignalEvent("complete")
-            }
-        }  
+            dispatchSignalEvent("done") 
+        }
+        
     }
 
     /**
      * 
      * @param {import("$lib/signal_types/SignalSetViewEvent").CircuitSignalSetViewEvent} param0
      */
-    function onStep({frame, value}) {
-        setPlayBarProgress(frame)
-        liveChannelSvgs = outputSignalSetView.drawChannels(
-            frame, 
-            `stroke="var(--grid-color)" stroke-width="2" stroke-dasharray="2 1"`
-        )
+    function onStep({frame}) {
+        checkScroll(frame)
+    }
+
+    function onDone() {
+        atEnd = true
+        pause()
     }
 
     function play() {
@@ -193,8 +167,6 @@
         if (atEnd) restart()
 
         playing = true
-
-        document.querySelectorAll("input").forEach((n) => n.setAttribute('disabled','disabled'))
     }
 
     function pause() {
@@ -206,8 +178,6 @@
 
         if (playButton) playButton.innerText = "⏵"
         playing = false
-
-        document.querySelectorAll("input").forEach((n) => n.removeAttribute('disabled'))
     }
 
     /**
@@ -215,14 +185,9 @@
      */
     let signalSvg
 
-    function setPlayBarProgress(frame = 0) {
-        let adjustedFrame = frame + 1
-        if (frame === 0) adjustedFrame = 0
-        else if (frame === signalSetView.getLength()) adjustedFrame = signalSetView.getLength()
+    function checkScroll(frame = 0) {
         const frameWidth = signalSetView.getDesiredFrameWidth()
-        const translateX = labelOffset + frameWidth * (adjustedFrame)
-        console.log("moving play bar to frame ", frame)
-        if (playBarGroup) playBarGroup.style.translate = `${translateX}px`
+        const translateX = frameWidth * (frame)
         const shouldScroll = !(signalSvg.isInnerOffsetInBounds([translateX + 16 * frameWidth, 0]))
         if (shouldScroll) {
             const offset = signalSvg.getOffset()
@@ -241,32 +206,38 @@
             Restart
         </button>
     </div>
-
-    <div class="svg-container">
-        <ResizingSvg
-        bind:this={signalSvg}
-            overflowWidth={true}
-            ancestry={1}
-        >
-            <g transform="translate(0, 8)" fill="none">
-                {#each channelSvgs as channel, index}
-                    <g transform='translate({labelOffset}, {channelSvgHeight(index)})'>
-                        {@html channel}
+    <div class="signal-verifier">
+        <SignalVerifier 
+            eventTarget={signalSetViewEventTarget}
+            signalSetView={signalSetView}
+            circuitController={circuitController}
+        />
+    </div>
+    <div class="signal-container">
+        <div class="signal-channel-labels">
+            {#each labels as label}
+                <div>{@html label}</div>
+            {/each}
+        </div>
+        <div class="signal-svg-container">
+            <ResizingSvg
+            bind:this={signalSvg}
+                overflowWidth={true}
+                ancestry={1}
+            >
+                <g transform="translate(0, 8)">
+                    <slot />
+                    <g>
+                        <SignalPlayBar
+                            signalSetView={signalSetView}
+                            length={labels.length}
+                            bind:eventTarget={signalSetViewEventTarget}
+                        />
                     </g>
-                    <g fill="black" transform='translate(0, {channelSvgHeight(index)  + channelSvgHeight(1) / 2})'>
-                        <text>{labels[index]}</text>
-                    </g>
-                {/each}
-                <g id="signal-svg-play-bar">
-                    <path d="M -4 -8 L 4 -8 L 0 0 L 0 {signalSetView.getDesiredHeight()} L 0 0 Z" stroke="var(--grid-color)" stroke-width="1px" fill="none"/>
                 </g>
-                {#each liveChannelSvgs as channel, index}
-                    <g transform='translate({labelOffset}, {channelSvgHeight(index + signalSetView.getInputSize())})'>
-                        {@html channel}
-                    </g>
-                {/each}
-            </g>
-        </ResizingSvg>
+
+            </ResizingSvg>
+        </div>
     </div>
 </div>
 
@@ -274,19 +245,37 @@
 <style>
     .signal-viewer-container {
         display:grid;
-        grid-template-columns: 1fr 1fr 8fr 1fr;
+        grid-template-columns: 1fr 1fr 8fr;
         gap: 5%;
         height:100%;
     }
 
-    .svg-container {
-        grid-column: 3 / 4;
+    .signal-container {
+        display:flex;
+        flex-direction: row;
+        justify-content: space-around;
+    }
+
+    .signal-svg-container {
+        grid-column: 3;
         overflow-x: hidden;
         position:relative;
+
+        width:100%;
+        height:100%;
+    }
+
+    .signal-channel-labels {
+        display:flex;
+        flex-direction: column;
+        justify-content:space-evenly;
+
+        text-wrap: nowrap;
+        margin-right:3%;
     }
 
     .button-container {
-        grid-column: 2;
+        grid-column: 1;
 
         display: flex;
         flex-direction: column;
@@ -294,11 +283,15 @@
     }
 
     .button-container button {
-        color: var(--grid-color);
+        color: var(--circuit-color);
         font-size: x-large;
     }
 
     .button-container button:hover {
         font-size: xx-large;
+    }
+
+    .signal-verifier {
+        grid-column: 2;
     }
 </style>
