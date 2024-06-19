@@ -206,6 +206,13 @@
             Restart
         </button>
     </div>
+    <div class="signal-verifier">
+        <SignalVerifier 
+            eventTarget={signalSetViewEventTarget}
+            signalSetView={signalSetView}
+            circuitController={circuitController}
+        />
+    </div>
     <div class="signal-container">
         <div class="signal-channel-labels">
             {#each labels as label}
@@ -232,20 +239,13 @@
             </ResizingSvg>
         </div>
     </div>
-    <div class="signal-verifier">
-        <SignalVerifier 
-            eventTarget={signalSetViewEventTarget}
-            signalSetView={signalSetView}
-            circuitController={circuitController}
-        />
-    </div>
 </div>
 
 
 <style>
     .signal-viewer-container {
         display:grid;
-        grid-template-columns: 1fr 8fr 2fr;
+        grid-template-columns: 1fr 1fr 8fr;
         gap: 5%;
         height:100%;
     }
@@ -257,7 +257,7 @@
     }
 
     .signal-svg-container {
-        grid-column: 2;
+        grid-column: 3;
         overflow-x: hidden;
         position:relative;
 
@@ -292,6 +292,6 @@
     }
 
     .signal-verifier {
-        grid-column: 3;
+        grid-column: 2;
     }
 </style>

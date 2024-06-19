@@ -76,10 +76,29 @@
 
 {#if playing}
     {#if isCircuitValid}
-        <span style="color:var(--verification-color);">Correct!</span> 
-        <p>Keep playing to <span style="color:var(--verification-color);">verify</span> the <span style="color:var(--circuit-color);">circuit</span>!</p>
+        <div class="success">
+            <span style="color:var(--verification-color);">Correct!</span> 
+            <p>Keep playing to <span style="color:var(--verification-color);">verify</span> the <span style="color:var(--circuit-color);">circuit</span>!</p>
+        </div>
     {:else}
-        <span style="color:var(--failure-color);">Incorrect!</span> 
-        <p>Restart the <span style="color:var(--circuit-color);">signal</span> and edit your <span style="color:var(--circuit-color);">circuit</span> to try again.</p>
+        <div class="failure">
+            <span style="color:var(--failure-color);">Incorrect!</span> 
+            <p>Restart the <span style="color:var(--circuit-color);">signal</span> and edit your <span style="color:var(--circuit-color);">circuit</span> to try again.</p>
+        </div>
     {/if}
 {/if}
+
+<style>
+
+    .failure {
+        animation: tilt-shaking var(--animation-speed)
+    }
+
+    @keyframes tilt-shaking {
+        0% { transform: rotate(0deg) scale(1); }
+        25% { transform: rotate(5deg) scale(1.2); }
+        50% { transform: rotate(0eg) scale(1.25); }
+        75% { transform: rotate(-5deg) scale(1.2); }
+        100% { transform: rotate(0deg) scale(1); }
+    }
+</style>
