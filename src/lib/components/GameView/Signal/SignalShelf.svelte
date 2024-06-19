@@ -9,6 +9,7 @@
     import { createCustomEvent } from "$lib/misc_types/CustomEventSystem";
     import SignalViewer from "./SignalViewer.svelte";
     import SignalPlayBar from "./SignalPlayBar.svelte";
+    import SignalVerifier from "./SignalVerifier.svelte";
     /**
      * @type {CircuitSignalSetView}
      */
@@ -29,17 +30,6 @@
     let labels = circuitController.getInputLabels().concat(circuitController.getOutputLabels())
     console.log(circuitController.getInputLabels(), circuitController.getOutputLabels())
 
-    /**
-     * @type {CircuitSignalSetView}
-     */
-    export let outputSignalSetView =  new CircuitSignalSetView(circuitController.getOutputs())
-    let liveChannelSvgs = outputSignalSetView.drawChannels(0)
-
-    function resetOutputSignalSetView() {
-        outputSignalSetView = new CircuitSignalSetView(circuitController.getOutputs())
-        liveChannelSvgs = outputSignalSetView.drawChannels(0)
-    }
-
     onMount(async () => {
         signalSetView.createPlayer(100)
         signalSetView.sendPlayerToController(circuitController)
@@ -55,7 +45,6 @@
         signalSetViewEventTarget.addEventListener("play", onPlay)
         signalSetViewEventTarget.addEventListener("pause", onPause)
         signalSetViewEventTarget.addEventListener("step", onStep)
-        signalSetViewEventTarget.addEventListener("update", onUpdate)
         signalSetViewEventTarget.addEventListener("done", onDone)
 
         console.log("channels", labels, channelSvgs)
@@ -125,16 +114,12 @@
         pause()
 
         signalSetView.resetPlayer()
-        resetOutputSignalSetView()
-
-        playBarGroup = container.querySelector("#signal-svg-play-bar")
-        playButton = container.querySelector("#signal-play-button")
 
         checkScroll()
+        signalSvg.setOffset([0, 0])
+
         atStart = true
         atEnd = false
-
-        signalSvg.setOffset([0, 0])
     }
 
     /**
@@ -144,7 +129,7 @@
      * @param {boolean} done
      */
     function step(currentValue, currentFrame, update, done) {
-        dispatchSignalEvent("step", {isCircuitValid:signalSetView.isCircuitValid()})   
+        dispatchSignalEvent("step")   
         if (update) {
             //send input channels to circuit inputs
             circuitController.setInputs(currentValue)
@@ -162,29 +147,11 @@
      */
     function onStep({frame}) {
         checkScroll(frame)
-        liveChannelSvgs = outputSignalSetView.drawChannels(
-            frame, 
-            `stroke="var(--circuit-color)" stroke-width="2" stroke-dasharray="2 1"`
-        )
-    }
-
-    /**
-     * 
-     * @param {import("$lib/signal_types/SignalSetViewEvent").CircuitSignalSetViewEvent} param0
-     */
-    function onUpdate({frame, value}) {
-
-        //send circuit outputs to output channels
-        outputSignalSetView.push(circuitController.getOutputs(), frame - 1);
     }
 
     function onDone() {
         atEnd = true
         pause()
-        if (signalSetView.isCircuitValid()) {
-            circuitController.complete()
-            dispatchSignalEvent("complete")
-        }
     }
 
     function play() {
@@ -198,8 +165,6 @@
         if (atEnd) restart()
 
         playing = true
-
-        document.querySelectorAll("input").forEach((n) => n.setAttribute('disabled','disabled'))
     }
 
     function pause() {
@@ -211,8 +176,6 @@
 
         if (playButton) playButton.innerText = "⏵"
         playing = false
-
-        document.querySelectorAll("input").forEach((n) => n.removeAttribute('disabled'))
     }
 
     /**
@@ -283,6 +246,13 @@
 
         </ResizingSvg>
     </div>
+    <div class="signal-verifier">
+        <SignalVerifier 
+            eventTarget={signalSetViewEventTarget}
+            signalSetView={signalSetView}
+            circuitController={circuitController}
+        />
+    </div>
 </div>
 
 
@@ -315,5 +285,9 @@
 
     .button-container button:hover {
         font-size: xx-large;
+    }
+
+    .signal-verifier {
+        grid-column: 4;
     }
 </style>
