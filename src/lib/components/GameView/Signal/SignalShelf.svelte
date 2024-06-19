@@ -220,11 +220,11 @@
     let signalSvg
 
     function setPlayBarProgress(frame = 0) {
-        let adjustedFrame = frame + 1
+        let adjustedFrame = frame - 1
         if (frame === 0) adjustedFrame = 0
         else if (frame === signalSetView.getLength()) adjustedFrame = signalSetView.getLength()
         const frameWidth = signalSetView.getDesiredFrameWidth()
-        const translateX = labelOffset + frameWidth * (adjustedFrame)
+        const translateX = frameWidth * (adjustedFrame)
         console.log("moving play bar to frame ", frame)
         if (playBarGroup) playBarGroup.style.translate = `${translateX}px`
         const shouldScroll = !(signalSvg.isInnerOffsetInBounds([translateX + 16 * frameWidth, 0]))
@@ -252,28 +252,34 @@
             overflowWidth={true}
             ancestry={1}
         >
-            <g fill="none">
-                <SignalViewer 
-                    signalSetView={signalSetView}
-                    channels={new Array(signalSetView.getInputSize()).fill("").map((_v, i) => {return {idx:i, type:"Given"}})}
-                />
+            <g transform="translate(0, 8)">
+                <g fill="none">
+                    <SignalViewer 
+                        signalSetView={signalSetView}
+                        channels={new Array(signalSetView.getInputSize()).fill("").map((_v, i) => {return {idx:i, type:"Given"}})}
+                    />
+                </g>
+                <g fill="none" transform="translate(0, {signalSetView.getDesiredChannelHeight(signalSetView.getInputSize())})">
+                    <SignalViewer 
+                        signalSetView={signalSetView}
+                        channels={new Array(signalSetView.channelCount() - signalSetView.getInputSize()).fill("").map((_v, i) => {return {idx:signalSetView.getInputSize() + i, type:"Expected"}})}
+                    />
+                </g>
+                <g fill="none" transform="translate(0, {signalSetView.getDesiredChannelHeight(signalSetView.getInputSize())})">
+                    <SignalViewer 
+                        eventTarget={signalSetViewEventTarget}
+                        signalSetView={signalSetView}
+                        liveChannelSources={circuitController.getOutputPoints()}
+                        circuitController={circuitController}
+                        liveOnly={true}
+                        channels={new Array(signalSetView.channelCount() - signalSetView.getInputSize()).fill("").map((_v, i) => {return {idx:i, type:"Live"}})}
+                    />
+                </g>
+                <g id="signal-svg-play-bar">
+                    <path d="M -4 -8 L 4 -8 L 0 0 L 0 {signalSetView.getDesiredHeight()} L 0 0 Z" stroke="var(--circuit-color)" stroke-width="1px" fill="none"/>
+                </g>
             </g>
-            <g fill="none" transform="translate(0, {signalSetView.getDesiredChannelHeight(signalSetView.getInputSize())})">
-                <SignalViewer 
-                    signalSetView={signalSetView}
-                    channels={new Array(signalSetView.channelCount() - signalSetView.getInputSize()).fill("").map((_v, i) => {return {idx:signalSetView.getInputSize() + i, type:"Expected"}})}
-                />
-            </g>
-            <g fill="none" transform="translate(0, {signalSetView.getDesiredChannelHeight(signalSetView.getInputSize())})">
-                <SignalViewer 
-                    eventTarget={signalSetViewEventTarget}
-                    signalSetView={signalSetView}
-                    liveChannelSources={circuitController.getOutputPoints()}
-                    circuitController={circuitController}
-                    liveOnly={true}
-                    channels={new Array(signalSetView.channelCount() - signalSetView.getInputSize()).fill("").map((_v, i) => {return {idx:i, type:"Live"}})}
-                />
-            </g>
+
         </ResizingSvg>
     </div>
 </div>
