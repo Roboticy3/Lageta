@@ -3,7 +3,7 @@
     import { CircuitController } from "$lib/circuit_types/CircuitController";
     import { CircuitSignalSetView, SignalSetView } from "$lib/signal_types/SignalSetView";
     import { onMount, tick } from "svelte";
-    import ResizingSvg from "../Misc/ResizingSvg.svelte";
+    import ResizingSvg from "../../Misc/ResizingSvg.svelte";
     import { ConnectionValueSignalSet } from "$lib/signal_types/Signal";
     import { CircuitSignalSetViewEventTarget, SignalSetViewEventTarget } from "$lib/signal_types/SignalSetViewEvent";
     import { createCustomEvent } from "$lib/misc_types/CustomEventSystem";
