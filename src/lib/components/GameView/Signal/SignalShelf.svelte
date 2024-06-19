@@ -27,8 +27,7 @@
      * @type {CircuitController}
     */
     export let circuitController
-    let labels = circuitController.getInputLabels().concat(circuitController.getOutputLabels())
-    console.log(circuitController.getInputLabels(), circuitController.getOutputLabels())
+    $: labels = circuitController.getInputLabels().concat(circuitController.getOutputLabels())
 
     onMount(async () => {
         signalSetView.createPlayer(100)
@@ -193,8 +192,6 @@
         }
     }
 
-    
-
 </script>
 
 <div class="signal-viewer-container" bind:this={container}>
@@ -206,45 +203,51 @@
             Restart
         </button>
     </div>
+    <div class="signal-container">
+        <div class="signal-channel-labels">
+            {#each labels as label}
+                <div>{label}</div>
+            {/each}
+        </div>
+        <div class="signal-svg-container">
+            <ResizingSvg
+            bind:this={signalSvg}
+                overflowWidth={true}
+                ancestry={1}
+            >
+                <g transform="translate(0, 8)">
+                    <g fill="none">
+                        <SignalViewer 
+                            signalSetView={signalSetView}
+                            channels={new Array(signalSetView.getInputSize()).fill("").map((_v, i) => {return {idx:i, type:"Given"}})}
+                        />
+                    </g>
+                    <g fill="none" transform="translate(0, {signalSetView.getDesiredChannelHeight(signalSetView.getInputSize())})">
+                        <SignalViewer 
+                            signalSetView={signalSetView}
+                            channels={new Array(signalSetView.channelCount() - signalSetView.getInputSize()).fill("").map((_v, i) => {return {idx:signalSetView.getInputSize() + i, type:"Expected"}})}
+                        />
+                    </g>
+                    <g fill="none" transform="translate(0, {signalSetView.getDesiredChannelHeight(signalSetView.getInputSize())})">
+                        <SignalViewer 
+                            bind:eventTarget={signalSetViewEventTarget}
+                            signalSetView={signalSetView}
+                            liveChannelSources={circuitController.getOutputPoints()}
+                            circuitController={circuitController}
+                            liveOnly={true}
+                            channels={new Array(signalSetView.channelCount() - signalSetView.getInputSize()).fill("").map((_v, i) => {return {idx:i, type:"Live"}})}
+                        />
+                    </g>
+                    <g>
+                        <SignalPlayBar
+                            signalSetView={signalSetView}
+                            bind:eventTarget={signalSetViewEventTarget}
+                        />
+                    </g>
+                </g>
 
-    <div class="svg-container">
-        <ResizingSvg
-        bind:this={signalSvg}
-            overflowWidth={true}
-            ancestry={1}
-        >
-            <g transform="translate(0, 8)">
-                <g fill="none">
-                    <SignalViewer 
-                        signalSetView={signalSetView}
-                        channels={new Array(signalSetView.getInputSize()).fill("").map((_v, i) => {return {idx:i, type:"Given"}})}
-                    />
-                </g>
-                <g fill="none" transform="translate(0, {signalSetView.getDesiredChannelHeight(signalSetView.getInputSize())})">
-                    <SignalViewer 
-                        signalSetView={signalSetView}
-                        channels={new Array(signalSetView.channelCount() - signalSetView.getInputSize()).fill("").map((_v, i) => {return {idx:signalSetView.getInputSize() + i, type:"Expected"}})}
-                    />
-                </g>
-                <g fill="none" transform="translate(0, {signalSetView.getDesiredChannelHeight(signalSetView.getInputSize())})">
-                    <SignalViewer 
-                        bind:eventTarget={signalSetViewEventTarget}
-                        signalSetView={signalSetView}
-                        liveChannelSources={circuitController.getOutputPoints()}
-                        circuitController={circuitController}
-                        liveOnly={true}
-                        channels={new Array(signalSetView.channelCount() - signalSetView.getInputSize()).fill("").map((_v, i) => {return {idx:i, type:"Live"}})}
-                    />
-                </g>
-                <g>
-                    <SignalPlayBar
-                        signalSetView={signalSetView}
-                        bind:eventTarget={signalSetViewEventTarget}
-                    />
-                </g>
-            </g>
-
-        </ResizingSvg>
+            </ResizingSvg>
+        </div>
     </div>
     <div class="signal-verifier">
         <SignalVerifier 
@@ -259,19 +262,37 @@
 <style>
     .signal-viewer-container {
         display:grid;
-        grid-template-columns: 1fr 1fr 8fr 1fr;
+        grid-template-columns: 1fr 8fr 2fr;
         gap: 5%;
         height:100%;
     }
 
-    .svg-container {
-        grid-column: 3 / 4;
+    .signal-container {
+        display:flex;
+        flex-direction: row;
+        justify-content: space-around;
+    }
+
+    .signal-svg-container {
+        grid-column: 2;
         overflow-x: hidden;
         position:relative;
+
+        width:100%;
+        height:100%;
+    }
+
+    .signal-channel-labels {
+        display:flex;
+        flex-direction: column;
+        justify-content:space-evenly;
+
+        text-wrap: nowrap;
+        margin-right:3%;
     }
 
     .button-container {
-        grid-column: 2;
+        grid-column: 1;
 
         display: flex;
         flex-direction: column;
@@ -288,6 +309,6 @@
     }
 
     .signal-verifier {
-        grid-column: 4;
+        grid-column: 3;
     }
 </style>
