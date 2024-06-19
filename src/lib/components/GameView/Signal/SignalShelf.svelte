@@ -144,8 +144,15 @@
      */
     function step(currentValue, currentFrame, update, done) {
         dispatchSignalEvent("step", {isCircuitValid:signalSetView.isCircuitValid()})   
-        dispatchSignalEvent("update")
-        dispatchSignalEvent("done") 
+        if (update) {
+            //send input channels to circuit inputs
+            circuitController.setInputs(currentValue)
+            dispatchSignalEvent("update")
+        }
+        if (done) {
+            dispatchSignalEvent("done") 
+        }
+        
     }
 
     /**
@@ -165,8 +172,6 @@
      * @param {import("$lib/signal_types/SignalSetViewEvent").CircuitSignalSetViewEvent} param0
      */
     function onUpdate({frame, value}) {
-        //send input channels to circuit inputs
-        circuitController.setInputs(value)
 
         //send circuit outputs to output channels
         outputSignalSetView.push(circuitController.getOutputs(), frame - 1);
@@ -249,16 +254,24 @@
         >
             <g fill="none">
                 <SignalViewer 
-                    eventTarget={signalSetViewEventTarget}
                     signalSetView={signalSetView}
                     channels={new Array(signalSetView.getInputSize()).fill("").map((_v, i) => {return {idx:i, type:"Given"}})}
                 />
             </g>
             <g fill="none" transform="translate(0, {signalSetView.getDesiredChannelHeight(signalSetView.getInputSize())})">
                 <SignalViewer 
-                    eventTarget={signalSetViewEventTarget}
                     signalSetView={signalSetView}
                     channels={new Array(signalSetView.channelCount() - signalSetView.getInputSize()).fill("").map((_v, i) => {return {idx:signalSetView.getInputSize() + i, type:"Expected"}})}
+                />
+            </g>
+            <g fill="none" transform="translate(0, {signalSetView.getDesiredChannelHeight(signalSetView.getInputSize())})">
+                <SignalViewer 
+                    eventTarget={signalSetViewEventTarget}
+                    signalSetView={signalSetView}
+                    liveChannelSources={circuitController.getOutputPoints()}
+                    circuitController={circuitController}
+                    liveOnly={true}
+                    channels={new Array(signalSetView.channelCount() - signalSetView.getInputSize()).fill("").map((_v, i) => {return {idx:i, type:"Live"}})}
                 />
             </g>
         </ResizingSvg>
