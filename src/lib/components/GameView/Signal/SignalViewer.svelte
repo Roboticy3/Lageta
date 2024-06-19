@@ -69,6 +69,7 @@
      * @param {number} to
      */
      export function updateLiveChannelSvgs(to) {
+        console.log("updating live channels ", to, channels, liveSignalSetView)
         if (liveSignalSetView) {
             const view = liveSignalSetView
             liveChannelSvgs = channels.map(channel => {

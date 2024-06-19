@@ -216,7 +216,7 @@
     <div class="signal-container">
         <div class="signal-channel-labels">
             {#each labels as label}
-                <div>{label}</div>
+                <div>{@html label}</div>
             {/each}
         </div>
         <div class="signal-svg-container">
