@@ -39,13 +39,6 @@
         liveChannelSvgs = outputSignalSetView.drawChannels(0)
     }
 
-    /**
-     * @param {number} index
-     */
-    function channelSvgHeight(index) {
-        return signalSetView.getDesiredChannelHeight(index)
-    }
-
     onMount(async () => {
         signalSetView.createPlayer(100)
         signalSetView.sendPlayerToController(circuitController)
@@ -55,14 +48,14 @@
         if (!signalSetViewEventTarget) signalSetViewEventTarget = new CircuitSignalSetViewEventTarget()
 
         signalSetViewEventTarget.addEventListener("restart", updateDesiredOutputs)
-        signalSetViewEventTarget.addEventListener("play", updateDesiredOutputs)
-        signalSetViewEventTarget.addEventListener("pause", updateDesiredOutputs)
-        signalSetViewEventTarget.addEventListener("step", updateDesiredOutputs)
+        signalSetViewEventTarget.addEventListener("update", updateDesiredOutputs)
 
         signalSetViewEventTarget.addEventListener("restart", onRestart)
         signalSetViewEventTarget.addEventListener("play", onPlay)
         signalSetViewEventTarget.addEventListener("pause", onPause)
         signalSetViewEventTarget.addEventListener("step", onStep)
+        signalSetViewEventTarget.addEventListener("update", onUpdate)
+        signalSetViewEventTarget.addEventListener("done", onDone)
 
         console.log("channels", labels, channelSvgs)
 
@@ -150,37 +143,42 @@
      * @param {boolean} done
      */
     function step(currentValue, currentFrame, update, done) {
-        dispatchSignalEvent("step", {isCircuitValid:signalSetView.isCircuitValid()})
-
-        if (update) {
-            //send input channels to circuit inputs
-            circuitController.setInputs(currentValue)
-
-            //send circuit outputs to output channels
-            outputSignalSetView.push(circuitController.getOutputs(), currentFrame - 1);
-        }       
-        
-        if (done) {
-            atEnd = true
-            dispatchSignalEvent("done")
-            pause()
-            if (signalSetView.isCircuitValid()) {
-                circuitController.complete()
-                dispatchSignalEvent("complete")
-            }
-        }  
+        dispatchSignalEvent("step", {isCircuitValid:signalSetView.isCircuitValid()})   
+        dispatchSignalEvent("update")
+        dispatchSignalEvent("done") 
     }
 
     /**
      * 
      * @param {import("$lib/signal_types/SignalSetViewEvent").CircuitSignalSetViewEvent} param0
      */
-    function onStep({frame, value}) {
+    function onStep({frame}) {
         setPlayBarProgress(frame)
         liveChannelSvgs = outputSignalSetView.drawChannels(
             frame, 
             `stroke="var(--circuit-color)" stroke-width="2" stroke-dasharray="2 1"`
         )
+    }
+
+    /**
+     * 
+     * @param {import("$lib/signal_types/SignalSetViewEvent").CircuitSignalSetViewEvent} param0
+     */
+    function onUpdate({frame, value}) {
+        //send input channels to circuit inputs
+        circuitController.setInputs(value)
+
+        //send circuit outputs to output channels
+        outputSignalSetView.push(circuitController.getOutputs(), frame - 1);
+    }
+
+    function onDone() {
+        atEnd = true
+        pause()
+        if (signalSetView.isCircuitValid()) {
+            circuitController.complete()
+            dispatchSignalEvent("complete")
+        }
     }
 
     function play() {

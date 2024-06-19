@@ -2,7 +2,7 @@ import type { ConnectionValue } from "$lib/circuit_types/GateType"
 import { CustomEventTarget, type CustomEventListener } from "$lib/misc_types/CustomEventSystem"
 import type { SignalKeyFrame } from "./Signal"
 
-export const SIGNALSETVIEWEVENTKEYS = ["restart", "play", "pause", "complete", "done", "step"] as const;
+export const SIGNALSETVIEWEVENTKEYS = ["restart", "play", "pause", "complete", "done", "step", "update"] as const;
 type SignalSetViewEventKeyTuple = typeof SIGNALSETVIEWEVENTKEYS;
 export type SignalSetViewEventKey = SignalSetViewEventKeyTuple[number]
 

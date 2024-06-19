@@ -10,9 +10,9 @@
      */
     export let channels
     const channelTypeParams = new Map([
-        ["Given", `stroke="var(--circuit-color)", stroke-width="1"`],
-        ["Expected", `stroke="var(--verification-color)", stroke-width="1"`],
-        ["Live", `stroke="var(--circuit-color)", stroke-width="1" stroke-dasharray="1"`],
+        ["Given", `stroke="var(--circuit-color)" stroke-width="1" `],
+        ["Expected", `stroke="var(--verification-color)" stroke-width="1" `],
+        ["Live", `stroke="var(--circuit-color)" stroke-width="1" stroke-dasharray="1" `],
     ])
 
     /**
@@ -40,6 +40,8 @@
         channelSvgs = channels.map(channel => {
             return signalSetView.drawChannel(channel.idx, to, channelTypeParams.get(channel.type) || "")
         })
+
+        if (to === 0) throw Error("how")
     }
 
     /**
@@ -59,7 +61,7 @@
     export let circuitController = null
 
     export let liveFrameLength = 0
-    $: updateChannelSvgs(liveFrameLength)
+    $: updateLiveChannelSvgs(liveFrameLength)
 
     let liveChannelSvgs = []
     export function updateLiveChannelSvgs(to=liveFrameLength) {
@@ -84,7 +86,7 @@
 </script>
 
 {#each channelSvgs as channelSvg, index}
-    <g fill="none" stroke="black" stroke-width="1" transform="translate(0, {(signalSetView.getDesiredChannelHeight()) * index})">
+    <g fill="none" transform="translate(0, {(signalSetView.getDesiredChannelHeight()) * index})">
         {@html channelSvg}
     </g>
 {/each}
