@@ -212,11 +212,11 @@ export class CircuitSignalSetView extends SignalSetView<ConnectionValue> impleme
     }
 
     getDesiredHeight(overrideHeight?:number) {
-        return ((overrideHeight || this.height)) * this.channelCount()
+        return ((overrideHeight || this.height) + 4) * this.channelCount()
     }
 
     getDesiredChannelHeight(channel?:number, overrideHeight?:number) {
-        return ((overrideHeight || this.height)) * ((channel === undefined) ? 1 : channel)
+        return ((overrideHeight || this.height) + 4) * ((channel === undefined) ? 1 : channel)
     }
 
     channelCount() {

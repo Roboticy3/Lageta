@@ -251,8 +251,16 @@
         >
             <g fill="none">
                 <SignalViewer 
+                    eventTarget={signalSetViewEventTarget}
                     signalSetView={signalSetView}
-                    channels={new Array(signalSetView.channelCount()).fill("").map((_v, i) => i)}
+                    channels={new Array(signalSetView.getInputSize()).fill("").map((_v, i) => {return {idx:i, type:"Given"}})}
+                />
+            </g>
+            <g fill="none" transform="translate(0, {signalSetView.getDesiredChannelHeight(signalSetView.getInputSize())})">
+                <SignalViewer 
+                    eventTarget={signalSetViewEventTarget}
+                    signalSetView={signalSetView}
+                    channels={new Array(signalSetView.channelCount() - signalSetView.getInputSize()).fill("").map((_v, i) => {return {idx:signalSetView.getInputSize() + i, type:"Expected"}})}
                 />
             </g>
         </ResizingSvg>
