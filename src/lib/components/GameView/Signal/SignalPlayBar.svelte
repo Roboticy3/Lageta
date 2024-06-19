@@ -8,6 +8,8 @@
      */
     export let signalSetView
 
+    export let length = signalSetView.channelCount()
+
     /**
      * @type {CircuitSignalSetViewEventTarget | null}
      */
@@ -48,5 +50,5 @@
 </script>
 
 <g id="signal-svg-play-bar" bind:this={playBarGroup}>
-    <path d="M -4 -8 L 4 -8 L 0 0 L 0 {signalSetView.getDesiredHeight()} L 0 0 Z" stroke="var(--circuit-color)" stroke-width="1px" fill="none"/>
+    <path d="M -4 -8 L 4 -8 L 0 0 L 0 {signalSetView.getDesiredChannelHeight(length)} L 0 0 Z" stroke="var(--circuit-color)" stroke-width="1px" fill="none"/>
 </g>

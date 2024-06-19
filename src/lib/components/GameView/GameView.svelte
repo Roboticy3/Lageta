@@ -4,7 +4,7 @@
     import { CircuitController } from "$lib/circuit_types/CircuitController";
     import { CircuitSignalSetView, SignalSetView } from "$lib/signal_types/SignalSetView";
     import { ProgressStorage } from "$lib/storage_types/ProgressStore";
-    import SignalViewer from "./Signal/SignalShelf.svelte";
+    import SignalShelf from "./Signal/SignalShelf.svelte";
     import CompletionPopup from "./CompletionPopup.svelte";
     import CircuitEditorComponent from "./CircuitEditor/CircuitEditorComponent.svelte";
     import { onMount, tick } from "svelte";
@@ -12,6 +12,7 @@
     import { GameViewCircuitPanelEventTarget } from "$lib/circuit_types/GameViewCircuitPanelEvent";
     import { getGateType, getGateTypeNoRegister } from "$lib/dat/GateTypes/GateTypes";
     import { getLevelParams } from "$lib/dat/Levels/Levels";
+    import SignalViewer from "./Signal/SignalViewer.svelte";
 
     /**
      * @type {import("$lib/level_types/GameViewParameters").GameViewParameters}
@@ -158,11 +159,33 @@
     </div>
     {#if signalSetView}
         <div class="signal {slidinParams ? 'slidein':''}" title="Signal Player" style="max-height:{maxSizeState.signalMaxHeight};">
-            <SignalViewer 
+            <SignalShelf 
                 circuitController={circuitController} 
                 signalSetView={signalSetView} 
-                signalSetViewEventTarget={signalSetViewEventTarget}
-            />
+                bind:signalSetViewEventTarget={signalSetViewEventTarget}
+            >
+                <g fill="none">
+                    <SignalViewer 
+                        signalSetView={signalSetView}
+                        channels={new Array(signalSetView.getInputSize()).fill("").map((_v, i) => {return {idx:i, type:"Given"}})}
+                    />
+                </g>
+                <g fill="none" transform="translate(0, {signalSetView.getDesiredChannelHeight(signalSetView.getInputSize())})">
+                    <SignalViewer 
+                        signalSetView={signalSetView}
+                        channels={new Array(signalSetView.channelCount() - signalSetView.getInputSize()).fill("").map((_v, i) => {return {idx:signalSetView.getInputSize() + i, type:"Expected"}})}
+                    />
+                </g>
+                <g fill="none" transform="translate(0, {signalSetView.getDesiredChannelHeight(signalSetView.getInputSize())})">
+                    <SignalViewer 
+                        bind:eventTarget={signalSetViewEventTarget}
+                        signalSetView={signalSetView}
+                        circuitController={circuitController}
+                        liveOnly={true}
+                        channels={new Array(signalSetView.channelCount() - signalSetView.getInputSize()).fill("").map((_v, i) => {return {idx:i, type:"Live"}})}
+                    />
+                </g>
+            </SignalShelf>
         </div>
     {/if}
     <slot />

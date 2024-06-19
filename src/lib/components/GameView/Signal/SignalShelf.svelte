@@ -27,7 +27,10 @@
      * @type {CircuitController}
     */
     export let circuitController
-    $: labels = circuitController.getInputLabels().concat(circuitController.getOutputLabels())
+    /**
+     * @type {string[]}
+     */
+    export let labels = circuitController.getInputLabels().concat(circuitController.getOutputLabels())
 
     onMount(async () => {
         signalSetView.createPlayer(100)
@@ -216,31 +219,11 @@
                 ancestry={1}
             >
                 <g transform="translate(0, 8)">
-                    <g fill="none">
-                        <SignalViewer 
-                            signalSetView={signalSetView}
-                            channels={new Array(signalSetView.getInputSize()).fill("").map((_v, i) => {return {idx:i, type:"Given"}})}
-                        />
-                    </g>
-                    <g fill="none" transform="translate(0, {signalSetView.getDesiredChannelHeight(signalSetView.getInputSize())})">
-                        <SignalViewer 
-                            signalSetView={signalSetView}
-                            channels={new Array(signalSetView.channelCount() - signalSetView.getInputSize()).fill("").map((_v, i) => {return {idx:signalSetView.getInputSize() + i, type:"Expected"}})}
-                        />
-                    </g>
-                    <g fill="none" transform="translate(0, {signalSetView.getDesiredChannelHeight(signalSetView.getInputSize())})">
-                        <SignalViewer 
-                            bind:eventTarget={signalSetViewEventTarget}
-                            signalSetView={signalSetView}
-                            liveChannelSources={circuitController.getOutputPoints()}
-                            circuitController={circuitController}
-                            liveOnly={true}
-                            channels={new Array(signalSetView.channelCount() - signalSetView.getInputSize()).fill("").map((_v, i) => {return {idx:i, type:"Live"}})}
-                        />
-                    </g>
+                    <slot />
                     <g>
                         <SignalPlayBar
                             signalSetView={signalSetView}
+                            length={labels.length}
                             bind:eventTarget={signalSetViewEventTarget}
                         />
                     </g>

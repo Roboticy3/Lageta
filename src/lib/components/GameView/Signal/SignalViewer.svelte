@@ -47,14 +47,14 @@
     export let liveOnly = false
 
     /**
-     * @type {import("$lib/circuit_types/CircuitController").ConnectionIndex[]}
-     */
-    export let liveChannelSources = []
-
-    /**
      * @type {CircuitController | null}
      */
     export let circuitController = null
+
+    /**
+     * @type {import("$lib/circuit_types/CircuitController").ConnectionIndex[]}
+     */
+    export let liveChannelSources = circuitController?.getOutputPoints() || []
 
     /**
      * @type {CircuitSignalSetView | null}
