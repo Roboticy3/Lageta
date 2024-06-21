@@ -131,8 +131,6 @@ export const EncoderLevel = {
     params:new GameViewParameters(
         "Counting Backwards",
         `
-        <p>How many possibilities are there for 2 independent inputs?</p>
-        <p>Each output here maps to one of those possibilities from the inputs.</p>
         `,
         {
             gateTypes: [
@@ -166,8 +164,6 @@ export const DecoderLevel = {
     params:new GameViewParameters(
         "Counting",
         `
-        <p>How many possibilities are there for 2 independent inputs?</p>
-        <p>Each output here maps to one of those possibilities from the inputs.</p>
         `,
         {
             gateTypes: [
@@ -203,7 +199,7 @@ export const XorLevel = {
         `
         <p>Here's an example of making a more advanced gate</p>
         <p>Beating this level requires a "Xor" gate, short for "Exclusive Or." Like an Or gate but more... exclusive.</p>
-        <p>It's up to you to analyze the signal and construct the correct circuit.</p>
+        <p>It's up to you to analyze the <span style="color:var(--circuit-color);">signal</span> and construct the correct <span style="color:var(--circuit-color);">signal</span>.</p>
         `,
         {
             gateTypes: [
@@ -245,7 +241,7 @@ export const NandLevel = {
         "No Combo",
         `
         <p>This level requires making a "Nand" gate to win.</p>
-        <p>Nand stands for "Not And" and will always output the opposite of an And gate.</p>
+        <p>Nand stands for "Not And" and will always output the opposite of an And gate with the same inputs.</p>
         `,
         {
             gateTypes: [
@@ -324,8 +320,8 @@ export const And3Level = {
     params:new GameViewParameters(
         "Bigger Combo",
         `
-        <p>This level requires a 3-Input And gate, which outputs high when 
-        all of its inputs are high.</p>
+        <p>This level requires a 3-Input And gate, which outputs <span style="color:var(--connection-color-on);">high</span>
+        only when all of its inputs are <span style="color:var(--connection-color-on);">high</span>.</p>
         <p>However, you might not have this exact gate already. If not, you'll have to connect multiple gates together to win.</p>
         `,
         In3Out1,
@@ -346,8 +342,8 @@ export const Or3Level = {
     params:new GameViewParameters(
         "Joinyer",
         `
-        <p>This level requires a 3-Input Or gate, which outputs high when 
-        any of its inputs are high.</p>
+        <p>This level requires a 3-Input Or gate, which outputs <span style="color:var(--connection-color-on);">high</span>
+        only when any of its inputs are <span style="color:var(--connection-color-on);">high</span>.</p>
         <p>However, you might not have this exact gate already. If not, you'll have to connect multiple gates together to win.</p>
         `,
         In3Out1,
