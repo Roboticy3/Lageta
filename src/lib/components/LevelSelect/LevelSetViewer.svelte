@@ -44,8 +44,6 @@
         {from:1, output:0, to:4, input:0},
         {from:2, output:0, to:4, input:1}, //fill 2 inputs of bigger combo, leave the other for the user
         {from:5, output:0, to:6, input:0}, //No Combo powers itself, use to power Exclusion
-        {from:6, output:0, to:7, input:1},
-        {from:7, output:2, to:8, input:3},
         {from:6, output:0, to:9, input:1}, //power the first adder level
     ]
     
