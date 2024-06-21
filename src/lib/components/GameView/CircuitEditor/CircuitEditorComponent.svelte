@@ -8,6 +8,7 @@
     import { GameViewParameters } from "$lib/level_types/GameViewParameters";
     import { GateTypeController } from "$lib/circuit_types/GateType";
     import { GameViewCircuitPanelEventTarget } from "$lib/circuit_types/GameViewCircuitPanelEvent";
+    import GameViewShelf from "./GameViewShelf.svelte";
 
     /**
      * @type {CircuitController | null}
@@ -145,20 +146,12 @@
     bind:this={container}
 >
     {#if circuitController}
-        <div 
-            class="shelf" 
-            style="max-height:{maxSizeState.shelfMaxHeight};" 
-            title="Shelf"
-            bind:this={shelfContainer}
-        >
-            {#each shelf as gateTypeController}
-                <GameViewShelfButton 
-                    circuitDraggable={circuitDraggable} 
-                    gateType={gateTypeController}
-                    editorEventTarget={editorEventTarget}
-                />
-            {/each}
-        </div>
+        <GameViewShelf
+            bind:maxSizeState={maxSizeState}
+            gateTypes={shelf}
+            circuitDraggable={circuitDraggable}
+            editorEventTarget={editorEventTarget}
+        />
         
         <div 
             class="circuit-panel" 
