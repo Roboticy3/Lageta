@@ -99,7 +99,7 @@ export const AdderLevel = {
         <span style="color:var(--connection-color-off);">"0"</span></p>
         <p>Treating the voltages this way, you can imagine "adding" two voltages together.</p>
         <p>Here, the output should be <span style="color:var(--connection-color-on);">high</span> when the two voltages "add" to 1.</p>
-        <p>The best part is that the gate with this behavior is already unlocked! You just have to pick the right one.</p>
+        <p>The best part is that the gate you need to win is already unlocked! You just have to pick the right one.</p>
         `,
         {
             gateTypes: [
