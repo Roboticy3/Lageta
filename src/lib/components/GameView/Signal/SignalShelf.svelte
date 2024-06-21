@@ -116,6 +116,7 @@
         pause()
 
         signalSetView.resetPlayer()
+        circuitController.setInputs(signalSetView.getPlayerValue() || [])
 
         checkScroll()
         signalSvg.setOffset([0, 0])
