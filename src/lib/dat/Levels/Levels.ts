@@ -369,8 +369,9 @@ export const OrLevel = {
     params:new GameViewParameters(
         "Join",
         `
-        <p>An Or gate outputs power when recieving power from either of its inputs, 
-        and is represented by a shape that's curved inward on one side and rounded on the other like an And gate</p>
+        <p>This level requires an "Or" Gate.</p>
+        <p>An Or Gate outputs <span style="color:var(--connection-color-on);">high</span> only
+        when either of it's inputs are <span style="color:var(--connection-color-on);">high</span>.</p>
         `,
         In2Out1,
         new ConnectionValueSignalSet(
@@ -425,7 +426,9 @@ export const AndLevel = {
     params:new GameViewParameters(
         "Some Kind of Combo",
         `
-        <p>This level requires an "And" Gate, which takes two inputs and only outputs power when both inputs (Input 1 AND Input 2) are enabled.</p>
+        <p>This level requires an "And" Gate.</p>
+        <p>An And Gate outputs <span style="color:var(--connection-color-on);">high</span> only
+        when both of it's inputs are <span style="color:var(--connection-color-on);">high</span>.</p>
         `,
         In2Out1,
         new ConnectionValueSignalSet(
