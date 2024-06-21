@@ -591,7 +591,7 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
      */
     function onMouseMove(e) {
         const newQ = query(e)
-        checkEntered(newQ)
+        if (e.target === circuitRenderer.getSvgHead()) {checkEntered(newQ)}
     }
 
     /**

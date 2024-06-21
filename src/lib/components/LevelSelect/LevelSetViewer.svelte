@@ -26,7 +26,7 @@
         undefined, []
     )
     const editorParams = {canDragGates:false}
-    const rendererParams = {showIds:true}
+    const rendererParams = {showGates:false}
 
     $: progress = browser ? new ProgressStorage() : undefined
     $: levelSet = progress?.levels() || []
