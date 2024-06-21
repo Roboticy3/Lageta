@@ -38,6 +38,15 @@ export const Xor:GateTypeParameters = {
     draw: (s) => {return `<path d="M 10 2 C 20 2 20 18 10 18 L 5 18 C 8 18 8 2 5 2 Z" style="pointer-events:none;" />\n<path d="M 2 18 C 5 18 5 2 2 2" style="pointer-events:none;" />\n`}
 }
 
+
+export const SevenSegmentOutput:GateTypeParameters = {
+    name: "7-Segment Output", inputs:8, outputs:0, gridSize:[4, 7],
+    draw: (s) => {
+        return drawGateTypeDecode(s, 4, 7)
+    }
+
+}
+
 export const LevelGateType:GateTypeParameters = { name: "LevelGateType", gridSize: [2, 2], moveable: false };
 
 /**
@@ -163,7 +172,9 @@ export const drawGateTypeEncode = (s:GateState, gridWidth:number, gridHeight:num
     return result.join()
 }
 
-export const drawGateTypeDecode = (s:GateState, gridWidth:number, gridHeight:number) => {
+export const drawGateTypeDecode = (s:GateState, gridWidth:number, gridHeight:number, 
+    extraParams:string=`fill="black" stroke="none" style="pointer-events:none;"`
+) => {
     const result = [drawGateTypeRect(gridWidth, gridHeight)]
     let pow = 1
     let sum = 0
@@ -175,8 +186,7 @@ export const drawGateTypeDecode = (s:GateState, gridWidth:number, gridHeight:num
 `<text 
     x="${gridWidth * 10 / 2 - 5}" 
     y="${gridHeight * 10 / 2 + 5}" 
-    fill="black" stroke="none"
-    style="pointer-events:none;"
+    ${extraParams}
     >
     ${sum}
 </text>`
@@ -239,6 +249,7 @@ export const InputDecodePrebaked = [
     Buf,
     Input(1,{ name:"Input1Decode", outputLabels: ["Input"], gridSize: [2, 2], draw:(s) => drawGateTypeDecode(s, 2, 1)}),
     Input(2,{ name:"Input2Decode", outputLabels: ["Input 0", "Input 1"], gridSize: [2, 2], draw:(s) => drawGateTypeDecode(s, 2, 2)}),
+    Input(3,{ name:"Input3Decode", outputLabels: ["Input 0", "Input 1", "Input 2"], gridSize: [2, 3], draw:(s) => drawGateTypeDecode(s, 2, 3)}),
     Input(4,{ name:"Input4Decode", outputLabels: ["Input 0", "Input 1", "Input 2", "Input 3"], gridSize: [2, 4], draw:(s) => drawGateTypeDecode(s, 2, 4)}),
 ]
 
@@ -254,6 +265,7 @@ export const OutputDecodePrebaked = [
     Buf,
     Output(1,{ name:"Output1Decode", inputLabels: ["Output"], gridSize: [2, 2], draw:(s) => drawGateTypeDecode(s, 2, 1)}),
     Output(2,{ name:"Output2Decode", inputLabels: ["Output 0", "Output 1"], gridSize: [2, 2], draw:(s) => drawGateTypeDecode(s, 2, 2)}),
+    Output(3,{ name:"Output3Decode", inputLabels: ["Output 0", "Output 1", "Output 2"], gridSize: [2, 3], draw:(s) => drawGateTypeDecode(s, 2, 3)}),
     Output(4,{ name:"Output4Decode", inputLabels: ["Output 0", "Output 1", "Output 2", "Output 3"], gridSize: [2, 4], draw:(s) => drawGateTypeDecode(s, 2, 4)}),
 ]
 
@@ -265,6 +277,21 @@ export function InputVariable(bits:number, variableName:string) {
             outputLabels: (new Array(len).fill("").map((_v, i) => `${variableName}${i}`)),
             gridSize:[2,len], 
             draw:(s) => drawGateTypeDecode(s, 2, len)
+        }
+    )
+}
+
+export function exampleInputVariable(variableName:string) {
+    return Input(1, 
+        {
+            name:`InputVariable${variableName}1`, 
+            outputLabels: (new Array(1).fill("").map((_v, i) => `${variableName}${i}`)),
+            gridSize:[2,2], 
+            draw:(s) => drawGateTypeDecode(s, 2, 2, 
+                `stroke="none" 
+                fill="${s.override[0] ? 'var(--connection-color-on)':'var(--connection-color-off)'}" 
+                style="pointer-events:none;"`
+            )
         }
     )
 }
@@ -336,22 +363,15 @@ export function Encoder(bits:number, otherParams?: GateTypeParameters) {
 
 export const Encoder4t2 = Encoder(2)
 
-export function Adder(bits:number, carry:boolean, otherParams?:GateTypeParameters) {
+export function AdderNoCarry(bits:number, otherParams?:GateTypeParameters) {
     const otherSize = otherParams?.gridSize || [undefined, undefined]
     const gridWidth = otherSize[0] || 4
     const gridHeight = otherSize[1] || (bits + 1)
     let params: GateTypeParameters = {
-        name: `Adder${bits}${carry ? "c":"nc"}`,
-        inputs: bits * 2, outputs: bits + (carry ? 1:0),
+        name: `AdderNoCarry${bits}`,
+        inputs: bits * 2, outputs: bits,
         gridSize: [gridWidth, gridHeight],
-        f: carry ? (s) => {
-            const v1 = decodeInternal(s, bits)
-            const v2 = decodeInternal({override:s.override.slice(bits)},bits)
-            const sum = v1 + v2
-            const result = encodeInternal(sum, bits)
-            result.override.push((sum) >= Math.pow(2, bits))
-            return result
-        } : (s) => {
+        f: (s) => {
             const v1 = decodeInternal(s, bits)
             const v2 = decodeInternal({override:s.override.slice(bits)},bits)
             return encodeInternal(v1 + v2, bits)
@@ -361,7 +381,7 @@ export function Adder(bits:number, carry:boolean, otherParams?:GateTypeParameter
     return params;
 }
 
-export const Adder2c = Adder(2, true)
+export const AdderNoCarry1 = AdderNoCarry(1)
 
 export function NInputAnd(bits:number, otherParams?:GateTypeParameters) {
     let params: GateTypeParameters = {

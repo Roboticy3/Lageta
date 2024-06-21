@@ -46,8 +46,7 @@
         {from:5, output:0, to:6, input:0}, //No Combo powers itself, use to power Exclusion
         {from:6, output:0, to:7, input:1},
         {from:7, output:2, to:8, input:3},
-        {from:4, output:0, to:9, input:1},
-        {from:8, output:1, to:9, input:3},
+        {from:6, output:0, to:9, input:1}, //power the first adder level
     ]
     
     onMount(async () => {

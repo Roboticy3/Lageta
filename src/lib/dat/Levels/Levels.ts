@@ -1,6 +1,6 @@
 import { Connection } from "$lib/circuit_types/GateGraph";
 import { GateType, GateTypeController, type ConnectionValue } from "$lib/circuit_types/GateType";
-import { Adder2c, And, And3, Buf, Decoder2t4, Encoder4t2, Input, InputDecodePrebaked, InputLabelledPrebaked, InputVariable, Nand, Not, Or, Or3, Output, OutputDecodePrebaked, OutputLabelledPrebaked, Xor, drawGateTypeDecode, getGateType, type GateTypeParameters } from "$lib/dat/GateTypes/GateTypes";
+import { AdderNoCarry1, And, And3, Buf, Decoder2t4, Encoder4t2, Input, InputDecodePrebaked, InputLabelledPrebaked, InputVariable, Nand, Not, Or, Or3, Output, OutputDecodePrebaked, OutputLabelledPrebaked, SevenSegmentOutput, Xor, drawGateTypeDecode, exampleInputVariable, getGateType, type GateTypeParameters } from "$lib/dat/GateTypes/GateTypes";
 import { ConnectionValueSignalSet, Signal, SignalSet, inverter, oscillator, repeater } from "$lib/signal_types/Signal";
 import type { OrganizedCircuitContents, SerializableGate } from "$lib/storage_types/CircuitStorage";
 import { ProgressStorage } from "$lib/storage_types/ProgressStore";
@@ -93,34 +93,38 @@ export const AdderLevel = {
     params:new GameViewParameters(
         "Simple Calculator",
         `
-        <p>This is a calculator for adding two very small numbers, and even then the output doesn't have enough combinations to account for every possible sum!</p>
-        <p>So, this *very* simple calculator has a "carry" bit, a signal that should fire when the output doesn't have enough bits to display the answer.</p>
+        <p>It's normal to think of <span style="color:var(--connection-color-on);">high</span> voltage as
+        <span style="color:var(--connection-color-on);">"1"</span> and
+        <span style="color:var(--connection-color-off);">low</span> voltage as 
+        <span style="color:var(--connection-color-off);">"0"</span></p>
+        <p>Treating the voltages this way, you can imagine "adding" two voltages together.</p>
+        <p>Here, the output should be <span style="color:var(--connection-color-on);">high</span> when the two voltages "add" to 1.</p>
+        <p>The best part is that the gate with this behavior is already unlocked! You just have to pick the right one.</p>
         `,
         {
             gateTypes: [
-                getGateType(InputVariable(1, 'A')),
-                getGateType(InputVariable(1, 'B')),
-                getGateType(OutputDecodePrebaked[2]),
-                getGateType(Output(1, {name:"Carry",inputLabels:["Carry"]}))
+                getGateType(exampleInputVariable('X')),
+                getGateType(exampleInputVariable('Y')),
+                getGateType(OutputLabelledPrebaked[1])
             ],
             gates: [
-                { x:0, y:3, type:"InputVariableA2", id:0} as SerializableGate,
-                { x:0, y:7, type:"InputVariableB2", id:1} as SerializableGate,
-                { x:18, y:3, type:"Output2Decode", id:2} as SerializableGate,
-                { x:18, y:7, type:"Carry", id:3} as SerializableGate,
+                { x: 0, y: 2, type: "InputVariableX1", id: 0 } as SerializableGate,
+                { x: 0, y: 4, type: "InputVariableY1", id: 1 } as SerializableGate,
+                { x: 14, y: 3, type: "Output1Labelled", id: 2 } as SerializableGate
             ],
-            size:[20,11]
+            size: [16, 7]
         },
-        countingSignal(getGateType(Adder2c), 5, 3),
-        [],
+        countingSignal(getGateType(AdderNoCarry1), 5, 3),
+        [
+            
+        ],
         false,
         {
             inputCheckboxes:false
         }
     ),
-    x:11,y:5, desiredId:9,
-    type:Adder2c,
-    playCondition:[false, false, true]
+    x:14,y:5, desiredId:9,
+    type:AdderNoCarry1,
 }
 
 export const EncoderLevel = {
@@ -146,7 +150,7 @@ export const EncoderLevel = {
         DecoderLevelSignal.flipInputsOutputs(),
         [
             getGateType(Encoder4t2).name,
-            AdderLevel.params.name
+            
         ],
         false,
         {
@@ -228,7 +232,8 @@ export const XorLevel = {
             getGateType(Xor)
         ),
         [
-            getGateType(Xor).name
+            getGateType(Xor).name,
+            AdderLevel.params.name
         ]
     ),
     x:11,y:2,desiredId:6,
