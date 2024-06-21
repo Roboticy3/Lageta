@@ -118,6 +118,10 @@ export class GateGraph extends GateGraphEventTarget {
     
                 toGate.state.override[to[i][1]] = cycleCheck.result.override[i]
 
+                const backwardResultI = this.resolveInputsTo(toGate)
+                if (backwardResultI.error !== "") {
+                    return backwardResultI
+                }
                 const forwardResultI = this.resolveInputsFrom(toGate)
                 if (forwardResultI.error !== "") {
                     return forwardResultI
