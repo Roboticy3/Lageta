@@ -473,20 +473,22 @@ export class CircuitController {
         const graph = this.gateGrid.graph
         const c = new Connection(from, output, to, input)
 
-        const existing = this.getConnectedTo(to, input)
+        console.log("trying to add connection ", c)
 
         const result = graph.addConnection(c)
 
-        const outputValue = this.getConnectionValue({id:from, type:"Output", index:output})
-
-        this.renderer?.updateWire([from, output], outputValue)
-        if (existing) {
-            this.renderer?.updateWire(
-                existing, 
-                this.getConnectionValue({id:existing[0], type:"Output", index:existing[1]})
-            )
+        if (result.error === "") {
+            const existing = this.getConnectedTo(to, input)
+            const outputValue = this.getConnectionValue({id:from, type:"Output", index:output})
+            this.renderer?.updateWire([from, output], outputValue)
+            if (existing) {
+                this.renderer?.updateWire(
+                    existing, 
+                    this.getConnectionValue({id:existing[0], type:"Output", index:existing[1]})
+                )
+            }
+            this.renderer?.clearActiveWire()
         }
-        this.renderer?.clearActiveWire()
 
         return result
     }

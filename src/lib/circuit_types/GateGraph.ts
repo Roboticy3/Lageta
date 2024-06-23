@@ -58,6 +58,7 @@ export class GateGraph extends GateGraphEventTarget {
     }
 
     verifyConnection(c:Connection) {
+        console.log("verifying connection ", c, " with ", this.gates.length, " gates and ", this.inputs.length, " inputs" )
         const outGate = this.gates[c.from[0]]
         if (outGate === undefined || c.from[1] > outGate.type.sizeOut )
         {
