@@ -38,6 +38,15 @@ export const Xor:GateTypeParameters = {
     draw: (s) => {return `<path d="M 10 2 C 20 2 20 18 10 18 L 5 18 C 8 18 8 2 5 2 Z" style="pointer-events:none;" />\n<path d="M 2 18 C 5 18 5 2 2 2" style="pointer-events:none;" />\n`}
 }
 
+export const AdderNoCarry1:GateTypeParameters = {
+    name: "AdderNoCarry1", inputs: 2, outputs:1,
+    f: (s:GateState) => { return {override:[(s.override[0] || false) !== (s.override[1] || false)]}; },
+}
+
+export const HalfAdder:GateTypeParameters = {
+    name: "HalfAdder", inputs: 2, outputs:2,
+    f: (s:GateState) => { return {override:[(s.override[0] || false) !== (s.override[1] || false), s.override[0] && s.override[1]]}}
+}
 
 export const SevenSegmentOutput:GateTypeParameters = {
     name: "7-Segment Output", inputs:8, outputs:0, gridSize:[4, 7],
@@ -362,26 +371,6 @@ export function Encoder(bits:number, otherParams?: GateTypeParameters) {
 }
 
 export const Encoder4t2 = Encoder(2)
-
-export function AdderNoCarry(bits:number, otherParams?:GateTypeParameters) {
-    const otherSize = otherParams?.gridSize || [undefined, undefined]
-    const gridWidth = otherSize[0] || 4
-    const gridHeight = otherSize[1] || (bits + 1)
-    let params: GateTypeParameters = {
-        name: `AdderNoCarry${bits}`,
-        inputs: bits * 2, outputs: bits,
-        gridSize: [gridWidth, gridHeight],
-        f: (s) => {
-            const v1 = decodeInternal(s, bits)
-            const v2 = decodeInternal({override:s.override.slice(bits)},bits)
-            return encodeInternal(v1 + v2, bits)
-        }
-    }
-    if (otherParams) params = combineGateTypeParameters(params, otherParams)
-    return params;
-}
-
-export const AdderNoCarry1 = AdderNoCarry(1)
 
 export function NInputAnd(bits:number, otherParams?:GateTypeParameters) {
     let params: GateTypeParameters = {
