@@ -314,8 +314,7 @@ export const NandLevel = {
         ),
         [
             getGateType(Nand).name,
-            XorLevel.params.name,
-            DecoderLevel.params.name
+            XorLevel.params.name
         ]
     ),
     x:9,y:0,desiredId:5,

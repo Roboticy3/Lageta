@@ -73,7 +73,7 @@
     function save() {
         if (browser) {
             const circuitStorage = new CircuitStorage(circuitController, "Campaign")
-            circuitStorage.save()
+            circuitStorage.save("Campaign", false)
         }
     }
 
