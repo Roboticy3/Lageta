@@ -61,6 +61,8 @@
             console.log("loaded saved campaign screen with result ", result)
             if (result === "Ok") loaded = true
         }
+
+        console.log("mounted level viewer with grid: ", circuitController.gateGrid)
     })
 
     const circuitController = gameParams.initializeGrid()

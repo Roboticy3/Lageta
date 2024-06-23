@@ -551,7 +551,8 @@ export class CircuitController {
     ) {
         const graph = this.gateGrid.graph
 
-        const c = graph.outputs[gateId][outputIndex]
+        const outputs = graph.outputs[gateId]
+        const c = outputs?.at(outputIndex)
 
         return c?.to
     }

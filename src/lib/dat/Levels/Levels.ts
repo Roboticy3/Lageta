@@ -126,7 +126,8 @@ export const CarryLevel = {
         }
     ),
     x:16,y:4,desiredId:10,
-    type:HalfAdder
+    type:HalfAdder,
+    playCondition:[false, true]
 }
 
 export const AdderLevel = {
