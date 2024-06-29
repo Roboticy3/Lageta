@@ -1,8 +1,6 @@
 import { Flow, Gate, type GateState } from "$lib/circuit_types/Gate";
 import { GateType, type GateTypeVariant, type ConnectionValue, GateTypeController } from "$lib/circuit_types/GateType";
 
-export let all_gates: Map<string, GateTypeController> = new Map();
-
 export const Buf:GateTypeParameters = { 
     name: "Buf", inputs: 1, outputs: 1, 
     draw: (s) => {return `<path d="M 2 2 L 18 10 L 2 18 Z" style="pointer-events:none;" />\n`}
@@ -64,6 +62,23 @@ export const SevenSegmentOutput:GateTypeParameters = {
 }
 
 export const LevelGateType:GateTypeParameters = { name: "LevelGateType", gridSize: [2, 2], moveable: false };
+
+export let all_gates: Map<string, GateTypeController> = new Map();
+
+const all_params = new Map([
+    [Buf.name, Buf],
+    [Not.name, Not],
+    [And.name, And],
+    [Or.name, Or],
+    [Nand.name, Nand],
+    [Xor.name, Xor],
+    [HalfAdder.name, HalfAdder],
+    [FullAdder.name, FullAdder]
+])
+
+export function getGateTypeParams(name:string) {
+    return all_params.get(name)
+}
 
 /**
  * Get an existing GateType from the given parameters, or create a new one if necessary
