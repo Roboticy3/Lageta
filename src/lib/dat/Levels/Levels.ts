@@ -1,6 +1,6 @@
 import { Connection } from "$lib/circuit_types/GateGraph";
 import { GateType, GateTypeController, type ConnectionValue } from "$lib/circuit_types/GateType";
-import { AdderNoCarry1, And, And3, Buf, Decoder2t4, Encoder4t2, HalfAdder, Input, InputDecodePrebaked, InputLabelledPrebaked, InputVariable, Nand, Not, Or, Or3, Output, OutputDecodePrebaked, OutputLabelledPrebaked, SevenSegmentOutput, Xor, drawGateTypeDecode, exampleInputVariable, exampleOutputVariable, getGateType, type GateTypeParameters } from "$lib/dat/GateTypes/GateTypes";
+import { AdderNoCarry1, And, And3, Buf, Decoder2t4, Encoder4t2, FullAdder, HalfAdder, Input, InputDecodePrebaked, InputLabelledPrebaked, InputVariable, NBitAdder, Nand, Not, Or, Or3, Output, OutputDecodePrebaked, OutputLabelledPrebaked, OutputVariable, SevenSegmentOutput, Xor, combineGateTypeParameters, drawGateTypeDecode, exampleInputVariable, exampleOutputVariable, getGateType, type GateTypeParameters } from "$lib/dat/GateTypes/GateTypes";
 import { ConnectionValueSignalSet, Signal, SignalSet, inverter, oscillator, repeater } from "$lib/signal_types/Signal";
 import type { OrganizedCircuitContents, SerializableGate } from "$lib/storage_types/CircuitStorage";
 import { ProgressStorage } from "$lib/storage_types/ProgressStore";
@@ -89,6 +89,56 @@ function countingSignal(solver:GateTypeController, step:number, repeat?:number) 
     )
 }
 
+export const FullAdderLevel = {
+    params:new GameViewParameters(
+        "Full Adder",
+        `
+        <p>This level will require a "2 bit" adder.</p>
+        <p>Each input has 2 binary "digits."</p>
+        <p>"X0" and "Y0" represent 1 while "X1" and "Y1" represent 2. 
+        Each input can represent any number from 0 (<span style="color:var(--connection-color-off);">00</span>) to 3 (<span style="color:var(--connection-color-on);">11</span>).</p>
+        <p>The same is true for the output.</p>
+        <p>The addition logic for the first digits has already been filled in.</p>
+        <p>However, to add together the second digits of each input, you also need to consider the "carry" from the first, coming out of the And gate. This point is marked "C in."</p>
+        
+        `,
+        {
+            gateTypes: [
+                getGateType(InputVariable(2, "X")),
+                getGateType(InputVariable(2, "Y")),
+                getGateType(OutputVariable(2, "S")),
+                getGateType(exampleOutputVariable('C Out')),
+                getGateType(Xor),
+                getGateType(combineGateTypeParameters(And, {name:"Carry And", outputLabels:["C in"]}))
+            ],
+            gates: [
+                { x: 0, y: 1, type: "InputVariableX2", id: 0 } as SerializableGate,
+                { x: 0, y: 5, type: "InputVariableY2", id: 1 } as SerializableGate,
+                { x: 18, y: 2, type: "OutputVariableS2", id: 2 } as SerializableGate,
+                { x: 18, y: 4, type: "OutputVariableC Out1", id: 3 } as SerializableGate,
+                { x: 5, y: 0, type: "Xor", id: 4} as SerializableGate,
+                { x: 5, y: 2, type: "Carry And", id: 5} as SerializableGate,
+            ],
+            connections: [
+                new Connection(0, 0, 4, 0), new Connection(1, 0, 4, 1), new Connection(4, 0, 2, 0),
+                new Connection(0, 0, 5, 0), new Connection(1, 0, 5, 1)
+            ],
+            size: [20, 9]
+        },
+        countingSignal(getGateType(NBitAdder(2)), 10, 2),
+        [
+            FullAdder.name
+        ],
+        false,
+        {
+            inputCheckboxes:false
+        }
+    ),
+    x:18,y:6,desiredId:11,
+    type:FullAdder,
+    playCondition:[true, true]
+}
+
 export const CarryLevel = {
     params:new GameViewParameters(
         "Half Adder",
@@ -114,19 +164,20 @@ export const CarryLevel = {
             gates: [
                 { x: 0, y: 2, type: "InputVariableX1", id: 0 } as SerializableGate,
                 { x: 0, y: 4, type: "InputVariableY1", id: 1 } as SerializableGate,
-                { x: 14, y: 2, type: "OutputVariableCarry1", id: 2 } as SerializableGate,
-                { x: 14, y: 4, type: "OutputVariableS1", id: 3 } as SerializableGate
+                { x: 14, y: 2, type: "OutputVariableS1", id: 2 } as SerializableGate,
+                { x: 14, y: 4, type: "OutputVariableCarry1", id: 3 } as SerializableGate,
             ],
             size: [16, 7]
         },
         countingSignal(getGateType(HalfAdder), 5, 3),
         [
-            HalfAdder.name
+            HalfAdder.name,
+            FullAdderLevel.params.name
         ]
     ),
     x:16,y:4,desiredId:10,
     type:HalfAdder,
-    playCondition:[true, false]
+    playCondition:[false, true]
 }
 
 export const AdderLevel = {
@@ -158,7 +209,7 @@ export const AdderLevel = {
             gates: [
                 { x: 0, y: 2, type: "InputVariableX1", id: 0 } as SerializableGate,
                 { x: 0, y: 4, type: "InputVariableY1", id: 1 } as SerializableGate,
-                { x: 14, y: 4, type: "OutputVariableS1", id: 2 } as SerializableGate
+                { x: 14, y: 2, type: "OutputVariableS1", id: 2 } as SerializableGate
             ],
             size: [16, 7]
         },
@@ -581,7 +632,8 @@ const all_params = new Map<string, LevelParameters>([
     [DecoderLevel.params.name, DecoderLevel],
     [EncoderLevel.params.name, EncoderLevel],
     [AdderLevel.params.name, AdderLevel],
-    [CarryLevel.params.name, CarryLevel]
+    [CarryLevel.params.name, CarryLevel],
+    [FullAdderLevel.params.name, FullAdderLevel]
 ])
 
 export function getLevel(name:string) {

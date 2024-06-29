@@ -44,8 +44,15 @@ export const AdderNoCarry1:GateTypeParameters = {
 }
 
 export const HalfAdder:GateTypeParameters = {
-    name: "HalfAdder", inputs: 2, outputs:2, outputLabels:["C", "S"],
-    f: (s:GateState) => { return {override:[s.override[0] && s.override[1], (s.override[0] || false) !== (s.override[1] || false)]}}
+    name: "HalfAdder", inputs: 2, outputs:2, outputLabels:["S", "C"],
+    f: (s:GateState) => { return {override:[(s.override[0] || false) !== (s.override[1] || false), s.override[0] && s.override[1]]}}
+}
+
+export const FullAdder:GateTypeParameters ={
+    name: "FullAdder", inputs:3, outputs:2, outputLabels:["S", "C out"], inputLabels:["", "", "C in"],
+    f: (s:GateState) => { return {
+        override:[((s.override[0] || false) !== (s.override[1] || false)) !== (s.override[2] || false), (s.override[0] && s.override[1]) || (s.override[2] && (s.override[0] || s.override[1]))]
+    }}
 }
 
 export const SevenSegmentOutput:GateTypeParameters = {
@@ -279,13 +286,23 @@ export const OutputDecodePrebaked = [
 ]
 
 export function InputVariable(bits:number, variableName:string) {
-    const len = Math.pow(2, bits)
-    return Input(len, 
+    return Input(bits, 
         {
-            name:`InputVariable${variableName}${len}`, 
-            outputLabels: (new Array(len).fill("").map((_v, i) => `${variableName}${i}`)),
-            gridSize:[2,len], 
-            draw:(s) => drawGateTypeDecode(s, 2, len)
+            name:`InputVariable${variableName}${bits}`, 
+            outputLabels: (new Array(bits).fill("").map((_v, i) => `${variableName}${i}`)),
+            gridSize:[2,bits], 
+            draw:(s) => drawGateTypeDecode(s, 2, bits)
+        }
+    )
+}
+
+export function OutputVariable(bits:number, variableName:string) {
+    return Output(bits, 
+        {
+            name:`OutputVariable${variableName}${bits}`, 
+            inputLabels: (new Array(bits).fill("").map((_v, i) => `${variableName}${i}`)),
+            gridSize:[2,bits], 
+            draw:(s) => drawGateTypeDecode(s, 2, bits)
         }
     )
 }
@@ -439,3 +456,20 @@ export function NInputOr(bits:number, otherParams?:GateTypeParameters) {
 
 export const And3 = NInputAnd(3)
 export const Or3 = NInputOr(3)
+
+export function NBitAdder(bits:number, otherParams?:GateTypeParameters) {
+    let params: GateTypeParameters = {
+        name: `${bits}-Bit Adder`,
+        inputs: 2 * bits, outputs: bits + 1,
+        gridSize: [2, 2 * bits],
+        f: (s) => {
+            const x = decodeInternal(s, bits)
+            const s2 = {override:s.override.slice(bits)}
+            const y = decodeInternal(s2, bits)
+            const sum = x + y
+            return encodeInternal(sum, bits + 1)
+        }
+    }
+    if (otherParams) params = combineGateTypeParameters(params, otherParams)
+    return params;
+}
