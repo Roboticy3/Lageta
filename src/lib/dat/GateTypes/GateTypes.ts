@@ -44,8 +44,8 @@ export const AdderNoCarry1:GateTypeParameters = {
 }
 
 export const HalfAdder:GateTypeParameters = {
-    name: "HalfAdder", inputs: 2, outputs:2,
-    f: (s:GateState) => { return {override:[(s.override[0] || false) !== (s.override[1] || false), s.override[0] && s.override[1]]}}
+    name: "HalfAdder", inputs: 2, outputs:2, outputLabels:["C", "S"],
+    f: (s:GateState) => { return {override:[s.override[0] && s.override[1], (s.override[0] || false) !== (s.override[1] || false)]}}
 }
 
 export const SevenSegmentOutput:GateTypeParameters = {
@@ -294,9 +294,24 @@ export function exampleInputVariable(variableName:string) {
     return Input(1, 
         {
             name:`InputVariable${variableName}1`, 
-            outputLabels: (new Array(1).fill("").map((_v, i) => `${variableName}${i}`)),
+            outputLabels: (new Array(1).fill("").map((_v, i) => `${variableName}`)),
             gridSize:[2,2], 
             draw:(s) => drawGateTypeDecode(s, 2, 2, 
+                `stroke="none" 
+                fill="${s.override[0] ? 'var(--connection-color-on)':'var(--connection-color-off)'}" 
+                style="pointer-events:none;"`
+            )
+        }
+    )
+}
+
+export function exampleOutputVariable(variableName:string) {
+    return Output(1, 
+        {
+            name:`OutputVariable${variableName}1`, 
+            inputLabels: (new Array(1).fill("").map((_v, i) => `${variableName}`)),
+            gridSize:[2,2], 
+            draw:(s) => s.override[0] === undefined ? drawGateTypeRect(2, 2):drawGateTypeDecode(s, 2, 2, 
                 `stroke="none" 
                 fill="${s.override[0] ? 'var(--connection-color-on)':'var(--connection-color-off)'}" 
                 style="pointer-events:none;"`

@@ -1,6 +1,6 @@
 import { Connection } from "$lib/circuit_types/GateGraph";
 import { GateType, GateTypeController, type ConnectionValue } from "$lib/circuit_types/GateType";
-import { AdderNoCarry1, And, And3, Buf, Decoder2t4, Encoder4t2, HalfAdder, Input, InputDecodePrebaked, InputLabelledPrebaked, InputVariable, Nand, Not, Or, Or3, Output, OutputDecodePrebaked, OutputLabelledPrebaked, SevenSegmentOutput, Xor, drawGateTypeDecode, exampleInputVariable, getGateType, type GateTypeParameters } from "$lib/dat/GateTypes/GateTypes";
+import { AdderNoCarry1, And, And3, Buf, Decoder2t4, Encoder4t2, HalfAdder, Input, InputDecodePrebaked, InputLabelledPrebaked, InputVariable, Nand, Not, Or, Or3, Output, OutputDecodePrebaked, OutputLabelledPrebaked, SevenSegmentOutput, Xor, drawGateTypeDecode, exampleInputVariable, exampleOutputVariable, getGateType, type GateTypeParameters } from "$lib/dat/GateTypes/GateTypes";
 import { ConnectionValueSignalSet, Signal, SignalSet, inverter, oscillator, repeater } from "$lib/signal_types/Signal";
 import type { OrganizedCircuitContents, SerializableGate } from "$lib/storage_types/CircuitStorage";
 import { ProgressStorage } from "$lib/storage_types/ProgressStore";
@@ -93,41 +93,40 @@ export const CarryLevel = {
     params:new GameViewParameters(
         "Half Adder",
         `
-        <p>The adder in the last level is losing information! <span style="color:var(--connection-color-on);">1</span>
-        + <span style="color:var(--connection-color-on);">1</span> = <span style="color:var(--connection-color-off);">0</span>
-        and <span style="color:var(--connection-color-off);">0</span> + <span style="color:var(--connection-color-off);">0</span> =
-        <span style="color:var(--connection-color-off);">0</span>. That can't be right.</p>
-        <p>A single output can only be <span style="color:var(--connection-color-off);">0</span> or <span style="color:var(--connection-color-on);">1</span>.
-        So to represent <span style="color:var(--circuit-color);">2</span>, we'll need a second output. This extra output is called "Carry"</p>
-        <p>This level is mostly the same as the last, except if both inputs are 1, the output "Carry" should be <span style="color:var(--connection-color-on);">high</span>.</p>
+        <p>The single output "S" can only be <span style="color:var(--connection-color-off);">0</span> or <span style="color:var(--connection-color-on);">1</span>.
+        To represent larger numbers, we'll need more outputs. Here, there's an extra output called "Carry"</p>
+        <p>This level is mostly the same as the last, except if the inputs add to 2, the "Carry" should be <span style="color:var(--connection-color-on);">1</span>.</p>
+        <p>Note that:</p>
+        <p><span style="color:var(--connection-color-on);">1</span> + <span style="color:var(--connection-color-on);">1</span> =
+        <span style="color:var(--connection-color-on);">1</span><span style="color:var(--connection-color-off);">0</span>,</p>
+        <p><span style="color:var(--connection-color-on);">1</span> + <span style="color:var(--connection-color-off);">0</span> =
+        <span style="color:var(--connection-color-off);">0</span><span style="color:var(--connection-color-on);">1</span>, and</p>
+        <p><span style="color:var(--connection-color-off);">0</span> + <span style="color:var(--connection-color-off);">0</span> =
+        <span style="color:var(--connection-color-off);">0</span><span style="color:var(--connection-color-off);">0</span></p>
         `,
         {
             gateTypes: [
                 getGateType(exampleInputVariable('X')),
                 getGateType(exampleInputVariable('Y')),
-                getGateType(Output(1, {name:"Output1Sum", inputLabels:['S']})),
-                getGateType(Output(1, {name:"Carry", inputLabels:['Carry']}))
+                getGateType(exampleOutputVariable('S')),
+                getGateType(exampleOutputVariable('Carry'))
             ],
             gates: [
                 { x: 0, y: 2, type: "InputVariableX1", id: 0 } as SerializableGate,
                 { x: 0, y: 4, type: "InputVariableY1", id: 1 } as SerializableGate,
-                { x: 14, y: 3, type: "Output1Sum", id: 2 } as SerializableGate,
-                { x: 14, y: 5, type: "Carry", id: 3 } as SerializableGate,
+                { x: 14, y: 2, type: "OutputVariableCarry1", id: 2 } as SerializableGate,
+                { x: 14, y: 4, type: "OutputVariableS1", id: 3 } as SerializableGate
             ],
             size: [16, 7]
         },
         countingSignal(getGateType(HalfAdder), 5, 3),
         [
-            
-        ],
-        false,
-        {
-            inputCheckboxes:false
-        }
+            HalfAdder.name
+        ]
     ),
     x:16,y:4,desiredId:10,
     type:HalfAdder,
-    playCondition:[false, true]
+    playCondition:[true, false]
 }
 
 export const AdderLevel = {
@@ -141,30 +140,32 @@ export const AdderLevel = {
         <p>Treating the voltages this way, you can imagine "adding" two voltages together.</p>
         <p>Here, the output should be <span style="color:var(--connection-color-on);">high</span> (<span style="color:var(--connection-color-on);">1</span>) when the two voltages "add" to <span style="color:var(--connection-color-on);">1</span>,
         and <span style="color:var(--connection-color-off);">low</span> (<span style="color:var(--connection-color-off);">0</span>) otherwise.</p>
-        <p>Note that this means if the two voltages add to <span style="color:var(--circuit-color);">2</span>, the output should still be <span style="color:var(--connection-color-off);">0</span>.</p>
+        <p>Note that this means if the two voltages add to 2, the output should still be <span style="color:var(--connection-color-off);">0</span>.</p>
+        <p><span style="color:var(--connection-color-on);">1</span> + <span style="color:var(--connection-color-on);">1</span> =
+        <span style="color:var(--connection-color-off);">0</span>,</p>
+        <p><span style="color:var(--connection-color-on);">1</span> + <span style="color:var(--connection-color-off);">0</span> =
+        <span style="color:var(--connection-color-on);">1</span>, and</p>
+        <p><span style="color:var(--connection-color-off);">0</span> + <span style="color:var(--connection-color-off);">0</span> =
+        <span style="color:var(--connection-color-off);">0</span></p>
         <p>The best part is that the gate you need to win is already unlocked! You just have to pick the right one.</p>
         `,
         {
             gateTypes: [
                 getGateType(exampleInputVariable('X')),
                 getGateType(exampleInputVariable('Y')),
-                getGateType(Output(1, {name:"Output1Sum", inputLabels:['S']}))
+                getGateType(exampleOutputVariable('S'))
             ],
             gates: [
                 { x: 0, y: 2, type: "InputVariableX1", id: 0 } as SerializableGate,
                 { x: 0, y: 4, type: "InputVariableY1", id: 1 } as SerializableGate,
-                { x: 14, y: 3, type: "Output1Sum", id: 2 } as SerializableGate
+                { x: 14, y: 4, type: "OutputVariableS1", id: 2 } as SerializableGate
             ],
             size: [16, 7]
         },
         countingSignal(getGateType(AdderNoCarry1), 5, 3),
         [
             CarryLevel.params.name
-        ],
-        false,
-        {
-            inputCheckboxes:false
-        }
+        ]
     ),
     x:14,y:5, desiredId:9,
     type:AdderNoCarry1,
