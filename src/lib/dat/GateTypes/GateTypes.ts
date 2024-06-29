@@ -138,17 +138,22 @@ export type GateTypeParameters = {
 export function combineGateTypeParameters(a:GateTypeParameters, b:GateTypeParameters) {
     console.log("combining params: ", a, b)
 
-    let result = a as Object
-    type GateTypeParametersKeys = keyof typeof result
-    const entries = Object.entries(b as Object)
-    for (let i = 0; i < entries.length; i++) {
-        const [k,v] = entries[i]
-        const entry = k as GateTypeParametersKeys
-        result[entry] = v
-    }
+    let result = {
+        name:b.name,
+        inputs:b.inputs || a.inputs,
+        outputs:b.outputs || a.outputs,
+        gridSize:b.gridSize || a.gridSize,
+        inputLabels:b.inputLabels || a.inputLabels,
+        outputLabels:b.outputLabels || a.outputLabels,
+        moveable:b.moveable || a.moveable,
+        variant:b.variant || a.variant,
+        f:b.f || a.f,
+        draw:b.draw || a.draw,
+        register:b.register || a.register,
+    } as GateTypeParameters
 
     console.log("combined parameters:", result)
-    return result as GateTypeParameters
+    return result
 }
 
 export function spreadVerticalConnections(gridX: number, gridHeight: number, numPoints: number) {
