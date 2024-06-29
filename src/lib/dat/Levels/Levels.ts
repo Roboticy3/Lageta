@@ -527,6 +527,10 @@ export const AndLevel = {
                     .push(oscillator(10, 5)),
                 new Signal<ConnectionValue>([
                     {
+                        frame: 0,
+                        value: false
+                    },
+                    {
                         frame: 50,
                         value: true
                     }
