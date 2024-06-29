@@ -93,14 +93,17 @@ export const FullAdderLevel = {
     params:new GameViewParameters(
         "Full Adder",
         `
-        <p>This level will require a "2 bit" adder.</p>
-        <p>Each input has 2 binary "digits."</p>
-        <p>"X0" and "Y0" represent 1 while "X1" and "Y1" represent 2. 
-        Each input can represent any number from 0 (<span style="color:var(--connection-color-off);">00</span>) to 3 (<span style="color:var(--connection-color-on);">11</span>).</p>
-        <p>The same is true for the output.</p>
-        <p>The addition logic for the first digits has already been filled in.</p>
-        <p>However, to add together the second digits of each input, you also need to consider the "carry" from the first, coming out of the And gate. This point is marked "C in."</p>
-        
+        <p>2 voltages together can represent any number from 0 to 3.</p>
+        <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; grid-template-rows: 1fr 1fr 1fr 1fr 1fr; width:50%; margin-left:25%; text-align:center;">
+            <div style="grid-column: 1; grid-row: 1;">V0</div><div style="grid-column: 2; grid-row: 1;">V1</div><div style="grid-column: 3; grid-row: 1;">number</div>
+            <div style="grid-column: 1; grid-row: 2; color:var(--connection-color-off);">0</div><div style="grid-column: 2; grid-row: 2; color:var(--connection-color-off);">0</div><div style="grid-column: 3; grid-row: 2;">0</div>
+            <div style="grid-column: 1; grid-row: 3; color:var(--connection-color-on);">1</div><div style="grid-column: 2; grid-row: 3; color:var(--connection-color-off);">0</div><div style="grid-column: 3; grid-row: 3;">1</div>
+            <div style="grid-column: 1; grid-row: 4; color:var(--connection-color-off);">0</div><div style="grid-column: 2; grid-row: 4; color:var(--connection-color-on);">1</div><div style="grid-column: 3; grid-row: 4;">2</div>
+            <div style="grid-column: 1; grid-row: 5; color:var(--connection-color-on);">1</div><div style="grid-column: 2; grid-row: 5; color:var(--connection-color-on);">1</div><div style="grid-column: 3; grid-row: 5;">3</div>
+        </div>
+        <p>This level has two pairs of input voltages: X0, X1, and Y0, Y1, and one pair of output voltages: S0, S1, as well as a Carry.</div>
+        <p>The pairs have their matching numbers displayed next to them.</p>
+        <p>If two voltages together can represent a single number, you can imagine "adding" two pairs together. X0 and X1 plus Y0 and Y1, into S0 and S1 and Carry.</p>
         `,
         {
             gateTypes: [
@@ -144,15 +147,17 @@ export const CarryLevel = {
         "Half Adder",
         `
         <p>The single output "S" can only be <span style="color:var(--connection-color-off);">0</span> or <span style="color:var(--connection-color-on);">1</span>.
-        To represent larger numbers, we'll need more outputs. Here, there's an extra output called "Carry"</p>
+        To represent larger numbers, we'll need more outputs.</p>
+        <p>In this <span style="color:var(--circuit-color);">circuit</span>, there's an extra output called "Carry"</p>
         <p>This level is mostly the same as the last, except if the inputs add to 2, the "Carry" should be <span style="color:var(--connection-color-on);">1</span>.</p>
-        <p>Note that:</p>
-        <p><span style="color:var(--connection-color-on);">1</span> + <span style="color:var(--connection-color-on);">1</span> =
-        <span style="color:var(--connection-color-on);">1</span><span style="color:var(--connection-color-off);">0</span>,</p>
-        <p><span style="color:var(--connection-color-on);">1</span> + <span style="color:var(--connection-color-off);">0</span> =
-        <span style="color:var(--connection-color-off);">0</span><span style="color:var(--connection-color-on);">1</span>, and</p>
-        <p><span style="color:var(--connection-color-off);">0</span> + <span style="color:var(--connection-color-off);">0</span> =
-        <span style="color:var(--connection-color-off);">0</span><span style="color:var(--connection-color-off);">0</span></p>
+        <p>Carry is named after the technique of "carrying the 1" when adding two numbers on paper.</p>
+        <div style="display:grid; grid-template-columns: 1fr 1fr 1fr 1fr; grid-template-rows: 1fr 1fr 1fr 1fr 1fr; width:25%; margin-left:25%;">
+            <div style="grid-column: 3; grid-row: 1;">1</div>
+            <div style="grid-column: 3; grid-row: 2;">1</div><div style="grid-column: 4; grid-row: 2;">9</div>
+            <div style="grid-column: 1; grid-row: 3;">+</div><div style="grid-column: 3; grid-row: 3;">2</div><div style="grid-column: 4; grid-row: 3;">1</div>
+            <div style="grid-column: 3; grid-row: 4;">4</div><div style="grid-column: 4; grid-row: 4;">0</div>
+            <div style="grid-column: 1 / 5; grid-row: 4; width:100%; height:100%; border-top: 2px solid black;" ></div>
+        </div>
         `,
         {
             gateTypes: [
