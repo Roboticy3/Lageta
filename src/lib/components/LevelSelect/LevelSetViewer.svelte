@@ -45,9 +45,13 @@
         {from:2, output:0, to:4, input:1}, //fill 2 inputs of bigger combo, leave the other for the user
         {from:5, output:0, to:6, input:0}, //No Combo powers itself, use to power Exclusion
         {from:6, output:0, to:9, input:1}, //power the first adder level
-        {from:6, output:0, to:8, input:3}, //power encoder
+        {from:6, output:0, to:8, input:3}, //power encoder from xor
+        {from:8, output:1, to:7, input:1}, //power decoder from encoder
         {from:9, output:0, to:10, input:0}, //power the second adder level
-        {from:9, output:0, to:10, input:1}
+        {from:9, output:0, to:10, input:1},
+        {from:10, output:1, to:11, input:2}, //partially power the full adder level
+        {from:9, output:0, to:11, input:1},
+        {from:7, output:2, to:11, input:0}, //fully power the full adder level from decoder
     ]
     
     onMount(async () => {
