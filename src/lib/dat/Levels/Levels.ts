@@ -227,39 +227,6 @@ export const AdderLevel = {
     type:AdderNoCarry1,
 }
 
-export const EncoderLevel = {
-    params:new GameViewParameters(
-        "Counting Backwards",
-        `
-        `,
-        {
-            gateTypes: [
-                getGateType(Input(4,
-                    { name:"Input4Decoded", outputLabels: ["0", "1", "2", "3"], gridSize: [2, 7] }
-                )),
-                getGateType(OutputDecodePrebaked[2])
-            ],
-            gates: [
-                { x: 0, y: 2, type: "Input4Decoded", id: 0 } as SerializableGate,
-                { x: 18, y: 4, type: "Output2Decode", id: 1 } as SerializableGate
-            ],
-            size: [20, 11]
-        },
-        DecoderLevelSignal.flipInputsOutputs(),
-        [
-            getGateType(Encoder4t2).name,
-            
-        ],
-        false,
-        {
-            inputCheckboxes:false
-        }
-    ),
-    x:18,y:0, desiredId:8,
-    type:Encoder4t2,
-    playCondition:[true, true]
-}
-
 export const DecoderLevel = {
     params:new GameViewParameters(
         "Counting",
@@ -281,16 +248,48 @@ export const DecoderLevel = {
         DecoderLevelSignal,
         [
             getGateType(Decoder2t4).name,
-            EncoderLevel.params.name
         ],
         false,
         {
             inputCheckboxes:false
         }
     ),
-    x:14,y:0, desiredId:7,
+    x:18,y:0, desiredId:7,
     type:Decoder2t4,
     playCondition:[false, false, true, false]
+}
+
+export const EncoderLevel = {
+    params:new GameViewParameters(
+        "Counting Backwards",
+        `
+        `,
+        {
+            gateTypes: [
+                getGateType(Input(4,
+                    { name:"Input4Decoded", outputLabels: ["0", "1", "2", "3"], gridSize: [2, 7] }
+                )),
+                getGateType(OutputDecodePrebaked[2])
+            ],
+            gates: [
+                { x: 0, y: 2, type: "Input4Decoded", id: 0 } as SerializableGate,
+                { x: 18, y: 4, type: "Output2Decode", id: 1 } as SerializableGate
+            ],
+            size: [20, 11]
+        },
+        DecoderLevelSignal.flipInputsOutputs(),
+        [
+            getGateType(Encoder4t2).name,
+            DecoderLevel.params.name
+        ],
+        false,
+        {
+            inputCheckboxes:false
+        }
+    ),
+    x:14,y:0, desiredId:8,
+    type:Encoder4t2,
+    playCondition:[true, true]
 }
 
 export const XorLevel = {
@@ -329,7 +328,8 @@ export const XorLevel = {
         ),
         [
             getGateType(Xor).name,
-            AdderLevel.params.name
+            AdderLevel.params.name,
+            EncoderLevel.params.name
         ]
     ),
     x:11,y:2,desiredId:6,
