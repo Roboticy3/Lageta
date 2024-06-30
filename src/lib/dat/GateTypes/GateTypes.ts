@@ -375,6 +375,7 @@ export function Decoder(bits:number, otherParams?: GateTypeParameters) {
     let params: GateTypeParameters = {
         name: `${bits}-${outSize} Decoder`,
         inputs: bits, outputs: outSize,
+        outputLabels: (new Array(outSize)).fill(undefined).map((_v, i) => `${i}`),
         gridSize: [gridWidth, gridHeight],
         f: (s) => {
             const idx = decodeInternal(s, bits)
@@ -410,6 +411,7 @@ export function Encoder(bits:number, otherParams?: GateTypeParameters) {
     let params: GateTypeParameters = {
         name: `${inSize}-${bits} Encoder`,
         inputs: inSize, outputs: bits,
+        inputLabels: (new Array(inSize)).fill(undefined).map((_v, i) => `${i}`),
         gridSize: [gridWidth, gridHeight],
         f: (s) => {
             return encodeInternal(s.override.lastIndexOf(true), bits)
