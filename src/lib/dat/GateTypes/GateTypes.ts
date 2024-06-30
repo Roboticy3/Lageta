@@ -145,11 +145,11 @@ export function combineGateTypeParameters(a:GateTypeParameters, b:GateTypeParame
         gridSize:b.gridSize || a.gridSize,
         inputLabels:b.inputLabels || a.inputLabels,
         outputLabels:b.outputLabels || a.outputLabels,
-        moveable:b.moveable || a.moveable,
+        moveable:b.moveable !== undefined ? b.moveable : a.moveable,
         variant:b.variant || a.variant,
         f:b.f || a.f,
         draw:b.draw || a.draw,
-        register:b.register || a.register,
+        register:b.register !== undefined ? b.register : a.register,
     } as GateTypeParameters
 
     console.log("combined parameters:", result)

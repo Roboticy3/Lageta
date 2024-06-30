@@ -93,17 +93,34 @@ export const FullAdderLevel = {
     params:new GameViewParameters(
         "Full Adder",
         `
-        <p>2 voltages together can represent any number from 0 to 3.</p>
-        <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; grid-template-rows: 1fr 1fr 1fr 1fr 1fr; width:50%; margin-left:25%; text-align:center;">
-            <div style="grid-column: 1; grid-row: 1;">X0</div><div style="grid-column: 2; grid-row: 1;">X1</div><div style="grid-column: 3; grid-row: 1;">number</div>
-            <div style="grid-column: 1; grid-row: 2; color:var(--connection-color-off);">0</div><div style="grid-column: 2; grid-row: 2; color:var(--connection-color-off);">0</div><div style="grid-column: 3; grid-row: 2;">0</div>
-            <div style="grid-column: 1; grid-row: 3; color:var(--connection-color-on);">1</div><div style="grid-column: 2; grid-row: 3; color:var(--connection-color-off);">0</div><div style="grid-column: 3; grid-row: 3;">1</div>
-            <div style="grid-column: 1; grid-row: 4; color:var(--connection-color-off);">0</div><div style="grid-column: 2; grid-row: 4; color:var(--connection-color-on);">1</div><div style="grid-column: 3; grid-row: 4;">2</div>
-            <div style="grid-column: 1; grid-row: 5; color:var(--connection-color-on);">1</div><div style="grid-column: 2; grid-row: 5; color:var(--connection-color-on);">1</div><div style="grid-column: 3; grid-row: 5;">3</div>
+        <p>Adding binary numbers with multiple digits is just like adding decimal numbers on paper.</p>
+        <div style="display:flex; justify-content:space-evenly;">
+            <div style="display:grid; grid-template-columns: 1fr 1fr 1fr 1fr; grid-template-rows: 1fr 1fr 1fr 1fr 1fr; width:25%; text-wrap:nowrap;">
+                <div style="grid-column: 2; grid-row: 1;">1</div><div style="grid-column: 3; grid-row: 1;">1</div>
+                <div style="grid-column: 3; grid-row: 2;">0</div><div style="grid-column: 4; grid-row: 2;">1</div>
+                <div style="grid-column: 1; grid-row: 3;">+</div><div style="grid-column: 3; grid-row: 3;">1</div><div style="grid-column: 4; grid-row: 3;">1</div>
+                <div style="grid-column: 2; grid-row: 4;">1</div><div style="grid-column: 3; grid-row: 4;">0</div><div style="grid-column: 4; grid-row: 4;">0</div>
+                <div style="grid-column: 1 / 5; grid-row: 4; width:100%; height:100%; border-top: 2px solid black;" ></div>
+            </div>
+            <div style="display:grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr 1fr 1fr 1fr; width:12%; text-wrap:nowrap;">
+                <div style="grid-column: 2; grid-row: 2;">1</div>
+                <div style="grid-column: 1; grid-row: 3;">+</div><div style="grid-column: 2; grid-row: 3;">3</div>
+                <div style="grid-column: 2; grid-row: 4;">4</div>
+                <div style="grid-column: 1 / 5; grid-row: 4; width:100%; height:100%; border-top: 2px solid black;" ></div>
+            </div>
         </div>
-        <p>This <span style="color:var(--circuit-color);">circuit</span> has two pairs of input voltages: X0, X1, and Y0, Y1.</p>
-        <p>The pairs have their matching numbers displayed next to them. Play the <span style="color:var(--circuit-color);">signal</span> to see the numbers change along with the voltages.</p>
-        <p>If two voltages together can represent a single number, you can imagine "adding" two pairs. X0 and X1 plus Y0 and Y1, into S0 and S1 and Carry.</p>
+        <p>This level requires you to create a circuit that adds 2-bit binary numbers.</p>
+        <p>Adding the 1's place is the same as the last level, and has been filled in for you.</p>
+        <p>The point labelled "C In" represents the Carry from the addition of the 1's place.</p>
+        <p>"C out" is the Carry from the addition of the 2's place.</p>
+        <div style="display:grid; grid-template-columns: 1fr 1fr 1fr 1fr; grid-template-rows: 1fr 1fr 1fr 1fr 1fr 1fr; text-align:center; text-wrap:nowrap;">
+            <div style="grid-column: 2; grid-row: 1;">"C Out"</div><div style="grid-column: 3; grid-row: 1;">"C In"</div>
+            <div style="grid-column: 2; grid-row: 2;">1</div><div style="grid-column: 3; grid-row: 2;">1</div>
+            <div style="grid-column: 3; grid-row: 3;">0</div><div style="grid-column: 4; grid-row: 3;">1</div>
+            <div style="grid-column: 1; grid-row: 4;">+</div><div style="grid-column: 3; grid-row: 4;">1</div><div style="grid-column: 4; grid-row: 4;">1</div>
+            <div style="grid-column: 2; grid-row: 5;">1</div><div style="grid-column: 3; grid-row: 5;">0</div><div style="grid-column: 4; grid-row: 5;">0</div>
+            <div style="grid-column: 1 / 5; grid-row: 5; width:100%; height:100%; border-top: 2px solid black;" ></div>
+        </div>
         `,
         {
             gateTypes: [
@@ -231,16 +248,31 @@ export const DecoderLevel = {
     params:new GameViewParameters(
         "Counting",
         `
+        <p>The number "19" has a "1" in the 10's place and a "9" in the 1's place.</p>
+        <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; grid-template-rows: 1fr 1fr 1fr; width:50%; margin-left:25%; text-align:center; text-wrap:nowrap;">
+            <div style="grid-column: 1; grid-row: 1;">10's</div><div style="grid-column: 2; grid-row: 1;">1's</div>
+            <div style="grid-column: 1; grid-row: 2;">1</div><div style="grid-column: 2; grid-row: 2;">9</div>
+            <div style="grid-column: 1; grid-row: 3;">10 + </div><div style="grid-column: 2; grid-row: 3;">9 = </div><div style="grid-column: 3; grid-row: 3;">19</div>
+        </div>
+        <p>19 is the same as "10011" in binary:</p>
+        <div style="display:grid; grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr; grid-template-rows: 1fr 1fr 1fr; width:75%; margin-left:12%; text-align:center; text-wrap:nowrap;">
+            <div style="grid-column: 1; grid-row: 1;">16's</div><div style="grid-column: 2; grid-row: 1;">8's</div><div style="grid-column: 3; grid-row: 1;">4's</div><div style="grid-column: 4; grid-row: 1;">2's</div><div style="grid-column: 5; grid-row: 1;">1's</div>
+            <div style="grid-column: 1; grid-row: 2; color:var(--connection-color-on);">1</div><div style="grid-column: 2; grid-row: 2; color:var(--connection-color-off);">0</div><div style="grid-column: 3; grid-row: 2; color:var(--connection-color-off);">0</div><div style="grid-column: 4; grid-row: 2; color:var(--connection-color-on);">1</div><div style="grid-column: 5; grid-row: 2; color:var(--connection-color-on);">1</div>
+            <div style="grid-column: 1; grid-row: 3;">16 + </div><div style="grid-column: 2; grid-row: 3;">0 + </div><div style="grid-column: 3; grid-row: 3;">0 + </div><div style="grid-column: 4; grid-row: 3;">2 + </div><div style="grid-column: 5; grid-row: 3;">1 = </div><div style="grid-column: 6; grid-row: 3;">19</div>
+        </div>
+        <p>In this <span style="color:var(--circuit-color);">circuit</span>, and the previous level's <span style="color:var(--circuit-color);">circuit</span>, X0 represents a binary 1's place and X1 a binary 2's place.</p>
+        <p>This level requires you to "decode" X0 and X1 into a decimal number.</p>
+        <p>It turns out that a decoder is significantly more complicated than the encoder circuit.</p>
         `,
         {
             gateTypes: [
-                getGateType(InputDecodePrebaked[2]),
+                getGateType(InputVariable(2, 'X')),
                 getGateType(Output(4,
                     { name:"Output4Decoded", inputLabels: ["0", "1", "2", "3"], gridSize: [2, 7]}
                 ))
             ],
             gates: [
-                { x: 0, y: 4, type: "Input2Decode", id: 0 } as SerializableGate,
+                { x: 0, y: 4, type: "InputVariableX2", id: 0 } as SerializableGate,
                 { x: 18, y: 2, type: "Output4Decoded", id: 1 } as SerializableGate
             ],
             size: [20, 11]
@@ -263,17 +295,28 @@ export const EncoderLevel = {
     params:new GameViewParameters(
         "Counting Backwards",
         `
+        <p>2 voltages together can represent any number from 0 to 3.</p>
+        <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; grid-template-rows: 1fr 1fr 1fr 1fr 1fr; width:50%; margin-left:25%; text-align:center;">
+            <div style="grid-column: 1; grid-row: 1;">X0</div><div style="grid-column: 2; grid-row: 1;">X1</div><div style="grid-column: 3; grid-row: 1;">number</div>
+            <div style="grid-column: 1; grid-row: 2; color:var(--connection-color-off);">0</div><div style="grid-column: 2; grid-row: 2; color:var(--connection-color-off);">0</div><div style="grid-column: 3; grid-row: 2;">0</div>
+            <div style="grid-column: 1; grid-row: 3; color:var(--connection-color-on);">1</div><div style="grid-column: 2; grid-row: 3; color:var(--connection-color-off);">0</div><div style="grid-column: 3; grid-row: 3;">1</div>
+            <div style="grid-column: 1; grid-row: 4; color:var(--connection-color-off);">0</div><div style="grid-column: 2; grid-row: 4; color:var(--connection-color-on);">1</div><div style="grid-column: 3; grid-row: 4;">2</div>
+            <div style="grid-column: 1; grid-row: 5; color:var(--connection-color-on);">1</div><div style="grid-column: 2; grid-row: 5; color:var(--connection-color-on);">1</div><div style="grid-column: 3; grid-row: 5;">3</div>
+        </div>
+        <p>This <span style="color:var(--circuit-color);">circuit</span> has a pair of outputs: X0 and X1.</p>
+        <p>The pair has its matching number displayed next to it.</p>
+        <p>Your goal here is to "encode" the input, which is either 0, 1, 2, or 3, to the correct pair of outputs, X0 and X1, according to the table above.</p>
         `,
         {
             gateTypes: [
                 getGateType(Input(4,
                     { name:"Input4Decoded", outputLabels: ["0", "1", "2", "3"], gridSize: [2, 7] }
                 )),
-                getGateType(OutputDecodePrebaked[2])
+                getGateType(OutputVariable(2, 'X'))
             ],
             gates: [
                 { x: 0, y: 2, type: "Input4Decoded", id: 0 } as SerializableGate,
-                { x: 18, y: 4, type: "Output2Decode", id: 1 } as SerializableGate
+                { x: 18, y: 4, type: "OutputVariableX2", id: 1 } as SerializableGate
             ],
             size: [20, 11]
         },
