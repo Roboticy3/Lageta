@@ -65,21 +65,6 @@ export const LevelGateType:GateTypeParameters = { name: "LevelGateType", gridSiz
 
 export let all_gates: Map<string, GateTypeController> = new Map();
 
-const all_params = new Map([
-    [Buf.name, Buf],
-    [Not.name, Not],
-    [And.name, And],
-    [Or.name, Or],
-    [Nand.name, Nand],
-    [Xor.name, Xor],
-    [HalfAdder.name, HalfAdder],
-    [FullAdder.name, FullAdder]
-])
-
-export function getGateTypeParams(name:string) {
-    return all_params.get(name)
-}
-
 /**
  * Get an existing GateType from the given parameters, or create a new one if necessary
  * @param params 
@@ -494,4 +479,23 @@ export function NBitAdder(bits:number, otherParams?:GateTypeParameters) {
     }
     if (otherParams) params = combineGateTypeParameters(params, otherParams)
     return params;
+}
+
+const all_params = new Map([
+    [Buf.name, Buf],
+    [Not.name, Not],
+    [And.name, And],
+    [Or.name, Or],
+    [And3.name, And3],
+    [Or3.name, Or3],
+    [Nand.name, Nand],
+    [Xor.name, Xor],
+    [Decoder2t4.name, Decoder2t4],
+    [Encoder4t2.name, Encoder4t2],
+    [HalfAdder.name, HalfAdder],
+    [FullAdder.name, FullAdder]
+])
+
+export function getGateTypeParams(name:string) {
+    return all_params.get(name)
 }
