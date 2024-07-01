@@ -93,7 +93,8 @@ export const FullAdderLevel = {
     params:new GameViewParameters(
         "Full Adder",
         `
-        <p>Adding binary numbers with multiple digits is just like adding decimal numbers on paper.</p>
+        <p>This level requires a <span style="color:var(--circuit-color);">circuit</span> that adds two 2-digit binary numbers.</p>
+        <p>Adding binary numbers is enough like adding decimal numbers that it can be written on paper in the same way:</p>
         <div style="display:flex; justify-content:space-evenly;">
             <div style="display:grid; grid-template-columns: 1fr 1fr 1fr 1fr; grid-template-rows: 1fr 1fr 1fr 1fr 1fr; width:25%; text-wrap:nowrap;">
                 <div style="grid-column: 2; grid-row: 1;">1</div><div style="grid-column: 3; grid-row: 1;">1</div>
@@ -109,10 +110,9 @@ export const FullAdderLevel = {
                 <div style="grid-column: 1 / 5; grid-row: 4; width:100%; height:100%; border-top: 2px solid black;" ></div>
             </div>
         </div>
-        <p>This level requires you to create a circuit that adds 2-bit binary numbers.</p>
-        <p>Adding the 1's place is the same as the last level, and has been filled in for you.</p>
-        <p>The point labelled "C In" represents the Carry from the addition of the 1's place.</p>
-        <p>"C out" is the Carry from the addition of the 2's place.</p>
+        <p>Adding the 1's places together is the same as the last adder level, and has been filled in for you.</p>
+        <p>The point in the <span style="color:var(--circuit-color);">circuit</span> labelled "C In" represents the carry from the addition of the 1's places.</p>
+        <p>"C out" is the carry from the addition of the 2's places.</p>
         <div style="display:grid; grid-template-columns: 1fr 1fr 1fr 1fr; grid-template-rows: 1fr 1fr 1fr 1fr 1fr 1fr; text-align:center; text-wrap:nowrap;">
             <div style="grid-column: 2; grid-row: 1;">"C Out"</div><div style="grid-column: 3; grid-row: 1;">"C In"</div>
             <div style="grid-column: 2; grid-row: 2;">1</div><div style="grid-column: 3; grid-row: 2;">1</div>
@@ -249,20 +249,24 @@ export const DecoderLevel = {
         "Counting",
         `
         <p>The number "19" has a "1" in the 10's place and a "9" in the 1's place.</p>
-        <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; grid-template-rows: 1fr 1fr 1fr; width:50%; margin-left:25%; text-align:center; text-wrap:nowrap;">
-            <div style="grid-column: 1; grid-row: 1;">10's</div><div style="grid-column: 2; grid-row: 1;">1's</div>
-            <div style="grid-column: 1; grid-row: 2;">1</div><div style="grid-column: 2; grid-row: 2;">9</div>
-            <div style="grid-column: 1; grid-row: 3;">10 + </div><div style="grid-column: 2; grid-row: 3;">9 = </div><div style="grid-column: 3; grid-row: 3;">19</div>
+        <div style="display:grid; grid-template-columns: 1fr 1fr 1fr 1fr; grid-template-rows: 1fr 1fr 1fr; align-self:center; text-align:center; text-wrap:nowrap;">
+            <div style="grid-column: 1; grid-row: 1;">place</div><div style="grid-column: 2; grid-row: 1;">10's</div><div style="grid-column: 3; grid-row: 1;">1's</div>
+            <div style="grid-column: 1 / 4; grid-row: 2; border-top: solid black 2px; width:100%"></div>
+            <div style="grid-column: 1; grid-row: 2;">digit</div><div style="grid-column: 2; grid-row: 2;">1</div><div style="grid-column: 3; grid-row: 2;">9</div>
+            <div style="grid-column: 1 / 4; grid-row: 3; border-top: solid black 2px; width:100%"></div>
+            <div style="grid-column: 2; grid-row: 3;">10 * 1 + </div><div style="grid-column: 3; grid-row: 3;">9 = </div>
+            <div style="grid-column: 4; grid-row: 3; border: dashed var(--verification-color) 4px; border-radius: 25%;">19</div>
         </div>
-        <p>19 is the same as "10011" in binary:</p>
-        <div style="display:grid; grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr; grid-template-rows: 1fr 1fr 1fr; width:75%; margin-left:12%; text-align:center; text-wrap:nowrap;">
-            <div style="grid-column: 1; grid-row: 1;">16's</div><div style="grid-column: 2; grid-row: 1;">8's</div><div style="grid-column: 3; grid-row: 1;">4's</div><div style="grid-column: 4; grid-row: 1;">2's</div><div style="grid-column: 5; grid-row: 1;">1's</div>
-            <div style="grid-column: 1; grid-row: 2; color:var(--connection-color-on);">1</div><div style="grid-column: 2; grid-row: 2; color:var(--connection-color-off);">0</div><div style="grid-column: 3; grid-row: 2; color:var(--connection-color-off);">0</div><div style="grid-column: 4; grid-row: 2; color:var(--connection-color-on);">1</div><div style="grid-column: 5; grid-row: 2; color:var(--connection-color-on);">1</div>
-            <div style="grid-column: 1; grid-row: 3;">16 + </div><div style="grid-column: 2; grid-row: 3;">0 + </div><div style="grid-column: 3; grid-row: 3;">0 + </div><div style="grid-column: 4; grid-row: 3;">2 + </div><div style="grid-column: 5; grid-row: 3;">1 = </div><div style="grid-column: 6; grid-row: 3;">19</div>
-        </div>
-        <p>In this <span style="color:var(--circuit-color);">circuit</span>, and the previous level's <span style="color:var(--circuit-color);">circuit</span>, X0 represents a binary 1's place and X1 a binary 2's place.</p>
         <p>This level requires you to "decode" X0 and X1 into a decimal number.</p>
-        <p>It turns out that a decoder is significantly more complicated than the encoder circuit.</p>
+        <div style="display:grid; grid-template-columns: 1fr 1fr 1fr 1fr; grid-template-rows: 1fr 1fr 1fr; align-self:center; text-align:center; text-wrap:nowrap;">
+            <div style="grid-column: 1; grid-row: 1;">place</div><div style="grid-column: 2; grid-row: 1;">2's</div><div style="grid-column: 3; grid-row: 1;">1's</div>
+            <div style="grid-column: 1 / 4; grid-row: 2; border-top: solid black 2px; width:100%"></div>
+            <div style="grid-column: 1; grid-row: 2;">digit</div><div style="grid-column: 2; grid-row: 2;">X1</div><div style="grid-column: 3; grid-row: 2;">X0</div>
+            <div style="grid-column: 1 / 4; grid-row: 3; border-top: solid black 2px; width:100%"></div>
+            <div style="grid-column: 2; grid-row: 3;">2 * X1 + </div><div style="grid-column: 3; grid-row: 3;">X0 = </div>
+            <div style="grid-column: 4; grid-row: 3; border: dashed var(--verification-color) 4px; border-radius: 25%; color: var(--verification-color);">?</div>
+        </div>
+        <p>It turns out that a decoder <span style="color:var(--circuit-color);">circuit</span> is significantly more complicated than the <span style="color:var(--circuit-color);">circuit</span> circuit.</p>
         `,
         {
             gateTypes: [
