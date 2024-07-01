@@ -54,7 +54,7 @@ export class CircuitStorage {
         localStorage.setItem(this.storageKey, JSON.stringify(storage))
     }
 
-    save(name?:string) {
+    save(name?:string, compressIdSpace=true) {
         if (name !== undefined) {
             this.name = name
         }
@@ -63,7 +63,7 @@ export class CircuitStorage {
             return "Grid Is Empty"
         }
 
-        const organizedCircuit = new OrganizedCircuit(this.grid)
+        const organizedCircuit = new OrganizedCircuit(this.grid, compressIdSpace)
         this.setKey(this.name, organizedCircuit.pack())
         this.commit()
 
@@ -159,7 +159,7 @@ export class CircuitStorage {
 
 export class OrganizedCircuit {
     gateTypes:Array<string> = []
-    gates:Array<SerializableGate> = []
+    gates:Array<SerializableGate | undefined> = []
     connections:Array<Connection> = []
     //the size of the circuit in grid squares
     size:[number, number] = [15, 15]
@@ -167,11 +167,12 @@ export class OrganizedCircuit {
     offset:[number, number] = [0, 0]
 
     constructor(
-        from:GateGrid | string | OrganizedCircuitContents
+        from:GateGrid | string | OrganizedCircuitContents,
+        compressIdSpace=true
     ) {
         
         if (from instanceof GateGrid) {
-            this.fromGrid(from)
+            this.fromGrid(from, compressIdSpace)
         }
         else if (typeof(from) === "string") {
             this.fromString(from)
@@ -181,16 +182,21 @@ export class OrganizedCircuit {
         }
     }
 
-    fromGrid(grid:GateGrid) {
+    fromGrid(grid:GateGrid, compressIdSpace=true) {
         let types = new Set<string>()
 
-        this.gates = new Array<SerializableGate>(0)
+        this.gates = []
         let indexMap = new Map<number, number>()
 
         this.offset = [Infinity, Infinity]
         this.size = [0, 0]
         
-        grid.iterGates((g) => {
+        for (let i = 0; i < grid.gates.length; i++) {
+            const g = grid.gates[i]
+            if (g === undefined) {
+                if (!compressIdSpace) this.gates.push(undefined)
+                continue
+            }
             const gType = g.type
             types.add(gType.name)
 
@@ -202,7 +208,7 @@ export class OrganizedCircuit {
             this.offset[1] = Math.min(this.offset[1], g.y || 0)
             this.size[0] = Math.max(this.size[0], (g.x || 0) + gType.gridWidth)
             this.size[1] = Math.max(this.size[1], (g.y || 0) + gType.gridHeight)
-        })
+        }
         
         this.size[0] -= this.offset[0]
         this.size[1] -= this.offset[1]
@@ -253,7 +259,7 @@ export class OrganizedCircuit {
         grid.gates = new Array<Gate | undefined>(this.gates.length)
 
         const offset = this.offset
-        this.gates.forEach((g) => {
+        this.iterGates((g) => {
             const nG = this.unpackGate(g)
             nG.givePos(g.x - offset[0], g.y - offset[1]) 
             grid.addGateExisting(nG)
@@ -280,7 +286,7 @@ export class OrganizedCircuit {
         const gates = this.gates
         for (let i = 0; i < gates.length; i++) {
             const g = gates[i]
-            if (g === null) {
+            if (!g) {
                 continue
             }
             iter(g)
@@ -302,7 +308,7 @@ export class OrganizedCircuit {
 
 export type OrganizedCircuitContents = {
     gateTypes?:Array<GateTypeController>
-    gates?:Array<SerializableGate>
+    gates?:Array<SerializableGate | undefined>
     connections?:Array<Connection>
     size?:[number, number]
     offset?:[number, number]

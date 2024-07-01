@@ -184,18 +184,6 @@
         flex-direction: column;
     }
 
-    .shelf {
-
-        flex:1;
-
-        background-color: var(--tertiary-bg-color);
-
-        display: flex;
-        flex-direction: row;
-
-        transition:max-height 3s;
-    }
-
     .circuit-panel {
         flex:7;
 

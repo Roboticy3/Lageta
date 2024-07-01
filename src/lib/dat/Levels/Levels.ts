@@ -1,6 +1,6 @@
 import { Connection } from "$lib/circuit_types/GateGraph";
 import { GateType, GateTypeController, type ConnectionValue } from "$lib/circuit_types/GateType";
-import { Adder2c, And, And3, Buf, Decoder2t4, Encoder4t2, Input, InputDecodePrebaked, InputLabelledPrebaked, InputVariable, Nand, Not, Or, Or3, Output, OutputDecodePrebaked, OutputLabelledPrebaked, Xor, drawGateTypeDecode, getGateType, type GateTypeParameters } from "$lib/dat/GateTypes/GateTypes";
+import { AdderNoCarry1, And, And3, Buf, Decoder2t4, Encoder4t2, FullAdder, HalfAdder, Input, InputDecodePrebaked, InputLabelledPrebaked, InputVariable, NBitAdder, Nand, Not, Or, Or3, Output, OutputDecodePrebaked, OutputLabelledPrebaked, OutputVariable, SevenSegmentOutput, Xor, combineGateTypeParameters, drawGateTypeDecode, exampleInputVariable, exampleOutputVariable, getGateType, type GateTypeParameters } from "$lib/dat/GateTypes/GateTypes";
 import { ConnectionValueSignalSet, Signal, SignalSet, inverter, oscillator, repeater } from "$lib/signal_types/Signal";
 import type { OrganizedCircuitContents, SerializableGate } from "$lib/storage_types/CircuitStorage";
 import { ProgressStorage } from "$lib/storage_types/ProgressStore";
@@ -89,91 +89,194 @@ function countingSignal(solver:GateTypeController, step:number, repeat?:number) 
     )
 }
 
-export const AdderLevel = {
+export const FullAdderLevel = {
     params:new GameViewParameters(
-        "Simple Calculator",
+        "Full Adder",
         `
-        <p>This is a calculator for adding two very small numbers, and even then the output doesn't have enough combinations to account for every possible sum!</p>
-        <p>So, this *very* simple calculator has a "carry" bit, a signal that should fire when the output doesn't have enough bits to display the answer.</p>
+        <p>This level requires a <span style="color:var(--circuit-color);">circuit</span> that adds two 2-digit binary numbers.</p>
+        <p>Adding binary numbers is enough like adding decimal numbers that it can be written on paper in the same way:</p>
+        <div style="display:flex; justify-content:space-evenly;">
+            <div style="display:grid; grid-template-columns: 1fr 1fr 1fr 1fr; grid-template-rows: 1fr 1fr 1fr 1fr 1fr; width:25%; text-wrap:nowrap;">
+                <div style="grid-column: 2; grid-row: 1;">1</div><div style="grid-column: 3; grid-row: 1;">1</div>
+                <div style="grid-column: 3; grid-row: 2;">0</div><div style="grid-column: 4; grid-row: 2;">1</div>
+                <div style="grid-column: 1; grid-row: 3;">+</div><div style="grid-column: 3; grid-row: 3;">1</div><div style="grid-column: 4; grid-row: 3;">1</div>
+                <div style="grid-column: 2; grid-row: 4;">1</div><div style="grid-column: 3; grid-row: 4;">0</div><div style="grid-column: 4; grid-row: 4;">0</div>
+                <div style="grid-column: 1 / 5; grid-row: 4; width:100%; height:100%; border-top: 2px solid black;" ></div>
+            </div>
+            <div style="display:grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr 1fr 1fr 1fr; width:12%; text-wrap:nowrap;">
+                <div style="grid-column: 2; grid-row: 2;">1</div>
+                <div style="grid-column: 1; grid-row: 3;">+</div><div style="grid-column: 2; grid-row: 3;">3</div>
+                <div style="grid-column: 2; grid-row: 4;">4</div>
+                <div style="grid-column: 1 / 5; grid-row: 4; width:100%; height:100%; border-top: 2px solid black;" ></div>
+            </div>
+        </div>
+        <p>Adding the 1's places together is the same as the last adder level, and has been filled in for you.</p>
+        <p>The point in the <span style="color:var(--circuit-color);">circuit</span> labelled "C In" represents the carry from the addition of the 1's places.</p>
+        <p>"C out" is the carry from the addition of the 2's places.</p>
+        <div style="display:grid; grid-template-columns: 1fr 1fr 1fr 1fr; grid-template-rows: 1fr 1fr 1fr 1fr 1fr 1fr; text-align:center; text-wrap:nowrap;">
+            <div style="grid-column: 2; grid-row: 1;">"C Out"</div><div style="grid-column: 3; grid-row: 1;">"C In"</div>
+            <div style="grid-column: 2; grid-row: 2;">1</div><div style="grid-column: 3; grid-row: 2;">1</div>
+            <div style="grid-column: 3; grid-row: 3;">0</div><div style="grid-column: 4; grid-row: 3;">1</div>
+            <div style="grid-column: 1; grid-row: 4;">+</div><div style="grid-column: 3; grid-row: 4;">1</div><div style="grid-column: 4; grid-row: 4;">1</div>
+            <div style="grid-column: 2; grid-row: 5;">1</div><div style="grid-column: 3; grid-row: 5;">0</div><div style="grid-column: 4; grid-row: 5;">0</div>
+            <div style="grid-column: 1 / 5; grid-row: 5; width:100%; height:100%; border-top: 2px solid black;" ></div>
+        </div>
         `,
         {
             gateTypes: [
-                getGateType(InputVariable(1, 'A')),
-                getGateType(InputVariable(1, 'B')),
-                getGateType(OutputDecodePrebaked[2]),
-                getGateType(Output(1, {name:"Carry",inputLabels:["Carry"]}))
+                getGateType(InputVariable(2, "X")),
+                getGateType(InputVariable(2, "Y")),
+                getGateType(OutputVariable(2, "S")),
+                getGateType(exampleOutputVariable('C Out')),
+                getGateType(Xor),
+                getGateType(combineGateTypeParameters(And, {name:"Carry And", outputLabels:["C in"]}))
             ],
             gates: [
-                { x:0, y:3, type:"InputVariableA2", id:0} as SerializableGate,
-                { x:0, y:7, type:"InputVariableB2", id:1} as SerializableGate,
-                { x:18, y:3, type:"Output2Decode", id:2} as SerializableGate,
-                { x:18, y:7, type:"Carry", id:3} as SerializableGate,
+                { x: 0, y: 1, type: "InputVariableX2", id: 0 } as SerializableGate,
+                { x: 0, y: 5, type: "InputVariableY2", id: 1 } as SerializableGate,
+                { x: 18, y: 2, type: "OutputVariableS2", id: 2 } as SerializableGate,
+                { x: 18, y: 4, type: "OutputVariableC Out1", id: 3 } as SerializableGate,
+                { x: 5, y: 0, type: "Xor", id: 4} as SerializableGate,
+                { x: 5, y: 2, type: "Carry And", id: 5} as SerializableGate,
             ],
-            size:[20,11]
+            connections: [
+                new Connection(0, 0, 4, 0), new Connection(1, 0, 4, 1), new Connection(4, 0, 2, 0),
+                new Connection(0, 0, 5, 0), new Connection(1, 0, 5, 1)
+            ],
+            size: [20, 9]
         },
-        countingSignal(getGateType(Adder2c), 5, 3),
-        [],
-        false,
-        {
-            inputCheckboxes:false
-        }
-    ),
-    x:11,y:5, desiredId:9,
-    type:Adder2c,
-    playCondition:[false, false, true]
-}
-
-export const EncoderLevel = {
-    params:new GameViewParameters(
-        "Counting Backwards",
-        `
-        <p>How many possibilities are there for 2 independent inputs?</p>
-        <p>Each output here maps to one of those possibilities from the inputs.</p>
-        `,
-        {
-            gateTypes: [
-                getGateType(Input(4,
-                    { name:"Input4Decoded", outputLabels: ["0", "1", "2", "3"], gridSize: [2, 7] }
-                )),
-                getGateType(OutputDecodePrebaked[2])
-            ],
-            gates: [
-                { x: 0, y: 2, type: "Input4Decoded", id: 0 } as SerializableGate,
-                { x: 18, y: 4, type: "Output2Decode", id: 1 } as SerializableGate
-            ],
-            size: [20, 11]
-        },
-        DecoderLevelSignal.flipInputsOutputs(),
+        countingSignal(getGateType(NBitAdder(2)), 10, 2),
         [
-            getGateType(Encoder4t2).name,
-            AdderLevel.params.name
+            FullAdder.name
         ],
         false,
         {
             inputCheckboxes:false
         }
     ),
-    x:18,y:0, desiredId:8,
-    type:Encoder4t2,
+    x:18,y:6,desiredId:11,
+    type:FullAdder,
     playCondition:[true, true]
+}
+
+export const CarryLevel = {
+    params:new GameViewParameters(
+        "Half Adder",
+        `
+        <p>The single output "S" can only be <span style="color:var(--connection-color-off);">0</span> or <span style="color:var(--connection-color-on);">1</span>.
+        To represent larger numbers, we'll need more outputs.</p>
+        <p>In this <span style="color:var(--circuit-color);">circuit</span>, there's an extra output called "Carry"</p>
+        <p>This level is mostly the same as the last, except if the inputs add to 2, the "Carry" should be <span style="color:var(--connection-color-on);">1</span>.</p>
+        <p>Carry is named after the technique of "carrying the 1" when adding two numbers on paper.</p>
+        <div style="display:grid; grid-template-columns: 1fr 1fr 1fr 1fr; grid-template-rows: 1fr 1fr 1fr 1fr 1fr; width:25%; margin-left:25%;">
+            <div style="grid-column: 3; grid-row: 1;">1</div>
+            <div style="grid-column: 3; grid-row: 2;">1</div><div style="grid-column: 4; grid-row: 2;">9</div>
+            <div style="grid-column: 1; grid-row: 3;">+</div><div style="grid-column: 3; grid-row: 3;">2</div><div style="grid-column: 4; grid-row: 3;">1</div>
+            <div style="grid-column: 3; grid-row: 4;">4</div><div style="grid-column: 4; grid-row: 4;">0</div>
+            <div style="grid-column: 1 / 5; grid-row: 4; width:100%; height:100%; border-top: 2px solid black;" ></div>
+        </div>
+        `,
+        {
+            gateTypes: [
+                getGateType(exampleInputVariable('X')),
+                getGateType(exampleInputVariable('Y')),
+                getGateType(exampleOutputVariable('S')),
+                getGateType(exampleOutputVariable('Carry'))
+            ],
+            gates: [
+                { x: 0, y: 2, type: "InputVariableX1", id: 0 } as SerializableGate,
+                { x: 0, y: 4, type: "InputVariableY1", id: 1 } as SerializableGate,
+                { x: 14, y: 2, type: "OutputVariableS1", id: 2 } as SerializableGate,
+                { x: 14, y: 4, type: "OutputVariableCarry1", id: 3 } as SerializableGate,
+            ],
+            size: [16, 7]
+        },
+        countingSignal(getGateType(HalfAdder), 5, 3),
+        [
+            HalfAdder.name,
+            FullAdderLevel.params.name
+        ]
+    ),
+    x:16,y:4,desiredId:10,
+    type:HalfAdder,
+    playCondition:[false, true]
+}
+
+export const AdderLevel = {
+    params:new GameViewParameters(
+        "1 and 0",
+        `
+        <p>It's normal to think of <span style="color:var(--connection-color-on);">high</span> voltage as
+        <span style="color:var(--connection-color-on);">"1"</span> and
+        <span style="color:var(--connection-color-off);">low</span> voltage as 
+        <span style="color:var(--connection-color-off);">"0"</span></p>
+        <p>Treating the voltages this way, you can imagine "adding" two voltages together.</p>
+        <p>Here, the output should be <span style="color:var(--connection-color-on);">high</span> (<span style="color:var(--connection-color-on);">1</span>) when the two voltages "add" to <span style="color:var(--connection-color-on);">1</span>,
+        and <span style="color:var(--connection-color-off);">low</span> (<span style="color:var(--connection-color-off);">0</span>) otherwise.</p>
+        <p>Note that this means if the two voltages add to 2, the output should still be <span style="color:var(--connection-color-off);">0</span>.</p>
+        <p><span style="color:var(--connection-color-on);">1</span> + <span style="color:var(--connection-color-on);">1</span> =
+        <span style="color:var(--connection-color-off);">0</span>,</p>
+        <p><span style="color:var(--connection-color-on);">1</span> + <span style="color:var(--connection-color-off);">0</span> =
+        <span style="color:var(--connection-color-on);">1</span>, and</p>
+        <p><span style="color:var(--connection-color-off);">0</span> + <span style="color:var(--connection-color-off);">0</span> =
+        <span style="color:var(--connection-color-off);">0</span></p>
+        <p>The best part is that the gate you need to win is already unlocked! You just have to pick the right one.</p>
+        `,
+        {
+            gateTypes: [
+                getGateType(exampleInputVariable('X')),
+                getGateType(exampleInputVariable('Y')),
+                getGateType(exampleOutputVariable('S'))
+            ],
+            gates: [
+                { x: 0, y: 2, type: "InputVariableX1", id: 0 } as SerializableGate,
+                { x: 0, y: 4, type: "InputVariableY1", id: 1 } as SerializableGate,
+                { x: 14, y: 2, type: "OutputVariableS1", id: 2 } as SerializableGate
+            ],
+            size: [16, 7]
+        },
+        countingSignal(getGateType(AdderNoCarry1), 5, 3),
+        [
+            CarryLevel.params.name
+        ]
+    ),
+    x:14,y:5, desiredId:9,
+    type:AdderNoCarry1,
 }
 
 export const DecoderLevel = {
     params:new GameViewParameters(
         "Counting",
         `
-        <p>How many possibilities are there for 2 independent inputs?</p>
-        <p>Each output here maps to one of those possibilities from the inputs.</p>
+        <p>The number "19" has a "1" in the 10's place and a "9" in the 1's place.</p>
+        <div style="display:grid; grid-template-columns: 1fr 1fr 1fr 1fr; grid-template-rows: 1fr 1fr 1fr; align-self:center; text-align:center; text-wrap:nowrap;">
+            <div style="grid-column: 1; grid-row: 1;">place</div><div style="grid-column: 2; grid-row: 1;">10's</div><div style="grid-column: 3; grid-row: 1;">1's</div>
+            <div style="grid-column: 1 / 4; grid-row: 2; border-top: solid black 2px; width:100%"></div>
+            <div style="grid-column: 1; grid-row: 2;">digit</div><div style="grid-column: 2; grid-row: 2;">1</div><div style="grid-column: 3; grid-row: 2;">9</div>
+            <div style="grid-column: 1 / 4; grid-row: 3; border-top: solid black 2px; width:100%"></div>
+            <div style="grid-column: 2; grid-row: 3;">10 * 1 + </div><div style="grid-column: 3; grid-row: 3;">9 = </div>
+            <div style="grid-column: 4; grid-row: 3; border: dashed var(--verification-color) 4px; border-radius: 25%;">19</div>
+        </div>
+        <p>This level requires you to "decode" X0 and X1 into a decimal number.</p>
+        <div style="display:grid; grid-template-columns: 1fr 1fr 1fr 1fr; grid-template-rows: 1fr 1fr 1fr; align-self:center; text-align:center; text-wrap:nowrap;">
+            <div style="grid-column: 1; grid-row: 1;">place</div><div style="grid-column: 2; grid-row: 1;">2's</div><div style="grid-column: 3; grid-row: 1;">1's</div>
+            <div style="grid-column: 1 / 4; grid-row: 2; border-top: solid black 2px; width:100%"></div>
+            <div style="grid-column: 1; grid-row: 2;">digit</div><div style="grid-column: 2; grid-row: 2;">X1</div><div style="grid-column: 3; grid-row: 2;">X0</div>
+            <div style="grid-column: 1 / 4; grid-row: 3; border-top: solid black 2px; width:100%"></div>
+            <div style="grid-column: 2; grid-row: 3;">2 * X1 + </div><div style="grid-column: 3; grid-row: 3;">X0 = </div>
+            <div style="grid-column: 4; grid-row: 3; border: dashed var(--verification-color) 4px; border-radius: 25%; color: var(--verification-color);">?</div>
+        </div>
+        <p>It turns out that a decoder <span style="color:var(--circuit-color);">circuit</span> is significantly more complicated than the <span style="color:var(--circuit-color);">circuit</span> circuit.</p>
         `,
         {
             gateTypes: [
-                getGateType(InputDecodePrebaked[2]),
+                getGateType(InputVariable(2, 'X')),
                 getGateType(Output(4,
                     { name:"Output4Decoded", inputLabels: ["0", "1", "2", "3"], gridSize: [2, 7]}
                 ))
             ],
             gates: [
-                { x: 0, y: 4, type: "Input2Decode", id: 0 } as SerializableGate,
+                { x: 0, y: 4, type: "InputVariableX2", id: 0 } as SerializableGate,
                 { x: 18, y: 2, type: "Output4Decoded", id: 1 } as SerializableGate
             ],
             size: [20, 11]
@@ -181,16 +284,59 @@ export const DecoderLevel = {
         DecoderLevelSignal,
         [
             getGateType(Decoder2t4).name,
-            EncoderLevel.params.name
         ],
         false,
         {
             inputCheckboxes:false
         }
     ),
-    x:14,y:0, desiredId:7,
+    x:18,y:0, desiredId:7,
     type:Decoder2t4,
     playCondition:[false, false, true, false]
+}
+
+export const EncoderLevel = {
+    params:new GameViewParameters(
+        "Counting Backwards",
+        `
+        <p>2 voltages together can represent any number from 0 to 3.</p>
+        <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; grid-template-rows: 1fr 1fr 1fr 1fr 1fr; width:50%; margin-left:25%; text-align:center;">
+            <div style="grid-column: 1; grid-row: 1;">X0</div><div style="grid-column: 2; grid-row: 1;">X1</div><div style="grid-column: 3; grid-row: 1;">number</div>
+            <div style="grid-column: 1; grid-row: 2; color:var(--connection-color-off);">0</div><div style="grid-column: 2; grid-row: 2; color:var(--connection-color-off);">0</div><div style="grid-column: 3; grid-row: 2;">0</div>
+            <div style="grid-column: 1; grid-row: 3; color:var(--connection-color-on);">1</div><div style="grid-column: 2; grid-row: 3; color:var(--connection-color-off);">0</div><div style="grid-column: 3; grid-row: 3;">1</div>
+            <div style="grid-column: 1; grid-row: 4; color:var(--connection-color-off);">0</div><div style="grid-column: 2; grid-row: 4; color:var(--connection-color-on);">1</div><div style="grid-column: 3; grid-row: 4;">2</div>
+            <div style="grid-column: 1; grid-row: 5; color:var(--connection-color-on);">1</div><div style="grid-column: 2; grid-row: 5; color:var(--connection-color-on);">1</div><div style="grid-column: 3; grid-row: 5;">3</div>
+        </div>
+        <p>This <span style="color:var(--circuit-color);">circuit</span> has a pair of outputs: X0 and X1.</p>
+        <p>The pair has its matching number displayed next to it.</p>
+        <p>Your goal here is to "encode" the input, which is either 0, 1, 2, or 3, to the correct pair of outputs, X0 and X1, according to the table above.</p>
+        `,
+        {
+            gateTypes: [
+                getGateType(Input(4,
+                    { name:"Input4Decoded", outputLabels: ["0", "1", "2", "3"], gridSize: [2, 7] }
+                )),
+                getGateType(OutputVariable(2, 'X'))
+            ],
+            gates: [
+                { x: 0, y: 2, type: "Input4Decoded", id: 0 } as SerializableGate,
+                { x: 18, y: 4, type: "OutputVariableX2", id: 1 } as SerializableGate
+            ],
+            size: [20, 11]
+        },
+        DecoderLevelSignal.flipInputsOutputs(),
+        [
+            getGateType(Encoder4t2).name,
+            DecoderLevel.params.name
+        ],
+        false,
+        {
+            inputCheckboxes:false
+        }
+    ),
+    x:14,y:0, desiredId:8,
+    type:Encoder4t2,
+    playCondition:[true, true]
 }
 
 export const XorLevel = {
@@ -199,7 +345,7 @@ export const XorLevel = {
         `
         <p>Here's an example of making a more advanced gate</p>
         <p>Beating this level requires a "Xor" gate, short for "Exclusive Or." Like an Or gate but more... exclusive.</p>
-        <p>It's up to you to analyze the signal and construct the correct circuit.</p>
+        <p>It's up to you to analyze the <span style="color:var(--circuit-color);">signal</span> and construct the correct <span style="color:var(--circuit-color);">signal</span>.</p>
         `,
         {
             gateTypes: [
@@ -228,7 +374,9 @@ export const XorLevel = {
             getGateType(Xor)
         ),
         [
-            getGateType(Xor).name
+            getGateType(Xor).name,
+            AdderLevel.params.name,
+            EncoderLevel.params.name
         ]
     ),
     x:11,y:2,desiredId:6,
@@ -240,7 +388,7 @@ export const NandLevel = {
         "No Combo",
         `
         <p>This level requires making a "Nand" gate to win.</p>
-        <p>Nand stands for "Not And" and will always output the opposite of an And gate.</p>
+        <p>Nand stands for "Not And" and will always output the opposite of an And gate with the same inputs.</p>
         `,
         {
             gateTypes: [
@@ -270,8 +418,7 @@ export const NandLevel = {
         ),
         [
             getGateType(Nand).name,
-            XorLevel.params.name,
-            DecoderLevel.params.name
+            XorLevel.params.name
         ]
     ),
     x:9,y:0,desiredId:5,
@@ -319,8 +466,8 @@ export const And3Level = {
     params:new GameViewParameters(
         "Bigger Combo",
         `
-        <p>This level requires a 3-Input And gate, which outputs high when 
-        all of its inputs are high.</p>
+        <p>This level requires a 3-Input And gate, which outputs <span style="color:var(--connection-color-on);">high</span>
+        only when all of its inputs are <span style="color:var(--connection-color-on);">high</span>.</p>
         <p>However, you might not have this exact gate already. If not, you'll have to connect multiple gates together to win.</p>
         `,
         In3Out1,
@@ -341,8 +488,8 @@ export const Or3Level = {
     params:new GameViewParameters(
         "Joinyer",
         `
-        <p>This level requires a 3-Input Or gate, which outputs high when 
-        any of its inputs are high.</p>
+        <p>This level requires a 3-Input Or gate, which outputs <span style="color:var(--connection-color-on);">high</span>
+        only when any of its inputs are <span style="color:var(--connection-color-on);">high</span>.</p>
         <p>However, you might not have this exact gate already. If not, you'll have to connect multiple gates together to win.</p>
         `,
         In3Out1,
@@ -364,8 +511,9 @@ export const OrLevel = {
     params:new GameViewParameters(
         "Join",
         `
-        <p>An Or gate outputs power when recieving power from either of its inputs, 
-        and is represented by a shape that's curved inward on one side and rounded on the other like an And gate</p>
+        <p>This level requires an "Or" Gate.</p>
+        <p>An Or Gate outputs <span style="color:var(--connection-color-on);">high</span> only
+        when either of it's inputs are <span style="color:var(--connection-color-on);">high</span>.</p>
         `,
         In2Out1,
         new ConnectionValueSignalSet(
@@ -420,7 +568,9 @@ export const AndLevel = {
     params:new GameViewParameters(
         "Some Kind of Combo",
         `
-        <p>This level requires an "And" Gate, which takes two inputs and only outputs power when both inputs (Input 1 AND Input 2) are enabled.</p>
+        <p>This level requires an "And" Gate.</p>
+        <p>An And Gate outputs <span style="color:var(--connection-color-on);">high</span> only
+        when both of it's inputs are <span style="color:var(--connection-color-on);">high</span>.</p>
         `,
         In2Out1,
         new ConnectionValueSignalSet(
@@ -428,6 +578,10 @@ export const AndLevel = {
                 new Signal<ConnectionValue>([{frame:0,value:false}])
                     .push(oscillator(10, 5)),
                 new Signal<ConnectionValue>([
+                    {
+                        frame: 0,
+                        value: false
+                    },
                     {
                         frame: 50,
                         value: true
@@ -533,7 +687,9 @@ const all_params = new Map<string, LevelParameters>([
     [XorLevel.params.name, XorLevel],
     [DecoderLevel.params.name, DecoderLevel],
     [EncoderLevel.params.name, EncoderLevel],
-    [AdderLevel.params.name, AdderLevel]
+    [AdderLevel.params.name, AdderLevel],
+    [CarryLevel.params.name, CarryLevel],
+    [FullAdderLevel.params.name, FullAdderLevel]
 ])
 
 export function getLevel(name:string) {

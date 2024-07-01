@@ -113,9 +113,12 @@
     }
 
     function onRestart() {
+        console.log("restarting")
+
         pause()
 
         signalSetView.resetPlayer()
+        circuitController.setInputs(signalSetView.getPlayerValue() || [])
 
         checkScroll()
         signalSvg.setOffset([0, 0])
@@ -199,7 +202,7 @@
 
 <div class="signal-viewer-container" bind:this={container}>
     <div class="button-container">
-        <button on:click={playPause} id="signal-play-button">
+        <button on:click={playPause} id="signal-play-button" bind:this={playButton}>
             ⏵
         </button>
         <button on:click={restart} id="signal-restart-button">

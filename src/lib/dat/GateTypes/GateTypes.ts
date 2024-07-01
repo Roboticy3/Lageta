@@ -1,8 +1,6 @@
 import { Flow, Gate, type GateState } from "$lib/circuit_types/Gate";
 import { GateType, type GateTypeVariant, type ConnectionValue, GateTypeController } from "$lib/circuit_types/GateType";
 
-export let all_gates: Map<string, GateTypeController> = new Map();
-
 export const Buf:GateTypeParameters = { 
     name: "Buf", inputs: 1, outputs: 1, 
     draw: (s) => {return `<path d="M 2 2 L 18 10 L 2 18 Z" style="pointer-events:none;" />\n`}
@@ -38,7 +36,34 @@ export const Xor:GateTypeParameters = {
     draw: (s) => {return `<path d="M 10 2 C 20 2 20 18 10 18 L 5 18 C 8 18 8 2 5 2 Z" style="pointer-events:none;" />\n<path d="M 2 18 C 5 18 5 2 2 2" style="pointer-events:none;" />\n`}
 }
 
+export const AdderNoCarry1:GateTypeParameters = {
+    name: "AdderNoCarry1", inputs: 2, outputs:1,
+    f: (s:GateState) => { return {override:[(s.override[0] || false) !== (s.override[1] || false)]}; },
+}
+
+export const HalfAdder:GateTypeParameters = {
+    name: "HalfAdder", inputs: 2, outputs:2, outputLabels:["S", "C"],
+    f: (s:GateState) => { return {override:[(s.override[0] || false) !== (s.override[1] || false), s.override[0] && s.override[1]]}}
+}
+
+export const FullAdder:GateTypeParameters ={
+    name: "FullAdder", inputs:3, outputs:2, outputLabels:["S", "C out"], inputLabels:["", "", "C in"],
+    f: (s:GateState) => { return {
+        override:[((s.override[0] || false) !== (s.override[1] || false)) !== (s.override[2] || false), (s.override[0] && s.override[1]) || (s.override[2] && (s.override[0] || s.override[1]))]
+    }}
+}
+
+export const SevenSegmentOutput:GateTypeParameters = {
+    name: "7-Segment Output", inputs:8, outputs:0, gridSize:[4, 7],
+    draw: (s) => {
+        return drawGateTypeDecode(s, 4, 7)
+    }
+
+}
+
 export const LevelGateType:GateTypeParameters = { name: "LevelGateType", gridSize: [2, 2], moveable: false };
+
+export let all_gates: Map<string, GateTypeController> = new Map();
 
 /**
  * Get an existing GateType from the given parameters, or create a new one if necessary
@@ -98,17 +123,22 @@ export type GateTypeParameters = {
 export function combineGateTypeParameters(a:GateTypeParameters, b:GateTypeParameters) {
     console.log("combining params: ", a, b)
 
-    let result = a as Object
-    type GateTypeParametersKeys = keyof typeof result
-    const entries = Object.entries(b as Object)
-    for (let i = 0; i < entries.length; i++) {
-        const [k,v] = entries[i]
-        const entry = k as GateTypeParametersKeys
-        result[entry] = v
-    }
+    let result = {
+        name:b.name,
+        inputs:b.inputs || a.inputs,
+        outputs:b.outputs || a.outputs,
+        gridSize:b.gridSize || a.gridSize,
+        inputLabels:b.inputLabels || a.inputLabels,
+        outputLabels:b.outputLabels || a.outputLabels,
+        moveable:b.moveable !== undefined ? b.moveable : a.moveable,
+        variant:b.variant || a.variant,
+        f:b.f || a.f,
+        draw:b.draw || a.draw,
+        register:b.register !== undefined ? b.register : a.register,
+    } as GateTypeParameters
 
     console.log("combined parameters:", result)
-    return result as GateTypeParameters
+    return result
 }
 
 export function spreadVerticalConnections(gridX: number, gridHeight: number, numPoints: number) {
@@ -163,7 +193,9 @@ export const drawGateTypeEncode = (s:GateState, gridWidth:number, gridHeight:num
     return result.join()
 }
 
-export const drawGateTypeDecode = (s:GateState, gridWidth:number, gridHeight:number) => {
+export const drawGateTypeDecode = (s:GateState, gridWidth:number, gridHeight:number, 
+    extraParams:string=`fill="black" stroke="none" style="pointer-events:none;"`
+) => {
     const result = [drawGateTypeRect(gridWidth, gridHeight)]
     let pow = 1
     let sum = 0
@@ -175,8 +207,7 @@ export const drawGateTypeDecode = (s:GateState, gridWidth:number, gridHeight:num
 `<text 
     x="${gridWidth * 10 / 2 - 5}" 
     y="${gridHeight * 10 / 2 + 5}" 
-    fill="black" stroke="none"
-    style="pointer-events:none;"
+    ${extraParams}
     >
     ${sum}
 </text>`
@@ -239,6 +270,7 @@ export const InputDecodePrebaked = [
     Buf,
     Input(1,{ name:"Input1Decode", outputLabels: ["Input"], gridSize: [2, 2], draw:(s) => drawGateTypeDecode(s, 2, 1)}),
     Input(2,{ name:"Input2Decode", outputLabels: ["Input 0", "Input 1"], gridSize: [2, 2], draw:(s) => drawGateTypeDecode(s, 2, 2)}),
+    Input(3,{ name:"Input3Decode", outputLabels: ["Input 0", "Input 1", "Input 2"], gridSize: [2, 3], draw:(s) => drawGateTypeDecode(s, 2, 3)}),
     Input(4,{ name:"Input4Decode", outputLabels: ["Input 0", "Input 1", "Input 2", "Input 3"], gridSize: [2, 4], draw:(s) => drawGateTypeDecode(s, 2, 4)}),
 ]
 
@@ -254,17 +286,58 @@ export const OutputDecodePrebaked = [
     Buf,
     Output(1,{ name:"Output1Decode", inputLabels: ["Output"], gridSize: [2, 2], draw:(s) => drawGateTypeDecode(s, 2, 1)}),
     Output(2,{ name:"Output2Decode", inputLabels: ["Output 0", "Output 1"], gridSize: [2, 2], draw:(s) => drawGateTypeDecode(s, 2, 2)}),
+    Output(3,{ name:"Output3Decode", inputLabels: ["Output 0", "Output 1", "Output 2"], gridSize: [2, 3], draw:(s) => drawGateTypeDecode(s, 2, 3)}),
     Output(4,{ name:"Output4Decode", inputLabels: ["Output 0", "Output 1", "Output 2", "Output 3"], gridSize: [2, 4], draw:(s) => drawGateTypeDecode(s, 2, 4)}),
 ]
 
 export function InputVariable(bits:number, variableName:string) {
-    const len = Math.pow(2, bits)
-    return Input(len, 
+    return Input(bits, 
         {
-            name:`InputVariable${variableName}${len}`, 
-            outputLabels: (new Array(len).fill("").map((_v, i) => `${variableName}${i}`)),
-            gridSize:[2,len], 
-            draw:(s) => drawGateTypeDecode(s, 2, len)
+            name:`InputVariable${variableName}${bits}`, 
+            outputLabels: (new Array(bits).fill("").map((_v, i) => `${variableName}${i}`)),
+            gridSize:[2,bits], 
+            draw:(s) => drawGateTypeDecode(s, 2, bits)
+        }
+    )
+}
+
+export function OutputVariable(bits:number, variableName:string) {
+    return Output(bits, 
+        {
+            name:`OutputVariable${variableName}${bits}`, 
+            inputLabels: (new Array(bits).fill("").map((_v, i) => `${variableName}${i}`)),
+            gridSize:[2,bits], 
+            draw:(s) => drawGateTypeDecode(s, 2, bits)
+        }
+    )
+}
+
+export function exampleInputVariable(variableName:string) {
+    return Input(1, 
+        {
+            name:`InputVariable${variableName}1`, 
+            outputLabels: (new Array(1).fill("").map((_v, i) => `${variableName}`)),
+            gridSize:[2,2], 
+            draw:(s) => drawGateTypeDecode(s, 2, 2, 
+                `stroke="none" 
+                fill="${s.override[0] ? 'var(--connection-color-on)':'var(--connection-color-off)'}" 
+                style="pointer-events:none;"`
+            )
+        }
+    )
+}
+
+export function exampleOutputVariable(variableName:string) {
+    return Output(1, 
+        {
+            name:`OutputVariable${variableName}1`, 
+            inputLabels: (new Array(1).fill("").map((_v, i) => `${variableName}`)),
+            gridSize:[2,2], 
+            draw:(s) => s.override[0] === undefined ? drawGateTypeRect(2, 2):drawGateTypeDecode(s, 2, 2, 
+                `stroke="none" 
+                fill="${s.override[0] ? 'var(--connection-color-on)':'var(--connection-color-off)'}" 
+                style="pointer-events:none;"`
+            )
         }
     )
 }
@@ -287,6 +360,7 @@ export function Decoder(bits:number, otherParams?: GateTypeParameters) {
     let params: GateTypeParameters = {
         name: `${bits}-${outSize} Decoder`,
         inputs: bits, outputs: outSize,
+        outputLabels: (new Array(outSize)).fill(undefined).map((_v, i) => `${i}`),
         gridSize: [gridWidth, gridHeight],
         f: (s) => {
             const idx = decodeInternal(s, bits)
@@ -322,6 +396,7 @@ export function Encoder(bits:number, otherParams?: GateTypeParameters) {
     let params: GateTypeParameters = {
         name: `${inSize}-${bits} Encoder`,
         inputs: inSize, outputs: bits,
+        inputLabels: (new Array(inSize)).fill(undefined).map((_v, i) => `${i}`),
         gridSize: [gridWidth, gridHeight],
         f: (s) => {
             return encodeInternal(s.override.lastIndexOf(true), bits)
@@ -335,33 +410,6 @@ export function Encoder(bits:number, otherParams?: GateTypeParameters) {
 }
 
 export const Encoder4t2 = Encoder(2)
-
-export function Adder(bits:number, carry:boolean, otherParams?:GateTypeParameters) {
-    const otherSize = otherParams?.gridSize || [undefined, undefined]
-    const gridWidth = otherSize[0] || 4
-    const gridHeight = otherSize[1] || (bits + 1)
-    let params: GateTypeParameters = {
-        name: `Adder${bits}${carry ? "c":"nc"}`,
-        inputs: bits * 2, outputs: bits + (carry ? 1:0),
-        gridSize: [gridWidth, gridHeight],
-        f: carry ? (s) => {
-            const v1 = decodeInternal(s, bits)
-            const v2 = decodeInternal({override:s.override.slice(bits)},bits)
-            const sum = v1 + v2
-            const result = encodeInternal(sum, bits)
-            result.override.push((sum) >= Math.pow(2, bits))
-            return result
-        } : (s) => {
-            const v1 = decodeInternal(s, bits)
-            const v2 = decodeInternal({override:s.override.slice(bits)},bits)
-            return encodeInternal(v1 + v2, bits)
-        }
-    }
-    if (otherParams) params = combineGateTypeParameters(params, otherParams)
-    return params;
-}
-
-export const Adder2c = Adder(2, true)
 
 export function NInputAnd(bits:number, otherParams?:GateTypeParameters) {
     let params: GateTypeParameters = {
@@ -415,3 +463,39 @@ export function NInputOr(bits:number, otherParams?:GateTypeParameters) {
 
 export const And3 = NInputAnd(3)
 export const Or3 = NInputOr(3)
+
+export function NBitAdder(bits:number, otherParams?:GateTypeParameters) {
+    let params: GateTypeParameters = {
+        name: `${bits}-Bit Adder`,
+        inputs: 2 * bits, outputs: bits + 1,
+        gridSize: [2, 2 * bits],
+        f: (s) => {
+            const x = decodeInternal(s, bits)
+            const s2 = {override:s.override.slice(bits)}
+            const y = decodeInternal(s2, bits)
+            const sum = x + y
+            return encodeInternal(sum, bits + 1)
+        }
+    }
+    if (otherParams) params = combineGateTypeParameters(params, otherParams)
+    return params;
+}
+
+const all_params = new Map([
+    [Buf.name, Buf],
+    [Not.name, Not],
+    [And.name, And],
+    [Or.name, Or],
+    [And3.name, And3],
+    [Or3.name, Or3],
+    [Nand.name, Nand],
+    [Xor.name, Xor],
+    [Decoder2t4.name, Decoder2t4],
+    [Encoder4t2.name, Encoder4t2],
+    [HalfAdder.name, HalfAdder],
+    [FullAdder.name, FullAdder]
+])
+
+export function getGateTypeParams(name:string) {
+    return all_params.get(name)
+}

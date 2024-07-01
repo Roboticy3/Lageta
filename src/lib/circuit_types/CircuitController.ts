@@ -477,16 +477,18 @@ export class CircuitController {
 
         const result = graph.addConnection(c)
 
-        const outputValue = this.getConnectionValue({id:from, type:"Output", index:output})
-
-        this.renderer?.updateWire([from, output], outputValue)
-        if (existing) {
-            this.renderer?.updateWire(
-                existing, 
-                this.getConnectionValue({id:existing[0], type:"Output", index:existing[1]})
-            )
+        if (result.error === "") {
+            console.log("updating existing connection ", existing)
+            const outputValue = this.getConnectionValue({id:from, type:"Output", index:output})
+            this.renderer?.updateWire([from, output], outputValue)
+            if (existing) {
+                this.renderer?.updateWire(
+                    existing, 
+                    this.getConnectionValue({id:existing[0], type:"Output", index:existing[1]})
+                )
+            }
+            this.renderer?.clearActiveWire()
         }
-        this.renderer?.clearActiveWire()
 
         return result
     }
@@ -537,7 +539,8 @@ export class CircuitController {
     ) {
         const graph = this.gateGrid.graph
         
-        const c = graph.inputs[gateId][inputIndex]
+        const inputs = graph.inputs[gateId]
+        const c = inputs?.at(inputIndex)
 
         return c?.from
     }
@@ -548,7 +551,8 @@ export class CircuitController {
     ) {
         const graph = this.gateGrid.graph
 
-        const c = graph.outputs[gateId][outputIndex]
+        const outputs = graph.outputs[gateId]
+        const c = outputs?.at(outputIndex)
 
         return c?.to
     }

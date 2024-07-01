@@ -58,6 +58,7 @@ export class GateGraph extends GateGraphEventTarget {
     }
 
     verifyConnection(c:Connection) {
+        console.log("verifying connection ", c, " with ", this.gates.length, " gates and ", this.inputs.length, " inputs" )
         const outGate = this.gates[c.from[0]]
         if (outGate === undefined || c.from[1] > outGate.type.sizeOut )
         {
@@ -118,6 +119,10 @@ export class GateGraph extends GateGraphEventTarget {
     
                 toGate.state.override[to[i][1]] = cycleCheck.result.override[i]
 
+                const backwardResultI = this.resolveInputsTo(toGate)
+                if (backwardResultI.error !== "") {
+                    return backwardResultI
+                }
                 const forwardResultI = this.resolveInputsFrom(toGate)
                 if (forwardResultI.error !== "") {
                     return forwardResultI
