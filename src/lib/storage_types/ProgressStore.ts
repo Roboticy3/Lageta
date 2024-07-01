@@ -111,11 +111,6 @@ export class ProgressStorage {
         console.log("Unlocked level ", item)
     }
 
-    setCurrentTutorial(name:string) {
-        this.progressStorage.currentTutorial = name
-        this.commit()
-    }
-
     passTutorial(name=this.getCurrentTutorial()) {
         console.log("passing tutorial", name)
         this.progressStorage.passedTutorials.push(name)
@@ -127,11 +122,23 @@ export class ProgressStorage {
         return this.progressStorage.currentTutorial
     }
 
+    setCurrentTutorial(name:string) {
+        this.progressStorage.currentTutorial = name
+        this.commit()
+    }
+
     getPassedTutorials() {
         return this.progressStorage.passedTutorials
     }
 
+    getNewLevels() {
+        return this.progressStorage.newLevels
+    }
 
+    setNewLevels(newLevels:string[]) {
+        this.progressStorage.newLevels = newLevels
+        this.commit()
+    }
 }
 
 class ProgressStorageObject {
@@ -139,12 +146,17 @@ class ProgressStorageObject {
         "Not"
     ]
     levels:Array<string> = []
-    currentTutorial:string = "Tutorial"
     passedTutorials:Array<string> = []
+
+    newLevels:Array<string> = []
+    currentTutorial:string = "Tutorial"
 
     push(p:ProgressStorageObject) {
         this.gates.push(...p.gates)
         this.levels.push(...p.levels)
         this.passedTutorials.push(...p.passedTutorials)
+
+        this.newLevels = p.newLevels
+        this.currentTutorial = p.currentTutorial
     }
 }

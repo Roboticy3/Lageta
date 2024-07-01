@@ -30,6 +30,7 @@
 
     $: progress = browser ? new ProgressStorage() : undefined
     $: levelSet = progress?.levels() || []
+    $: newLevelSet = new Set((progress?.getNewLevels() || []))
 
     /**
      * @type {GameViewCircuitPanel}
@@ -45,7 +46,7 @@
         {from:2, output:0, to:4, input:1}, //fill 2 inputs of bigger combo, leave the other for the user
         {from:5, output:0, to:6, input:0}, //No Combo powers itself, use to power Exclusion
         {from:6, output:0, to:9, input:1}, //power the first adder level
-        {from:6, output:0, to:8, input:3}, //power encoder from xor
+        {from:10, output:1, to:8, input:3}, //power encoder from second adder
         {from:8, output:1, to:7, input:1}, //power decoder from encoder
         {from:9, output:0, to:10, input:0}, //power the second adder level
         {from:9, output:0, to:10, input:1},
@@ -70,6 +71,7 @@
         }
 
         console.log("mounted level viewer with grid: ", circuitController.gateGrid)
+        console.log("new levels! ", newLevelSet)
     })
 
     const circuitController = gameParams.initializeGrid()
@@ -104,7 +106,11 @@
         rendererParams={rendererParams}
     >
         {#each levelSet as params}
-            <LevelViewer params={params} circuitController={circuitController} />
+            <LevelViewer 
+                params={params} 
+                circuitController={circuitController} 
+                isNew={newLevelSet?.has(params.params?.name || "")}
+            />
         {/each}
 
         <InputCheckBox 

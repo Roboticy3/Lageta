@@ -14,6 +14,8 @@
      */
     export let circuitController
 
+    export let isNew = true
+
     /**
      * @type {CircuitDiv}
      */
@@ -81,6 +83,7 @@
     bob={false}
     smooth={false}
     size={[level.type.model.gridWidth - 1.05, level.type.model.gridHeight - 0.3]}
+    flash={isNew}
     bind:this={container}
 >
 <div style="display:flex; flex-direction:column; justify-content:center; height:100%;">

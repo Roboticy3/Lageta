@@ -77,6 +77,7 @@
 
         levelRewards.map(progressStorage.addLevel.bind(progressStorage))
         gateRewards.map(progressStorage.addGate.bind(progressStorage))
+        progressStorage.setNewLevels(levelRewards)
         
         completionPopup.show()
     }

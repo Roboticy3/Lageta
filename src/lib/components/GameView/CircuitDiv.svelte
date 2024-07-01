@@ -21,6 +21,8 @@
 
     export let hidden = false
 
+    export let flash = false
+
     /**
      * @type {CircuitController}
      */
@@ -100,7 +102,7 @@
 </script>
 
 <div 
-    class="circuit-div {hidden ? 'hidden':''} {active ? '':'unavailable'} {bob ? 'bobbing-circuit-div':''} {smooth ? 'smooth-circuit-div':''}" 
+    class="circuit-div {hidden ? 'hidden':''} {active ? '':'unavailable'} {bob ? 'bobbing-circuit-div':''} {smooth ? 'smooth-circuit-div':''} {flash ? 'flash-circuit-div':''}" 
     style="left:{start[0]}px; top:{start[1]}px; width:{end[0] - start[0]}px; height:{end[1] - start[1]}px;" 
     bind:this={container}
 >
@@ -132,6 +134,10 @@
         transition: left var(--animation-speed), top var(--animation-speed), opacity var(--animation-speed);
     }
 
+    .flash-circuit-div {
+        animation:tilt-shaking var(--animation-speed);
+    }
+
     .hidden {
         opacity: 0%;
     }
@@ -143,5 +149,13 @@
         100% {
             transform:translateY(10%);
         }
+    }
+
+    @keyframes tilt-shaking {
+        0% { transform: rotate(0deg) scale(1); }
+        25% { transform: rotate(5deg) scale(1.2); }
+        50% { transform: rotate(0eg) scale(1.25); }
+        75% { transform: rotate(-5deg) scale(1.2); }
+        100% { transform: rotate(0deg) scale(1); }
     }
 </style>

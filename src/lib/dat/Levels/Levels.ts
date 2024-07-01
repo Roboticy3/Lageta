@@ -121,6 +121,7 @@ export const FullAdderLevel = {
             <div style="grid-column: 2; grid-row: 5;">1</div><div style="grid-column: 3; grid-row: 5;">0</div><div style="grid-column: 4; grid-row: 5;">0</div>
             <div style="grid-column: 1 / 5; grid-row: 5; width:100%; height:100%; border-top: 2px solid black;" ></div>
         </div>
+        <p>Note that to add together the 2's places, you have to consider the carry from the 1's places as well as X1 and Y1.</p>
         `,
         {
             gateTypes: [
@@ -211,9 +212,9 @@ export const AdderLevel = {
         <span style="color:var(--connection-color-off);">low</span> voltage as 
         <span style="color:var(--connection-color-off);">"0"</span></p>
         <p>Treating the voltages this way, you can imagine "adding" two voltages together.</p>
-        <p>Here, the output should be <span style="color:var(--connection-color-on);">high</span> (<span style="color:var(--connection-color-on);">1</span>) when the two voltages "add" to <span style="color:var(--connection-color-on);">1</span>,
+        <p>Here, the output should be <span style="color:var(--connection-color-on);">high</span> (<span style="color:var(--connection-color-on);">1</span>) when the two inputs X and Y "add" to <span style="color:var(--connection-color-on);">1</span>,
         and <span style="color:var(--connection-color-off);">low</span> (<span style="color:var(--connection-color-off);">0</span>) otherwise.</p>
-        <p>Note that this means if the two voltages add to 2, the output should still be <span style="color:var(--connection-color-off);">0</span>.</p>
+        <p>Note that this means if X and Y add to 2, the output should still be <span style="color:var(--connection-color-off);">0</span>.</p>
         <p><span style="color:var(--connection-color-on);">1</span> + <span style="color:var(--connection-color-on);">1</span> =
         <span style="color:var(--connection-color-off);">0</span>,</p>
         <p><span style="color:var(--connection-color-on);">1</span> + <span style="color:var(--connection-color-off);">0</span> =
@@ -284,6 +285,7 @@ export const DecoderLevel = {
         DecoderLevelSignal,
         [
             getGateType(Decoder2t4).name,
+            FullAdderLevel.params.name,
         ],
         false,
         {
@@ -345,7 +347,7 @@ export const XorLevel = {
         `
         <p>Here's an example of making a more advanced gate</p>
         <p>Beating this level requires a "Xor" gate, short for "Exclusive Or." Like an Or gate but more... exclusive.</p>
-        <p>It's up to you to analyze the <span style="color:var(--circuit-color);">signal</span> and construct the correct <span style="color:var(--circuit-color);">signal</span>.</p>
+        <p>It's up to you to analyze the <span style="color:var(--circuit-color);">signal</span> and construct the correct <span style="color:var(--circuit-color);">circuit</span>.</p>
         `,
         {
             gateTypes: [
