@@ -1,6 +1,6 @@
 import { Connection } from "$lib/circuit_types/GateGraph";
 import { GateType, GateTypeController, type ConnectionValue } from "$lib/circuit_types/GateType";
-import { AdderNoCarry1, And, And3, Buf, Decoder2t4, Encoder4t2, FullAdder, HalfAdder, Input, InputDecodePrebaked, InputLabelledPrebaked, InputVariable, NBitAdder, Nand, Not, Or, Or3, Output, OutputDecodePrebaked, OutputLabelledPrebaked, OutputVariable, SevenSegmentOutput, Xor, combineGateTypeParameters, drawGateTypeDecode, exampleInputVariable, exampleOutputVariable, getGateType, type GateTypeParameters } from "$lib/dat/GateTypes/GateTypes";
+import { AdderNoCarry1, And, And3, Buf, Decoder2t4, Encoder4t2, FullAdder, HalfAdder, Input, InputDecodePrebaked, InputLabelledPrebaked, InputVariable, NBitAdder, Nand, Not, Or, Or3, Output, OutputDecodePrebaked, OutputLabelledPrebaked, OutputVariable, SevenSegmentOutput, Xand, Xor, combineGateTypeParameters, drawGateTypeDecode, exampleInputVariable, exampleOutputVariable, getGateType, type GateTypeParameters } from "$lib/dat/GateTypes/GateTypes";
 import { ConnectionValueSignalSet, Signal, SignalSet, inverter, oscillator, repeater } from "$lib/signal_types/Signal";
 import type { OrganizedCircuitContents, SerializableGate } from "$lib/storage_types/CircuitStorage";
 import { ProgressStorage } from "$lib/storage_types/ProgressStore";
@@ -87,6 +87,51 @@ function countingSignal(solver:GateTypeController, step:number, repeat?:number) 
     return new ConnectionValueSignalSet(
         block, length, solver
     )
+}
+
+export const XandLevel = {
+    params:new GameViewParameters(
+        "Exclusion 2",
+        `
+        <p>Beating this level requires constructing a "Xand" gate.</p>
+        <p>This gate can actually go by a lot of names, including "Xnor" and "Nxor," but Lageta will use Xand.</p>
+        <p>It may be more useful to refer to this gate as an "Equals" gate. To emulate it, this circuit should output <span style="color:var(--connection-color-on);">high</span> only when either:
+            <p>both of its inputs are <span style="color:var(--connection-color-on);">high</span></p>
+            <p>or both of its inputs are <span style="color:var(--connection-color-off);">low</span></p>
+        </p>
+        `,
+        {
+            gateTypes: [
+                getGateType(InputLabelledPrebaked[2]),
+                getGateType(OutputLabelledPrebaked[1]),
+                getGateType(And)
+            ],
+            gates: [
+                { x: 0, y: 3, type: "Input2Labelled", id: 0 } as SerializableGate,
+                { x: 14, y: 3, type: "Output1Labelled", id: 1 } as SerializableGate,
+                { x: 6, y: 4, type: "And", id: 2} as SerializableGate
+            ],
+            connections: [
+                new Connection(0, 0, 2, 0),
+                new Connection(0, 1, 2, 1),
+                new Connection(2, 0, 1, 0)
+            ],
+            size: [16, 8]
+        },
+        new ConnectionValueSignalSet(
+            [
+                new Signal<ConnectionValue>([{frame:0,value:false}]).push(oscillator(10, 10)),
+                new Signal<ConnectionValue>([{frame:5,value:false}]).push(oscillator(10, 9))
+            ],
+            200,
+            getGateType(Xand)
+        ),
+        [
+            getGateType(Xand).name
+        ]
+    ),
+    x:0,y:4,desiredId:12,
+    type:Xand
 }
 
 export const FullAdderLevel = {
@@ -345,9 +390,8 @@ export const XorLevel = {
     params:new GameViewParameters(
         "Exclusion",
         `
-        <p>Here's an example of making a more advanced gate</p>
-        <p>Beating this level requires a "Xor" gate, short for "Exclusive Or." Like an Or gate but more... exclusive.</p>
-        <p>It's up to you to analyze the <span style="color:var(--circuit-color);">signal</span> and construct the correct <span style="color:var(--circuit-color);">circuit</span>.</p>
+        <p>Beating this level requires constructing a "Xor" gate, which is like an Or gate but more... exclusive.</p>
+        <p>The Xor gate should output <span style="color:var(--connection-color-on);">high</span> when only one of its inputs are <span style="color:var(--connection-color-on);">high</span>.</p>
         `,
         {
             gateTypes: [
@@ -378,7 +422,8 @@ export const XorLevel = {
         [
             getGateType(Xor).name,
             AdderLevel.params.name,
-            EncoderLevel.params.name
+            EncoderLevel.params.name,
+            XandLevel.params.name,
         ]
     ),
     x:11,y:2,desiredId:6,
@@ -687,6 +732,7 @@ const all_params = new Map<string, LevelParameters>([
     [And3Level.params.name,And3Level],
     [NandLevel.params.name, NandLevel],
     [XorLevel.params.name, XorLevel],
+    [XandLevel.params.name, XandLevel],
     [DecoderLevel.params.name, DecoderLevel],
     [EncoderLevel.params.name, EncoderLevel],
     [AdderLevel.params.name, AdderLevel],

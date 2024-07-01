@@ -36,6 +36,11 @@ export const Xor:GateTypeParameters = {
     draw: (s) => {return `<path d="M 10 2 C 20 2 20 18 10 18 L 5 18 C 8 18 8 2 5 2 Z" style="pointer-events:none;" />\n<path d="M 2 18 C 5 18 5 2 2 2" style="pointer-events:none;" />\n`}
 }
 
+export const Xand:GateTypeParameters = {
+    name: "Xand", inputs: 2, outputs: 1,
+    f: (s:GateState) => { return {override:[(s.override[0] || false) === (s.override[1] || false)]}}
+}
+
 export const AdderNoCarry1:GateTypeParameters = {
     name: "AdderNoCarry1", inputs: 2, outputs:1,
     f: (s:GateState) => { return {override:[(s.override[0] || false) !== (s.override[1] || false)]}; },
@@ -490,6 +495,7 @@ const all_params = new Map([
     [Or3.name, Or3],
     [Nand.name, Nand],
     [Xor.name, Xor],
+    [Xand.name, Xand],
     [Decoder2t4.name, Decoder2t4],
     [Encoder4t2.name, Encoder4t2],
     [HalfAdder.name, HalfAdder],
