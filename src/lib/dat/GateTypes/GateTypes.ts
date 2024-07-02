@@ -30,6 +30,12 @@ export const Nand:GateTypeParameters = {
     draw: (s) => {return `<path d="M 2 2 L 10 2 C 20 2 20 18 10 18 L 2 18 Z" style="pointer-events:none;" />\n<circle cx=18 cy=10 r="2" style="pointer-events:none;" />\n`}
 };
 
+export const Nor:GateTypeParameters = {
+    name: "Nor", inputs: 2, outputs: 1, 
+    f: (s:GateState) => { return {override:[!(s.override[0] || s.override[1])]}; },
+    draw: (s) => {return `<path d=""M 10 2 C 20 2 20 18 10 18 L 2 18 C 5 18 5 2 2 2 Z"" style="pointer-events:none;" />\n<circle cx=18 cy=10 r="2" style="pointer-events:none;" />\n`}
+}
+
 export const Xor:GateTypeParameters = { 
     name: "Xor", inputs: 2, outputs: 1, 
     f: (s:GateState) => { return {override:[(s.override[0] || false) !== (s.override[1] || false)]}; },

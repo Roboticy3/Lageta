@@ -1,6 +1,6 @@
 import { Connection } from "$lib/circuit_types/GateGraph";
 import { GateType, GateTypeController, type ConnectionValue } from "$lib/circuit_types/GateType";
-import { AdderNoCarry1, And, And3, Buf, Decoder2t4, Encoder4t2, FullAdder, HalfAdder, Input, InputDecodePrebaked, InputLabelledPrebaked, InputVariable, NBitAdder, Nand, Not, Or, Or3, Output, OutputDecodePrebaked, OutputLabelledPrebaked, OutputVariable, SevenSegmentOutput, Xand, Xor, combineGateTypeParameters, drawGateTypeDecode, exampleInputVariable, exampleOutputVariable, getGateType, type GateTypeParameters } from "$lib/dat/GateTypes/GateTypes";
+import { AdderNoCarry1, And, And3, Buf, Decoder2t4, Encoder4t2, FullAdder, HalfAdder, Input, InputDecodePrebaked, InputLabelledPrebaked, InputVariable, NBitAdder, Nand, Nor, Not, Or, Or3, Output, OutputDecodePrebaked, OutputLabelledPrebaked, OutputVariable, SevenSegmentOutput, Xand, Xor, combineGateTypeParameters, drawGateTypeDecode, exampleInputVariable, exampleOutputVariable, getGateType, type GateTypeParameters } from "$lib/dat/GateTypes/GateTypes";
 import { ConnectionValueSignalSet, Signal, SignalSet, inverter, oscillator, repeater } from "$lib/signal_types/Signal";
 import type { OrganizedCircuitContents, SerializableGate } from "$lib/storage_types/CircuitStorage";
 import { ProgressStorage } from "$lib/storage_types/ProgressStore";
@@ -89,12 +89,52 @@ function countingSignal(solver:GateTypeController, step:number, repeat?:number) 
     )
 }
 
+export const NorLevel = {
+    params:new GameViewParameters(
+        "No Join",
+        `
+        <p>This level requires making a "Nor" gate to win.</p>
+        <p>Nor stands for "Not Or" and will always output the opposite of an Or gate with the same inputs.</p>
+        `,
+        {
+            gateTypes: [
+                getGateType(InputLabelledPrebaked[2]),
+                getGateType(OutputLabelledPrebaked[1]),
+                getGateType(Or)
+            ],
+            gates: [
+                { x: 0, y: 3, type: "Input2Labelled", id: 0 } as SerializableGate,
+                { x: 14, y: 4, type: "Output1Labelled", id: 1 } as SerializableGate,
+                { x: 6, y: 3, type: "Or", id: 2} as SerializableGate
+            ],
+            connections: [
+                new Connection(0, 0, 2, 0),
+                new Connection(0, 1, 2, 1),
+                new Connection(2, 0, 1, 0)
+            ],
+            size: [16, 8]
+        },
+        new ConnectionValueSignalSet(
+            [
+                new Signal<ConnectionValue>([{frame:0,value:false}]).push(oscillator(10, 5)),
+                new Signal<ConnectionValue>([{frame:0,value:false},{frame:50,value:true}])
+            ],
+            100,
+            getGateType(Nor)
+        ),
+        [
+            getGateType(Nor).name,
+        ]
+    ),
+    x:0,y:2,desiredId:13,
+    type:Nor
+}
+
 export const XandLevel = {
     params:new GameViewParameters(
         "Exclusion 2",
         `
         <p>Beating this level requires constructing a "Xand" gate.</p>
-        <p>This gate can actually go by a lot of names, including "Xnor" and "Nxor," but Lageta will use Xand.</p>
         <p>It may be more useful to refer to this gate as an "Equals" gate. To emulate it, this circuit should output <span style="color:var(--connection-color-on);">high</span> only when either:
             <p>both of its inputs are <span style="color:var(--connection-color-on);">high</span></p>
             <p>or both of its inputs are <span style="color:var(--connection-color-off);">low</span></p>
@@ -604,7 +644,8 @@ export const OrLevel = {
             getGateType(Or)
         ),
         [
-            Or3Level.params.name
+            Or3Level.params.name,
+            NorLevel.params.name
         ]
     ),
     x:4, y:3, desiredId:2,
@@ -731,6 +772,7 @@ const all_params = new Map<string, LevelParameters>([
     [Or3Level.params.name,Or3Level],
     [And3Level.params.name,And3Level],
     [NandLevel.params.name, NandLevel],
+    [NorLevel.params.name, NorLevel],
     [XorLevel.params.name, XorLevel],
     [XandLevel.params.name, XandLevel],
     [DecoderLevel.params.name, DecoderLevel],
