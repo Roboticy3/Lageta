@@ -84,9 +84,13 @@ function countingSignal(solver:GateTypeController, step:number, repeat?:number) 
         block.forEach((s, i) => {block[i] = repeater(s, repeat)})
     }
 
-    return new ConnectionValueSignalSet(
+    const result = new ConnectionValueSignalSet(
         block, length, solver
     )
+
+    console.log("created counting signal ", result)
+
+    return result
 }
 
 export const FourBitAdder = {
@@ -103,21 +107,31 @@ export const FourBitAdder = {
             gateTypes: [
                 getGateType(InputVariable(4, "X")),
                 getGateType(InputVariable(4, "Y")),
-                getGateType(InputVariable(4, "S")),
-                getGateType(exampleOutputVariable('Carry'))
+                getGateType(OutputVariable(4, "S")),
+                getGateType(exampleOutputVariable('Carry')),
+                getGateType(FullAdder)
             ],
             gates: [
                 {x:0, y:1, type:"InputVariableX4", id:0} as SerializableGate,
                 {x:0, y:6, type:"InputVariableY4", id:1} as SerializableGate,
-                {x:20, y:2, type:"OutputVariableS4", id:2} as SerializableGate,
+                {x:19, y:2, type:"OutputVariableS4", id:2} as SerializableGate,
                 {x:20, y:7, type:"OutputVariableCarry1", id:3} as SerializableGate,
+                {x:7, y:1, type:"FullAdder", id:4} as SerializableGate
+            ],
+            connections:[
+                new Connection(0, 0, 4, 1), new Connection(1, 0, 4, 2),
+                new Connection(4, 0, 2, 0)
             ],
             size:[22, 11]
         },
-        countingSignal(getGateType(Add4), 3, 2),
+        countingSignal(getGateType(Add4), 3),
         [
 
         ],
+        false,
+        {
+            inputCheckboxes:false
+        }
     ),
     x:22, y:2, desiredId:15,
     type:getGateType(Add4),

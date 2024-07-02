@@ -226,8 +226,9 @@ export const drawGateTypeDecode = (s:GateState, gridWidth:number, gridHeight:num
     }
     result.push(
 `<text 
-    x="${gridWidth * 10 / 2 - 5}" 
+    x="${gridWidth * 10 / 2}" 
     y="${gridHeight * 10 / 2 + 5}" 
+    text-anchor="middle"
     ${extraParams}
     >
     ${sum}
@@ -312,23 +313,25 @@ export const OutputDecodePrebaked = [
 ]
 
 export function InputVariable(bits:number, variableName:string) {
+    const gridSize:[number, number]= [Math.floor(Math.log2(bits)) + 1,bits]
     return Input(bits, 
         {
             name:`InputVariable${variableName}${bits}`, 
             outputLabels: (new Array(bits).fill("").map((_v, i) => `${variableName}${i}`)),
-            gridSize:[2,bits], 
-            draw:(s) => drawGateTypeDecode(s, 2, bits)
+            gridSize:gridSize, 
+            draw:(s) => drawGateTypeDecode(s, gridSize[0], gridSize[1])
         }
     )
 }
 
 export function OutputVariable(bits:number, variableName:string) {
+    const gridSize:[number, number]= [Math.floor(Math.log2(bits)) + 1,bits]
     return Output(bits, 
         {
             name:`OutputVariable${variableName}${bits}`, 
             inputLabels: (new Array(bits).fill("").map((_v, i) => `${variableName}${i}`)),
-            gridSize:[2,bits], 
-            draw:(s) => drawGateTypeDecode(s, 2, bits)
+            gridSize:gridSize, 
+            draw:(s) => drawGateTypeDecode(s, gridSize[0], gridSize[1])
         }
     )
 }
