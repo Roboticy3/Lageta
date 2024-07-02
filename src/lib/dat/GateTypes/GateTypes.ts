@@ -33,7 +33,7 @@ export const Nand:GateTypeParameters = {
 export const Nor:GateTypeParameters = {
     name: "Nor", inputs: 2, outputs: 1, 
     f: (s:GateState) => { return {override:[!(s.override[0] || s.override[1])]}; },
-    draw: (s) => {return `<path d=""M 10 2 C 20 2 20 18 10 18 L 2 18 C 5 18 5 2 2 2 Z"" style="pointer-events:none;" />\n<circle cx=18 cy=10 r="2" style="pointer-events:none;" />\n`}
+    draw: (s) => {return `<path d="M 10 2 C 20 2 20 18 10 18 L 2 18 C 5 18 5 2 2 2 Z" style="pointer-events:none;" />\n<circle cx=18 cy=10 r="2" style="pointer-events:none;" />\n`}
 }
 
 export const Xor:GateTypeParameters = { 
@@ -45,6 +45,16 @@ export const Xor:GateTypeParameters = {
 export const Xand:GateTypeParameters = {
     name: "Xand", inputs: 2, outputs: 1,
     f: (s:GateState) => { return {override:[(s.override[0] || false) === (s.override[1] || false)]}}
+}
+
+export const RandomGate1:GateTypeParameters = {
+    name: "Random Gate 1", inputs: 2, outputs: 2,
+    f: (s:GateState) => {
+        return {override:[
+            !(s.override[1]),
+            !(s.override[0] && s.override[1])
+        ]}
+    }
 }
 
 export const AdderNoCarry1:GateTypeParameters = {
@@ -500,6 +510,7 @@ const all_params = new Map([
     [And3.name, And3],
     [Or3.name, Or3],
     [Nand.name, Nand],
+    [Nor.name, Nor],
     [Xor.name, Xor],
     [Xand.name, Xand],
     [Decoder2t4.name, Decoder2t4],

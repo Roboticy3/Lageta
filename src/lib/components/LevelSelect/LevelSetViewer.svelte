@@ -53,6 +53,8 @@
         {from:10, output:1, to:11, input:2}, //partially power the full adder level
         {from:9, output:0, to:11, input:1},
         {from:7, output:2, to:11, input:0}, //fully power the full adder level from decoder
+        {from:13, output:0, to:14, input:1}, //power the first random level
+        {from:12, output:0, to:14, input:0}
     ]
     
     onMount(async () => {

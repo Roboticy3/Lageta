@@ -1,6 +1,6 @@
 import { Connection } from "$lib/circuit_types/GateGraph";
 import { GateType, GateTypeController, type ConnectionValue } from "$lib/circuit_types/GateType";
-import { AdderNoCarry1, And, And3, Buf, Decoder2t4, Encoder4t2, FullAdder, HalfAdder, Input, InputDecodePrebaked, InputLabelledPrebaked, InputVariable, NBitAdder, Nand, Nor, Not, Or, Or3, Output, OutputDecodePrebaked, OutputLabelledPrebaked, OutputVariable, SevenSegmentOutput, Xand, Xor, combineGateTypeParameters, drawGateTypeDecode, exampleInputVariable, exampleOutputVariable, getGateType, type GateTypeParameters } from "$lib/dat/GateTypes/GateTypes";
+import { AdderNoCarry1, And, And3, Buf, Decoder2t4, Encoder4t2, FullAdder, HalfAdder, Input, InputDecodePrebaked, InputLabelledPrebaked, InputVariable, NBitAdder, Nand, Nor, Not, Or, Or3, Output, OutputDecodePrebaked, OutputLabelledPrebaked, OutputVariable, RandomGate1, SevenSegmentOutput, Xand, Xor, combineGateTypeParameters, drawGateTypeDecode, exampleInputVariable, exampleOutputVariable, getGateType, type GateTypeParameters } from "$lib/dat/GateTypes/GateTypes";
 import { ConnectionValueSignalSet, Signal, SignalSet, inverter, oscillator, repeater } from "$lib/signal_types/Signal";
 import type { OrganizedCircuitContents, SerializableGate } from "$lib/storage_types/CircuitStorage";
 import { ProgressStorage } from "$lib/storage_types/ProgressStore";
@@ -89,6 +89,51 @@ function countingSignal(solver:GateTypeController, step:number, repeat?:number) 
     )
 }
 
+export const RandomLevel1 = {
+    params:new GameViewParameters(
+        "Random 1",
+        `
+        <p>This level will introduce some formal logic that you can use to solve any level.</p>
+        <p>Which is good, because the <span style="color:var(--circuit-color);">circuit</span> you need to win has been randomly generated!</p>
+        <p>So, it may help to use <span style="font-style:italic;">Cases</span>:</p>
+        <p>Cases are unique, possible situations.</p>
+        <p>In school, cases can be the different schedules you may end up with next term.</p>
+        <p>For <span style="color:var(--circuit-color);">circuits</span>, cases can be the different possible combinations of inputs.</p>
+        <div style="display:grid; grid-template-columns: 1fr 1fr 1fr 1fr 1fr; grid-template-rows: 1fr 1fr 1fr 1fr 1fr; text-align:center; text-wrap:nowrap;">
+            <div style="grid-column: 2; grid-row: 1;">Input 1</div><div style="grid-column: 3; grid-row: 1;">Input 2</div><div style="grid-column: 4; grid-row: 1;">Output 1</div><div style="grid-column: 5; grid-row: 1;">Output 2</div>
+            <div style="grid-column: 1; grid-row: 2;">Case 1: </div><div style="grid-column: 2; grid-row: 2; color:var(--connection-color-off);">0</div><div style="grid-column: 3; grid-row: 2; color:var(--connection-color-off);">0</div><div style="grid-column: 4; grid-row: 2; color:var(--verification-color);">?</div><div style="grid-column: 5; grid-row: 2; color:var(--verification-color);">?</div>
+            <div style="grid-column: 1; grid-row: 3;">Case 2: </div><div style="grid-column: 2; grid-row: 3; color:var(--connection-color-on);">1</div><div style="grid-column: 3; grid-row: 3; color:var(--connection-color-off);">0</div><div style="grid-column: 4; grid-row: 3; color:var(--verification-color);">?</div><div style="grid-column: 5; grid-row: 3; color:var(--verification-color);">?</div>
+            <div style="grid-column: 1; grid-row: 4;">Case 3: </div><div style="grid-column: 2; grid-row: 4; color:var(--connection-color-off);">0</div><div style="grid-column: 3; grid-row: 4; color:var(--connection-color-on);">1</div><div style="grid-column: 4; grid-row: 4; color:var(--verification-color);">?</div><div style="grid-column: 5; grid-row: 4; color:var(--verification-color);">?</div>
+            <div style="grid-column: 1; grid-row: 5;">Case 4: </div><div style="grid-column: 2; grid-row: 5; color:var(--connection-color-on);">1</div><div style="grid-column: 3; grid-row: 5; color:var(--connection-color-on);">1</div><div style="grid-column: 4; grid-row: 5; color:var(--verification-color);">?</div><div style="grid-column: 5; grid-row: 5; color:var(--verification-color);">?</div>
+        </div>
+        <p>The key to using cases is to deduce how a <span style="color:var(--circuit-color);">circuit</span> should behave under each case. 
+        That means deducing the <span style="color:var(--verification-color);">desired</span> outputs.</p>
+        <p>Then, you can build any <span style="color:var(--circuit-color);">circuit</span> by satisfying each case individually:</p>
+        <p>Setting the inputs to match Case 1, then editing the <span style="color:var(--circuit-color);">circuit</span> to match the <span style="color:var(--verification-color);">desired</span> outputs, then the same for Case 2, etc.</p>
+        <p>When all the cases are covered, your <span style="color:var(--circuit-color);">circuit</span> will be <span style="color:var(--verification-color);">correct</span>.</p> 
+        <p>Note that: even though connection points can be <span style="color:var(--connection-color-x);">neither</span> <span style="color:var(--connection-color-on);">high</span>
+        nor <span style="color:var(--connection-color-off);">low</span> voltage, the <span style="color:var(--circuit-color);">signal</span> will always set each input to <span style="color:var(--connection-color-on);">high</span>
+        or <span style="color:var(--connection-color-off);">low</span>, so we don't need to consider cases outside of that to <span style="color:var(--verification-color);">verify</span> the <span style="color:var(--circuit-color);">circuit</span>.</p>       
+        `,
+        {
+            gateTypes: [
+                getGateType(InputLabelledPrebaked[2]),
+                getGateType(OutputLabelledPrebaked[2]),
+            ],
+            gates: [
+                { x: 0, y: 3, type: "Input2Labelled", id: 0 } as SerializableGate,
+                { x: 14, y: 3, type: "Output2Labelled", id: 1 } as SerializableGate,
+            ],
+            size: [16, 8]
+        },
+        countingSignal(getGateType(RandomGate1), 5, 3),
+        []
+    ),
+    x:0,y:6,desiredId:14,
+    type:RandomGate1,
+    playCondition:[false, false]
+}
+
 export const NorLevel = {
     params:new GameViewParameters(
         "No Join",
@@ -167,7 +212,8 @@ export const XandLevel = {
             getGateType(Xand)
         ),
         [
-            getGateType(Xand).name
+            getGateType(Xand).name,
+            RandomLevel1.params.name
         ]
     ),
     x:0,y:4,desiredId:12,
@@ -779,7 +825,8 @@ const all_params = new Map<string, LevelParameters>([
     [EncoderLevel.params.name, EncoderLevel],
     [AdderLevel.params.name, AdderLevel],
     [CarryLevel.params.name, CarryLevel],
-    [FullAdderLevel.params.name, FullAdderLevel]
+    [FullAdderLevel.params.name, FullAdderLevel],
+    [RandomLevel1.params.name, RandomLevel1]
 ])
 
 export function getLevel(name:string) {
