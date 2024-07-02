@@ -68,9 +68,9 @@ export const HalfAdder:GateTypeParameters = {
 }
 
 export const FullAdder:GateTypeParameters ={
-    name: "FullAdder", inputs:3, outputs:2, outputLabels:["S", "C out"], inputLabels:["", "", "C in"],
+    name: "FullAdder", inputs:3, outputs:2, outputLabels:["S", "C out"], inputLabels:["C in", "", ""],
     f: (s:GateState) => { return {
-        override:[((s.override[0] || false) !== (s.override[1] || false)) !== (s.override[2] || false), (s.override[0] && s.override[1]) || (s.override[2] && (s.override[0] || s.override[1]))]
+        override:[((s.override[1] || false) !== (s.override[2] || false)) !== (s.override[0] || false), (s.override[1] && s.override[2]) || ((s.override[0] || false) && (s.override[1] || s.override[2]))]
     }}
 }
 
@@ -489,6 +489,21 @@ export function NBitAdder(bits:number, otherParams?:GateTypeParameters) {
     let params: GateTypeParameters = {
         name: `${bits}-Bit Adder`,
         inputs: 2 * bits, outputs: bits + 1,
+        inputLabels:(
+            new Array(bits)
+                .fill("")
+                .map((v, i) => `X${i}`)
+                .concat(new Array(bits)
+                    .fill("")
+                    .map((v, i) => `Y${i}`)
+                )
+        ),
+        outputLabels:(
+            new Array(bits)
+                .fill("")
+                .map((v, i) => `S${i}`)
+                .concat(["Carry"])
+        ),
         gridSize: [2, 2 * bits],
         f: (s) => {
             const x = decodeInternal(s, bits)
@@ -501,6 +516,9 @@ export function NBitAdder(bits:number, otherParams?:GateTypeParameters) {
     if (otherParams) params = combineGateTypeParameters(params, otherParams)
     return params;
 }
+
+export const Add2 = NBitAdder(2)
+export const Add4 = NBitAdder(4)
 
 const all_params = new Map([
     [Buf.name, Buf],

@@ -1,6 +1,6 @@
 import { Connection } from "$lib/circuit_types/GateGraph";
 import { GateType, GateTypeController, type ConnectionValue } from "$lib/circuit_types/GateType";
-import { AdderNoCarry1, And, And3, Buf, Decoder2t4, Encoder4t2, FullAdder, HalfAdder, Input, InputDecodePrebaked, InputLabelledPrebaked, InputVariable, NBitAdder, Nand, Nor, Not, Or, Or3, Output, OutputDecodePrebaked, OutputLabelledPrebaked, OutputVariable, RandomGate1, SevenSegmentOutput, Xand, Xor, combineGateTypeParameters, drawGateTypeDecode, exampleInputVariable, exampleOutputVariable, getGateType, type GateTypeParameters } from "$lib/dat/GateTypes/GateTypes";
+import { Add2, Add4, AdderNoCarry1, And, And3, Buf, Decoder2t4, Encoder4t2, FullAdder, HalfAdder, Input, InputDecodePrebaked, InputLabelledPrebaked, InputVariable, NBitAdder, Nand, Nor, Not, Or, Or3, Output, OutputDecodePrebaked, OutputLabelledPrebaked, OutputVariable, RandomGate1, SevenSegmentOutput, Xand, Xor, combineGateTypeParameters, drawGateTypeDecode, exampleInputVariable, exampleOutputVariable, getGateType, type GateTypeParameters } from "$lib/dat/GateTypes/GateTypes";
 import { ConnectionValueSignalSet, Signal, SignalSet, inverter, oscillator, repeater } from "$lib/signal_types/Signal";
 import type { OrganizedCircuitContents, SerializableGate } from "$lib/storage_types/CircuitStorage";
 import { ProgressStorage } from "$lib/storage_types/ProgressStore";
@@ -87,6 +87,41 @@ function countingSignal(solver:GateTypeController, step:number, repeat?:number) 
     return new ConnectionValueSignalSet(
         block, length, solver
     )
+}
+
+export const FourBitAdder = {
+    params:new GameViewParameters(
+        "4-bit Adder",
+        `
+        <p>The last adder level unlocked a gate called "Full Adder."</p>
+        <p>Full Adder represents the part of the <span style="color:var(--circuit-color);">circuit</span> you filled in to complete the 2-bit adder.</p>
+        <p>In that level, the Full Adder considered "C in" from the 1's place and X1 and Y1 from the 2's place to complete the sum.</p>
+        <p>Adding and carrying works out the same way no matter which digit you're starting from, as long as you consider the "carry in" from the last digit, if it's there.</p>
+        <p>Thanks to this property, you can link multiple Full Adders together with no modification to make larger adder <span style="color:var(--circuit-color);">circuit</span>!</p>
+        `,
+        {
+            gateTypes: [
+                getGateType(InputVariable(4, "X")),
+                getGateType(InputVariable(4, "Y")),
+                getGateType(InputVariable(4, "S")),
+                getGateType(exampleOutputVariable('Carry'))
+            ],
+            gates: [
+                {x:0, y:1, type:"InputVariableX4", id:0} as SerializableGate,
+                {x:0, y:6, type:"InputVariableY4", id:1} as SerializableGate,
+                {x:20, y:2, type:"OutputVariableS4", id:2} as SerializableGate,
+                {x:20, y:7, type:"OutputVariableCarry1", id:3} as SerializableGate,
+            ],
+            size:[22, 11]
+        },
+        countingSignal(getGateType(Add4), 3, 2),
+        [
+
+        ],
+    ),
+    x:22, y:2, desiredId:15,
+    type:getGateType(Add4),
+    playCondition:[false, false, false, false, true]
 }
 
 export const RandomLevel1 = {
@@ -275,9 +310,10 @@ export const FullAdderLevel = {
             ],
             size: [20, 9]
         },
-        countingSignal(getGateType(NBitAdder(2)), 10, 2),
+        countingSignal(getGateType(Add2), 10, 2),
         [
-            FullAdder.name
+            FullAdder.name,
+            FourBitAdder.params.name
         ],
         false,
         {
@@ -824,7 +860,8 @@ const all_params = new Map<string, LevelParameters>([
     [AdderLevel.params.name, AdderLevel],
     [CarryLevel.params.name, CarryLevel],
     [FullAdderLevel.params.name, FullAdderLevel],
-    [RandomLevel1.params.name, RandomLevel1]
+    [RandomLevel1.params.name, RandomLevel1],
+    [FourBitAdder.params.name, FourBitAdder]
 ])
 
 export function getLevel(name:string) {

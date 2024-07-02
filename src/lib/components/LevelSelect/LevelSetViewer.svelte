@@ -12,8 +12,8 @@
     import { GameViewCircuitPanelEventTarget } from "$lib/circuit_types/GameViewCircuitPanelEvent";
     import { CircuitStorage } from "$lib/storage_types/CircuitStorage";
 
-    const gridWidth = 22
-    const gridHeight = 10
+    const gridWidth = 24
+    const gridHeight = 12
     const gameParams = new GameViewParameters(
         "LevelSelect", "", 
         {
