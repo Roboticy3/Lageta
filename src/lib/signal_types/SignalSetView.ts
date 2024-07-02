@@ -158,6 +158,9 @@ export class CircuitSignalSetView extends SignalSetView<ConnectionValue> impleme
 
     drawChannel = (channel:number, to:number, pathParams:string) => {
         const signal = this.signalSet.block[channel]
+
+        if (!signal) return ""
+
         const defaultValue = this.getDefaultInputs()[channel]
 
         if (signal.unpack().length === 0) {
