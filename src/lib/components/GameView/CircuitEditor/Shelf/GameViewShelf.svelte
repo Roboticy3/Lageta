@@ -3,7 +3,7 @@
 <script>
     import { GameViewCircuitPanelEventTarget } from "$lib/circuit_types/GameViewCircuitPanelEvent";
     import { GateTypeController } from "$lib/circuit_types/GateType";
-    import GameViewShelfButton from "./GameViewShelfButton.svelte";
+    import GameViewShelfButton from "$lib/components/GameView/CircuitEditor/Shelf/GameViewShelfButton.svelte";
 
     export let maxSizeState
 

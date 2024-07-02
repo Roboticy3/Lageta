@@ -3,12 +3,11 @@
     import { CircuitController } from "$lib/circuit_types/CircuitController";
     import { onMount, tick } from "svelte";
     import CircuitDraggable from "$lib/components/GameView/CircuitEditor/CircuitDraggable.svelte";
-    import GameViewShelfButton from "$lib/components/GameView/CircuitEditor/GameViewShelfButton.svelte";
     import GameViewCircuitPanel from "$lib/components/GameView/CircuitEditor/GameViewCircuitPanel.svelte";
     import { GameViewParameters } from "$lib/level_types/GameViewParameters";
     import { GateTypeController } from "$lib/circuit_types/GateType";
     import { GameViewCircuitPanelEventTarget } from "$lib/circuit_types/GameViewCircuitPanelEvent";
-    import GameViewShelf from "./GameViewShelf.svelte";
+    import GameViewShelf from "./Shelf/GameViewShelf.svelte";
 
     /**
      * @type {CircuitController | null}
