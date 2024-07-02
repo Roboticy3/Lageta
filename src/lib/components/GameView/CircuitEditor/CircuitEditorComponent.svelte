@@ -145,12 +145,6 @@
     bind:this={container}
 >
     {#if circuitController}
-        <GameViewShelf
-            bind:maxSizeState={maxSizeState}
-            gateTypes={shelf}
-            circuitDraggable={circuitDraggable}
-            editorEventTarget={editorEventTarget}
-        />
         
         <div 
             class="circuit-panel" 
@@ -169,6 +163,14 @@
                 <slot />
             </GameViewCircuitPanel>
         </div>
+
+        <GameViewShelf
+            bind:maxSizeState={maxSizeState}
+            gateTypes={shelf}
+            circuitDraggable={circuitDraggable}
+            editorEventTarget={editorEventTarget}
+        />
+
         <CircuitDraggable 
             editorEventTarget={editorEventTarget}
             bind:this={circuitDraggable}
@@ -180,7 +182,7 @@
 
     .container {
         display: flex;
-        flex-direction: column;
+        flex-direction: column-reverse;
     }
 
     .circuit-panel {

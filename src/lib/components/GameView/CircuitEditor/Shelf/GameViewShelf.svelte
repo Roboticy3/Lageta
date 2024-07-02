@@ -4,6 +4,7 @@
     import { GameViewCircuitPanelEventTarget } from "$lib/circuit_types/GameViewCircuitPanelEvent";
     import { GateTypeController } from "$lib/circuit_types/GateType";
     import GameViewShelfButton from "$lib/components/GameView/CircuitEditor/Shelf/GameViewShelfButton.svelte";
+    import GameViewShelfFolder from "./GameViewShelfFolder.svelte";
 
     export let maxSizeState
 
@@ -18,6 +19,9 @@
      * @type {GameViewCircuitPanelEventTarget}
      */
     export let editorEventTarget
+
+    export let depth = 1
+
 </script>
 
 <div 
@@ -32,6 +36,14 @@
             editorEventTarget={editorEventTarget}
         />
     {/each}
+
+    <GameViewShelfFolder 
+        gateTypes={gateTypes.slice(0, 4)}
+        circuitDraggable={circuitDraggable}
+        editorEventTarget={editorEventTarget}
+        depth={depth+1}
+        name={"Simple"}
+    />
 </div>
 
 <style>
