@@ -118,7 +118,7 @@
         pause()
 
         signalSetView.resetPlayer()
-        circuitController.setInputs(signalSetView.getPlayerValue() || [])
+        circuitController.setInputs(signalSetView.getPlayerValue() || [], false)
 
         checkScroll()
         signalSvg.setOffset([0, 0])
@@ -137,7 +137,7 @@
         dispatchSignalEvent("step")   
         if (update) {
             //send input channels to circuit inputs
-            circuitController.setInputs(currentValue)
+            circuitController.setInputs(currentValue, false)
             dispatchSignalEvent("update")
         }
         if (done) {

@@ -299,6 +299,9 @@ export type SignalPointResult<T> = {
 }
 
 export class ConnectionValueSignalSet extends SignalSet<ConnectionValue> {
+
+    solver:GateTypeController | undefined = undefined
+
     constructor(
         block:Array<Signal<ConnectionValue>> = [],
         length:number = 0,
@@ -306,6 +309,8 @@ export class ConnectionValueSignalSet extends SignalSet<ConnectionValue> {
         inputBlockRelative:boolean = true
     ) {
         super(block,length,solver.model.sizeIn,inputBlockRelative)
+
+        this.solver = solver
 
         const gate = createGate(solver)
         this.inputs = solver.model.sizeIn

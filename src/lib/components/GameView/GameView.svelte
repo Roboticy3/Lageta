@@ -34,7 +34,7 @@
         instructionsFlex:3
     }
 
-    export let circuitController = new CircuitController(gameParams.grid, onComplete)
+    export let circuitController = new CircuitController(gameParams.grid, onComplete, gameParams.completeCondition?.solver)
 
     /**
      * Passing an existing editor should induce GameView to "steal" the editor

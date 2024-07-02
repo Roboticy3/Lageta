@@ -54,16 +54,12 @@
      */
     function onChangeExternal(id) {
         if (id === from[0]) {
-            const value = gridController.getGateOutputs(from[0])?.override[from[1]]
-            if (value) {
-                checked = true
-            } else {
-                checked = false
-            }
+            checked = gridController.getGateOutputs(from[0])?.override[from[1]] || false
         }
     }
 
     function onChange() {
+
         if (from === null) {
             return
         }

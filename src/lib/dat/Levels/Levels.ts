@@ -457,7 +457,7 @@ export const EncoderLevel = {
             ],
             size: [20, 11]
         },
-        DecoderLevelSignal.flipInputsOutputs(),
+        DecoderLevelSignal.flipInputsOutputs() as ConnectionValueSignalSet,
         [
             getGateType(Encoder4t2).name,
             DecoderLevel.params.name
