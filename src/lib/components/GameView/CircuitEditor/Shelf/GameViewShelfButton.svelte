@@ -93,6 +93,7 @@
         display: block;
         align-self: center;
         height:100%;
+        min-width:3vw;
     }
 
     .shelf-button:hover {

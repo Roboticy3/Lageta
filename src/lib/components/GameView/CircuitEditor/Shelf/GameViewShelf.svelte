@@ -9,7 +9,10 @@
     import { onMount } from "svelte";
     import GameViewShelfFolder from "./GameViewShelfFolder.svelte";
 
-    export let maxSizeState
+    /**
+     * @type {any}
+     */
+    export let maxSizeState = null
 
     /**
      * @type {(string | ShelfTreeNode)[]}
@@ -29,7 +32,7 @@
 
 <div 
     class="shelf" 
-    style="max-height:{maxSizeState.shelfMaxHeight};" 
+    style="{maxSizeState?.shelfMaxHeight ? `max-height:${maxSizeState.shelfMaxHeight};`:''}" 
     title="Shelf"
 >
     {#each items as item}
@@ -49,7 +52,6 @@
                     circuitDraggable={circuitDraggable}
                     editorEventTarget={editorEventTarget}
                     depth={depth + 1}
-                    maxSizeState={maxSizeState}
                 />
             </div>
         {/if}
@@ -77,5 +79,8 @@
         flex-direction: row;
 
         transition:max-height 3s;
+
+        height:100%;
+        width:100%;
     }
 </style>

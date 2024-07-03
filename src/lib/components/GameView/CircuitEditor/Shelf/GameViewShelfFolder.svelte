@@ -18,8 +18,6 @@
      */
     export let editorEventTarget
 
-    export let maxSizeState
-
     export let depth
 
     export let name
@@ -35,7 +33,6 @@
                 items={items}
                 circuitDraggable={circuitDraggable}
                 editorEventTarget={editorEventTarget}
-                maxSizeState={maxSizeState}
                 depth={depth}
             />
         </div>
@@ -60,11 +57,9 @@
         display:none;
         position:absolute;
         background:var(--main-bg-color);
-        transform-origin: 0% 0%;
-        rotate:90deg;
-        translate:25% 0%;
-        width:25vh;
-        padding:20%;
+        width:fit-content;
+        height:10vh;
+        top:100%;
     }
     
     .dropdown-button {
