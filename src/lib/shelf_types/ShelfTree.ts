@@ -62,7 +62,6 @@ export function filterShelfTreeWithUnlocksStep(unlocks:Map<string, boolean>, tre
             if (unlocks.has(item)) {
                 //if so, mark the gate and remove the unlock
                 marks[i] = true
-                unlocks.set(item, true)
             }
         }
         //if another node is there, search it recursively
@@ -82,6 +81,11 @@ export function filterShelfTreeWithUnlocksStep(unlocks:Map<string, boolean>, tre
     //if the minimum capacity of this node is not satisfied, return undefined to indicate that this node should be removed
     if (children.length < minNodeCapacity) {
         return undefined
+    }
+
+    //only if the last check passes are children marked as explored unlocks
+    for (const item of children) {
+        if (typeof item === "string") unlocks.set(item, true)
     }
 
     //if this is the last recursion, add all the gates that haven't been explored yet to the top level
