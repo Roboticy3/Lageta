@@ -2,13 +2,14 @@
 <script>
     import { GameViewCircuitPanelEventTarget } from "$lib/circuit_types/GameViewCircuitPanelEvent";
     import { GateTypeController } from "$lib/circuit_types/GateType";
+    import { ShelfTreeNode } from "$lib/shelf_types/ShelfTree";
     import GameViewShelf from "./GameViewShelf.svelte";
 
 
     /**
-     * @type {GateTypeController[]}
+     * @type {(string | ShelfTreeNode)[]}
      */
-    export let gateTypes
+    export let items
 
     export let circuitDraggable
 
@@ -31,7 +32,7 @@
     {#if depth < 5}
         <div class="dropdown-content">
             <GameViewShelf 
-                gateTypes={gateTypes}
+                items={items}
                 circuitDraggable={circuitDraggable}
                 editorEventTarget={editorEventTarget}
                 maxSizeState={maxSizeState}

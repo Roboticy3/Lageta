@@ -8,6 +8,7 @@
     import { GateTypeController } from "$lib/circuit_types/GateType";
     import { GameViewCircuitPanelEventTarget } from "$lib/circuit_types/GameViewCircuitPanelEvent";
     import GameViewShelf from "./Shelf/GameViewShelf.svelte";
+    import { GameViewShelfTree, ShelfTreeNode } from "$lib/shelf_types/ShelfTree";
 
     /**
      * @type {CircuitController | null}
@@ -43,9 +44,9 @@
     export let editorEventTarget
 
     /**
-     * @type {GateTypeController[]}
+     * @type {ShelfTreeNode}
      */
-    export let shelf = []
+    export let shelf = GameViewShelfTree
 
     onMount(async () => {
         if (!circuitController) {
@@ -166,7 +167,7 @@
 
         <GameViewShelf
             bind:maxSizeState={maxSizeState}
-            gateTypes={shelf}
+            items={shelf.children}
             circuitDraggable={circuitDraggable}
             editorEventTarget={editorEventTarget}
         />

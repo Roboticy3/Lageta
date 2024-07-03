@@ -13,6 +13,8 @@
     import { getGateType, getGateTypeNoRegister } from "$lib/dat/GateTypes/GateTypes";
     import { getLevelParams } from "$lib/dat/Levels/Levels";
     import SignalViewer from "./Signal/SignalViewer.svelte";
+    import { filterShelfTreeWithUnlocks, GameViewShelfTree, ShelfTreeNode } from "$lib/shelf_types/ShelfTree";
+
 
     /**
      * @type {import("$lib/level_types/GameViewParameters").GameViewParameters}
@@ -52,6 +54,17 @@
         new CircuitSignalSetView(gameParams.completeCondition) : undefined
 
     let progressStorage = new ProgressStorage()
+    let shelf = GameViewShelfTree
+    $: {
+        if (progressStorage.gateNames().length < 10) {
+            shelf = new ShelfTreeNode(
+                "Shelf", progressStorage.gateNames()
+            )
+        }
+        else {
+            shelf = filterShelfTreeWithUnlocks(new Set(progressStorage.gateNames()), GameViewShelfTree)
+        }
+    }
 
     /**
      * @type {CircuitSignalSetViewEventTarget | null}
@@ -150,7 +163,7 @@
                     rendererParams={rendererParams}
                     maxSizeState={maxSizeState}
                     editorEventTarget={new GameViewCircuitPanelEventTarget()}
-                    shelf={progressStorage.gates()}
+                    shelf={shelf}
                 />
             {/if}
         </div>

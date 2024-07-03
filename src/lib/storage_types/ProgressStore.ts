@@ -74,6 +74,10 @@ export class ProgressStorage {
             })
     }
 
+    gateNames() {
+        return this.progressStorage.gates
+    }
+
     levels() {
         return this.progressStorage.levels.map(
             (v, _i, _a) => {

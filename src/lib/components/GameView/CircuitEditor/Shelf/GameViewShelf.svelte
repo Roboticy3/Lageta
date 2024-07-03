@@ -4,14 +4,17 @@
     import { GameViewCircuitPanelEventTarget } from "$lib/circuit_types/GameViewCircuitPanelEvent";
     import { GateTypeController } from "$lib/circuit_types/GateType";
     import GameViewShelfButton from "$lib/components/GameView/CircuitEditor/Shelf/GameViewShelfButton.svelte";
+    import { Buf, getGateType, getGateTypeParams } from "$lib/dat/GateTypes/GateTypes";
+    import { ShelfTreeNode } from "$lib/shelf_types/ShelfTree";
+    import { onMount } from "svelte";
     import GameViewShelfFolder from "./GameViewShelfFolder.svelte";
 
     export let maxSizeState
 
     /**
-     * @type {GateTypeController[]}
+     * @type {(string | ShelfTreeNode)[]}
      */
-    export let gateTypes
+    export let items
 
     export let circuitDraggable
 
@@ -29,27 +32,30 @@
     style="max-height:{maxSizeState.shelfMaxHeight};" 
     title="Shelf"
 >
-    {#each gateTypes as gateTypeController}
-        <div class="shelf-button-container">
-            <GameViewShelfButton 
-                circuitDraggable={circuitDraggable} 
-                gateType={gateTypeController}
-                editorEventTarget={editorEventTarget}
-            />
-        </div>
+    {#each items as item}
+        {#if typeof item === "string"}
+            <div class="shelf-button-container">
+                <GameViewShelfButton 
+                    circuitDraggable={circuitDraggable} 
+                    gateType={getGateType(getGateTypeParams(item) || Buf)}
+                    editorEventTarget={editorEventTarget}
+                />
+            </div>
+        {:else}
+            <div class="shelf-button-container">
+                <GameViewShelfFolder
+                    items={item.children}
+                    name={item.name}
+                    circuitDraggable={circuitDraggable}
+                    editorEventTarget={editorEventTarget}
+                    depth={depth + 1}
+                    maxSizeState={maxSizeState}
+                />
+            </div>
+        {/if}
+        
         
     {/each}
-    
-    <div class="shelf-button-container">
-        <GameViewShelfFolder 
-            gateTypes={gateTypes.slice(0, 4)}
-            circuitDraggable={circuitDraggable}
-            editorEventTarget={editorEventTarget}
-            maxSizeState={maxSizeState}
-            depth={depth+1}
-            name={"Simple"}
-        />
-    </div>
     
 </div>
 
