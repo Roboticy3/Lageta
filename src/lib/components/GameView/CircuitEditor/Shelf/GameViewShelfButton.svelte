@@ -94,6 +94,7 @@
         align-self: center;
         height:100%;
         min-width:3vw;
+        max-width:5vw;
     }
 
     .shelf-button:hover {

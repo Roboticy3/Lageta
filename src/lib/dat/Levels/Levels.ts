@@ -850,6 +850,7 @@ export const Tutorial = {
         [
             getGateType(Or).name,
             getGateType(And).name,
+            getGateType(Buf).name,
             AndLevel.params.name,
             OrLevel.params.name,
         ]
