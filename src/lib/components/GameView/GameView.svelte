@@ -62,7 +62,7 @@
             )
         }
         else {
-            shelf = filterShelfTreeWithUnlocks(new Set(progressStorage.gateNames()), GameViewShelfTree)
+            shelf = filterShelfTreeWithUnlocks(progressStorage.gateNames(), GameViewShelfTree)
         }
     }
 

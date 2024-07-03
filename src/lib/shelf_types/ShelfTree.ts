@@ -16,16 +16,17 @@ export class ShelfTreeNode {
 export const GameViewShelfTree = new ShelfTreeNode(
     "Shelf",
     [
+        "Buf", "Not", 
         {
-            name:"Simple Gates",
+            name:"2-Input",
             children:[
-                "Buf", "Not", "And", "Or", "Nand", "Nor", "Xor", "Xand"
+                "And", "Or", "Nand", "Nor", "Xor", "Xand"
             ]
         },
         {
-            name:"Large Simple Gates",
+            name:"3-Input",
             children:[
-                "3-Input Or","3-Input And"
+                "3-Input Or","3-Input And","FullAdder"
             ]
         },
         {
@@ -37,9 +38,19 @@ export const GameViewShelfTree = new ShelfTreeNode(
     ]
 )
 
-export function filterShelfTreeWithUnlocks(unlocks:Set<string>, tree:ShelfTreeNode, depth=1) {
+export function filterShelfTreeWithUnlocks(unlocks:string[], tree:ShelfTreeNode) {
 
-    console.log("trimming tree ", tree, " with unlocks ", unlocks)
+    const initialUnlocks = new Map(unlocks.map((v) => [v, false]))
+    const result = filterShelfTreeWithUnlocksStep(initialUnlocks, tree, 1)
+    if (result) return result
+
+    //if the final recursion returns undefined, simply convert the unlocks into a one-layer "tree"
+    return new ShelfTreeNode(
+        tree.name, unlocks
+    )
+}
+
+export function filterShelfTreeWithUnlocksStep(unlocks:Map<string, boolean>, tree:ShelfTreeNode, depth:number, minNodeCapacity=4) {
 
     //iterate through this layer of the tree
     let children = Array.from(tree.children)
@@ -51,21 +62,33 @@ export function filterShelfTreeWithUnlocks(unlocks:Set<string>, tree:ShelfTreeNo
             if (unlocks.has(item)) {
                 //if so, mark the gate and remove the unlock
                 marks[i] = true
-                unlocks.delete(item)
+                unlocks.set(item, true)
             }
         }
         //if another node is there, search it recursively
         else if (typeof item !== "string") {
-            children[i] = filterShelfTreeWithUnlocks(unlocks, item, depth + 1)
-            marks[i] = true
+            const result = filterShelfTreeWithUnlocksStep(unlocks, item, depth + 1, minNodeCapacity)
+            //if the recursion returns undefined, this child will not be marked and removed later
+            if (result) {
+                children[i] = result
+                marks[i] = true
+            }
         }
     }
 
-    //remove the marked gates from this node
+    //remove the unmarked gates from this node
     children = children.filter((_v, i) => marks[i])
-    if (depth === 1) {
-        children.push(...unlocks.values())
+
+    //if the minimum capacity of this node is not satisfied, return undefined to indicate that this node should be removed
+    if (children.length < minNodeCapacity) {
+        return undefined
     }
+
+    //if this is the last recursion, add all the gates that haven't been explored yet to the top level
+    if (depth === 1) for (const [k, v] of unlocks) {
+        if (!v) children.push(k)
+    }
+
     const newTree = new ShelfTreeNode(
         tree.name,
         children
@@ -75,4 +98,3 @@ export function filterShelfTreeWithUnlocks(unlocks:Set<string>, tree:ShelfTreeNo
 
     return newTree
 }
-
