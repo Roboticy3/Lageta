@@ -41,6 +41,7 @@
         gateTypes={gateTypes.slice(0, 4)}
         circuitDraggable={circuitDraggable}
         editorEventTarget={editorEventTarget}
+        maxSizeState={maxSizeState}
         depth={depth+1}
         name={"Simple"}
     />
