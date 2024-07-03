@@ -30,25 +30,38 @@
     title="Shelf"
 >
     {#each gateTypes as gateTypeController}
-        <GameViewShelfButton 
-            circuitDraggable={circuitDraggable} 
-            gateType={gateTypeController}
-            editorEventTarget={editorEventTarget}
-        />
+        <div class="shelf-button-container">
+            <GameViewShelfButton 
+                circuitDraggable={circuitDraggable} 
+                gateType={gateTypeController}
+                editorEventTarget={editorEventTarget}
+            />
+        </div>
+        
     {/each}
-
-    <GameViewShelfFolder 
-        gateTypes={gateTypes.slice(0, 4)}
-        circuitDraggable={circuitDraggable}
-        editorEventTarget={editorEventTarget}
-        maxSizeState={maxSizeState}
-        depth={depth+1}
-        name={"Simple"}
-    />
+    
+    <div class="shelf-button-container">
+        <GameViewShelfFolder 
+            gateTypes={gateTypes.slice(0, 4)}
+            circuitDraggable={circuitDraggable}
+            editorEventTarget={editorEventTarget}
+            maxSizeState={maxSizeState}
+            depth={depth+1}
+            name={"Simple"}
+        />
+    </div>
+    
 </div>
 
 <style>
+    .shelf-button-container {
+        margin-left:3%;
+        height:80%;
+    }
+
     .shelf {
+
+        position:relative;
 
         flex:1;
 

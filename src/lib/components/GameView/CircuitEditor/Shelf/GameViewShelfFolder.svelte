@@ -44,6 +44,11 @@
 <style>
     .dropdown {
         position:relative;
+        height:100%;
+    }
+
+    .dropdown-button {
+        overflow: hidden;
     }
 
     .dropdown:hover > .dropdown-content {
