@@ -1,6 +1,7 @@
 <script>
     import { getToolParams } from "$lib/dat/Tools/Tools";
     import { onMount } from "svelte";
+    import TruthTableTutorial from "./TruthTableTutorial.svelte";
 
     /**
      * @type {string[]}
@@ -64,7 +65,9 @@
     </div>
 {:else}
 <div class="tool-container">
-    <p>amogus</p>
+    {#if currentTool === "TruthTable"}
+        <TruthTableTutorial />
+    {/if}
     <button on:click={onNext}>Next</button>
 </div>
 {/if}

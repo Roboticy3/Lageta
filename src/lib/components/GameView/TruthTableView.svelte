@@ -11,6 +11,8 @@
      */
     export let customLabels = null
 
+    export let verticalSeparators = [truthTable.sizeIn]
+
     /**
      * @param {boolean} value
      */
@@ -26,6 +28,14 @@
         }
         return color
     }
+
+    /**
+     * @param {number} row
+     */
+    function getBackgroundColorOfRow(row) {
+        const even = (row % 2) === 0
+        return even ? "var(--main-bg-color)" : "var(--secondary-bg-color)"
+    }
 </script>
 
 <div 
@@ -40,10 +50,16 @@
         <div style="grid-column:{i + 1}; grid-row:1;">{columnLabel}</div>
     {/each}
 
+    <div class="title-bar" style="grid-column:1 / {truthTable.getWidth() + 1}; grid-row:1;"></div>
+
     {#each truthTable.matrix as row, i}
         {#each row as v, j}
-            <div style="grid-column:{j + 1}; grid-row:{i + 2};">{@html booleanToLabel(v)}</div>
+            <div style="grid-column:{j + 1}; grid-row:{i + 2}; background-color:{getBackgroundColorOfRow(i)}">{@html booleanToLabel(v)}</div>
         {/each}
+    {/each}
+
+    {#each verticalSeparators as verticalSeparator} 
+        <div class="column-bar" style="grid-column: {verticalSeparator + 1}; grid-row: 1 / {truthTable.getHeight() + 2};"></div>
     {/each}
 
 </div>
@@ -54,5 +70,13 @@
         text-align: center;
 
         border: 4px ridge black;
+    }
+
+    .title-bar {
+        border-bottom: 2px solid black;
+    }
+
+    .column-bar {
+        border-left: 2px solid black;
     }
 </style>

@@ -29,7 +29,7 @@
         font-size: 100%;
         animation-name: dialog;
         animation-duration: var(--animation-speed);
-        overflow-y: hidden;
+        overflow-y: scroll;
         border:4px ridge black;
     }
 

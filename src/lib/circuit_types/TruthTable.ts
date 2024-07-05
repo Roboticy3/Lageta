@@ -10,6 +10,9 @@ export class TruthTable {
 
     readonly columnLabels:string[]
 
+    readonly sizeIn:number
+    readonly sizeOut:number
+
     constructor(
         params:TruthTableParameters
     ) {
@@ -18,10 +21,14 @@ export class TruthTable {
         if (params instanceof GateTypeController) {
             this.matrix = TruthTable.gateTypeToMatrix(params.model)
             this.columnLabels = params.view.inputLabels.concat(params.view.outputLabels)
+            this.sizeIn = params.model.sizeIn
+            this.sizeOut = params.model.sizeOut
         }
         else {
             this.matrix = params.matrix || []
             this.columnLabels = params.columnLabels || []
+            this.sizeOut = params.sizeOut || 0
+            this.sizeIn = params.sizeIn || (this.columnLabels.length - this.sizeOut)
         }
     }
 
