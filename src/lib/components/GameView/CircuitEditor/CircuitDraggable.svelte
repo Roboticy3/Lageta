@@ -4,8 +4,10 @@
 import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControllerQueryResult";
     import { onMount } from 'svelte';
     import { GateType, GateTypeController } from '$lib/circuit_types/GateType';
-    import { getGateType, wrapGateTypeViewInSvgHeader } from '$lib/dat/GateTypes/GateTypes';
+    import { Buf, getGateType, getGateTypeParams, wrapGateTypeViewInSvgHeader } from '$lib/dat/GateTypes/GateTypes';
     import { GameViewCircuitPanelEventTarget } from "$lib/circuit_types/GameViewCircuitPanelEvent";
+    import TruthTableView from "../TruthTableView.svelte";
+    import { TruthTable } from "$lib/circuit_types/TruthTable";
 
     let contents = ""
 
@@ -41,14 +43,22 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
             return
         }
         contents = ""
+        hoverGateType = null
     }
 
     /**
      * @param {string} name
      */
-     export function setContentsToName(name) {
+    export function setContentsToName(name) {
         contents = `<div style="background:white; width:fit-content;"><p>${name || "?"}</p></div>`
+        const gType = getGateType(getGateTypeParams(name) || Buf)
+        hoverGateType = gType
     }
+
+    /**
+     * @type {GateTypeController | null}
+     */
+    let hoverGateType = null
 
     let posX = 0
     let posY = 0
@@ -90,14 +100,16 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
 
 <div class="contents" style="top:{posY}px; left:{posX}px;">
     {@html contents}
-    
+    {#if hoverGateType && hoverGateType.view.sizeIn < 4}
+        <TruthTableView truthTable={new TruthTable(hoverGateType)}/>
+    {/if}
 </div>
 
 <style>
     .contents {
         pointer-events: none;
         position: absolute;
-        width: 30px;
         display:flex;
+        flex-direction: column;
     }
 </style>

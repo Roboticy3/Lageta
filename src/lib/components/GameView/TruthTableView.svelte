@@ -68,6 +68,7 @@
     .truth-table {
         display:grid;
         text-align: center;
+        background-color: var(--main-bg-color);
 
         border: 4px ridge black;
     }

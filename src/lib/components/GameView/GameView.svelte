@@ -177,7 +177,10 @@
         </div>
         <div class="instructions {slidinParams ? 'slidein':''}" title="Instructions" style="flex:{maxSizeState.instructionsFlex};">
             {@html gameParams.directions}
-            {#if progressStorage?.findTool("TruthTable") !== -1 && gameParams.completeCondition?.solver?.variant === "Gate"}
+            {#if progressStorage?.findTool("TruthTable") !== -1 && 
+                gameParams.completeCondition?.solver?.variant === "Gate" &&
+                gameParams.completeCondition?.solver.view.sizeIn < 4
+            }
                 <TruthTableView 
                     truthTable={(new TruthTable(gameParams.completeCondition.solver))}
                     customLabels={circuitController.getInputLabels().concat(circuitController.getOutputLabels())}
