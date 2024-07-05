@@ -17,7 +17,7 @@
     /**
      * @type {(string | ShelfTreeNode)[]}
      */
-    export let items
+    export let items = []
 
     export let circuitDraggable
 
