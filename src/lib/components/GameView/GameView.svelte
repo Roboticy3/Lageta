@@ -220,7 +220,7 @@
 </div>
 
 <GameViewDialog bind:this={completionPopup}>
-    <CompletionDisplay newGates={gateRewards} newLevels={levelRewards}/>
+    <CompletionDisplay newGates={gateRewards} newLevels={levelRewards} newTools={toolRewards}/>
 </GameViewDialog>
 
 <style>
