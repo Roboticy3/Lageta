@@ -36,15 +36,15 @@
     "
 >
 
-{#each customLabels || truthTable.columnLabels as columnLabel, i}
-    <div style="grid-column:{i + 1}; grid-row:1;">{columnLabel}</div>
-{/each}
-
-{#each truthTable.matrix as row, i}
-    {#each row as v, j}
-        <div style="grid-column:{j + 1}; grid-row:{i + 2};">{@html booleanToLabel(v)}</div>
+    {#each customLabels || truthTable.columnLabels as columnLabel, i}
+        <div style="grid-column:{i + 1}; grid-row:1;">{columnLabel}</div>
     {/each}
-{/each}
+
+    {#each truthTable.matrix as row, i}
+        {#each row as v, j}
+            <div style="grid-column:{j + 1}; grid-row:{i + 2};">{@html booleanToLabel(v)}</div>
+        {/each}
+    {/each}
 
 </div>
 
@@ -52,5 +52,7 @@
     .truth-table {
         display:grid;
         text-align: center;
+
+        border: 4px ridge black;
     }
 </style>

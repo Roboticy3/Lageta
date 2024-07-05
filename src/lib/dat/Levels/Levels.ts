@@ -174,7 +174,9 @@ export const RandomLevel1 = {
             size: [16, 8]
         },
         countingSignal(getGateType(RandomGate1), 5, 3),
-        []
+        [
+            "TruthTable"
+        ]
     ),
     x:0,y:6,desiredId:14,
     type:RandomGate1,

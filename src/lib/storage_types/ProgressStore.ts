@@ -115,6 +115,16 @@ export class ProgressStorage {
         console.log("Unlocked level ", item)
     }
 
+    findTool(toolName:string) {
+        return this.progressStorage.tools.indexOf(toolName)
+    }
+
+    addTool(item:string) {
+        if (this.findTool(item) === -1)
+            this.progressStorage.tools.push(item)
+        this.commit()
+    }
+
     passTutorial(name=this.getCurrentTutorial()) {
         console.log("passing tutorial", name)
         this.progressStorage.passedTutorials.push(name)
@@ -150,6 +160,7 @@ class ProgressStorageObject {
         "Not"
     ]
     levels:Array<string> = []
+    tools:Array<string> = []
     passedTutorials:Array<string> = []
 
     newLevels:Array<string> = []
@@ -158,6 +169,7 @@ class ProgressStorageObject {
     push(p:ProgressStorageObject) {
         this.gates.push(...p.gates)
         this.levels.push(...p.levels)
+        this.tools.push(...p.tools)
         this.passedTutorials.push(...p.passedTutorials)
 
         this.newLevels = p.newLevels

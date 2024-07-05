@@ -16,6 +16,7 @@
     import { filterShelfTreeWithUnlocks, GameViewShelfTree, ShelfTreeNode } from "$lib/shelf_types/ShelfTree";
     import TruthTableView from "./TruthTableView.svelte";
     import { TruthTable } from "$lib/circuit_types/TruthTable";
+    import { getToolParams } from "$lib/dat/Tools/Tools";
 
 
     /**
@@ -24,6 +25,7 @@
     export let gameParams
     $: gateRewards = gameParams.completeRewards.filter(v => getGateTypeNoRegister({name:v}) !== undefined)
     $: levelRewards = gameParams.completeRewards.filter(v => getLevelParams(v) !== undefined)
+    $: toolRewards = gameParams.completeRewards.filter(v => getToolParams(v) !== undefined)
 
     /**
      * @type {any}
@@ -92,6 +94,7 @@
 
         levelRewards.map(progressStorage.addLevel.bind(progressStorage))
         gateRewards.map(progressStorage.addGate.bind(progressStorage))
+        toolRewards.map(progressStorage.addTool.bind(progressStorage))
         progressStorage.setNewLevels(levelRewards)
         
         completionPopup.show()
@@ -171,7 +174,7 @@
         </div>
         <div class="instructions {slidinParams ? 'slidein':''}" title="Instructions" style="flex:{maxSizeState.instructionsFlex};">
             {@html gameParams.directions}
-            {#if gameParams.completeCondition?.solver?.variant === "Gate"}
+            {#if progressStorage?.findTool("TruthTable") !== -1 && gameParams.completeCondition?.solver?.variant === "Gate"}
                 <TruthTableView 
                     truthTable={(new TruthTable(gameParams.completeCondition.solver))}
                     customLabels={circuitController.getInputLabels().concat(circuitController.getOutputLabels())}
