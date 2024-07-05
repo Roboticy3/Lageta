@@ -57,7 +57,6 @@
         display:none;
         position:absolute;
         background:var(--main-bg-color);
-        width:fit-content;
         height:10vh;
         top:100%;
     }
