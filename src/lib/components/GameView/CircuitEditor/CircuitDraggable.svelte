@@ -51,14 +51,24 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
      */
     export function setContentsToName(name) {
         contents = `<div style="background:white; width:fit-content;"><p>${name || "?"}</p></div>`
-        const gType = getGateType(getGateTypeParams(name) || Buf)
-        hoverGateType = gType
+        const gParams = getGateTypeParams(name)
+        const gType = gParams ? getGateType(gParams) : undefined
+        if (gType &&
+            gType.view.sizeIn < 4 && 
+            gType.view.sizeIn > 0 && 
+            gType.view.sizeOut > 0
+        )
+        {
+            hoverGateType = gType
+        }
+            
     }
 
     /**
      * @type {GateTypeController | null}
      */
     let hoverGateType = null
+    export let showTruthTables = false
 
     let posX = 0
     let posY = 0
@@ -100,7 +110,7 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
 
 <div class="contents" style="top:{posY}px; left:{posX}px;">
     {@html contents}
-    {#if hoverGateType && hoverGateType.view.sizeIn < 4}
+    {#if showTruthTables && hoverGateType}
         <TruthTableView truthTable={new TruthTable(hoverGateType)}/>
     {/if}
 </div>

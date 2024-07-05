@@ -10,7 +10,7 @@
     import { onMount, tick } from "svelte";
     import { CircuitSignalSetViewEventTarget, SignalSetViewEventTarget } from "$lib/signal_types/SignalSetViewEvent";
     import { GameViewCircuitPanelEventTarget } from "$lib/circuit_types/GameViewCircuitPanelEvent";
-    import { getGateTypeNoRegister, FullAdder, getGateType } from "$lib/dat/GateTypes/GateTypes";
+    import { getGateTypeNoRegister, FullAdder, getGateType, getGateTypeParams } from "$lib/dat/GateTypes/GateTypes";
     import { getLevelParams } from "$lib/dat/Levels/Levels";
     import SignalViewer from "./Signal/SignalViewer.svelte";
     import { filterShelfTreeWithUnlocks, GameViewShelfTree, ShelfTreeNode } from "$lib/shelf_types/ShelfTree";
@@ -24,9 +24,10 @@
      * @type {import("$lib/level_types/GameViewParameters").GameViewParameters}
      */
     export let gameParams
-    $: gateRewards = gameParams.completeRewards.filter(v => getGateTypeNoRegister({name:v}) !== undefined)
+    $: gateRewards = gameParams.completeRewards.filter(v => getGateTypeParams(v) !== undefined)
     $: levelRewards = gameParams.completeRewards.filter(v => getLevelParams(v) !== undefined)
     $: toolRewards = gameParams.completeRewards.filter(v => getToolParams(v) !== undefined)
+    console.log("set to unlock", gateRewards, levelRewards, JSON.stringify(toolRewards))
 
     /**
      * @type {any}
@@ -148,6 +149,8 @@
         console.log("size state", JSON.stringify(maxSizeState))
         placeExistingEditor()
 
+        console.log("set to unlock ", gateRewards, levelRewards, toolRewards)
+
         await tick()
         
         setTimeout(slideIn, 200)
@@ -172,6 +175,7 @@
                     maxSizeState={maxSizeState}
                     editorEventTarget={new GameViewCircuitPanelEventTarget()}
                     shelf={shelf}
+                    tools={progressStorage.getTools()}
                 />
             {/if}
         </div>

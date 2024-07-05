@@ -17,16 +17,18 @@
      * @type {string[]}
      */
     export let newTools
+    $: newToolsCopy = Array.from(newTools)
 
     /**
      * @type {string | undefined}
      */
-    let currentTool = newTools.pop()
+    $: currentTool = newToolsCopy.pop()
     onMount(onNext)
     function onNext() {
         while (currentTool !== undefined && getToolParams(currentTool) === undefined) {
-            currentTool = newTools.pop()
+            currentTool = newToolsCopy.pop()
         }
+        currentTool = currentTool
     }
 
 </script>

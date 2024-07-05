@@ -125,6 +125,10 @@ export class ProgressStorage {
         this.commit()
     }
 
+    getTools() {
+        return this.progressStorage.tools
+    }
+
     passTutorial(name=this.getCurrentTutorial()) {
         console.log("passing tutorial", name)
         this.progressStorage.passedTutorials.push(name)

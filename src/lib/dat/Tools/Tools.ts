@@ -5,6 +5,6 @@ export const all_tools = new Map([
     ["Probes", {count:6}]
 ])
 
-export function getToolParams(toolName:string) {
+export function getToolParams(toolName:string): Object | undefined {
     return all_tools.get(toolName)
 }

@@ -48,6 +48,11 @@
      */
     export let shelf = GameViewShelfTree
 
+    /**
+     * @type {string[]}
+     */
+    export let tools = []
+
     onMount(async () => {
         if (!circuitController) {
             circuitController = new CircuitController()
@@ -174,6 +179,7 @@
 
         <CircuitDraggable 
             editorEventTarget={editorEventTarget}
+            showTruthTables={tools.indexOf("TruthTable") !== -1}
             bind:this={circuitDraggable}
         />
     {/if}
