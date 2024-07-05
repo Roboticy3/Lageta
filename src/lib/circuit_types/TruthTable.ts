@@ -4,11 +4,11 @@ import { GateType, GateTypeController } from "./GateType"
  * Represent a truth table in a matrix
  */
 export class TruthTable {
-    params:TruthTableParameters
+    readonly params:TruthTableParameters
 
-    matrix:boolean[][]
+    readonly matrix:boolean[][]
 
-    columnLabels:string[]
+    readonly columnLabels:string[]
 
     constructor(
         params:TruthTableParameters
@@ -39,6 +39,14 @@ export class TruthTable {
             result[r] = rowResult
         }
         return result
+    }
+
+    getWidth() {
+        return this.columnLabels.length
+    }
+
+    getHeight() {
+        return this.matrix.length
     }
 }
 

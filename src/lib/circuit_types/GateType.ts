@@ -4,7 +4,7 @@ import type { ConnectionType } from "./GateGraph";
 
 export type ConnectionValue = boolean | undefined;
 
-export type GateTypeVariant = "Gate" | "Flow"
+export type GateTypeVariant = "Gate" | "Flow" | "Memory"
 
 /**
  * A set of data used both by Gates and view.
@@ -130,6 +130,7 @@ export class GateTypeController {
     readonly view:GateTypeView
 
     readonly name:string
+    readonly variant:GateTypeVariant
 
     constructor(
         params:GateTypeParameters
@@ -138,6 +139,7 @@ export class GateTypeController {
         this.view = new GateTypeView(params);
 
         this.name = params.name || "Buf"
+        this.variant = params.variant || "Gate"
 
         registerGateType(this);
     }

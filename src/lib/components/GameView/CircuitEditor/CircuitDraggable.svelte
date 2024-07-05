@@ -88,12 +88,16 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
     }
 </script>
 
-<div class="contents" style="top:{posY}px; left:{posX}px;">{@html contents}</div>
+<div class="contents" style="top:{posY}px; left:{posX}px;">
+    {@html contents}
+    
+</div>
 
 <style>
     .contents {
         pointer-events: none;
         position: absolute;
         width: 30px;
+        display:flex;
     }
 </style>

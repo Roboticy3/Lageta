@@ -10,10 +10,12 @@
     import { onMount, tick } from "svelte";
     import { CircuitSignalSetViewEventTarget, SignalSetViewEventTarget } from "$lib/signal_types/SignalSetViewEvent";
     import { GameViewCircuitPanelEventTarget } from "$lib/circuit_types/GameViewCircuitPanelEvent";
-    import { getGateType, getGateTypeNoRegister } from "$lib/dat/GateTypes/GateTypes";
+    import { getGateTypeNoRegister, FullAdder, getGateType } from "$lib/dat/GateTypes/GateTypes";
     import { getLevelParams } from "$lib/dat/Levels/Levels";
     import SignalViewer from "./Signal/SignalViewer.svelte";
     import { filterShelfTreeWithUnlocks, GameViewShelfTree, ShelfTreeNode } from "$lib/shelf_types/ShelfTree";
+    import TruthTableView from "./TruthTableView.svelte";
+    import { TruthTable } from "$lib/circuit_types/TruthTable";
 
 
     /**
@@ -169,6 +171,12 @@
         </div>
         <div class="instructions {slidinParams ? 'slidein':''}" title="Instructions" style="flex:{maxSizeState.instructionsFlex};">
             {@html gameParams.directions}
+            {#if gameParams.completeCondition?.solver?.variant === "Gate"}
+                <TruthTableView 
+                    truthTable={(new TruthTable(gameParams.completeCondition.solver))}
+                    customLabels={circuitController.getInputLabels().concat(circuitController.getOutputLabels())}
+                />
+            {/if}
         </div>
     </div>
     {#if signalSetView}
