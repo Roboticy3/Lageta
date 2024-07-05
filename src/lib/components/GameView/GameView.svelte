@@ -5,7 +5,7 @@
     import { CircuitSignalSetView, SignalSetView } from "$lib/signal_types/SignalSetView";
     import { ProgressStorage } from "$lib/storage_types/ProgressStore";
     import SignalShelf from "./Signal/SignalShelf.svelte";
-    import CompletionPopup from "./CompletionPopup.svelte";
+    import CompletionDisplay from "$lib/components/GameView/Dialogs/CompletionDisplay.svelte";
     import CircuitEditorComponent from "./CircuitEditor/CircuitEditorComponent.svelte";
     import { onMount, tick } from "svelte";
     import { CircuitSignalSetViewEventTarget, SignalSetViewEventTarget } from "$lib/signal_types/SignalSetViewEvent";
@@ -17,6 +17,7 @@
     import TruthTableView from "./TruthTableView.svelte";
     import { TruthTable } from "$lib/circuit_types/TruthTable";
     import { getToolParams } from "$lib/dat/Tools/Tools";
+    import GameViewDialog from "$lib/components/GameView/Dialogs/GameViewDialog.svelte";
 
 
     /**
@@ -77,7 +78,7 @@
 
     
     /**
-     * @type {CompletionPopup}
+     * @type {GameViewDialog}
      */
     let completionPopup
 
@@ -95,9 +96,11 @@
         levelRewards.map(progressStorage.addLevel.bind(progressStorage))
         gateRewards.map(progressStorage.addGate.bind(progressStorage))
         toolRewards.map(progressStorage.addTool.bind(progressStorage))
+
         progressStorage.setNewLevels(levelRewards)
-        
+
         completionPopup.show()
+        
     }
 
     function placeExistingEditor() {
@@ -216,7 +219,9 @@
     <slot />
 </div>
 
-<CompletionPopup bind:this={completionPopup} newGates={gateRewards} newLevels={levelRewards}/>
+<GameViewDialog bind:this={completionPopup}>
+    <CompletionDisplay newGates={gateRewards} newLevels={levelRewards}/>
+</GameViewDialog>
 
 <style>
     
