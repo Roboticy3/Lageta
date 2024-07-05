@@ -22,13 +22,15 @@
     /**
      * @type {string | undefined}
      */
-    $: currentTool = newToolsCopy.pop()
+    let currentTool = undefined
     onMount(onNext)
     function onNext() {
+        currentTool = newToolsCopy.pop()
         while (currentTool !== undefined && getToolParams(currentTool) === undefined) {
             currentTool = newToolsCopy.pop()
         }
         currentTool = currentTool
+        console.log("set currentTool to ", currentTool)
     }
 
 </script>
