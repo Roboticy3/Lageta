@@ -54,7 +54,7 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
         const gParams = getGateTypeParams(name)
         const gType = gParams ? getGateType(gParams) : undefined
         if (gType &&
-            gType.view.sizeIn < 4 && 
+            gType.view.sizeIn < 5 && 
             gType.view.sizeIn > 0 && 
             gType.view.sizeOut > 0
         )

@@ -401,6 +401,19 @@ export function Decoder(bits:number, otherParams?: GateTypeParameters) {
 }
 
 export const Decoder2t4 = Decoder(2)
+export const BCDDecoder = Decoder(4, 
+    {name:"BCD Decoder", 
+        gridSize:[3, 8], 
+        outputs: 10, 
+        outputLabels:(new Array(10).fill('').map((_v, i) => `${i}`)),
+        f: (s) => {
+            const idx = decodeInternal(s, 4)
+            let result = new Array(10).fill(false)
+            if (idx < 10) result[idx] = true
+            return {override:result}
+        },
+    }
+)
 
 function encodeInternal(v:number, bits:number) {
     let result = new Array(bits).fill(false)
@@ -436,10 +449,11 @@ export function Encoder(bits:number, otherParams?: GateTypeParameters) {
 export const Encoder4t2 = Encoder(2)
 
 export function NInputAnd(bits:number, otherParams?:GateTypeParameters) {
+    const [gridWidth, gridHeight] = otherParams?.gridSize || [2, Math.ceil(Math.log2(bits)) + 1]
     let params: GateTypeParameters = {
         name: `${bits}-Input And`,
         inputs: bits, outputs: 1,
-        gridSize: [2, bits],
+        gridSize: [gridWidth, gridHeight],
         f: (s) => {
             const o = s.override
             let result:ConnectionValue = true
@@ -454,6 +468,9 @@ export function NInputAnd(bits:number, otherParams?:GateTypeParameters) {
             }
             
             return {override:[result]}
+        },
+        draw: (s) => {
+            return `<g transform="scale(1, ${gridHeight / 2})"><path d="M 2 2 L 10 2 C 20 2 20 18 10 18 L 2 18 Z" style="pointer-events:none;" /></g>`
         }
     }
     if (otherParams) params = combineGateTypeParameters(params, otherParams)
@@ -461,10 +478,11 @@ export function NInputAnd(bits:number, otherParams?:GateTypeParameters) {
 }
 
 export function NInputOr(bits:number, otherParams?:GateTypeParameters) {
+    const [gridWidth, gridHeight] = otherParams?.gridSize || [2, Math.ceil(Math.log2(bits)) + 1]
     let params: GateTypeParameters = {
         name: `${bits}-Input Or`,
         inputs: bits, outputs: 1,
-        gridSize: [2, bits],
+        gridSize: [gridWidth, gridHeight],
         f: (s) => {
             const o = s.override
             let result:ConnectionValue = undefined
@@ -479,6 +497,9 @@ export function NInputOr(bits:number, otherParams?:GateTypeParameters) {
             }
             
             return {override:[result]}
+        },
+        draw: (s) => {
+            return `<g transform="scale(1, ${gridHeight / 2})"><path d="M 10 2 C 20 2 20 18 10 18 L 2 18 C 5 18 5 2 2 2 Z" style="pointer-events:none;" /></g>`
         }
     }
     if (otherParams) params = combineGateTypeParameters(params, otherParams)
@@ -486,7 +507,9 @@ export function NInputOr(bits:number, otherParams?:GateTypeParameters) {
 }
 
 export const And3 = NInputAnd(3)
+export const And4 = NInputAnd(4)
 export const Or3 = NInputOr(3)
+export const Or4 = NInputOr(4)
 
 export function NBitAdder(bits:number, otherParams?:GateTypeParameters) {
     let params: GateTypeParameters = {
@@ -530,11 +553,14 @@ const all_params = new Map([
     [Or.name, Or],
     [And3.name, And3],
     [Or3.name, Or3],
+    [And4.name, And4],
+    [Or4.name, Or4],
     [Nand.name, Nand],
     [Nor.name, Nor],
     [Xor.name, Xor],
     [Xand.name, Xand],
     [Decoder2t4.name, Decoder2t4],
+    [BCDDecoder.name, BCDDecoder],
     [Encoder4t2.name, Encoder4t2],
     [HalfAdder.name, HalfAdder],
     [FullAdder.name, FullAdder]

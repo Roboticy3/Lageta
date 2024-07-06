@@ -183,7 +183,7 @@
             {@html gameParams.directions}
             {#if progressStorage?.findTool("TruthTable") !== -1 && 
                 gameParams.completeCondition?.solver?.variant === "Gate" &&
-                gameParams.completeCondition?.solver.view.sizeIn < 4
+                gameParams.completeCondition?.solver.view.sizeIn < 5
             }
                 <TruthTableView 
                     truthTable={(new TruthTable(gameParams.completeCondition.solver))}

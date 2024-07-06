@@ -1,6 +1,6 @@
 import { Connection } from "$lib/circuit_types/GateGraph";
 import { GateType, GateTypeController, type ConnectionValue } from "$lib/circuit_types/GateType";
-import { Add2, Add4, AdderNoCarry1, And, And3, Buf, Decoder2t4, Encoder4t2, FullAdder, HalfAdder, Input, InputDecodePrebaked, InputLabelledPrebaked, InputVariable, NBitAdder, Nand, Nor, Not, Or, Or3, Output, OutputDecodePrebaked, OutputLabelledPrebaked, OutputVariable, RandomGate1, SevenSegmentOutput, Xand, Xor, combineGateTypeParameters, drawGateTypeDecode, exampleInputVariable, exampleOutputVariable, getGateType, type GateTypeParameters } from "$lib/dat/GateTypes/GateTypes";
+import { Add2, Add4, AdderNoCarry1, And, And3, And4, BCDDecoder, Buf, Decoder2t4, Encoder4t2, FullAdder, HalfAdder, Input, InputDecodePrebaked, InputLabelledPrebaked, InputVariable, NBitAdder, Nand, Nor, Not, Or, Or3, Or4, Output, OutputDecodePrebaked, OutputLabelledPrebaked, OutputVariable, RandomGate1, SevenSegmentOutput, Xand, Xor, combineGateTypeParameters, drawGateTypeDecode, exampleInputVariable, exampleOutputVariable, getGateType, type GateTypeParameters } from "$lib/dat/GateTypes/GateTypes";
 import { ConnectionValueSignalSet, Signal, SignalSet, inverter, oscillator, repeater } from "$lib/signal_types/Signal";
 import type { OrganizedCircuitContents, SerializableGate } from "$lib/storage_types/CircuitStorage";
 import { ProgressStorage } from "$lib/storage_types/ProgressStore";
@@ -91,6 +91,43 @@ function countingSignal(solver:GateTypeController, step:number, repeat?:number) 
     console.log("created counting signal ", result)
 
     return result
+}
+
+export const FourBitDecoder = {
+    params:new GameViewParameters(
+        "BCD",
+        `
+        <p>With 4 bits, the input can represent any number from 0 through 15.</p>
+        <p>However, this output only has pins for 0 through 9.</p>
+        <p>That's because this particular input represents a "Binary Coded Decimal," or BCD.</p>
+        <p>BCD's are the same as any other binary number, except any value above 9 is discarded.</p>
+        <p>If the input has a value of 10 through 15, you must not setting any of the outputs to <span style="color:var(--connection-color-on);">high</span>.</p>
+        <p>Lageta largely automates displaying numbers for your circuits. But in real life, displaying numbers from circuits takes a lot of work. Understanding BCD's is the first step to learning how to make your own displays.</p>
+        `,
+        {
+            gateTypes:[
+                getGateType(InputVariable(4, "X")),
+                getGateType(Output(10,
+                    { name:"Output10Decoded", inputLabels: (new Array(10).fill('').map((_v, i) => `${i}`)), gridSize: [2, 10]}
+                ))
+            ],
+            gates: [
+                {x:0, y:4, type:"InputVariableX4", id:0} as SerializableGate,
+                {x:20, y:1, type:"Output10Decoded", id:1} as SerializableGate,
+            ],
+            size: [22, 12]
+        },
+        countingSignal(getGateType(BCDDecoder), 5, 2),
+        [
+
+        ],
+        false,
+        {
+            inputCheckboxes:false
+        }
+    ),
+    type:getGateType(OutputVariable(4, 'X')),
+    x:15, y:7, desiredId:16
 }
 
 export const FourBitAdder = {
@@ -448,7 +485,7 @@ export const DecoderLevel = {
             <div style="grid-column: 2; grid-row: 3;">2 * X1 + </div><div style="grid-column: 3; grid-row: 3;">X0 = </div>
             <div style="grid-column: 4; grid-row: 3; border: dashed var(--verification-color) 4px; border-radius: 25%; color: var(--verification-color);">?</div>
         </div>
-        <p>It turns out that a decoder <span style="color:var(--circuit-color);">circuit</span> is significantly more complicated than the <span style="color:var(--circuit-color);">circuit</span> circuit.</p>
+        <p>It turns out that a decoder <span style="color:var(--circuit-color);">circuit</span> is significantly more complicated than the encoder <span style="color:var(--circuit-color);">circuit</span>.</p>
         `,
         {
             gateTypes: [
@@ -467,6 +504,7 @@ export const DecoderLevel = {
         [
             getGateType(Decoder2t4).name,
             FullAdderLevel.params.name,
+            FourBitDecoder.params.name,
         ],
         false,
         {
@@ -660,7 +698,8 @@ export const And3Level = {
             getGateType(And3)
         ),
         [
-            getGateType(And3).name
+            getGateType(And3).name,
+            getGateType(And4).name
         ]
     ),
     x:8, y:2, desiredId:4,
@@ -683,6 +722,7 @@ export const Or3Level = {
         ),
         [
             getGateType(Or3).name,
+            getGateType(Or4).name,
             XorLevel.params.name
         ]
     ),
@@ -878,7 +918,8 @@ const all_params = new Map<string, LevelParameters>([
     [CarryLevel.params.name, CarryLevel],
     [FullAdderLevel.params.name, FullAdderLevel],
     [RandomLevel1.params.name, RandomLevel1],
-    [FourBitAdder.params.name, FourBitAdder]
+    [FourBitAdder.params.name, FourBitAdder],
+    [FourBitDecoder.params.name, FourBitDecoder]
 ])
 
 export function getLevel(name:string) {
