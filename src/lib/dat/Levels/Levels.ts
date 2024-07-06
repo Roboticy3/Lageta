@@ -118,17 +118,18 @@ export const SevenSegmentLevel = {
             ],
             gates: [
                 {x:0, y:4, type:"InputVariableX4", id: 0} as SerializableGate,
-                {x:21, y:3, type:"7-Segment Output", id:1} as SerializableGate
+                {x:21, y:3, type:"7-Segment Display", id:1} as SerializableGate
             ],
             size: [26, 12]
         },
         countingSignal(getGateType(SevenSegmentDecoder), 3, 2, 10),
         [
-            SevenSegmentDecoder.name
+            SevenSegmentDecoder.name,
         ],
         false,
         {
-            inputCheckboxes:false
+            inputCheckboxes:false,
+            useSolverForTruthTableLabels:true,
         }
     ),
     type:getGateType(SevenSegmentDecoder),
@@ -203,9 +204,10 @@ export const FourBitAdder = {
             ],
             size:[22, 11]
         },
-        countingSignal(getGateType(Add4), 3),
+        countingSignal(getGateType(Add4), 1),
         [
-            SevenSegmentLevel.params.name
+            SevenSegmentLevel.params.name,
+            SevenSegmentOutput.name
         ],
         false,
         {

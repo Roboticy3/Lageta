@@ -27,12 +27,16 @@
     $: gateRewards = gameParams.completeRewards.filter(v => getGateTypeParams(v) !== undefined)
     $: levelRewards = gameParams.completeRewards.filter(v => getLevelParams(v) !== undefined)
     $: toolRewards = gameParams.completeRewards.filter(v => getToolParams(v) !== undefined)
+    $: solver = gameParams.completeCondition?.solver
     console.log("set to unlock", gateRewards, levelRewards, JSON.stringify(toolRewards))
 
     /**
      * @type {any}
      */
     export let editorParams = gameParams.editorParams
+    /**
+     * @type {any}
+     */
     export let rendererParams = gameParams.rendererParams
 
     const slidinParams = {
@@ -182,12 +186,17 @@
         <div class="instructions {slidinParams ? 'slidein':''}" title="Instructions" style="flex:{maxSizeState.instructionsFlex};">
             {@html gameParams.directions}
             {#if progressStorage?.findTool("TruthTable") !== -1 && 
-                gameParams.completeCondition?.solver?.variant === "Gate" &&
-                gameParams.completeCondition?.solver.view.sizeIn < 5
+                solver?.variant === "Gate" &&
+                solver.view.sizeIn < 5
             }
                 <TruthTableView 
-                    truthTable={(new TruthTable(gameParams.completeCondition.solver))}
-                    customLabels={circuitController.getInputLabels().concat(circuitController.getOutputLabels())}
+                    truthTable={(new TruthTable(solver))}
+                    customLabels={
+                        rendererParams.useSolverForTruthTableLabels ? 
+                            circuitController.getInputLabels().concat(circuitController.getOutputLabels())
+                            :
+                            solver.view.inputLabels.concat(solver.view.outputLabels)
+                    }
                 />
             {/if}
         </div>

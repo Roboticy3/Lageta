@@ -32,13 +32,19 @@ export const GameViewShelfTree = new ShelfTreeNode(
         {
             name:"Nibbles",
             children:[
-                "4-Input Or","4-Input And","4-2 Encoder"
+                "4-Input Or","4-Input And","4-2 Encoder","Binary Coded Decimal to 7-Segment Decoder"
             ]
         },
         {
             name:"Arithmetic",
             children:[
                 "4-2 Encoder", "2-4 Decoder", "HalfAdder", "FullAdder"
+            ]
+        },
+        {
+            name:"Displays",
+            children:[
+                "7-Segment Display"
             ]
         }
     ]

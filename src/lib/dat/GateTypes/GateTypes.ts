@@ -74,7 +74,7 @@ export const FullAdder:GateTypeParameters ={
     }}
 }
 
-const LEDSegment = `<path d="M 0 2.5 L 2.5 0 L 17.5 0 L 20 2.5 L 17.5 5 L 2.5 5 Z" style="pointer-events:none;" />`
+const LEDSegmentPath = `M 0.5 2.5 L 2.5 0.5 L 17.5 0.5 L 19.5 2.5 L 17.5 4.5 L 2.5 4.5 Z"`
 const SevenSegmentTransforms = [
     `translate(10 7.5)`,
     `translate(32.5 10) rotate(90)`,
@@ -85,13 +85,16 @@ const SevenSegmentTransforms = [
     `translate(10 27.5)`
 ]
 export const SevenSegmentOutput:GateTypeParameters = {
-    name: "7-Segment Output", inputs:7, outputs:0, gridSize:[5, 6],
+    name: "7-Segment Display", inputs:7, outputs:0, gridSize:[5, 6], 
+    inputLabels: ['Segment A', 'Segment B', 'Segment C', 'Segment D', 'Segment E', 'Segment F', 'Segment G'],
     draw: (s) => {
         let result = ''
         for (let i = 0; i < 7; i++) {
             const value = s.override[i]
+            const fill = value ? `fill="${connectionValueToColor(value)}" fill-opacity="0.8"` : ''
+            const stroke = `stroke="${connectionValueToColor(value)}"`
             const transform = SevenSegmentTransforms[i]
-            result += `<g transform="${transform}">${LEDSegment}</g>\n`
+            result += `<g transform="${transform}"><path d="${LEDSegmentPath}" ${stroke} ${fill} /></g>\n`
         }
         return result
     }
@@ -100,6 +103,7 @@ export const SevenSegmentOutput:GateTypeParameters = {
 
 export const SevenSegmentDecoder:GateTypeParameters = {
     name: "Binary Coded Decimal to 7-Segment Decoder", inputs:4, outputs:7, gridSize:[3, 6],
+    inputLabels:['1', '2', '4', '8'], outputLabels: ['a', 'b', 'c', 'd', 'e', 'f', 'g'],
     f: (s) => {
         const v = decodeInternal(s, 4)
         switch (v) {
@@ -372,6 +376,14 @@ export function OutputVariable(bits:number, variableName:string) {
     )
 }
 
+function connectionValueToColor(v:ConnectionValue) {
+    switch (v) {
+        case true: return `var(--connection-color-on)`
+        case false: return `var(--connection-color-off)`
+        default: return ``
+    }
+}
+
 export function exampleInputVariable(variableName:string) {
     return Input(1, 
         {
@@ -380,7 +392,7 @@ export function exampleInputVariable(variableName:string) {
             gridSize:[2,2], 
             draw:(s) => drawGateTypeDecode(s, 2, 2, 
                 `stroke="none" 
-                fill="${s.override[0] ? 'var(--connection-color-on)':'var(--connection-color-off)'}" 
+                fill="${connectionValueToColor(s.override[0])}" 
                 style="pointer-events:none;"`
             )
         }
