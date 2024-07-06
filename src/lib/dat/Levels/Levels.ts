@@ -134,7 +134,7 @@ export const SevenSegmentLevel = {
         }
     ),
     type:getGateType(SevenSegmentDecoder),
-    x:8, y:5, desiredId:17
+    x:10, y:4, desiredId:17
 }
 
 export const FourBitDecoder = {

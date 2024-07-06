@@ -84,6 +84,9 @@ const SevenSegmentTransforms = [
     `translate(12.5 10) rotate(90)`,
     `translate(10 27.5)`
 ]
+const SevenSegmentNames = [
+    'a', 'b', 'c', 'd', 'e', 'f', 'g'
+]
 export const SevenSegmentOutput:GateTypeParameters = {
     name: "7-Segment Display", inputs:7, outputs:0, gridSize:[5, 6], 
     inputLabels: ['Segment A', 'Segment B', 'Segment C', 'Segment D', 'Segment E', 'Segment F', 'Segment G'],
@@ -91,10 +94,15 @@ export const SevenSegmentOutput:GateTypeParameters = {
         let result = ''
         for (let i = 0; i < 7; i++) {
             const value = s.override[i]
-            const fill = value ? `fill="${connectionValueToColor(value)}" fill-opacity="0.8"` : ''
-            const stroke = `stroke="${connectionValueToColor(value)}"`
+            const color = connectionValueToColor(value)
+            const fill = value ? `fill="${color}" fill-opacity="0.8"` : ''
+            const stroke = `stroke="${color}"`
             const transform = SevenSegmentTransforms[i]
-            result += `<g transform="${transform}"><path d="${LEDSegmentPath}" ${stroke} ${fill} /></g>\n`
+            result += `
+                <g transform="${transform}">
+                    <path d="${LEDSegmentPath}" ${stroke} ${fill} />
+                    <text fill="black" stroke="none" y="3.5" x="8.5" style="pointer-events:none; font-size:4px;" >${SevenSegmentNames[i]}</text>
+                </g>\n`
         }
         return result
     }
