@@ -46,6 +46,12 @@ export const GameViewShelfTree = new ShelfTreeNode(
             children:[
                 "7-Segment Display"
             ]
+        },
+        {
+            name:"Bigger",
+            children:[
+                "3-Input Or","3-Input And","4-Input Or","4-Input And",
+            ]
         }
     ]
 )

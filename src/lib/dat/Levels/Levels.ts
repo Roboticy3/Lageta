@@ -109,6 +109,7 @@ export const SevenSegmentLevel = {
         `
         <p>Each output corresponds to one of the lights in the seven-segment display.</p>
         <p>Given a number in binary, display the appropriate number in the seven segment display.</p>
+        <p>Try to match the signal for each output one-by-one.</p>
         <p>Good luck!</p>
         `,
         {
@@ -117,12 +118,12 @@ export const SevenSegmentLevel = {
                 getGateType(SevenSegmentOutput)
             ],
             gates: [
-                {x:0, y:4, type:"InputVariableX4", id: 0} as SerializableGate,
-                {x:21, y:3, type:"7-Segment Display", id:1} as SerializableGate
+                {x:0, y:6, type:"InputVariableX4", id: 0} as SerializableGate,
+                {x:31, y:5, type:"7-Segment Display", id:1} as SerializableGate
             ],
-            size: [26, 12]
+            size: [36, 16]
         },
-        countingSignal(getGateType(SevenSegmentDecoder), 3, 2, 10),
+        countingSignal(getGateType(SevenSegmentDecoder), 5, 1, 10),
         [
             SevenSegmentDecoder.name,
         ],
