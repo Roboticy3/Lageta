@@ -456,8 +456,9 @@ export const BCDDecoder = Decoder(4,
         outputLabels:(new Array(10).fill('').map((_v, i) => `${i}`)),
         f: (s) => {
             const idx = decodeInternal(s, 4)
+            if (idx > 9) return {override:new Array(10).fill(undefined)}
             let result = new Array(10).fill(false)
-            if (idx < 10) result[idx] = true
+            result[idx] = true
             return {override:result}
         },
     }

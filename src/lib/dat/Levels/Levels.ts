@@ -161,7 +161,7 @@ export const FourBitDecoder = {
             ],
             size: [22, 12]
         },
-        countingSignal(getGateType(BCDDecoder), 5, 2),
+        countingSignal(getGateType(BCDDecoder), 5, 1, 10),
         [
 
         ],
