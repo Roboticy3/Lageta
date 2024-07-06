@@ -54,7 +54,10 @@
         {from:9, output:0, to:11, input:1},
         {from:7, output:2, to:11, input:0}, //fully power the full adder level from decoder
         {from:13, output:0, to:14, input:1}, //power the first random level
-        {from:12, output:0, to:14, input:0}
+        {from:12, output:0, to:14, input:0},
+        {from:11, output:0, to:15, input:6}, //power the four bit adder to sum to 8
+        {from:7, output:2, to:15, input:2},
+        {from:15, output:3, to:17, input:3}, //take the 8 from four bit adder and plug it into seven segment
     ]
     
     onMount(async () => {

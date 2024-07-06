@@ -74,12 +74,48 @@ export const FullAdder:GateTypeParameters ={
     }}
 }
 
+const LEDSegment = `<path d="M 0 2.5 L 2.5 0 L 17.5 0 L 20 2.5 L 17.5 5 L 2.5 5 Z" style="pointer-events:none;" />`
+const SevenSegmentTransforms = [
+    `translate(10 7.5)`,
+    `translate(32.5 10) rotate(90)`,
+    `translate(32.5 30) rotate(90)`,
+    `translate(10 47.5)`,
+    `translate(12.5 30) rotate(90)`,
+    `translate(12.5 10) rotate(90)`,
+    `translate(10 27.5)`
+]
 export const SevenSegmentOutput:GateTypeParameters = {
-    name: "7-Segment Output", inputs:8, outputs:0, gridSize:[4, 7],
+    name: "7-Segment Output", inputs:7, outputs:0, gridSize:[5, 6],
     draw: (s) => {
-        return drawGateTypeDecode(s, 4, 7)
+        let result = ''
+        for (let i = 0; i < 7; i++) {
+            const value = s.override[i]
+            const transform = SevenSegmentTransforms[i]
+            result += `<g transform="${transform}">${LEDSegment}</g>\n`
+        }
+        return result
     }
 
+}
+
+export const SevenSegmentDecoder:GateTypeParameters = {
+    name: "Binary Coded Decimal to 7-Segment Decoder", inputs:4, outputs:7, gridSize:[3, 6],
+    f: (s) => {
+        const v = decodeInternal(s, 4)
+        switch (v) {
+            case 0: return {override:[true, true, true, true, true, true, false]}
+            case 1: return {override:[false, true, true, false, false, false, false]}
+            case 2: return {override:[true, true, false, false, true, false, true]}
+            case 3: return {override:[true, true, true, true, false, false, true]}
+            case 4: return {override:[false, true, true, false, false, true, true]}
+            case 5: return {override:[true, false, true, true, false, true, true]}
+            case 6: return {override:[true, false, true, true, true, true, true]}
+            case 7: return {override:[true, true, true, false, false, false, false]}
+            case 8: return {override:[true, true, true, true, true, true, true]}
+            case 9: return {override:[true, true, true, false, false, true, true]}
+            default: return {override:new Array(7).fill(undefined)}
+        }
+    }
 }
 
 export const LevelGateType:GateTypeParameters = { name: "LevelGateType", gridSize: [2, 2], moveable: false };
@@ -563,7 +599,9 @@ const all_params = new Map([
     [BCDDecoder.name, BCDDecoder],
     [Encoder4t2.name, Encoder4t2],
     [HalfAdder.name, HalfAdder],
-    [FullAdder.name, FullAdder]
+    [FullAdder.name, FullAdder],
+    [SevenSegmentOutput.name, SevenSegmentOutput],
+    [SevenSegmentDecoder.name, SevenSegmentDecoder]
 ])
 
 export function getGateTypeParams(name:string) {

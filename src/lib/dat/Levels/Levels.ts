@@ -1,6 +1,6 @@
 import { Connection } from "$lib/circuit_types/GateGraph";
 import { GateType, GateTypeController, type ConnectionValue } from "$lib/circuit_types/GateType";
-import { Add2, Add4, AdderNoCarry1, And, And3, And4, BCDDecoder, Buf, Decoder2t4, Encoder4t2, FullAdder, HalfAdder, Input, InputDecodePrebaked, InputLabelledPrebaked, InputVariable, NBitAdder, Nand, Nor, Not, Or, Or3, Or4, Output, OutputDecodePrebaked, OutputLabelledPrebaked, OutputVariable, RandomGate1, SevenSegmentOutput, Xand, Xor, combineGateTypeParameters, drawGateTypeDecode, exampleInputVariable, exampleOutputVariable, getGateType, type GateTypeParameters } from "$lib/dat/GateTypes/GateTypes";
+import { Add2, Add4, AdderNoCarry1, And, And3, And4, BCDDecoder, Buf, Decoder2t4, Encoder4t2, FullAdder, HalfAdder, Input, InputDecodePrebaked, InputLabelledPrebaked, InputVariable, NBitAdder, Nand, Nor, Not, Or, Or3, Or4, Output, OutputDecodePrebaked, OutputLabelledPrebaked, OutputVariable, RandomGate1, SevenSegmentDecoder, SevenSegmentOutput, Xand, Xor, combineGateTypeParameters, drawGateTypeDecode, exampleInputVariable, exampleOutputVariable, getGateType, type GateTypeParameters } from "$lib/dat/GateTypes/GateTypes";
 import { ConnectionValueSignalSet, Signal, SignalSet, inverter, oscillator, repeater } from "$lib/signal_types/Signal";
 import type { OrganizedCircuitContents, SerializableGate } from "$lib/storage_types/CircuitStorage";
 import { ProgressStorage } from "$lib/storage_types/ProgressStore";
@@ -66,10 +66,11 @@ const DecoderLevelSignal = new ConnectionValueSignalSet(
  * @param repeat if given, the signal will be repeated this many times
  * @returns 
  */
-function countingSignal(solver:GateTypeController, step:number, repeat?:number) {
+function countingSignal(solver:GateTypeController, step:number, repeat?:number, maxCount?:number) {
     const bits = solver.model.sizeIn
     let block = new Array<Signal<ConnectionValue>>(bits)
-    const permutations = Math.pow(2, bits)
+    //the permutations is usually 2^bits, but if a smaller cutoff is provided, that takes priority
+    const permutations = maxCount ? Math.min(Math.pow(2, bits), maxCount) : Math.pow(2, bits)
     //construct the signal from layered oscillators
     //each permutation should occur exactly once, so the length of the signal is permutations * step
     const length = permutations * step * (repeat || 1)
@@ -77,7 +78,16 @@ function countingSignal(solver:GateTypeController, step:number, repeat?:number) 
         //the step length of the oscillator at each layer should be twice as wide as the last
         //meanwhile, each layer should repeat half as much as the last
         //since an oscillator of n repeats creates a signal of step * 2 frames, the repeats should start at length / 2 and halve on each iteration
-        block[i] = new Signal<ConnectionValue>([{value:false,frame:0}]).push(oscillator(Math.pow(2, i) * step, Math.pow(2, bits - i - 1)))
+        //if maxCount is provided, maxCount will be exceeded after counting up maxCount * 2 * step frames
+        const repeat = Math.pow(2, bits - i - 1)
+        block[i] = new Signal<ConnectionValue>(
+            [{value:false,frame:0}]
+        ).push(
+            oscillator(
+                Math.pow(2, i) * step, 
+                maxCount ? Math.min(repeat, Math.floor(maxCount / 2)) : repeat
+            )
+        )
     }
 
     if (repeat) {
@@ -91,6 +101,38 @@ function countingSignal(solver:GateTypeController, step:number, repeat?:number) 
     console.log("created counting signal ", result)
 
     return result
+}
+
+export const SevenSegmentLevel = {
+    params:new GameViewParameters(
+        "Seven Segment Display",
+        `
+        <p>Each output corresponds to one of the lights in the seven-segment display.</p>
+        <p>Given a number in binary, display the appropriate number in the seven segment display.</p>
+        <p>Good luck!</p>
+        `,
+        {
+            gateTypes: [
+                getGateType(InputVariable(4, 'X')),
+                getGateType(SevenSegmentOutput)
+            ],
+            gates: [
+                {x:0, y:4, type:"InputVariableX4", id: 0} as SerializableGate,
+                {x:21, y:3, type:"7-Segment Output", id:1} as SerializableGate
+            ],
+            size: [26, 12]
+        },
+        countingSignal(getGateType(SevenSegmentDecoder), 3, 2, 10),
+        [
+            SevenSegmentDecoder.name
+        ],
+        false,
+        {
+            inputCheckboxes:false
+        }
+    ),
+    type:getGateType(SevenSegmentDecoder),
+    x:8, y:5, desiredId:17
 }
 
 export const FourBitDecoder = {
@@ -163,7 +205,7 @@ export const FourBitAdder = {
         },
         countingSignal(getGateType(Add4), 3),
         [
-
+            SevenSegmentLevel.params.name
         ],
         false,
         {
@@ -172,7 +214,7 @@ export const FourBitAdder = {
     ),
     x:22, y:2, desiredId:15,
     type:getGateType(Add4),
-    playCondition:[false, false, false, false, true]
+    playCondition:[false, false, false, true, false]
 }
 
 export const RandomLevel1 = {
@@ -919,7 +961,8 @@ const all_params = new Map<string, LevelParameters>([
     [FullAdderLevel.params.name, FullAdderLevel],
     [RandomLevel1.params.name, RandomLevel1],
     [FourBitAdder.params.name, FourBitAdder],
-    [FourBitDecoder.params.name, FourBitDecoder]
+    [FourBitDecoder.params.name, FourBitDecoder],
+    [SevenSegmentLevel.params.name, SevenSegmentLevel]
 ])
 
 export function getLevel(name:string) {
