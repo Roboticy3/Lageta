@@ -11,6 +11,7 @@
     import CircuitEditorComponent from "../GameView/CircuitEditor/CircuitEditorComponent.svelte";
     import { GameViewCircuitPanelEventTarget } from "$lib/circuit_types/GameViewCircuitPanelEvent";
     import { CircuitStorage } from "$lib/storage_types/CircuitStorage";
+    import { Level } from "$lib/level_types/Level";
 
     const gridWidth = 24
     const gridHeight = 12
@@ -101,6 +102,17 @@
         tutorialHighlightColor = inputCheckBox.isChecked() ? "var(--connection-color-on)" : "var(--connection-color-off)"
     }
 
+    /**
+     * 
+     * @param {CustomEvent<any>} e
+     */
+    function onSelected(e) {
+        const name = e.detail.params?.name
+        if (typeof name === "string") {
+            progress?.removeNewLevel(name)
+        }
+    }
+
 </script>
 <div class="level-panel" data-sveltekit-noscroll>
     <CircuitEditorComponent
@@ -115,6 +127,7 @@
                 params={params} 
                 circuitController={circuitController} 
                 isNew={newLevelSet?.has(params.params?.name || "")}
+                on:selected={onSelected}
             />
         {/each}
 

@@ -153,9 +153,17 @@ export class ProgressStorage {
         return this.progressStorage.newLevels
     }
 
-    setNewLevels(newLevels:string[]) {
-        this.progressStorage.newLevels = newLevels
+    addNewLevels(newLevels:string[]) {
+        this.progressStorage.newLevels.push(...newLevels)
         this.commit()
+    }
+
+    removeNewLevel(oldLevel:string) {
+        const idx = this.progressStorage.newLevels.indexOf(oldLevel)
+        if (idx > -1) {
+            this.progressStorage.newLevels.splice(idx, 1)
+            this.commit()
+        }
     }
 }
 

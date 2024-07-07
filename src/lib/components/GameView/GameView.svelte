@@ -102,7 +102,7 @@
         gateRewards.map(progressStorage.addGate.bind(progressStorage))
         toolRewards.map(progressStorage.addTool.bind(progressStorage))
 
-        progressStorage.setNewLevels(levelRewards)
+        progressStorage.addNewLevels(levelRewards)
 
         completionPopup.show()
         
@@ -193,9 +193,9 @@
                     truthTable={(new TruthTable(solver))}
                     customLabels={
                         rendererParams.useSolverForTruthTableLabels ? 
-                            circuitController.getInputLabels().concat(circuitController.getOutputLabels())
-                            :
                             solver.view.inputLabels.concat(solver.view.outputLabels)
+                            :
+                            circuitController.getInputLabels().concat(circuitController.getOutputLabels())
                     }
                 />
             {/if}

@@ -2,11 +2,14 @@
     import { goto } from "$app/navigation";
     import { CircuitController } from "$lib/circuit_types/CircuitController";
     import { Freeplay } from "$lib/dat/Levels/Levels";
-    import { onMount, tick } from "svelte";
+    import { createEventDispatcher, onMount, tick } from "svelte";
     import CircuitDiv from "../GameView/CircuitDiv.svelte";
     import { Level } from "$lib/level_types/Level";
 
-    export let params
+    /**
+     * @type {import("$lib/dat/Levels/Levels").LevelParameters}
+     */
+     export let params
 
     let level = new Level(params)
     /**
@@ -15,6 +18,8 @@
     export let circuitController
 
     export let isNew = true
+
+    const dispatch = createEventDispatcher()
 
     /**
      * @type {CircuitDiv}
@@ -72,7 +77,9 @@
         button.disabled = !activate
     }
 
-    function playLevel() {
+    async function playLevel() {
+        dispatch('selected', level)
+        await tick()
         window.location.href = '/level/' + level.name()
     }
 </script>
