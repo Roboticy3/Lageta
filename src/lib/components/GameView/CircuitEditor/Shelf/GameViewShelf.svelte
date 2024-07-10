@@ -36,16 +36,14 @@
     title="Shelf"
 >
     {#each items as item}
-        {#if typeof item === "string"}
-            <div class="shelf-button-container">
+        <div class="shelf-button-container">
+            {#if typeof item === "string"}
                 <GameViewShelfButton 
                     circuitDraggable={circuitDraggable} 
                     gateType={getGateType(getGateTypeParams(item) || Buf)}
                     editorEventTarget={editorEventTarget}
                 />
-            </div>
-        {:else}
-            <div class="shelf-button-container">
+            {:else}
                 <GameViewShelfFolder
                     items={item.children}
                     name={item.name}
@@ -53,9 +51,9 @@
                     editorEventTarget={editorEventTarget}
                     depth={depth + 1}
                 />
-            </div>
-        {/if}
-        
+            {/if}
+
+        </div>
         
     {/each}
     
@@ -63,7 +61,7 @@
 
 <style>
     .shelf-button-container {
-        margin-left:3%;
+        margin:0.5em;
         height:80%;
     }
 
@@ -81,6 +79,5 @@
         transition:max-height 3s;
 
         height:100%;
-        min-width: 100%;
     }
 </style>
