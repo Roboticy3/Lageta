@@ -74,6 +74,10 @@ export class ProgressStorage {
             })
     }
 
+    gateNames() {
+        return this.progressStorage.gates
+    }
+
     levels() {
         return this.progressStorage.levels.map(
             (v, _i, _a) => {
@@ -111,9 +115,18 @@ export class ProgressStorage {
         console.log("Unlocked level ", item)
     }
 
-    setCurrentTutorial(name:string) {
-        this.progressStorage.currentTutorial = name
+    findTool(toolName:string) {
+        return this.progressStorage.tools.indexOf(toolName)
+    }
+
+    addTool(item:string) {
+        if (this.findTool(item) === -1)
+            this.progressStorage.tools.push(item)
         this.commit()
+    }
+
+    getTools() {
+        return this.progressStorage.tools
     }
 
     passTutorial(name=this.getCurrentTutorial()) {
@@ -127,11 +140,31 @@ export class ProgressStorage {
         return this.progressStorage.currentTutorial
     }
 
+    setCurrentTutorial(name:string) {
+        this.progressStorage.currentTutorial = name
+        this.commit()
+    }
+
     getPassedTutorials() {
         return this.progressStorage.passedTutorials
     }
 
+    getNewLevels() {
+        return this.progressStorage.newLevels
+    }
 
+    addNewLevels(newLevels:string[]) {
+        this.progressStorage.newLevels.push(...newLevels)
+        this.commit()
+    }
+
+    removeNewLevel(oldLevel:string) {
+        const idx = this.progressStorage.newLevels.indexOf(oldLevel)
+        if (idx > -1) {
+            this.progressStorage.newLevels.splice(idx, 1)
+            this.commit()
+        }
+    }
 }
 
 class ProgressStorageObject {
@@ -139,12 +172,19 @@ class ProgressStorageObject {
         "Not"
     ]
     levels:Array<string> = []
-    currentTutorial:string = "Tutorial"
+    tools:Array<string> = []
     passedTutorials:Array<string> = []
+
+    newLevels:Array<string> = []
+    currentTutorial:string = "Tutorial"
 
     push(p:ProgressStorageObject) {
         this.gates.push(...p.gates)
         this.levels.push(...p.levels)
+        this.tools.push(...p.tools)
         this.passedTutorials.push(...p.passedTutorials)
+
+        this.newLevels = p.newLevels
+        this.currentTutorial = p.currentTutorial
     }
 }

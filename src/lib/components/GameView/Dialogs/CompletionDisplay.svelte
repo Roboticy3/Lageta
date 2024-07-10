@@ -1,36 +1,42 @@
 <script>
+    import { getToolParams } from "$lib/dat/Tools/Tools";
     import { onMount } from "svelte";
+    import TruthTableTutorial from "./TruthTableTutorial.svelte";
 
     /**
      * @type {string[]}
      */
-    export let newGates = []
+    export let newGates
 
     /**
      * @type {string[]}
      */
-    export let newLevels = []
+    export let newLevels
 
     /**
-     * @type {HTMLDialogElement}
+     * @type {string[]}
      */
-    let dialog
+    export let newTools
+    $: newToolsCopy = Array.from(newTools)
 
-    let visible = false
-
-    export function show() {
-        dialog.show()
-        visible = true
+    /**
+     * @type {string | undefined}
+     */
+    let currentTool = undefined
+    onMount(onNext)
+    function onNext() {
+        currentTool = newToolsCopy.pop()
+        while (currentTool !== undefined && getToolParams(currentTool) === undefined) {
+            currentTool = newToolsCopy.pop()
+        }
+        currentTool = currentTool
+        console.log("set currentTool to ", currentTool)
     }
 
-    export function hide() {
-        dialog.close()
-        visible = false
-    }
 </script>
 
-<dialog bind:this={dialog}>
-    <div class="container">
+{#if !currentTool}
+    <div class="end-container">
         <div class="title-container">
             <div class="title">
                 You Win!
@@ -61,20 +67,19 @@
             </button>
         </div>
     </div>
-</dialog>
+{:else}
+<div class="tool-container">
+    {#if currentTool === "TruthTable"}
+        <TruthTableTutorial />
+    {/if}
+    <button on:click={onNext}>Next</button>
+</div>
+{/if}
+
 
 <style>
-    dialog {
-        height: 50%;
-        width: 50%;
-        top: 20%;
-        font-size: 100%;
-        animation-name: dialog;
-        animation-duration: var(--animation-speed);
-        overflow-y: hidden;
-    }
 
-    .container {
+    .end-container {
 
         display:flex;
         flex-direction: column;
@@ -108,12 +113,12 @@
         align-self: center;
     }
 
-    @keyframes dialog {
-        0% {
-            top: 50%;
-        }
-        100% {
-            top: 20%;
-        }
+    .tool-container {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        align-items: center;
+
+        height:100%;
     }
 </style>

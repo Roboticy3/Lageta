@@ -5,26 +5,38 @@
     import { CircuitSignalSetView, SignalSetView } from "$lib/signal_types/SignalSetView";
     import { ProgressStorage } from "$lib/storage_types/ProgressStore";
     import SignalShelf from "./Signal/SignalShelf.svelte";
-    import CompletionPopup from "./CompletionPopup.svelte";
+    import CompletionDisplay from "$lib/components/GameView/Dialogs/CompletionDisplay.svelte";
     import CircuitEditorComponent from "./CircuitEditor/CircuitEditorComponent.svelte";
     import { onMount, tick } from "svelte";
     import { CircuitSignalSetViewEventTarget, SignalSetViewEventTarget } from "$lib/signal_types/SignalSetViewEvent";
     import { GameViewCircuitPanelEventTarget } from "$lib/circuit_types/GameViewCircuitPanelEvent";
-    import { getGateType, getGateTypeNoRegister } from "$lib/dat/GateTypes/GateTypes";
+    import { getGateTypeNoRegister, FullAdder, getGateType, getGateTypeParams } from "$lib/dat/GateTypes/GateTypes";
     import { getLevelParams } from "$lib/dat/Levels/Levels";
     import SignalViewer from "./Signal/SignalViewer.svelte";
+    import { filterShelfTreeWithUnlocks, GameViewShelfTree, ShelfTreeNode } from "$lib/shelf_types/ShelfTree";
+    import TruthTableView from "./TruthTableView.svelte";
+    import { TruthTable } from "$lib/circuit_types/TruthTable";
+    import { getToolParams } from "$lib/dat/Tools/Tools";
+    import GameViewDialog from "$lib/components/GameView/Dialogs/GameViewDialog.svelte";
+
 
     /**
      * @type {import("$lib/level_types/GameViewParameters").GameViewParameters}
      */
     export let gameParams
-    $: gateRewards = gameParams.completeRewards.filter(v => getGateTypeNoRegister({name:v}) !== undefined)
+    $: gateRewards = gameParams.completeRewards.filter(v => getGateTypeParams(v) !== undefined)
     $: levelRewards = gameParams.completeRewards.filter(v => getLevelParams(v) !== undefined)
+    $: toolRewards = gameParams.completeRewards.filter(v => getToolParams(v) !== undefined)
+    $: solver = gameParams.completeCondition?.solver
+    console.log("set to unlock", gateRewards, levelRewards, JSON.stringify(toolRewards))
 
     /**
      * @type {any}
      */
     export let editorParams = gameParams.editorParams
+    /**
+     * @type {any}
+     */
     export let rendererParams = gameParams.rendererParams
 
     const slidinParams = {
@@ -34,7 +46,7 @@
         instructionsFlex:3
     }
 
-    export let circuitController = new CircuitController(gameParams.grid, onComplete)
+    export let circuitController = new CircuitController(gameParams.grid, onComplete, gameParams.completeCondition?.solver)
 
     /**
      * Passing an existing editor should induce GameView to "steal" the editor
@@ -52,6 +64,17 @@
         new CircuitSignalSetView(gameParams.completeCondition) : undefined
 
     let progressStorage = new ProgressStorage()
+    let shelf = GameViewShelfTree
+    $: {
+        if (progressStorage.gateNames().length < 10) {
+            shelf = new ShelfTreeNode(
+                "Shelf", progressStorage.gateNames()
+            )
+        }
+        else {
+            shelf = filterShelfTreeWithUnlocks(progressStorage.gateNames(), GameViewShelfTree)
+        }
+    }
 
     /**
      * @type {CircuitSignalSetViewEventTarget | null}
@@ -60,7 +83,7 @@
 
     
     /**
-     * @type {CompletionPopup}
+     * @type {GameViewDialog}
      */
     let completionPopup
 
@@ -77,8 +100,12 @@
 
         levelRewards.map(progressStorage.addLevel.bind(progressStorage))
         gateRewards.map(progressStorage.addGate.bind(progressStorage))
-        
+        toolRewards.map(progressStorage.addTool.bind(progressStorage))
+
+        progressStorage.addNewLevels(levelRewards)
+
         completionPopup.show()
+        
     }
 
     function placeExistingEditor() {
@@ -126,6 +153,8 @@
         console.log("size state", JSON.stringify(maxSizeState))
         placeExistingEditor()
 
+        console.log("set to unlock ", gateRewards, levelRewards, toolRewards)
+
         await tick()
         
         setTimeout(slideIn, 200)
@@ -149,12 +178,27 @@
                     rendererParams={rendererParams}
                     maxSizeState={maxSizeState}
                     editorEventTarget={new GameViewCircuitPanelEventTarget()}
-                    shelf={progressStorage.gates()}
+                    shelf={shelf}
+                    tools={progressStorage.getTools()}
                 />
             {/if}
         </div>
         <div class="instructions {slidinParams ? 'slidein':''}" title="Instructions" style="flex:{maxSizeState.instructionsFlex};">
             {@html gameParams.directions}
+            {#if progressStorage?.findTool("TruthTable") !== -1 && 
+                solver?.variant === "Gate" &&
+                solver.view.sizeIn < 5
+            }
+                <TruthTableView 
+                    truthTable={(new TruthTable(solver))}
+                    customLabels={
+                        rendererParams.useSolverForTruthTableLabels ? 
+                            solver.view.inputLabels.concat(solver.view.outputLabels)
+                            :
+                            circuitController.getInputLabels().concat(circuitController.getOutputLabels())
+                    }
+                />
+            {/if}
         </div>
     </div>
     {#if signalSetView}
@@ -191,7 +235,9 @@
     <slot />
 </div>
 
-<CompletionPopup bind:this={completionPopup} newGates={gateRewards} newLevels={levelRewards}/>
+<GameViewDialog bind:this={completionPopup}>
+    <CompletionDisplay newGates={gateRewards} newLevels={levelRewards} newTools={toolRewards}/>
+</GameViewDialog>
 
 <style>
     

@@ -344,7 +344,7 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
         const labelText = (index.type === "Input") ?
             vType.inputLabels[index.index] :
             vType.outputLabels[index.index]
-        const labelInner = svgConnectionPointLabel(labelText, index.type === "Input" ? 'x="-16"':'x="4"')
+        const labelInner = svgConnectionPointLabel(labelText, index.type === "Input" ? 'text-anchor="end" x="-4"':'text-anchor="start" x="4"')
 
         const label = svgWrapGroup(
             labelInner, 

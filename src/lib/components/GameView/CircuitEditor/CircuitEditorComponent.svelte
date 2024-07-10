@@ -3,12 +3,12 @@
     import { CircuitController } from "$lib/circuit_types/CircuitController";
     import { onMount, tick } from "svelte";
     import CircuitDraggable from "$lib/components/GameView/CircuitEditor/CircuitDraggable.svelte";
-    import GameViewShelfButton from "$lib/components/GameView/CircuitEditor/GameViewShelfButton.svelte";
     import GameViewCircuitPanel from "$lib/components/GameView/CircuitEditor/GameViewCircuitPanel.svelte";
     import { GameViewParameters } from "$lib/level_types/GameViewParameters";
     import { GateTypeController } from "$lib/circuit_types/GateType";
     import { GameViewCircuitPanelEventTarget } from "$lib/circuit_types/GameViewCircuitPanelEvent";
-    import GameViewShelf from "./GameViewShelf.svelte";
+    import GameViewShelf from "./Shelf/GameViewShelf.svelte";
+    import { GameViewShelfTree, ShelfTreeNode } from "$lib/shelf_types/ShelfTree";
 
     /**
      * @type {CircuitController | null}
@@ -44,9 +44,14 @@
     export let editorEventTarget
 
     /**
-     * @type {GateTypeController[]}
+     * @type {ShelfTreeNode}
      */
-    export let shelf = []
+    export let shelf = GameViewShelfTree
+
+    /**
+     * @type {string[]}
+     */
+    export let tools = []
 
     onMount(async () => {
         if (!circuitController) {
@@ -146,12 +151,6 @@
     bind:this={container}
 >
     {#if circuitController}
-        <GameViewShelf
-            bind:maxSizeState={maxSizeState}
-            gateTypes={shelf}
-            circuitDraggable={circuitDraggable}
-            editorEventTarget={editorEventTarget}
-        />
         
         <div 
             class="circuit-panel" 
@@ -170,8 +169,17 @@
                 <slot />
             </GameViewCircuitPanel>
         </div>
+
+        <GameViewShelf
+            bind:maxSizeState={maxSizeState}
+            items={shelf.children}
+            circuitDraggable={circuitDraggable}
+            editorEventTarget={editorEventTarget}
+        />
+
         <CircuitDraggable 
             editorEventTarget={editorEventTarget}
+            showTruthTables={tools.indexOf("TruthTable") !== -1}
             bind:this={circuitDraggable}
         />
     {/if}
@@ -181,7 +189,7 @@
 
     .container {
         display: flex;
-        flex-direction: column;
+        flex-direction: column-reverse;
     }
 
     .circuit-panel {

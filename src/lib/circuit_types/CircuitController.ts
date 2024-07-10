@@ -25,11 +25,13 @@ export class CircuitController {
     private renderer?:any = null
 
     constructor(
-        gateGrid:GateGrid | undefined = undefined,
+        gateGrid?:GateGrid,
         onComplete:() => void = () => {},
+        solver?:GateTypeController,
         makeMain:boolean = true
     )
     {
+
         if (gateGrid !== undefined) {
             this.gateGrid = gateGrid
         }
@@ -44,6 +46,7 @@ export class CircuitController {
         }
 
         this.onComplete = onComplete
+        this.setSolver(solver)
     }
 
     giveRenderer(renderer:any) {
@@ -539,7 +542,7 @@ export class CircuitController {
     ) {
         const graph = this.gateGrid.graph
         
-        const inputs = graph.inputs[gateId]
+        const inputs = graph.inputs.at(gateId)
         const c = inputs?.at(inputIndex)
 
         return c?.from
@@ -615,7 +618,7 @@ export class CircuitController {
     }
 
     getInputs() {
-        let result = new Array<boolean>()
+        let result = new Array<ConnectionValue>()
         for (let i of this.gateGrid.inputs.values()) {
             if (i === undefined) {
                 continue
@@ -638,17 +641,21 @@ export class CircuitController {
         return result
     }
 
-    setInput(index:[number, number], val:ConnectionValue) {
+    setInput(index:[number, number], val:ConnectionValue, computeDesired=true) {
         this.gateGrid.graph.setFlow(index, val)
         this.renderer?.updateGate(index[0])
+
+        if (computeDesired) this.computeDesiredOutputs()
     }
 
-    setInputs(val:ConnectionValue[]) {
+    setInputs(val:ConnectionValue[], computeDesired=true) {
         const inputs = this.gateGrid.inputs.map((g) => {
             return g?.id
         })
         const graph = this.gateGrid.graph
         graph.setFlows(val, inputs)
+
+        if (computeDesired) this.computeDesiredOutputs()
     }
 
     getOutputs() {
@@ -850,6 +857,20 @@ export class CircuitController {
         return {
             cType:undefined, gPos:undefined
         }
+    }
+
+    private solver:GateType | undefined = undefined
+
+    setSolver(gateType?:GateTypeController) {
+        this.solver = gateType?.model
+    }
+
+    computeDesiredOutputs() {
+        const solver = this.solver
+        if (!solver) return
+        const inputs = this.getInputs()
+        const desiredOutputs = solver.f({override:inputs})
+        this.setDesiredOutputs(desiredOutputs.override)
     }
 
 }

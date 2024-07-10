@@ -75,7 +75,7 @@
 </script>
 
 <button 
-    class="shelf-button" 
+    class="shelf-button"
     id={id} 
     title={title}
     bind:this={element} 
@@ -91,15 +91,13 @@
 <style>
     .shelf-button {
         display: block;
-        margin-left: 3%;
-        padding: 0;
         align-self: center;
-        height:80%;
-        max-height: 50px;
+        height:100%;
+        min-width:3vw;
+        max-width:5vw;
     }
 
     .shelf-button:hover {
-        height:85%;
-        max-height: 55px;
+        height:110%;
     }
 </style>
