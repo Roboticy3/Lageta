@@ -26,7 +26,7 @@
         }, 
         undefined, []
     )
-    const editorParams = {canDragGates:false}
+    const editorParams = {canDragGates:false, showShelf:false}
     const rendererParams = {showGates:false}
 
     $: progress = browser ? new ProgressStorage() : undefined

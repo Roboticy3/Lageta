@@ -9,6 +9,9 @@
     import { GameViewCircuitPanelEventTarget } from "$lib/circuit_types/GameViewCircuitPanelEvent";
     import GameViewShelf from "./Shelf/GameViewShelf.svelte";
     import { GameViewShelfTree, ShelfTreeNode } from "$lib/shelf_types/ShelfTree";
+    import sfxEvents from "$lib/dat/SFXEvents/CircuitEditorSFX"
+    import { SFXEventPlayer } from "$lib/misc_types/SFXEventPlayer";
+    import { browser } from "$app/environment"
 
     /**
      * @type {CircuitController | null}
@@ -42,6 +45,8 @@
      * @type {GameViewCircuitPanelEventTarget}
      */
     export let editorEventTarget
+    // @ts-ignore
+    $: if (browser) new SFXEventPlayer(editorEventTarget, sfxEvents, (url) => new Audio(url))
 
     /**
      * @type {ShelfTreeNode}
@@ -143,6 +148,7 @@
         container.style.width = `${width}px`
         container.style.height = `${height}px`
     }
+
 </script>
 
 <div 
@@ -170,12 +176,14 @@
             </GameViewCircuitPanel>
         </div>
 
-        <GameViewShelf
-            bind:maxSizeState={maxSizeState}
-            items={shelf.children}
-            circuitDraggable={circuitDraggable}
-            editorEventTarget={editorEventTarget}
-        />
+        {#if editorParams.showShelf}
+            <GameViewShelf
+                bind:maxSizeState={maxSizeState}
+                items={shelf.children}
+                circuitDraggable={circuitDraggable}
+                editorEventTarget={editorEventTarget}
+            />
+        {/if}
 
         <CircuitDraggable 
             editorEventTarget={editorEventTarget}
