@@ -20,10 +20,8 @@ export class SFXEventPlayer<E, K extends string> {
             const s = source[i]
             const audio = audioConstructor(s.url)
             events[i] = () => {
-                console.log("playing audio ", audio)
                 audio.play()
             }
-            console.log("connecting audio")
             eventTarget.addEventListener(s.eventName, events[i])
         }
         this.events = events

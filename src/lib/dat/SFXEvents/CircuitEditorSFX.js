@@ -1,14 +1,10 @@
 export default [
     {
-        "eventName": "dragstart",
-        "url": "placeholder 1"
+        eventName: "dragstart",
+        url: "/dragstart.wav"
     },  
     {
-        "eventName": "drag",
-        "url": "placeholder 2"
-    },
-    {
-        "eventName": "drop",
-        "url": "placeholder 3"
+        eventName: "drop",
+        url: "/drop.wav"
     }
 ]
