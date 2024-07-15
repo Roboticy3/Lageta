@@ -176,7 +176,7 @@
             </GameViewCircuitPanel>
         </div>
 
-        {#if editorParams.showShelf}
+        {#if editorParams.showShelf !== false}
             <GameViewShelf
                 bind:maxSizeState={maxSizeState}
                 items={shelf.children}

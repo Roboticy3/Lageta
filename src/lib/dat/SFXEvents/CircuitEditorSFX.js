@@ -4,7 +4,15 @@ export default [
         url: "/dragstart.wav"
     },  
     {
-        eventName: "drop",
-        url: "/drop.wav"
+        eventName: "addwire",
+        url: "/success.wav"
+    },
+    {
+        eventName: "addgate",
+        url: "/success.wav"
+    },
+    {
+        eventName: "movegate",
+        url: "/success.wav"
     }
 ]
