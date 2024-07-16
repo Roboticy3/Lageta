@@ -126,7 +126,4 @@
         grid-row: 1;
     }
 
-    .dialog-quit {
-        
-    }
 </style>

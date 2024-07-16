@@ -70,7 +70,7 @@
      * @type {SVGElement | null}
      */
     let playBarGroup
-    
+
     let playButtonInnerText = "⏵"
 
     let playing = false
@@ -283,15 +283,6 @@
         display: flex;
         flex-direction: column;
         justify-content: center;
-    }
-
-    .button-container button {
-        color: var(--circuit-color);
-        font-size: x-large;
-    }
-
-    .button-container button:hover {
-        font-size: xx-large;
     }
 
     .signal-verifier {

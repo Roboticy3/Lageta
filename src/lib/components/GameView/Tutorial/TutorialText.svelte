@@ -78,7 +78,4 @@ import { createEventDispatcher, onMount, tick } from "svelte";
         box-sizing: border-box;
     }
 
-    .tutorial-continue {
-        
-    }
 </style>

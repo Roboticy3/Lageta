@@ -134,15 +134,3 @@
     
     
 </CircuitDiv>
-
-
-<style>
-
-    .input-checkbox {
-        
-    }
-
-    .input-checkbox:hover {
-        scale:1.2;
-    }
-</style>
