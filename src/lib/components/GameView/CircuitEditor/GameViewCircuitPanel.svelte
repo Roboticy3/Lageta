@@ -12,6 +12,7 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
     import InputCheckBox from './InputCheckBox.svelte';
     import { GateTypeController } from '$lib/circuit_types/GateType';
     import { GameViewCircuitPanelEventTarget, createGameViewCircuitPanelEvent } from '$lib/circuit_types/GameViewCircuitPanelEvent';
+    import { SFXPlayer } from '$lib/misc_types/SFXPlayer';
 
     /**
      * @type {GameViewParameters}
@@ -147,6 +148,14 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
         circuitContainer.addEventListener("mousemove", drag)
         window.addEventListener("mouseup", drop)
     }
+
+    function loadAudio() {
+        SFXPlayer.loadAudio([
+            "success.wav",
+            "dragstart.wav"
+        ])
+        console.log("loaded audio ", SFXPlayer)
+    }
     
     /**
      * Called in onMount, runs addDragEventListeners, updateViewBox, and updateSvg
@@ -156,6 +165,8 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
         addDragEventListeners()
 
         setInitialEventListeners()
+
+        loadAudio()
     }
     onMount(mountCircuit)
 
@@ -262,7 +273,10 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
                 break
             case "Gate":
                 onDragStartGate(to)
+                break
         }
+
+        SFXPlayer.play("dragstart.wav")
 
         setDragEventListeners()
 
@@ -288,8 +302,6 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
     function onDragStartGate(query) {
         //circuitDraggable.drag(query, circuitContainer)
     }
-
-    export let forceDragOnCircuitContainerOnly = true
 
     /**
      * Check if a gate can be dragged, return a code depending on what goes wrong.
@@ -568,9 +580,12 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
             from.type === to.type
         ) return
         console.log("laying connection from ", from, " to ", to)
-        circuitController.addConnection(
+        const result = circuitController.addConnection(
             fId, fC, tId, tC
         );
+        if (result.error === "") {
+            SFXPlayer.play("success.wav")
+        }
     }
 
     /**

@@ -1,17 +1,13 @@
 
 <script>
     import { CircuitController } from "$lib/circuit_types/CircuitController";
-    import { onMount, tick } from "svelte";
+    import { onMount } from "svelte";
     import CircuitDraggable from "$lib/components/GameView/CircuitEditor/CircuitDraggable.svelte";
     import GameViewCircuitPanel from "$lib/components/GameView/CircuitEditor/GameViewCircuitPanel.svelte";
     import { GameViewParameters } from "$lib/level_types/GameViewParameters";
-    import { GateTypeController } from "$lib/circuit_types/GateType";
     import { GameViewCircuitPanelEventTarget } from "$lib/circuit_types/GameViewCircuitPanelEvent";
     import GameViewShelf from "./Shelf/GameViewShelf.svelte";
     import { GameViewShelfTree, ShelfTreeNode } from "$lib/shelf_types/ShelfTree";
-    import sfxEvents from "$lib/dat/SFXEvents/CircuitEditorSFX"
-    import { SFXEventPlayer } from "$lib/misc_types/SFXEventPlayer";
-    import { browser } from "$app/environment"
 
     /**
      * @type {CircuitController | null}
@@ -45,8 +41,6 @@
      * @type {GameViewCircuitPanelEventTarget}
      */
     export let editorEventTarget
-    // @ts-ignore
-    $: if (browser) new SFXEventPlayer(editorEventTarget, sfxEvents, (url) => new Audio(url))
 
     /**
      * @type {ShelfTreeNode}
