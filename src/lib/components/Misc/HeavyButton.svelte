@@ -1,9 +1,10 @@
 
 <script>
+    import { SFXPlayer } from "$lib/misc_types/SFXPlayer";
     /**
      * Button component that packs in all the styling data most Lageta buttons use, as well as sound effects
     */
-    import { createEventDispatcher } from "svelte";
+    import { createEventDispatcher, onMount } from "svelte";
 
     export let style = ""
 
@@ -18,13 +19,22 @@
 
     const dispatch = createEventDispatcher()
 
+    onMount(() => {
+        SFXPlayer.loadAudio(["hover.wav", "gategrab.wav"])
+    })
+
     //substitute hover psuedoeclass with javascript since that can't  be accessed from outside of the component
     let hovering = false
     function onMouseEnter() {
+        SFXPlayer.play("hover.wav")
         hovering = true
     }
     function onMouseLeave() {
         hovering = false
+    }
+
+    function onClick() {
+        SFXPlayer.play("gategrab.wav")
     }
 
     /**
@@ -44,7 +54,10 @@
     class="button {unavailable ? 'unavailable':''}" 
     style={style + (hovering ? hoverStyle:'')} 
     bind:this={button}
-    on:click={dispatch.bind(dispatch, 'click')} 
+    on:click={() => {
+        dispatch.bind(dispatch, 'click')
+        onClick()
+    }} 
     on:mousedown={dispatch.bind(dispatch, 'mousedown')}
     on:mouseenter={() => {
         dispatch.bind(dispatch, 'mouseenter')

@@ -10,8 +10,9 @@ export class SFXPlayer {
     private static audioCache:Map<string, HTMLAudioElement> = new Map()
     private static readonly missingPath = audioFolder + missingAudioPath
 
-    static loadAudio(urls:string[]) {
+    static loadAudio(urls:string[], override=false) {
         urls.forEach((url) => {
+            if (this.audioCache.has(url) && !override) return
             const audio = new Audio(audioFolder + url)
             this.audioCache.set(url, audio)
         })
