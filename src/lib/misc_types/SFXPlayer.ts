@@ -1,5 +1,5 @@
 
-const errorAudioPath = "audiomissing.wav"
+const missingAudioPath = "audiomissing.wav"
 const audioFolder = "/"
 
 /**
@@ -8,7 +8,7 @@ const audioFolder = "/"
 export class SFXPlayer {
 
     private static audioCache:Map<string, HTMLAudioElement> = new Map()
-    private static readonly errorPath = audioFolder + errorAudioPath
+    private static readonly missingPath = audioFolder + missingAudioPath
 
     static loadAudio(urls:string[]) {
         urls.forEach((url) => {
@@ -23,11 +23,12 @@ export class SFXPlayer {
 
     static play(url:string) {
         const audio = this.audioCache.get(url)
-        if (audio) {
-            audio.play()
+        if (audio === undefined) {
+            const missing = new Audio(this.missingPath)
+            missing.play()
+            return
         }
-        else {
-            (new Audio(this.errorPath)).play()
-        }
+
+        audio.play()
     }
 }

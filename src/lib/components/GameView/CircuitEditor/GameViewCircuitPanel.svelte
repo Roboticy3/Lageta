@@ -151,8 +151,7 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
 
     function loadAudio() {
         SFXPlayer.loadAudio([
-            "success.wav",
-            "dragstart.wav"
+            "success.wav"
         ])
         console.log("loaded audio ", SFXPlayer)
     }
