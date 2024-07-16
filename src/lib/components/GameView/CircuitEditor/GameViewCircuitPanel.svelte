@@ -151,7 +151,9 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
 
     function loadAudio() {
         SFXPlayer.loadAudio([
-            "success.wav"
+            "inputgrab.wav",
+            "outputgrab.wav",
+            "wiredrop.wav"
         ])
         console.log("loaded audio ", SFXPlayer)
     }
@@ -269,13 +271,15 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
         switch (to.type) {
             case "Output":
                 if (editorParams.canDragConnections !== false) onDragStartOutput(to)
+                SFXPlayer.play("outputgrab.wav")
+                break
+            case "Input":
+                SFXPlayer.play("inputgrab.wav")
                 break
             case "Gate":
                 onDragStartGate(to)
                 break
         }
-
-        SFXPlayer.play("dragstart.wav")
 
         setDragEventListeners()
 
@@ -466,7 +470,7 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
                 dropGate({from, to})
                 break
             case "Input":
-                dropConnection({from:to, to:from})
+                dropConnection({to, from})
                 break
             case "Output":
                 dropConnection({from, to})
@@ -568,6 +572,15 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
      * @param {import('$lib/circuit_types/GameViewCircuitPanelEvent').GameViewCircuitPanelEvent} param0
      */
     function onAddWire({from, to}) { 
+        //detect if the user is placing input-to-output or output-to-input to decide what sound to play later
+        const flipped = to.type === "Output"
+        if (flipped) {
+            const temp = from
+            from = to
+            to = temp
+        }
+
+        //define a connection
         const [fId, fC, tId, tC] = [
             from.getId(), from.connectionIndex,
             to.getId(), to.connectionIndex
@@ -577,13 +590,24 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
             tId === undefined || 
             tC === undefined || 
             from.type === to.type
-        ) return
+        ) {
+            //play a sound to drop the wire if either endpoint is undefined
+            SFXPlayer.play("wiredrop.wav")
+            return
+        }
         console.log("laying connection from ", from, " to ", to)
+        
+        //try to lay a connection
         const result = circuitController.addConnection(
             fId, fC, tId, tC
         );
+
+        //play a sound
         if (result.error === "") {
-            SFXPlayer.play("success.wav")
+            SFXPlayer.play(flipped ? "outputgrab.wav":"inputgrab.wav")
+        }
+        else {
+            SFXPlayer.play("wiredrop.wav")
         }
     }
 
