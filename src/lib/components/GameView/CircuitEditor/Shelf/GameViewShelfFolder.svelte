@@ -2,6 +2,7 @@
 <script>
     import { GameViewCircuitPanelEventTarget } from "$lib/circuit_types/GameViewCircuitPanelEvent";
     import { GateTypeController } from "$lib/circuit_types/GateType";
+    import HeavyButton from "$lib/components/Misc/HeavyButton.svelte";
     import { ShelfTreeNode } from "$lib/shelf_types/ShelfTree";
     import GameViewShelf from "./GameViewShelf.svelte";
 
@@ -21,12 +22,20 @@
     export let depth
 
     export let name
+
+    const dropdownButtonStyle = 
+`
+    width:100%;
+    height:100%;
+`
 </script>
 
 <div class="dropdown">
-    <button class="dropdown-button">
+    <HeavyButton 
+        style={dropdownButtonStyle}
+    >
         {name}
-    </button>
+    </HeavyButton>
     {#if depth < 5}
         <div class="dropdown-content">
             <GameViewShelf 
@@ -62,7 +71,6 @@
     }
     
     .dropdown-button {
-        width:100%;
-        height:100%;
+        
     }
 </style>

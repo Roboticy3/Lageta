@@ -1,4 +1,6 @@
 <script>
+    import HeavyButton from "../Misc/HeavyButton.svelte";
+
     //currently it bugs me that clicking outside of the form doesn't close it
     //ofc svelte docs have some crazy alien solution to this, but this is good enough for now
     export let name = ""
@@ -49,6 +51,12 @@
         visible = false
     }
 
+    const dialogQuitStyle =
+`
+    grid-column: 3;
+    grid-row: 2;
+`
+
 </script>
 
 <dialog
@@ -74,11 +82,11 @@
         bind:this={form}>
         <input type="text" name="name" autocomplete="off" required class="dialog-text"/>
         <input type="submit" value={name} class="dialog-submit"/>
-        <button class="dialog-quit" type="reset" formnovalidate
+        <HeavyButton style={dialogQuitStyle}
             on:click={hide}
         >
             Nevermind!
-        </button>
+        </HeavyButton>
     </form>
 
     <slot />
@@ -119,7 +127,6 @@
     }
 
     .dialog-quit {
-        grid-column: 3;
-        grid-row: 2;
+        
     }
 </style>

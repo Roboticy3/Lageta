@@ -10,6 +10,7 @@
     import SignalViewer from "./SignalViewer.svelte";
     import SignalPlayBar from "./SignalPlayBar.svelte";
     import SignalVerifier from "./SignalVerifier.svelte";
+    import HeavyButton from "$lib/components/Misc/HeavyButton.svelte";
     /**
      * @type {CircuitSignalSetView}
      */
@@ -69,10 +70,9 @@
      * @type {SVGElement | null}
      */
     let playBarGroup
-    /**
-     * @type {HTMLButtonElement | null}
-     */
-    let playButton
+    
+    let playButtonInnerText = "⏵"
+
     let playing = false
     let atStart = true
     let atEnd = false
@@ -166,7 +166,7 @@
     function onPlay() {
         signalSetView.playVerify(circuitController, step)
 
-        if (playButton) playButton.innerText = "⏸"
+        playButtonInnerText = "⏸"
         if (atEnd) restart()
 
         playing = true
@@ -179,7 +179,7 @@
     function onPause() {
         signalSetView.pausePlayer()
 
-        if (playButton) playButton.innerText = "⏵"
+        playButtonInnerText = "⏵"
         playing = false
     }
 
@@ -202,12 +202,12 @@
 
 <div class="signal-viewer-container" bind:this={container}>
     <div class="button-container">
-        <button on:click={playPause} id="signal-play-button" bind:this={playButton}>
-            ⏵
-        </button>
-        <button on:click={restart} id="signal-restart-button">
+        <HeavyButton on:click={playPause} id="signal-play-button">
+            {playButtonInnerText}
+        </HeavyButton>
+        <HeavyButton on:click={restart} id="signal-restart-button">
             Restart
-        </button>
+        </HeavyButton>
     </div>
     <div class="signal-verifier">
         <SignalVerifier 

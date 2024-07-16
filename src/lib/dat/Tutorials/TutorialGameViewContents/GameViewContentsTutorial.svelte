@@ -249,7 +249,7 @@
     <TutorialText
         position={[85, 30]}
         on:continue={dispatch.bind(dispatch, "continue")}
-        availableButton={!state.signalPlaying}
+        unavailable={state.signalPlaying}
     >
         <p style="color:black; width:150%;">This is a level.</p>
     </TutorialText>

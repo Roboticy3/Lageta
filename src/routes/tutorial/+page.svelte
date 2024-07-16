@@ -1,5 +1,6 @@
 <script>
     import { browser } from "$app/environment";
+    import HeavyButton from "$lib/components/Misc/HeavyButton.svelte";
     import { ProgressStorage } from "$lib/storage_types/ProgressStore";
 
     /**
@@ -13,6 +14,6 @@
 </script>
 <ul>
 {#each passedTutorials as tutorial} 
-    <li><button>{tutorial}</button></li>
+    <li><HeavyButton>{tutorial}</HeavyButton></li>
 {/each}
 </ul>

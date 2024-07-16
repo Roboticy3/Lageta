@@ -182,7 +182,7 @@
     <TutorialText 
         position={[50, 70]} 
         showButton={true}
-        availableButton={state.output === false}
+        unavailable={state.output !== false}
         on:continue={dispatch.bind(dispatch, 'continue')}
     >
         <p style="color:black; font-size:min(3vw, 3vh);">At any connection point, voltage can be
@@ -216,7 +216,7 @@
     <!--Gross multi-binds, let's see if this works!-->
     <TutorialText 
         position={[50, 55]} 
-        availableButton={state.output === true}
+        unavailable={state.output !== true}
         on:continue={dispatch.bind(dispatch, 'continue')}
     >
         <p style="font-size:min(7vw, 7vh); color:black;">Voltage!</p>

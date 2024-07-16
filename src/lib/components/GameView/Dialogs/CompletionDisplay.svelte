@@ -2,6 +2,7 @@
     import { getToolParams } from "$lib/dat/Tools/Tools";
     import { onMount } from "svelte";
     import TruthTableTutorial from "./TruthTableTutorial.svelte";
+    import HeavyButton from "$lib/components/Misc/HeavyButton.svelte";
 
     /**
      * @type {string[]}
@@ -60,11 +61,11 @@
             </div>
         </div>
         <div class="to-level-select">
-            <button 
+            <HeavyButton 
                 on:click={() => {window.location.pathname = "/campaign"}}
             >
                 See Level Select Screen
-            </button>
+            </HeavyButton>
         </div>
     </div>
 {:else}
@@ -72,7 +73,7 @@
     {#if currentTool === "TruthTable"}
         <TruthTableTutorial />
     {/if}
-    <button on:click={onNext}>Next</button>
+    <HeavyButton on:click={onNext}>Next</HeavyButton>
 </div>
 {/if}
 
