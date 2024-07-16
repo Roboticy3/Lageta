@@ -153,7 +153,10 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
         SFXPlayer.loadAudio([
             "inputgrab.wav",
             "outputgrab.wav",
-            "wiredrop.wav"
+            "wiredrop.wav",
+            "gategrab.wav",
+            "gatedrop.wav",
+            "gatefail.wav",
         ])
         console.log("loaded audio ", SFXPlayer)
     }
@@ -271,10 +274,9 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
         switch (to.type) {
             case "Output":
                 if (editorParams.canDragConnections !== false) onDragStartOutput(to)
-                SFXPlayer.play("outputgrab.wav")
                 break
             case "Input":
-                SFXPlayer.play("inputgrab.wav")
+                if (editorParams.canDragConnections !== false) onDragStartInput(to)
                 break
             case "Gate":
                 onDragStartGate(to)
@@ -287,23 +289,24 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
     }
 
     /**
-     * onDragStart calls circuitController when the event passed to it selected an input connection.
-     * It also needs a query referencing the id of the gate and the index of the connection to proceed.
-     * 
      * @param {CircuitControllerQueryResult} query
      */
     function onDragStartOutput(query) {
-
+        SFXPlayer.play("outputgrab.wav")
     }
 
     /**
-     * onDragStart calls circuitController when the event passed to it selected an input connection.
-     * It also needs a query referencing the id of the gate and the index of the connection to proceed.
-     * 
+     * @param {CircuitControllerQueryResult} query
+     */
+    function onDragStartInput(query) {
+        SFXPlayer.play("inputgrab.wav")
+    }
+
+    /**
      * @param {CircuitControllerQueryResult} query
      */
     function onDragStartGate(query) {
-        //circuitDraggable.drag(query, circuitContainer)
+        SFXPlayer.play("gategrab.wav")
     }
 
     /**
@@ -520,7 +523,14 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
         const cType = from.gateTypeController
         if (!cType) return
         
-        circuitController.addGateLocal(cType, localX, localY)
+        const result = circuitController.addGateLocal(cType, localX, localY)
+
+        if (result === "Ok") {
+            SFXPlayer.play("gatedrop.wav")
+        }
+        else {
+            SFXPlayer.play("gatefail.wav")
+        }
     }
 
     /**
@@ -537,10 +547,14 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
         
         const result = circuitController.moveGateLocal(id, localX, localY)
 
-        if (result !== "Ok" && circuitContainer) {
-            editorEventTarget?.dispatchEvent(
+        if (result === "Ok") {
+            SFXPlayer.play("gatedrop.wav")
+        }
+        else {
+            if (circuitContainer) editorEventTarget?.dispatchEvent(
                 createGameViewCircuitPanelEvent("removegate", from, to, circuitContainer)
             )
+            SFXPlayer.play("gatefail.wav")
         }
     }
 
