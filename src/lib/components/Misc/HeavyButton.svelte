@@ -62,9 +62,11 @@
         dispatch('click')
         onClick()
     }} 
-    on:mousedown={dispatch.bind(dispatch, 'mousedown')}
+    on:mousedown={() => {
+        dispatch('mousedown')
+    }}
     on:mouseenter={() => {
-        dispatch('mousenter')
+        dispatch('mouseenter')
         onMouseEnter()
     }}
     on:focusin={() => {
