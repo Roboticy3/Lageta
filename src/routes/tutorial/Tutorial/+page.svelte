@@ -16,6 +16,7 @@
     import { ProgressStorage } from "$lib/storage_types/ProgressStore";
     import { browser } from "$app/environment";
     import TutorialFrame from "$lib/components/GameView/Tutorial/TutorialFrame.svelte";
+    import { ShelfTreeNode } from "$lib/shelf_types/ShelfTree";
 
     /**
      * @type {CircuitController}
@@ -25,6 +26,11 @@
 
     let progressStorage = null
     $: if (browser) progressStorage = new ProgressStorage()
+
+    /**
+     * @type {GameView | null}
+     */
+    let gameView = null
 
     let state = {
         currentEvent:0,
@@ -79,8 +85,9 @@
         state = state
     })
     eventStagesController.signalEventTarget.addEventListener('step', (evt) => { 
-        state.isCircuitValid = evt.isCircuitValid
+        state.isCircuitValid = gameView?.isCircuitValid()
         state = state
+        console.log("tutorial checking circuit valid: ", state.isCircuitValid)
     })
 
     let size = 100
@@ -105,6 +112,15 @@
         shelfMaxHeight:initialMaxSize(slidinParams.shelfMaxHeight),
         instructionsFlex:initialMaxSize(slidinParams.instructionsFlex),
         signalMaxHeight:initialMaxSize(slidinParams.signalMaxHeight)
+    }
+
+    let shelf = new ShelfTreeNode("None", [])
+
+    $: {
+        if (state.currentEvent === 15 && shelf.children.length === 0) {
+            shelf.children.push("Not")
+            shelf = shelf
+        }
     }
 
     function onContinue() {
@@ -142,8 +158,8 @@
                 showShelf:state.showShelf
             }}
             bind:rendererParams={state.rendererParams}
+            bind:shelf={shelf}
             editorEventTarget={eventStagesController.editorEventTarget}
-            shelf={progressStorage?.gates()}
             maxSizeState={maxSizeState}
         >
             <CircuitEditorContentsTutorial
@@ -167,6 +183,8 @@
             existingEditor={editor}
             signalSetViewEventTarget={eventStagesController.signalEventTarget}
             bind:maxSizeState={maxSizeState}
+            shelf={shelf}
+            bind:this={gameView}
         >
             <GameViewContentsTutorial 
                 state={state}

@@ -75,12 +75,14 @@
         }
         if (activate) container.activate()
         else container.deactivate()
-        button.unavailable = !activate
+        button.setUnavailable(!activate)
     }
 
     async function playLevel() {
         dispatch('selected', level)
+
         await tick()
+
         window.location.href = '/level/' + level.name()
     }
 </script>

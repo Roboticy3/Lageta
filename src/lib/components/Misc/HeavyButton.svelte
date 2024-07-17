@@ -51,6 +51,13 @@
     export function getButton() {
         return button
     }
+
+    /**
+     * @param {boolean} to
+     */
+     export function setUnavailable(to) {
+        unavailable = to
+    }
     
 </script>
 
@@ -62,9 +69,11 @@
         dispatch('click')
         onClick()
     }} 
-    on:mousedown={dispatch.bind(dispatch, 'mousedown')}
+    on:mousedown={() => {
+        dispatch('mousedown')
+    }}
     on:mouseenter={() => {
-        dispatch('mousenter')
+        dispatch('mouseenter')
         onMouseEnter()
     }}
     on:focusin={() => {

@@ -11,8 +11,8 @@
     export let channels
     const channelTypeParams = new Map([
         ["Given", `stroke="var(--circuit-color)" stroke-width="1" `],
-        ["Expected", `stroke="var(--verification-color)" stroke-width="1" `],
-        ["Live", `stroke="var(--circuit-color)" stroke-width="1" stroke-dasharray="2 1" `],
+        ["Expected", `stroke="var(--verification-color)" stroke-width="1" stroke-dasharray="2 1" `],
+        ["Live", `stroke="var(--circuit-color)" stroke-width="1"`],
     ])
 
     /**

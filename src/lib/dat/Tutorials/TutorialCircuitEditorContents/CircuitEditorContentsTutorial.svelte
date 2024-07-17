@@ -90,7 +90,7 @@
     circuitController={circuitController}
 />
 
-{#if state.currentEvent >= 20 && !(state.isCircuitValid)}
+{#if state.currentEvent >= 20 && (state.isCircuitValid !== true)}
     <TutorialText
         position={[50, 90]}
         initialPosition={[30, 120]}
@@ -118,7 +118,7 @@
         showButton={true}
     >   
         <div style="color:black; white-space: nowrap;">
-            <div style="position:relative; left:5vw;">As the <span style="color:var(--circuit-color);">signal</span> changes,</div>
+            <div style="position:relative; left:5vw;">As the <span style="color:var(--circuit-color);">signal</span> plays,</div>
             <div style="
                 display:flex; 
                 flex-direction:row; 

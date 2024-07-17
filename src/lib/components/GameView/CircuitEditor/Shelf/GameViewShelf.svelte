@@ -19,6 +19,8 @@
      */
     export let items = []
 
+    $: console.log("creating shelf with items ", items)
+
     export let circuitDraggable
 
     /**

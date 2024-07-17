@@ -96,9 +96,9 @@
         showButton={false}
     >
     <div style="color:black; width:25vw">
-        Each Gate has a name, this one is called a “Not” gate, it takes one input and “inverts” it, 
-        <span style="color:var(--connection-color-on)">high</span> to <span style="color:var(--connection-color-off)">low</span> 
-        and <span style="color:var(--connection-color-off)">low</span> to <span style="color:var(--connection-color-on)">high</span>
+        <p>Each Gate has a name, this one is called a “Not” gate.</p> 
+        <p>It takes one input and “inverts” it, <span style="color:var(--connection-color-on)">high</span> to <span style="color:var(--connection-color-off)">low</span>
+        and <span style="color:var(--connection-color-off)">low</span> to <span style="color:var(--connection-color-on)">high</span>.</p>
     </div>
     </TutorialText>
 {/if}
@@ -166,11 +166,11 @@
 
 {#if state.currentEvent === 18}
     <TutorialText
-        position={[35, 90]}
+        position={[20, 70]}
         initialPosition={[85, 20]}
         showButton={false}
     >
-    <div style="color:black;">
+    <div style="color:black; width:15vw;">
         Let's see if the circuit works now! (press play)
     </div>
     </TutorialText>
@@ -208,13 +208,7 @@
         showButton={true}
     >
         <div style="color:black; white-space: nowrap;">
-            <div>Looks like this circuit isn't correct.</div>
-            <div>But flipping the input manually seems like a pain...</div>
-            <div>
-                To match the <span style="color:var(--circuit-color);">signal</span>, we can <span style="font-style:italic;"
-                    >transform</span
-                > the input to match the expected output.
-            </div>
+            Looks like this circuit isn't correct.
         </div>
     </TutorialText>
 {/if}
@@ -233,13 +227,13 @@
 
 {#if state.currentEvent === 11}
     <TutorialText
-        position={[50, 85]}
+        position={[20, 70]}
         initialPosition={[85,30]}
         on:continue={dispatch.bind(dispatch, "continue")}
         showButton={false}
     >
-        <div style="color:black; white-space: nowrap;">
-            <div>This is the Signal. Press the play button</div>
+        <div style="color:black; width:10vw;">
+            <div>This is the <span style="color:var(--circuit-color);">signal</span>. Press the play button</div>
             <div>to see what happens in the circuit.</div>
         </div>
     </TutorialText>

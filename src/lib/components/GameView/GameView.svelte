@@ -66,7 +66,7 @@
         new CircuitSignalSetView(gameParams.completeCondition) : undefined
 
     let progressStorage = new ProgressStorage()
-    let shelf = GameViewShelfTree
+    export let shelf = new ShelfTreeNode("None", [])
     $: {
         if (progressStorage.gateNames().length < 10) {
             shelf = new ShelfTreeNode(
@@ -76,12 +76,19 @@
         else {
             shelf = filterShelfTreeWithUnlocks(progressStorage.gateNames(), GameViewShelfTree)
         }
+
+        //remove the current level as a "new" level, so it doesn't direct the player's attention anymore on the level select screen
+        progressStorage.removeNewLevel(gameParams.name)
     }
 
     /**
      * @type {CircuitSignalSetViewEventTarget | null}
      */
     export let signalSetViewEventTarget = null
+
+    export function isCircuitValid() {
+        return signalSetView?.isCircuitValid()
+    }
 
     
     /**
@@ -108,7 +115,12 @@
 
         completionPopup.show()
 
-        SFXPlayer.play("outro1.wav")
+        if (toolRewards.length > 0) {
+            SFXPlayer.play("outro2.wav")
+        }
+        else {
+            SFXPlayer.play("outro1.wav")
+        }
         
     }
 
@@ -161,8 +173,10 @@
 
         await tick()
 
-        SFXPlayer.loadAudio(["intro1.wav", "outro1.wav"])
+        //load the outro sfx
+        SFXPlayer.loadAudio(["outro1.wav", "outro2.wav"])
         
+        //wait a bit before starting the slide in bc that makes it look nicer
         setTimeout(slideIn, 200)
     })
 
@@ -184,7 +198,7 @@
                     rendererParams={rendererParams}
                     maxSizeState={maxSizeState}
                     editorEventTarget={new GameViewCircuitPanelEventTarget()}
-                    shelf={shelf}
+                    shelf={gameParams.allUnlocks ? GameViewShelfTree:shelf}
                     tools={progressStorage.getTools()}
                 />
             {/if}
@@ -212,6 +226,7 @@
             <SignalShelf 
                 circuitController={circuitController} 
                 signalSetView={signalSetView} 
+                editorParams={editorParams}
                 bind:signalSetViewEventTarget={signalSetViewEventTarget}
             >
                 <g fill="none">
