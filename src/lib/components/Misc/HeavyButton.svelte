@@ -51,6 +51,13 @@
     export function getButton() {
         return button
     }
+
+    /**
+     * @param {boolean} to
+     */
+     export function setUnavailable(to) {
+        unavailable = to
+    }
     
 </script>
 

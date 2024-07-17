@@ -226,25 +226,7 @@ export const RandomLevel1 = {
     params:new GameViewParameters(
         "Random 1",
         `
-        <p>This level will introduce some formal logic that you can use to solve any level.</p>
-        <p>Which is good, because the <span style="color:var(--circuit-color);">circuit</span> you need to win has been randomly generated!</p>
-        <p>So, it may help to use <span style="font-style:italic;">Cases</span>:</p>
-        <p>Cases are unique, possible situations.</p>
-        <p>In school, cases can be the different schedules you may end up with next term.</p>
-        <p>For <span style="color:var(--circuit-color);">circuits</span>, cases can be the different possible combinations of inputs.</p>
-        <div style="display:grid; grid-template-columns: 1fr 1fr 1fr 1fr 1fr; grid-template-rows: 1fr 1fr 1fr 1fr 1fr; text-align:center; text-wrap:nowrap;">
-            <div style="grid-column: 2; grid-row: 1;">Input 1</div><div style="grid-column: 3; grid-row: 1;">Input 2</div><div style="grid-column: 4; grid-row: 1;">Output 1</div><div style="grid-column: 5; grid-row: 1;">Output 2</div>
-            <div style="grid-column: 1; grid-row: 2;">Case 1: </div><div style="grid-column: 2; grid-row: 2; color:var(--connection-color-off);">low</div><div style="grid-column: 3; grid-row: 2; color:var(--connection-color-off);">low</div><div style="grid-column: 4; grid-row: 2; color:var(--verification-color);">?</div><div style="grid-column: 5; grid-row: 2; color:var(--verification-color);">?</div>
-            <div style="grid-column: 1; grid-row: 3;">Case 2: </div><div style="grid-column: 2; grid-row: 3; color:var(--connection-color-on);">high</div><div style="grid-column: 3; grid-row: 3; color:var(--connection-color-off);">low</div><div style="grid-column: 4; grid-row: 3; color:var(--verification-color);">?</div><div style="grid-column: 5; grid-row: 3; color:var(--verification-color);">?</div>
-            <div style="grid-column: 1; grid-row: 4;">Case 3: </div><div style="grid-column: 2; grid-row: 4; color:var(--connection-color-off);">low</div><div style="grid-column: 3; grid-row: 4; color:var(--connection-color-on);">high</div><div style="grid-column: 4; grid-row: 4; color:var(--verification-color);">?</div><div style="grid-column: 5; grid-row: 4; color:var(--verification-color);">?</div>
-            <div style="grid-column: 1; grid-row: 5;">Case 4: </div><div style="grid-column: 2; grid-row: 5; color:var(--connection-color-on);">high</div><div style="grid-column: 3; grid-row: 5; color:var(--connection-color-on);">high</div><div style="grid-column: 4; grid-row: 5; color:var(--verification-color);">?</div><div style="grid-column: 5; grid-row: 5; color:var(--verification-color);">?</div>
-        </div>
-        <p>The key to using cases is to deduce how a <span style="color:var(--circuit-color);">circuit</span> should behave under each case. 
-        That means deducing the <span style="color:var(--verification-color);">desired</span> outputs.</p>
-        <p>Then, you can build any <span style="color:var(--circuit-color);">circuit</span> by satisfying each case individually:</p>
-        <p>Set the inputs to match Case 1, then edit the <span style="color:var(--circuit-color);">circuit</span> to match the <span style="color:var(--verification-color);">desired</span> outputs, then the same for Case 2, etc.</p>
-        <p>When all the cases are covered, your <span style="color:var(--circuit-color);">circuit</span> will be <span style="color:var(--verification-color);">correct</span>.</p> 
-        <p>It can also help to consider outputs individually from each other: solve all cases for one output and then the other. Really, the more you can break up a problem, the better.</p>
+        <p>The <span style="color:var(--circuit-color);">circuit</span> you need to win has been randomly generated!</p>
         `,
         {
             gateTypes: [
@@ -313,9 +295,10 @@ export const XandLevel = {
         "Exclusion 2",
         `
         <p>Beating this level requires constructing a "Xand" gate.</p>
-        <p>It may be more useful to refer to this gate as an "Equals" gate. To emulate it, this circuit should output <span style="color:var(--connection-color-on);">high</span> only when either:
+        <p>However, it may be more useful to refer to it as an "Equals" gate, since this circuit should only output <span style="color:var(--connection-color-on);">high</span> when:
             <p>both of its inputs are <span style="color:var(--connection-color-on);">high</span></p>
-            <p>or both of its inputs are <span style="color:var(--connection-color-off);">low</span></p>
+            <p>or</p>
+            <p>both of its inputs are <span style="color:var(--connection-color-off);">low</span></p>
         </p>
         `,
         {
@@ -479,7 +462,7 @@ export const AdderLevel = {
         <p>Treating the voltages this way, you can imagine "adding" two voltages together.</p>
         <p>Here, the output should be <span style="color:var(--connection-color-on);">high</span> (<span style="color:var(--connection-color-on);">1</span>) when the two inputs X and Y "add" to <span style="color:var(--connection-color-on);">1</span>,
         and <span style="color:var(--connection-color-off);">low</span> (<span style="color:var(--connection-color-off);">0</span>) otherwise.</p>
-        <p>Note that this means if X and Y add to 2, the output should still be <span style="color:var(--connection-color-off);">0</span>.</p>
+        <p>Note that if X and Y add to 2, the output should still be <span style="color:var(--connection-color-off);">0</span>.</p>
         <p><span style="color:var(--connection-color-on);">1</span> + <span style="color:var(--connection-color-on);">1</span> =
         <span style="color:var(--connection-color-off);">0</span>,</p>
         <p><span style="color:var(--connection-color-on);">1</span> + <span style="color:var(--connection-color-off);">0</span> =
@@ -523,7 +506,9 @@ export const DecoderLevel = {
             <div style="grid-column: 2; grid-row: 3;">10 * 1 + </div><div style="grid-column: 3; grid-row: 3;">9 = </div>
             <div style="grid-column: 4; grid-row: 3; border: dashed var(--verification-color) 4px; border-radius: 25%;">19</div>
         </div>
-        <p>This level requires you to "decode" X0 and X1 into a decimal number.</p>
+        <p>This is a "base 10" number. However, circuits represent numbers in "base 2."</p>
+        <p>Instead of a 1's place, 10's place, 100's place and so on, base 2 numbers have a 1's place, 2's place, 4's place and so on.</p>
+        <p>This level requires you to "decode" X0 and X1 from a base 2 representation, to one of the outputs labelled in base 10.</p>
         <div style="display:grid; grid-template-columns: 1fr 1fr 1fr 1fr; grid-template-rows: 1fr 1fr 1fr; align-self:center; text-align:center; text-wrap:nowrap;">
             <div style="grid-column: 1; grid-row: 1;">place</div><div style="grid-column: 2; grid-row: 1;">2's</div><div style="grid-column: 3; grid-row: 1;">1's</div>
             <div style="grid-column: 1 / 4; grid-row: 2; border-top: solid black 2px; width:100%"></div>
@@ -532,7 +517,8 @@ export const DecoderLevel = {
             <div style="grid-column: 2; grid-row: 3;">2 * X1 + </div><div style="grid-column: 3; grid-row: 3;">X0 = </div>
             <div style="grid-column: 4; grid-row: 3; border: dashed var(--verification-color) 4px; border-radius: 25%; color: var(--verification-color);">?</div>
         </div>
-        <p>It turns out that a decoder <span style="color:var(--circuit-color);">circuit</span> is significantly more complicated than the encoder <span style="color:var(--circuit-color);">circuit</span>.</p>
+        <p>This is the opposite of the "encoder" <span style="color:var(--circuit-color);">circuit</span> you made before, and it turns out to be significantly more complicated.</p>
+        <p>Take your time, most levels are optional to beat the final level!</p>
         `,
         {
             gateTypes: [

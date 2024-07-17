@@ -75,7 +75,7 @@
         }
         if (activate) container.activate()
         else container.deactivate()
-        button.unavailable = !activate
+        button.setUnavailable(!activate)
     }
 
     async function playLevel() {
