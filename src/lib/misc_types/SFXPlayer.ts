@@ -16,6 +16,7 @@ export class SFXPlayer {
             const audio = new Audio(audioFolder + url)
             this.audioCache.set(url, audio)
         })
+        console.log("loaded audio: ", this.audioCache)
     }
 
     static clearAudio(urls:string[]) {
@@ -23,6 +24,7 @@ export class SFXPlayer {
     }
 
     static play(url:string) {
+        console.log("playing audio at", url)
         const audio = this.audioCache.get(url)
         if (audio === undefined) {
             const missing = new Audio(this.missingPath)

@@ -8,6 +8,7 @@
     import { GameViewCircuitPanelEventTarget } from "$lib/circuit_types/GameViewCircuitPanelEvent";
     import GameViewShelf from "./Shelf/GameViewShelf.svelte";
     import { GameViewShelfTree, ShelfTreeNode } from "$lib/shelf_types/ShelfTree";
+    import { SFXPlayer } from "$lib/misc_types/SFXPlayer";
 
     /**
      * @type {CircuitController | null}
@@ -56,6 +57,9 @@
         if (!circuitController) {
             circuitController = new CircuitController()
         }
+
+        SFXPlayer.loadAudio(["wireupdate.wav"])
+        circuitController.addGraphListener("update", () => SFXPlayer.play("wireupdate.wav"))
     })
 
     /**
