@@ -103,17 +103,6 @@
         tutorialHighlightColor = inputCheckBox.isChecked() ? "var(--connection-color-on)" : "var(--connection-color-off)"
     }
 
-    /**
-     * 
-     * @param {CustomEvent<any>} e
-     */
-    function onSelected(e) {
-        const name = e.detail.params?.name
-        if (typeof name === "string") {
-            progress?.removeNewLevel(name)
-        }
-    }
-
 </script>
 <div class="level-panel" data-sveltekit-noscroll>
     <CircuitEditorComponent
@@ -128,7 +117,6 @@
                 params={params} 
                 circuitController={circuitController} 
                 isNew={newLevelSet?.has(params.params?.name || "")}
-                on:selected={onSelected}
             />
         {/each}
 

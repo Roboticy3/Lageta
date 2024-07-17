@@ -14,6 +14,6 @@
 </script>
 <ul>
 {#each passedTutorials as tutorial} 
-    <li><HeavyButton>{tutorial}</HeavyButton></li>
+    <li><HeavyButton on:click={() => {window.location.href = '/tutorial/' + tutorial}}>{tutorial}</HeavyButton></li>
 {/each}
 </ul>

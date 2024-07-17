@@ -76,6 +76,9 @@
         else {
             shelf = filterShelfTreeWithUnlocks(progressStorage.gateNames(), GameViewShelfTree)
         }
+
+        //remove the current level as a "new" level, so it doesn't direct the player's attention anymore on the level select screen
+        progressStorage.removeNewLevel(gameParams.name)
     }
 
     /**
@@ -165,8 +168,10 @@
 
         await tick()
 
-        SFXPlayer.loadAudio(["intro1.wav", "outro1.wav"])
+        //load the outro sfx
+        SFXPlayer.loadAudio(["outro1.wav"])
         
+        //wait a bit before starting the slide in bc that makes it look nicer
         setTimeout(slideIn, 200)
     })
 

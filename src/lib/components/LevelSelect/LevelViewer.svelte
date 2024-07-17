@@ -80,7 +80,9 @@
 
     async function playLevel() {
         dispatch('selected', level)
+
         await tick()
+
         window.location.href = '/level/' + level.name()
     }
 </script>
