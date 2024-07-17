@@ -168,9 +168,7 @@ export class ProgressStorage {
 }
 
 class ProgressStorageObject {
-    gates:Array<string> = [
-        "Not"
-    ]
+    gates:Array<string> = []
     levels:Array<string> = []
     tools:Array<string> = []
     passedTutorials:Array<string> = []

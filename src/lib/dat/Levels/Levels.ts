@@ -937,6 +937,7 @@ export const Tutorial = {
             getGateType(Not)
         ),
         [
+            getGateType(Not).name,
             getGateType(Or).name,
             getGateType(And).name,
             getGateType(Buf).name,

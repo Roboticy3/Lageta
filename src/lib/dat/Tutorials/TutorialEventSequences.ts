@@ -1,3 +1,4 @@
+import { SFXPlayer } from "$lib/misc_types/SFXPlayer"
 import type { TutorialEventSequence } from "$lib/tutorial_types/TutorialEventSequence"
 import { OutputLabelledPrebaked, getGateType } from "../GateTypes/GateTypes"
 
@@ -56,7 +57,7 @@ export function EventSequenceTutorial(state:any): TutorialEventSequence {return 
                 state.circuitController.setDesiredOutputs([false])
                 state.expectedOutput = false
                 state.indicator?.show()
-                state.indicator?.setPosition([0.65, 1.5])
+                state.indicator?.setPosition([2.15, 1.25])
                 return 1
             }
         }
@@ -120,6 +121,9 @@ export function EventSequenceTutorial(state:any): TutorialEventSequence {return 
                 state.circuitController.getOutputs()[0] === state.circuitController.getInputs()[0]
             ) {   
                 state.showShelf = true
+
+                SFXPlayer.loadAudio(["intro1.wav"])
+                SFXPlayer.play("intro1.wav")
                 return 1
             } 
         }
@@ -148,7 +152,7 @@ export function EventSequenceTutorial(state:any): TutorialEventSequence {return 
         //12: wait for the signal to get a certain frame before telling the player what's going on
         eventName:"continue",f:async (evt) => {
             if (
-                state.isCircuitValid === false
+                state.isCircuitValid !== true
             ) return 1
             else {
                 state.indicator.hide()
@@ -218,8 +222,9 @@ export function EventSequenceTutorial(state:any): TutorialEventSequence {return 
             }
 
             if (
-                state.isCircuitValid === false
+                state.isCircuitValid !== true
             ) return 1
+            
             else {
                 state.indicator.hide()
                 return 7

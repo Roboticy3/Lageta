@@ -21,9 +21,7 @@
      * @type {CircuitSignalSetViewEventTarget | null}
      */
     export let signalSetViewEventTarget = null
-
-    let labelOffset = 75
-
+    
     /**
      * @type {CircuitController}
     */
@@ -32,6 +30,11 @@
      * @type {string[]}
      */
     export let labels = circuitController.getInputLabels().concat(circuitController.getOutputLabels())
+
+    /**
+     * @type {any}
+     */
+    export let editorParams
 
     onMount(async () => {
         signalSetView.createPlayer(100)
@@ -214,6 +217,7 @@
             eventTarget={signalSetViewEventTarget}
             signalSetView={signalSetView}
             circuitController={circuitController}
+            visible={editorParams.showVerifier}
         />
     </div>
     <div class="signal-container">

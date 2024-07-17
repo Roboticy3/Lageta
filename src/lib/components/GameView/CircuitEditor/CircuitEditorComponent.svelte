@@ -46,7 +46,7 @@
     /**
      * @type {ShelfTreeNode}
      */
-    export let shelf = GameViewShelfTree
+    export let shelf = new ShelfTreeNode("None", [])
 
     /**
      * @type {string[]}

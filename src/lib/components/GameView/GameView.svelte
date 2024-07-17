@@ -66,7 +66,7 @@
         new CircuitSignalSetView(gameParams.completeCondition) : undefined
 
     let progressStorage = new ProgressStorage()
-    let shelf = GameViewShelfTree
+    export let shelf = new ShelfTreeNode("None", [])
     $: {
         if (progressStorage.gateNames().length < 10) {
             shelf = new ShelfTreeNode(
@@ -82,6 +82,10 @@
      * @type {CircuitSignalSetViewEventTarget | null}
      */
     export let signalSetViewEventTarget = null
+
+    export function isCircuitValid() {
+        return signalSetView?.isCircuitValid()
+    }
 
     
     /**
@@ -184,7 +188,7 @@
                     rendererParams={rendererParams}
                     maxSizeState={maxSizeState}
                     editorEventTarget={new GameViewCircuitPanelEventTarget()}
-                    shelf={shelf}
+                    shelf={gameParams.allUnlocks ? GameViewShelfTree:shelf}
                     tools={progressStorage.getTools()}
                 />
             {/if}
@@ -212,6 +216,7 @@
             <SignalShelf 
                 circuitController={circuitController} 
                 signalSetView={signalSetView} 
+                editorParams={editorParams}
                 bind:signalSetViewEventTarget={signalSetViewEventTarget}
             >
                 <g fill="none">

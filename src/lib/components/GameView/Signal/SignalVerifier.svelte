@@ -15,6 +15,11 @@
     export let signalSetView
 
     /**
+     * @type {any}
+     */
+    export let visible = true
+
+    /**
      * @type {CircuitSignalSetViewEventTarget | null}
      */
     export let eventTarget = null
@@ -26,7 +31,7 @@
         eventTarget?.addEventListener("restart", onRestart)
     }
 
-    let isCircuitValid = true
+    let circuitValid = true
     let playing = false
 
     //stop the user from using InputCheckBoxes while the signal is playing to avoid interrupting the verification process
@@ -47,12 +52,16 @@
     }
 
     function onStep() {
-        isCircuitValid = signalSetView.isCircuitValid()
-        console.log("checking circuit valid ", isCircuitValid)
+        circuitValid = signalSetView.isCircuitValid()
+        console.log("checking circuit valid ", circuitValid)
+    }
+
+    export function isCircuitValid() {
+        return circuitValid
     }
 
     function onRestart() {
-        isCircuitValid = true
+        circuitValid = true
     }
 
     /**
@@ -74,8 +83,8 @@
 
 </script>
 
-{#if playing}
-    {#if isCircuitValid}
+{#if playing && visible}
+    {#if circuitValid}
         <div class="success">
             <span style="color:var(--verification-color);">Correct!</span> 
             <p>Keep playing to <span style="color:var(--verification-color);">verify</span> the <span style="color:var(--circuit-color);">circuit</span>!</p>
