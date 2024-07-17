@@ -12,6 +12,7 @@
     import { GameViewCircuitPanelEventTarget } from "$lib/circuit_types/GameViewCircuitPanelEvent";
     import { CircuitStorage } from "$lib/storage_types/CircuitStorage";
     import { Level } from "$lib/level_types/Level";
+    import HeavyButton from "../Misc/HeavyButton.svelte";
 
     const gridWidth = 24
     const gridHeight = 12
@@ -26,7 +27,7 @@
         }, 
         undefined, []
     )
-    const editorParams = {canDragGates:false}
+    const editorParams = {canDragGates:false, showShelf:false}
     const rendererParams = {showGates:false}
 
     $: progress = browser ? new ProgressStorage() : undefined
@@ -144,14 +145,14 @@
             size={[2, 0.5]} 
             active={true}
         >
-            <button 
+            <HeavyButton 
                 style="width:100%;height:100%;" 
                 on:click={() => {
                     window.location.pathname = "/"
                 }}
             >
                 Back
-            </button>
+            </HeavyButton>
         </CircuitDiv>
     </CircuitEditorComponent>
 </div>

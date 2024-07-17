@@ -119,6 +119,7 @@ export function EventSequenceTutorial(state:any): TutorialEventSequence {return 
                 state.circuitController &&
                 state.circuitController.getOutputs()[0] === state.circuitController.getInputs()[0]
             ) {   
+                state.showShelf = true
                 return 1
             } 
         }

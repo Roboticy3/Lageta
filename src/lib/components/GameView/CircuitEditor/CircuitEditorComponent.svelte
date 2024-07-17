@@ -1,14 +1,14 @@
 
 <script>
     import { CircuitController } from "$lib/circuit_types/CircuitController";
-    import { onMount, tick } from "svelte";
+    import { onMount } from "svelte";
     import CircuitDraggable from "$lib/components/GameView/CircuitEditor/CircuitDraggable.svelte";
     import GameViewCircuitPanel from "$lib/components/GameView/CircuitEditor/GameViewCircuitPanel.svelte";
     import { GameViewParameters } from "$lib/level_types/GameViewParameters";
-    import { GateTypeController } from "$lib/circuit_types/GateType";
     import { GameViewCircuitPanelEventTarget } from "$lib/circuit_types/GameViewCircuitPanelEvent";
     import GameViewShelf from "./Shelf/GameViewShelf.svelte";
     import { GameViewShelfTree, ShelfTreeNode } from "$lib/shelf_types/ShelfTree";
+    import { SFXPlayer } from "$lib/misc_types/SFXPlayer";
 
     /**
      * @type {CircuitController | null}
@@ -57,6 +57,9 @@
         if (!circuitController) {
             circuitController = new CircuitController()
         }
+
+        SFXPlayer.loadAudio(["wireupdate.wav"])
+        circuitController.addGraphListener("update", () => SFXPlayer.play("wireupdate.wav"))
     })
 
     /**
@@ -143,6 +146,7 @@
         container.style.width = `${width}px`
         container.style.height = `${height}px`
     }
+
 </script>
 
 <div 
@@ -170,12 +174,14 @@
             </GameViewCircuitPanel>
         </div>
 
-        <GameViewShelf
-            bind:maxSizeState={maxSizeState}
-            items={shelf.children}
-            circuitDraggable={circuitDraggable}
-            editorEventTarget={editorEventTarget}
-        />
+        {#if editorParams.showShelf !== false}
+            <GameViewShelf
+                bind:maxSizeState={maxSizeState}
+                items={shelf.children}
+                circuitDraggable={circuitDraggable}
+                editorEventTarget={editorEventTarget}
+            />
+        {/if}
 
         <CircuitDraggable 
             editorEventTarget={editorEventTarget}

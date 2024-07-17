@@ -1,6 +1,7 @@
 
 <script>
-    import { createEventDispatcher } from "svelte";
+    import HeavyButton from "$lib/components/Misc/HeavyButton.svelte";
+import { createEventDispatcher } from "svelte";
 
     const dispatch = createEventDispatcher()
 
@@ -17,40 +18,46 @@
         dialog.close()
         dispatch('skip')
     }
+
+    const skipTutorialButtonStyle = 
+`
+    position:absolute;
+    transition: top var(--animation-speed);
+    top:-5%;
+    right:0;
+    padding:1%;
+    background-color: var(--connection-color-on);
+    color:white;
+`
+    const skipTutorialButtonHoverStyle = 
+`
+    top:0;
+`
 </script>
 
 <slot />
 
-<button class="skip-tutorial-button" on:click={onClick}>
+<HeavyButton 
+    style={skipTutorialButtonStyle} 
+    hoverStyle={skipTutorialButtonHoverStyle} 
+    on:click={onClick}
+>
     Skip Tutorial
-</button>
+</HeavyButton>
 
 <dialog class="skip-tutorial-dialog" bind:this={dialog}>
     Are you sure?
     <div>
-        <button on:click={skip}>
+        <HeavyButton on:click={skip}>
             Yes
-        </button>
-        <button on:click={() => dialog.close()}>
+        </HeavyButton>
+        <HeavyButton on:click={() => dialog.close()}>
             No
-        </button>
+        </HeavyButton>
     </div>
 </dialog>
 
 <style>
-    .skip-tutorial-button {
-        position:absolute;
-        transition: top var(--animation-speed);
-        top:-5%;
-        right:0;
-        padding:1%;
-        background-color: var(--connection-color-on);
-        color:white;
-    }
-
-    .skip-tutorial-button:hover {
-        top:0;
-    }
 
     .skip-tutorial-dialog {
         position:absolute;

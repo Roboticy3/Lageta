@@ -12,6 +12,7 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
     import InputCheckBox from './InputCheckBox.svelte';
     import { GateTypeController } from '$lib/circuit_types/GateType';
     import { GameViewCircuitPanelEventTarget, createGameViewCircuitPanelEvent } from '$lib/circuit_types/GameViewCircuitPanelEvent';
+    import { SFXPlayer } from '$lib/misc_types/SFXPlayer';
 
     /**
      * @type {GameViewParameters}
@@ -147,6 +148,18 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
         circuitContainer.addEventListener("mousemove", drag)
         window.addEventListener("mouseup", drop)
     }
+
+    function loadAudio() {
+        SFXPlayer.loadAudio([
+            "inputgrab.wav",
+            "outputgrab.wav",
+            "wiredrop.wav",
+            "gategrab.wav",
+            "gatedrop.wav",
+            "gatefail.wav",
+        ])
+        console.log("loaded audio ", SFXPlayer)
+    }
     
     /**
      * Called in onMount, runs addDragEventListeners, updateViewBox, and updateSvg
@@ -156,6 +169,8 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
         addDragEventListeners()
 
         setInitialEventListeners()
+
+        loadAudio()
     }
     onMount(mountCircuit)
 
@@ -260,8 +275,12 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
             case "Output":
                 if (editorParams.canDragConnections !== false) onDragStartOutput(to)
                 break
+            case "Input":
+                if (editorParams.canDragConnections !== false) onDragStartInput(to)
+                break
             case "Gate":
                 onDragStartGate(to)
+                break
         }
 
         setDragEventListeners()
@@ -270,26 +289,25 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
     }
 
     /**
-     * onDragStart calls circuitController when the event passed to it selected an input connection.
-     * It also needs a query referencing the id of the gate and the index of the connection to proceed.
-     * 
      * @param {CircuitControllerQueryResult} query
      */
     function onDragStartOutput(query) {
-
+        SFXPlayer.play("outputgrab.wav")
     }
 
     /**
-     * onDragStart calls circuitController when the event passed to it selected an input connection.
-     * It also needs a query referencing the id of the gate and the index of the connection to proceed.
-     * 
+     * @param {CircuitControllerQueryResult} query
+     */
+    function onDragStartInput(query) {
+        SFXPlayer.play("inputgrab.wav")
+    }
+
+    /**
      * @param {CircuitControllerQueryResult} query
      */
     function onDragStartGate(query) {
-        //circuitDraggable.drag(query, circuitContainer)
+        SFXPlayer.play("gategrab.wav")
     }
-
-    export let forceDragOnCircuitContainerOnly = true
 
     /**
      * Check if a gate can be dragged, return a code depending on what goes wrong.
@@ -455,7 +473,7 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
                 dropGate({from, to})
                 break
             case "Input":
-                dropConnection({from:to, to:from})
+                dropConnection({to, from})
                 break
             case "Output":
                 dropConnection({from, to})
@@ -505,7 +523,14 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
         const cType = from.gateTypeController
         if (!cType) return
         
-        circuitController.addGateLocal(cType, localX, localY)
+        const result = circuitController.addGateLocal(cType, localX, localY)
+
+        if (result === "Ok") {
+            SFXPlayer.play("gatedrop.wav")
+        }
+        else {
+            SFXPlayer.play("gatefail.wav")
+        }
     }
 
     /**
@@ -522,10 +547,14 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
         
         const result = circuitController.moveGateLocal(id, localX, localY)
 
-        if (result !== "Ok" && circuitContainer) {
-            editorEventTarget?.dispatchEvent(
+        if (result === "Ok") {
+            SFXPlayer.play("gatedrop.wav")
+        }
+        else {
+            if (circuitContainer) editorEventTarget?.dispatchEvent(
                 createGameViewCircuitPanelEvent("removegate", from, to, circuitContainer)
             )
+            SFXPlayer.play("gatefail.wav")
         }
     }
 
@@ -557,6 +586,15 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
      * @param {import('$lib/circuit_types/GameViewCircuitPanelEvent').GameViewCircuitPanelEvent} param0
      */
     function onAddWire({from, to}) { 
+        //detect if the user is placing input-to-output or output-to-input to decide what sound to play later
+        const flipped = to.type === "Output"
+        if (flipped) {
+            const temp = from
+            from = to
+            to = temp
+        }
+
+        //define a connection
         const [fId, fC, tId, tC] = [
             from.getId(), from.connectionIndex,
             to.getId(), to.connectionIndex
@@ -566,11 +604,25 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
             tId === undefined || 
             tC === undefined || 
             from.type === to.type
-        ) return
+        ) {
+            //play a sound to drop the wire if either endpoint is undefined
+            SFXPlayer.play("wiredrop.wav")
+            return
+        }
         console.log("laying connection from ", from, " to ", to)
-        circuitController.addConnection(
+        
+        //try to lay a connection
+        const result = circuitController.addConnection(
             fId, fC, tId, tC
         );
+
+        //play a sound
+        if (result.error === "") {
+            SFXPlayer.play(flipped ? "outputgrab.wav":"inputgrab.wav")
+        }
+        else {
+            SFXPlayer.play("wiredrop.wav")
+        }
     }
 
     /**

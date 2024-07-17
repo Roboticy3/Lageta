@@ -1,10 +1,11 @@
 <script>
-    import { createEventDispatcher, onMount, tick } from "svelte";
+    import HeavyButton from "$lib/components/Misc/HeavyButton.svelte";
+import { createEventDispatcher, onMount, tick } from "svelte";
 
     const dispatch = createEventDispatcher();
 
     export let showButton = true;
-    export let availableButton = true;
+    export let unavailable = false;
     export let position = [50, 50];
 
     /**
@@ -30,6 +31,13 @@
             initialPosition = undefined
         }, 100)
     })
+
+    const tutorialContinueStyle =
+`
+    pointer-events: initial;
+    display: inline-flex;
+    align-self: center;
+`
 </script>
 
 <div
@@ -43,15 +51,16 @@
             <slot />
         </div>
         {#if showButton === true}
-            <button
-                class="tutorial-continue {availableButton ? '' : 'unavailable'}"
+            <HeavyButton
+                style={tutorialContinueStyle}
+                bind:unavailable={unavailable}
                 on:click={() => {
                     dispatch("continue", "ev");
                 }}
-                data-testid="continue"
+                
             >
                 Continue
-            </button>
+            </HeavyButton>
         {/if}
     </div>
 </div>
@@ -69,9 +78,4 @@
         box-sizing: border-box;
     }
 
-    .tutorial-continue {
-        pointer-events: initial;
-        display: inline-flex;
-        align-self: center;
-    }
 </style>

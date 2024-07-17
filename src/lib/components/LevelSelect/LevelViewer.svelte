@@ -5,6 +5,7 @@
     import { createEventDispatcher, onMount, tick } from "svelte";
     import CircuitDiv from "../GameView/CircuitDiv.svelte";
     import { Level } from "$lib/level_types/Level";
+    import HeavyButton from "../Misc/HeavyButton.svelte";
 
     /**
      * @type {import("$lib/dat/Levels/Levels").LevelParameters}
@@ -27,7 +28,7 @@
     let container
 
     /**
-     * @type {HTMLButtonElement}
+     * @type {HeavyButton}
      */
     let button
 
@@ -74,7 +75,7 @@
         }
         if (activate) container.activate()
         else container.deactivate()
-        button.disabled = !activate
+        button.unavailable = !activate
     }
 
     async function playLevel() {
@@ -95,7 +96,7 @@
 >
 <div style="display:flex; flex-direction:column; justify-content:center; height:100%;">
     <p style="overflow-wrap:break-word;">{level.name()}</p>
-    <button style="margin:10%; display:inline-flex; align-self:center;" on:click={playLevel} bind:this={button}>Play</button>
+    <HeavyButton style="margin:10%; display:inline-flex; align-self:center;" on:click={playLevel} bind:this={button}>Play</HeavyButton>
 </div>
     
 </CircuitDiv>

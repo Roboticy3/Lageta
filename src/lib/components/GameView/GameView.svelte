@@ -18,6 +18,8 @@
     import { TruthTable } from "$lib/circuit_types/TruthTable";
     import { getToolParams } from "$lib/dat/Tools/Tools";
     import GameViewDialog from "$lib/components/GameView/Dialogs/GameViewDialog.svelte";
+    import { SFXPlayer } from "$lib/misc_types/SFXPlayer";
+    import { browser } from "$app/environment";
 
 
     /**
@@ -105,6 +107,8 @@
         progressStorage.addNewLevels(levelRewards)
 
         completionPopup.show()
+
+        SFXPlayer.play("outro1.wav")
         
     }
 
@@ -156,6 +160,8 @@
         console.log("set to unlock ", gateRewards, levelRewards, toolRewards)
 
         await tick()
+
+        SFXPlayer.loadAudio(["intro1.wav", "outro1.wav"])
         
         setTimeout(slideIn, 200)
     })

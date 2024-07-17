@@ -130,6 +130,8 @@ export const SevenSegmentLevel = {
         false,
         {
             inputCheckboxes:false,
+        },
+        {
             useSolverForTruthTableLabels:true,
         }
     ),

@@ -7,6 +7,7 @@
     import { GameViewCircuitPanelEventTarget } from "$lib/circuit_types/GameViewCircuitPanelEvent";
     import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControllerQueryResult";
     import { createCustomEvent } from "$lib/misc_types/CustomEventSystem";
+    import HeavyButton from "$lib/components/Misc/HeavyButton.svelte";
 
     /**
      * @type {GateTypeController}
@@ -37,15 +38,10 @@
     let id = `gateshelf.${gateType.view.name}`
     let title = `ShelfButton.${gateType.view.name}`
 
-    /**
-     * @type {HTMLElement}
-     */
-    let element
-
     let render = ""
 
     /**
-     * @param {MouseEvent} e
+     * @param {any} e
      */
     export let onMouseDown = (e) => {
         const newQuery = new CircuitControllerQueryResult(
@@ -72,13 +68,25 @@
         circuitDraggable.resolveContents()
     }
 
+    const buttonStyle = 
+`
+    display: block;
+    align-self: center;
+    height:100%;
+    min-width:3vw;
+    max-width:5vw;
+`
+    const buttonHoverStyle =
+`
+    height:105%;
+`
+
 </script>
 
-<button 
-    class="shelf-button"
+<HeavyButton 
+    style={buttonStyle}
+    hoverStyle={buttonHoverStyle}
     id={id} 
-    title={title}
-    bind:this={element} 
     on:mousedown={onMouseDown}
     on:mouseenter={highlight}
     on:focusin={highlight}
@@ -86,18 +94,4 @@
     on:focusout={unhighlight}
 >
     {@html wrapGateTypeViewInSvgHeader(gateType.view.gridWidth, gateType.view.gridHeight, render, `width="100%" height="100%"`)}
-</button>
-
-<style>
-    .shelf-button {
-        display: block;
-        align-self: center;
-        height:100%;
-        min-width:3vw;
-        max-width:5vw;
-    }
-
-    .shelf-button:hover {
-        height:110%;
-    }
-</style>
+</HeavyButton>

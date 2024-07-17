@@ -12,6 +12,7 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
     import { browser } from "$app/environment";
     import { GameViewCircuitPanelEventTarget } from "$lib/circuit_types/GameViewCircuitPanelEvent";
     import { WireRenderer } from "$lib/renderer_types/WireRenderer";
+    import { SFXPlayer } from "$lib/misc_types/SFXPlayer";
 
     /**
      * @type {CircuitController}
@@ -122,6 +123,8 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
             const id = q.getId()
             if (id !== undefined) updateGate(id)
         })
+
+        SFXPlayer.loadAudio(["hover.wav"])
     })
 
     /**
@@ -866,6 +869,8 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
         if (canHighlight && svg && ((q.type !== "Gate") || q.getGateType()?.view.moveable)) {
             const existing = svg.getAttribute('transform')
             svg.setAttribute('transform', (existing === null ? '':existing) + highlightTransformEffect )
+            console.log("highlighting ", q)
+            SFXPlayer.play("hover.wav")
         }   
     }
 

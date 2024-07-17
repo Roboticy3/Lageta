@@ -9,10 +9,11 @@
     import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControllerQueryResult";
     import ResizingSvg from "$lib/components/Misc/ResizingSvg.svelte";
     import { Buf, getGateType } from "$lib/dat/GateTypes/GateTypes";
+    import HeavyButton from "$lib/components/Misc/HeavyButton.svelte";
 
     
     /**
-     * @type {Element}
+     * @type {HeavyButton}
      */
     let checkbox
 
@@ -37,9 +38,6 @@
     onMount(async () => {
         if (browser) {
             window.addEventListener('load', onChange)
-        }
-        else {
-            checkbox.setAttribute("hidden","hidden")
         }
 
         gridController.addGraphListener("update", ({id}) => {
@@ -70,10 +68,12 @@
             gridController.setInput(from, checked)
         }
 
-        const bbox = checkbox.getBoundingClientRect()
+        const button = checkbox.getButton()
+        const bbox = button.getBoundingClientRect()
         
         const q = gridController.toQuery(from[0], "Input", from[1], undefined, [bbox.x, bbox.y])
-        editorEventTarget?.dispatchEvent(createGameViewCircuitPanelEvent("setinput", q, q, checkbox))
+        const evt = createGameViewCircuitPanelEvent("setinput", q, q, button)
+        editorEventTarget?.dispatchEvent(evt)
     }
 
     export function isChecked() {
@@ -90,6 +90,20 @@
         return [gateOffset[0] + connectionOffset[0] / 10 + 0.5, gateOffset[1] + connectionOffset[1] / 10 - 1.25]
     }
 
+    const checkboxStyle =
+`
+    font-size:min(3vw, 4vh);
+    height:100%;
+    width:100%;
+    top:-10%;
+    left:-5%;
+    position:relative;
+`
+    const checkboxHoverStyle =
+`
+    scale:1.2;
+`
+
 </script>
 
 <CircuitDiv
@@ -100,7 +114,12 @@
     smooth={true}
     >
     
-    <button class="input-checkbox" bind:this={checkbox} on:click={onChange} title="Input Checkbox">
+    <HeavyButton 
+        style={checkboxStyle}
+        hoverStyle={checkboxHoverStyle}
+        bind:this={checkbox} 
+        on:click={onChange} 
+    >
         <ResizingSvg>
             <g font-size="10">
                 <text x="5" y="10" fill="var(--connection-color-on)">H</text>
@@ -110,25 +129,8 @@
             </g>
             
         </ResizingSvg>
-    </button>
+    </HeavyButton>
     
     
     
 </CircuitDiv>
-
-
-<style>
-
-    .input-checkbox {
-        font-size:min(3vw, 4vh);
-        height:100%;
-        width:100%;
-        top:-10%;
-        left:-5%;
-        position:relative;
-    }
-
-    .input-checkbox:hover {
-        scale:1.2;
-    }
-</style>
