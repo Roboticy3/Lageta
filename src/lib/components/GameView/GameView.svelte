@@ -115,7 +115,12 @@
 
         completionPopup.show()
 
-        SFXPlayer.play("outro1.wav")
+        if (toolRewards.length > 0) {
+            SFXPlayer.play("outro2.wav")
+        }
+        else {
+            SFXPlayer.play("outro1.wav")
+        }
         
     }
 
@@ -169,7 +174,7 @@
         await tick()
 
         //load the outro sfx
-        SFXPlayer.loadAudio(["outro1.wav"])
+        SFXPlayer.loadAudio(["outro1.wav", "outro2.wav"])
         
         //wait a bit before starting the slide in bc that makes it look nicer
         setTimeout(slideIn, 200)
