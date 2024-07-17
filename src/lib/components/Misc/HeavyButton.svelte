@@ -17,16 +17,20 @@
      */
     export let id = null
 
+    export let hoverSound = "hover.wav"
+
+    export let clickSound = "gategrab.wav"
+
     const dispatch = createEventDispatcher()
 
     onMount(() => {
-        SFXPlayer.loadAudio(["hover.wav", "gategrab.wav"])
+        SFXPlayer.loadAudio([hoverSound, clickSound])
     })
 
     //substitute hover psuedoeclass with javascript since that can't  be accessed from outside of the component
     let hovering = false
     function onMouseEnter() {
-        SFXPlayer.play("hover.wav")
+        SFXPlayer.play(hoverSound)
         hovering = true
     }
     function onMouseLeave() {
@@ -34,7 +38,7 @@
     }
 
     function onClick() {
-        SFXPlayer.play("gategrab.wav")
+        SFXPlayer.play(clickSound)
     }
 
     /**
@@ -55,24 +59,24 @@
     style={style + (hovering ? hoverStyle:'')} 
     bind:this={button}
     on:click={() => {
-        dispatch.bind(dispatch, 'click')
+        dispatch('click')
         onClick()
     }} 
     on:mousedown={dispatch.bind(dispatch, 'mousedown')}
     on:mouseenter={() => {
-        dispatch.bind(dispatch, 'mouseenter')
+        dispatch('mousenter')
         onMouseEnter()
     }}
     on:focusin={() => {
-        dispatch.bind(dispatch, 'focusin')
+        dispatch('focusin')
         onMouseEnter()
     }}
     on:mouseleave={() => {
-        dispatch.bind(dispatch, 'mouseleave')
+        dispatch('mouseleave')
         onMouseLeave()
     }}
     on:focusout={() => {
-        dispatch.bind(dispatch, 'focusout')
+        dispatch('focusout')
         onMouseLeave()
     }}
     disabled='{unavailable}'
