@@ -24,7 +24,6 @@
      * @type {string | undefined}
      */
     let currentTool = undefined
-    onMount(onNext)
     function onNext() {
         currentTool = newToolsCopy.pop()
         while (currentTool !== undefined && getToolParams(currentTool) === undefined) {
@@ -33,6 +32,10 @@
         currentTool = currentTool
         console.log("set currentTool to ", currentTool)
     }
+
+    onMount(() => {
+        onNext()
+    })
 
 </script>
 
@@ -62,7 +65,9 @@
         </div>
         <div class="to-level-select">
             <HeavyButton 
-                on:click={() => {window.location.pathname = "/campaign"}}
+                on:click={() => {
+                    window.location.pathname = "/campaign"
+                }}
             >
                 See Level Select Screen
             </HeavyButton>

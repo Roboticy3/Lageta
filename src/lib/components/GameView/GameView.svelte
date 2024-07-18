@@ -18,8 +18,8 @@
     import { TruthTable } from "$lib/circuit_types/TruthTable";
     import { getToolParams } from "$lib/dat/Tools/Tools";
     import GameViewDialog from "$lib/components/GameView/Dialogs/GameViewDialog.svelte";
-    import { SFXPlayer } from "$lib/misc_types/SFXPlayer";
     import { browser } from "$app/environment";
+    import { SFXPlayer } from "$lib/misc_types/SFXPlayer";
 
 
     /**
@@ -105,6 +105,7 @@
     function onComplete() {
         if (gameParams.name === progressStorage.getCurrentTutorial()) {
             progressStorage.passTutorial()
+            console.log("committed progress ", progressStorage)
         }
 
         levelRewards.map(progressStorage.addLevel.bind(progressStorage))
@@ -114,14 +115,16 @@
         progressStorage.addNewLevels(levelRewards)
 
         completionPopup.show()
+        
+        //load sfx for beating a level
+        SFXPlayer.loadAudio(["outro1.wav", "outro2.wav"])
 
-        if (toolRewards.length > 0) {
-            SFXPlayer.play("outro2.wav")
-        }
-        else {
+        if (toolRewards.length === 0) {
             SFXPlayer.play("outro1.wav")
         }
-        
+        else {
+            SFXPlayer.play("outro2.wav")
+        }
     }
 
     function placeExistingEditor() {
@@ -172,9 +175,6 @@
         console.log("set to unlock ", gateRewards, levelRewards, toolRewards)
 
         await tick()
-
-        //load the outro sfx
-        SFXPlayer.loadAudio(["outro1.wav", "outro2.wav"])
         
         //wait a bit before starting the slide in bc that makes it look nicer
         setTimeout(slideIn, 200)
