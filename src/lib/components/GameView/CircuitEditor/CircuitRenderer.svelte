@@ -25,7 +25,7 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
     export let circuitDraggable
 
     /**
-     * @type {GameViewCircuitPanelEventTarget | null}
+     * @type {GameViewCircuitPanelEventTarget}
      */
     export let editorEventTarget
 

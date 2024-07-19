@@ -21,6 +21,16 @@
      * @type {CircuitSignalSetViewEventTarget | null}
      */
     export let signalSetViewEventTarget = null
+    $: { if (signalSetViewEventTarget) {
+        signalSetViewEventTarget.addEventListener("restart", updateDesiredOutputs)
+        signalSetViewEventTarget.addEventListener("update", updateDesiredOutputs)
+
+        signalSetViewEventTarget.addEventListener("restart", onRestart)
+        signalSetViewEventTarget.addEventListener("play", onPlay)
+        signalSetViewEventTarget.addEventListener("pause", onPause)
+        signalSetViewEventTarget.addEventListener("step", onStep)
+        signalSetViewEventTarget.addEventListener("done", onDone)
+    }}
     
     /**
      * @type {CircuitController}
@@ -39,19 +49,8 @@
     onMount(async () => {
         signalSetView.createPlayer(100)
         signalSetView.sendPlayerToController(circuitController)
-        
-        restart()
 
         if (!signalSetViewEventTarget) signalSetViewEventTarget = new CircuitSignalSetViewEventTarget()
-
-        signalSetViewEventTarget.addEventListener("restart", updateDesiredOutputs)
-        signalSetViewEventTarget.addEventListener("update", updateDesiredOutputs)
-
-        signalSetViewEventTarget.addEventListener("restart", onRestart)
-        signalSetViewEventTarget.addEventListener("play", onPlay)
-        signalSetViewEventTarget.addEventListener("pause", onPause)
-        signalSetViewEventTarget.addEventListener("step", onStep)
-        signalSetViewEventTarget.addEventListener("done", onDone)
 
         console.log("channels", labels, channelSvgs)
 

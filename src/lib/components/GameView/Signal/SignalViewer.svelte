@@ -24,12 +24,12 @@
      * @type {CircuitSignalSetViewEventTarget | null}
      */
     export let eventTarget = null
-    $: {
-        eventTarget?.addEventListener("step", onStep)
-        eventTarget?.addEventListener("restart", onRestart)
-        eventTarget?.addEventListener("update", onUpdate)
-        eventTarget?.addEventListener("done", onDone)
-    }
+    $: { if (eventTarget) {
+        eventTarget.addEventListener("step", onStep)
+        eventTarget.addEventListener("restart", onRestart)
+        eventTarget.addEventListener("update", onUpdate)
+        eventTarget.addEventListener("done", onDone)
+    }}
 
     export let frameLength = signalSetView.getLength()
     $: updateChannelSvgs(frameLength)

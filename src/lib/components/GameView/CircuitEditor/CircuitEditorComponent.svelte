@@ -9,6 +9,7 @@
     import GameViewShelf from "./Shelf/GameViewShelf.svelte";
     import { GameViewShelfTree, ShelfTreeNode } from "$lib/shelf_types/ShelfTree";
     import { SFXPlayer } from "$lib/misc_types/SFXPlayer";
+    import { CircuitSignalSetViewEventTarget } from "$lib/signal_types/SignalSetViewEvent";
 
     /**
      * @type {CircuitController | null}
@@ -39,9 +40,14 @@
     }
 
     /**
-     * @type {GameViewCircuitPanelEventTarget}
+     * @type {GameViewCircuitPanelEventTarget | null}
      */
-    export let editorEventTarget
+    export let editorEventTarget = null
+
+    /**
+     * @type {CircuitSignalSetViewEventTarget | null}
+     */
+    export let signalSetViewEventTarget = null
 
     /**
      * @type {ShelfTreeNode}
@@ -168,7 +174,8 @@
                 circuitDraggable={circuitDraggable}
                 editorParams={editorParams}
                 rendererParams={rendererParams}
-                editorEventTarget={editorEventTarget}
+                bind:editorEventTarget={editorEventTarget}
+                signalSetViewEventTarget={signalSetViewEventTarget}
             >
                 <slot />
             </GameViewCircuitPanel>
@@ -179,12 +186,12 @@
                 bind:maxSizeState={maxSizeState}
                 items={shelf.children}
                 circuitDraggable={circuitDraggable}
-                editorEventTarget={editorEventTarget}
+                bind:editorEventTarget={editorEventTarget}
             />
         {/if}
 
         <CircuitDraggable 
-            editorEventTarget={editorEventTarget}
+            bind:editorEventTarget={editorEventTarget}
             showTruthTables={tools.indexOf("TruthTable") !== -1}
             bind:this={circuitDraggable}
         />

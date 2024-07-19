@@ -22,14 +22,16 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
      * @type {GameViewCircuitPanelEventTarget | null}
      */
     export let editorEventTarget
+    $: {
+        editorEventTarget?.addEventListener("dragstart", onDragStart)
+        editorEventTarget?.addEventListener("drop", onDrop)
+    }
 
     let dragging = false
 
     let query = new CircuitControllerQueryResult()
 
     onMount(() => {
-        editorEventTarget?.addEventListener("dragstart", onDragStart)
-        editorEventTarget?.addEventListener("drop", onDrop)
 
         window.addEventListener("mousemove", onMouseMove)
     })
