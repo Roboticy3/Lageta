@@ -216,11 +216,12 @@ export class OrganizedCircuit {
         const graph = grid.graph
         let connections = new Set<Connection>()
         graph.iterConnections((_g, _o, _t, _i, c) => {
-            connections.add(c)
-            c.from[0] = indexMap.get(c.from[0]) || 0
-            c.from[1] = indexMap.get(c.from[1]) || 0
+            let newC = c.copy()
+            connections.add(newC)
+            newC.from[0] = indexMap.get(c.from[0]) || 0
+            newC.from[1] = indexMap.get(c.from[1]) || 0
             
-            const to = c.to
+            const to = newC.to
             for (let i = 0; i < to.length; i++) {
                 const toi = to[i]
                 toi[0] = indexMap.get(toi[0]) || 0

@@ -625,7 +625,7 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
             SFXPlayer.play("wiredrop.wav")
             return
         }
-        console.log("laying connection from ", from, " to ", to)
+        console.log("laying connection from ", [fId, fC], " to ", [tId, tC])
         
         //try to lay a connection
         const result = circuitController.addConnection(
