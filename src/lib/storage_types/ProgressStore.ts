@@ -1,5 +1,5 @@
 import { Buf, all_gates, getGateType, getGateTypeParams } from "$lib/dat/GateTypes/GateTypes"
-import { all_levels } from "$lib/level_types/Level"
+import { all_levels, Level } from "$lib/level_types/Level"
 import { Freeplay, getLevel, getLevelParams, type LevelParameters } from "$lib/dat/Levels/Levels"
 import { parseStorage } from "./ParseStorage"
 import { browser } from "$app/environment"
@@ -61,7 +61,7 @@ export class ProgressStorage {
     cheat() {
         this.allUnlocks = true
         this.progressStorage.gates = [...all_gates.keys()] as string[]
-        this.progressStorage.levels = [...all_levels.keys()] as string[]
+        this.progressStorage.levels = Array.from(all_levels.keys()).map(v => {return {name:v, new:true, complete:false} as LevelProgress})
     }
 
     gates() {
@@ -81,9 +81,9 @@ export class ProgressStorage {
     levels() {
         return this.progressStorage.levels.map(
             (v, _i, _a) => {
-                const result = getLevelParams(v)
+                const result = getLevelParams(v.name)
                 if (result) return result
-                console.log("Failed to load Level ",v)
+                console.log("Failed to load Level ",v.name)
                 return Freeplay as LevelParameters
         })
     }
@@ -102,14 +102,14 @@ export class ProgressStorage {
     }
 
     findLevel(levelName:string) {
-        return this.progressStorage.levels.indexOf(levelName)
+        return this.progressStorage.levels.findIndex((v) => v.name === levelName)
     }
 
     addLevel(item:string) {
         const params = getLevelParams(item)
         console.log(params)
         if (params !== undefined && this.findLevel(item) === -1) {
-            this.progressStorage.levels.push(item)
+            this.progressStorage.levels.push({name:item, new:true, complete:false})
         }
         this.commit()
         console.log("Unlocked level ", item)
@@ -150,18 +150,13 @@ export class ProgressStorage {
     }
 
     getNewLevels() {
-        return this.progressStorage.newLevels
-    }
-
-    addNewLevels(newLevels:string[]) {
-        this.progressStorage.newLevels.push(...newLevels)
-        this.commit()
+        return this.progressStorage.levels.filter(v => v.new).map(v => v.name)
     }
 
     removeNewLevel(oldLevel:string) {
-        const idx = this.progressStorage.newLevels.indexOf(oldLevel)
-        if (idx > -1) {
-            this.progressStorage.newLevels.splice(idx, 1)
+        let oldLevelProgress = this.progressStorage.levels.find((v) => v.name === oldLevel) 
+        if (oldLevelProgress) {
+            oldLevelProgress.new = false
             this.commit()
         }
     }
@@ -169,11 +164,10 @@ export class ProgressStorage {
 
 class ProgressStorageObject {
     gates:Array<string> = []
-    levels:Array<string> = []
+    levels:Array<LevelProgress> = []
     tools:Array<string> = []
     passedTutorials:Array<string> = []
 
-    newLevels:Array<string> = []
     currentTutorial:string = "Tutorial"
 
     push(p:ProgressStorageObject) {
@@ -182,7 +176,12 @@ class ProgressStorageObject {
         this.tools.push(...p.tools)
         this.passedTutorials.push(...p.passedTutorials)
 
-        this.newLevels = p.newLevels
         this.currentTutorial = p.currentTutorial
     }
+}
+
+type LevelProgress = {
+    name:string,
+    new:boolean,
+    complete:boolean
 }
