@@ -32,7 +32,7 @@
 
     $: progress = browser ? new ProgressStorage() : undefined
     $: levelSet = progress?.levels() || []
-    $: newLevelSet = new Set((progress?.getNewLevels() || []))
+    $: newLevelSet = new Set((progress?.getNewLevels()))
 
     /**
      * @type {GameViewCircuitPanel}
@@ -116,7 +116,7 @@
             <LevelViewer 
                 params={params} 
                 circuitController={circuitController} 
-                isNew={newLevelSet?.has(params.params?.name || "")}
+                levelProgress={progress?.getLevelProgress(params.params?.name || "") || {}}
             />
         {/each}
 

@@ -10,15 +10,18 @@
     /**
      * @type {import("$lib/dat/Levels/Levels").LevelParameters}
      */
-     export let params
+    export let params
+    $: level = new Level(params)
 
-    let level = new Level(params)
     /**
      * @type {CircuitController}
      */
     export let circuitController
 
-    export let isNew = true
+    /**
+     * @type {any}
+     */
+    export let levelProgress
 
     const dispatch = createEventDispatcher()
 
@@ -93,11 +96,14 @@
     bob={false}
     smooth={false}
     size={[level.type.model.gridWidth - 1.05, level.type.model.gridHeight - 0.3]}
-    flash={isNew}
+    flash={levelProgress.new || false}
     bind:this={container}
 >
 <div style="display:flex; flex-direction:column; justify-content:center; height:100%;">
     <p style="overflow-wrap:break-word;">{level.name()}</p>
+    {#if levelProgress.complete}
+        <div>⭐</div>
+    {/if}
     <HeavyButton style="margin:10%; display:inline-flex; align-self:center;" on:click={playLevel} bind:this={button}>Play</HeavyButton>
 </div>
     

@@ -67,7 +67,8 @@
 
     let progressStorage = new ProgressStorage()
     export let shelf = new ShelfTreeNode("None", [])
-    $: {
+    
+    function readProgress() {
         if (progressStorage.gateNames().length < 10) {
             shelf = new ShelfTreeNode(
                 "Shelf", progressStorage.gateNames()
@@ -79,6 +80,8 @@
 
         //remove the current level as a "new" level, so it doesn't direct the player's attention anymore on the level select screen
         progressStorage.removeNewLevel(gameParams.name)
+
+        console.log("gameview loaded shelf ", shelf, " and unmarked ", gameParams.name, " as new!")
     }
 
     /**
@@ -111,7 +114,7 @@
         gateRewards.map(progressStorage.addGate.bind(progressStorage))
         toolRewards.map(progressStorage.addTool.bind(progressStorage))
 
-        progressStorage.addNewLevels(levelRewards)
+        progressStorage.completeLevel(gameParams.name)
 
         completionPopup.show()
 
@@ -178,6 +181,8 @@
         
         //wait a bit before starting the slide in bc that makes it look nicer
         setTimeout(slideIn, 200)
+
+        readProgress()
     })
 
     
