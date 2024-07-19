@@ -114,6 +114,8 @@
         gateRewards.map(progressStorage.addGate.bind(progressStorage))
         toolRewards.map(progressStorage.addTool.bind(progressStorage))
 
+        progressStorage.completeLevel(gameParams.name)
+
         completionPopup.show()
 
         if (toolRewards.length > 0) {

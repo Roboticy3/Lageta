@@ -116,7 +116,7 @@
             <LevelViewer 
                 params={params} 
                 circuitController={circuitController} 
-                isNew={newLevelSet?.has(params.params?.name || "")}
+                levelProgress={progress?.getLevelProgress(params.params?.name || "") || {}}
             />
         {/each}
 

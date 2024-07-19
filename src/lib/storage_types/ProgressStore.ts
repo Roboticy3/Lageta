@@ -154,11 +154,23 @@ export class ProgressStorage {
     }
 
     removeNewLevel(oldLevel:string) {
-        let oldLevelProgress = this.progressStorage.levels.find((v) => v.name === oldLevel) 
+        let oldLevelProgress = this.getLevelProgress(oldLevel)
         if (oldLevelProgress) {
             oldLevelProgress.new = false
             this.commit()
         }
+    }
+
+    completeLevel(level:string) {
+        let levelProgress = this.getLevelProgress(level)
+        if (levelProgress) {
+            levelProgress.complete = true
+            this.commit()
+        }
+    }
+
+    getLevelProgress(level:string) {
+        return this.progressStorage.levels.find((v) => v.name === level) 
     }
 }
 
