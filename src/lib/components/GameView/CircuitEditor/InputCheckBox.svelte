@@ -10,6 +10,7 @@
     import ResizingSvg from "$lib/components/Misc/ResizingSvg.svelte";
     import { Buf, getGateType } from "$lib/dat/GateTypes/GateTypes";
     import HeavyButton from "$lib/components/Misc/HeavyButton.svelte";
+    import Rand from "rand-seed";
 
     
     /**
@@ -18,7 +19,7 @@
     let checkbox
 
     /**
-     * @type {GameViewCircuitPanelEventTarget | null}
+     * @type {GameViewCircuitPanelEventTarget}
      */
      export let editorEventTarget
 
@@ -34,6 +35,19 @@
     export let startChecked = true
     let checked = startChecked
     $: color = checked ? 'var(--connection-color-on)':'var(--connection-color-off)'
+
+    export let active = true
+    /**
+     * @param {boolean} to
+     */
+    export function setActive(to) {
+        active = to
+    }
+    export function isActive() {
+        return active
+    }
+
+    
 
     onMount(async () => {
         if (browser) {
@@ -62,11 +76,15 @@
             return
         }
 
-        checked = !checked
-
         if (gridController) {
-            gridController.setInput(from, checked)
+            console.log("trying to check box with gridController ", gridController)
+            if (gridController.isPlaying()) {
+                return
+            }
+            gridController.setInput(from, !checked)
         }
+
+        checked = !checked
 
         const button = checkbox.getButton()
         const bbox = button.getBoundingClientRect()
@@ -110,7 +128,7 @@
     circuitController={gridController}
     position={getPosition()}
     size={[0.5, 0.75]}
-    active={true}
+    active={active}
     smooth={true}
     >
     
@@ -119,6 +137,7 @@
         hoverStyle={checkboxHoverStyle}
         bind:this={checkbox} 
         on:click={onChange} 
+        id={`input-checkbox-${new Rand().next()}`}
     >
         <ResizingSvg>
             <g font-size="10">

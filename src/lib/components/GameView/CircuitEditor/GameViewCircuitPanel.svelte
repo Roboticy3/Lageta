@@ -13,6 +13,7 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
     import { GateTypeController } from '$lib/circuit_types/GateType';
     import { GameViewCircuitPanelEventTarget, createGameViewCircuitPanelEvent } from '$lib/circuit_types/GameViewCircuitPanelEvent';
     import { SFXPlayer } from '$lib/misc_types/SFXPlayer';
+    import { CircuitSignalSetViewEventTarget } from '$lib/signal_types/SignalSetViewEvent';
 
     /**
      * @type {GameViewParameters}
@@ -42,7 +43,26 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
     /**
      * @type {GameViewCircuitPanelEventTarget | null}
      */
-    export let editorEventTarget
+    export let editorEventTarget = null
+    $: {if (editorEventTarget) {
+        editorEventTarget.addEventListener("addgate", onAddGate)
+        editorEventTarget.addEventListener("movegate", onMoveGate)
+        editorEventTarget.addEventListener("removegate", onRemoveGate)
+        editorEventTarget.addEventListener("addwire", onAddWire)
+        editorEventTarget.addEventListener("removewire", onRemoveWire)
+    }}
+
+    /**
+     * optional event target to track when the signal is playing, since inputcheckboxes cannot be used then
+     * @type {CircuitSignalSetViewEventTarget | null}
+     */
+    export let signalSetViewEventTarget 
+    let signalPlaying = false
+
+    $: { if (signalSetViewEventTarget) {
+        signalSetViewEventTarget.addEventListener("play", () => {signalPlaying = true})
+        signalSetViewEventTarget.addEventListener("pause", () => {signalPlaying = false})
+    }}
 
     /**
      * @param {import("$lib/circuit_types/GameViewCircuitPanelEvent").GameViewCircuitPanelEventKey} type
@@ -114,12 +134,6 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
         circuitContainer.removeEventListener("mousemove", drag)
         window.removeEventListener("mouseup", drop)
 
-        editorEventTarget.addEventListener("addgate", onAddGate)
-        editorEventTarget.addEventListener("movegate", onMoveGate)
-        editorEventTarget.addEventListener("removegate", onRemoveGate)
-        editorEventTarget.addEventListener("addwire", onAddWire)
-        editorEventTarget.addEventListener("removewire", onRemoveWire)
-
     }
 
     function addDragEventListeners() {
@@ -166,6 +180,8 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
      * These functions all adjust the input handling and display of the circuit, and can be called again whenever appropriate.
      */
     let mountCircuit = () => {
+        if (!editorEventTarget) editorEventTarget = new GameViewCircuitPanelEventTarget()
+
         addDragEventListeners()
 
         setInitialEventListeners()
@@ -609,7 +625,7 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
             SFXPlayer.play("wiredrop.wav")
             return
         }
-        console.log("laying connection from ", from, " to ", to)
+        console.log("laying connection from ", [fId, fC], " to ", [tId, tC])
         
         //try to lay a connection
         const result = circuitController.addConnection(
@@ -666,19 +682,25 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
     bind:this={circuitContainer}
     >
 
-    <CircuitRenderer 
-        bind:this={circuitRenderer}
-        circuitController={circuitController} 
-        circuitDraggable={circuitDraggable} 
-        rendererParams={rendererParams}
-        editorEventTarget={editorEventTarget}
-    >
-    </CircuitRenderer>
+    {#if editorEventTarget}
+        <CircuitRenderer 
+            bind:this={circuitRenderer}
+            circuitController={circuitController} 
+            circuitDraggable={circuitDraggable} 
+            rendererParams={rendererParams}
+            editorEventTarget={editorEventTarget}
+        >
+        </CircuitRenderer>
 
-    {#if editorParams.inputCheckboxes !== false}
-        {#each circuitController.getInputIds() as id}
-            <InputCheckBox gridController={circuitController} from={id} editorEventTarget={editorEventTarget}/>
-        {/each} 
+        {#if editorParams.inputCheckboxes !== false && !signalPlaying}
+            {#each circuitController.getInputIds() as id}
+                <InputCheckBox 
+                    gridController={circuitController} 
+                    from={id} 
+                    editorEventTarget={editorEventTarget} 
+                />
+            {/each} 
+        {/if}
     {/if}
 
     <slot />

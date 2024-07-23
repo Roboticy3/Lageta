@@ -142,6 +142,7 @@ export class GateGraph extends GateGraphEventTarget {
 
         //otherwise, add the connection
         const result = this.addConnectionNoChecks(c)
+
         return result
     }
 

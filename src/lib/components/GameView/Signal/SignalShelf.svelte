@@ -21,6 +21,16 @@
      * @type {CircuitSignalSetViewEventTarget | null}
      */
     export let signalSetViewEventTarget = null
+    $: { if (signalSetViewEventTarget) {
+        signalSetViewEventTarget.addEventListener("restart", updateDesiredOutputs)
+        signalSetViewEventTarget.addEventListener("update", updateDesiredOutputs)
+
+        signalSetViewEventTarget.addEventListener("restart", onRestart)
+        signalSetViewEventTarget.addEventListener("play", onPlay)
+        signalSetViewEventTarget.addEventListener("pause", onPause)
+        signalSetViewEventTarget.addEventListener("step", onStep)
+        signalSetViewEventTarget.addEventListener("done", onDone)
+    }}
     
     /**
      * @type {CircuitController}
@@ -39,19 +49,8 @@
     onMount(async () => {
         signalSetView.createPlayer(100)
         signalSetView.sendPlayerToController(circuitController)
-        
-        restart()
 
         if (!signalSetViewEventTarget) signalSetViewEventTarget = new CircuitSignalSetViewEventTarget()
-
-        signalSetViewEventTarget.addEventListener("restart", updateDesiredOutputs)
-        signalSetViewEventTarget.addEventListener("update", updateDesiredOutputs)
-
-        signalSetViewEventTarget.addEventListener("restart", onRestart)
-        signalSetViewEventTarget.addEventListener("play", onPlay)
-        signalSetViewEventTarget.addEventListener("pause", onPause)
-        signalSetViewEventTarget.addEventListener("step", onStep)
-        signalSetViewEventTarget.addEventListener("done", onDone)
 
         console.log("channels", labels, channelSvgs)
 
@@ -85,12 +84,12 @@
      */
     let container
 
-    function playPause() {
+    async function playPause() {
         if (playing) {
-            pause()
+            await pause()
         }
         else {
-            play()
+            await play()
         }
     }
 
@@ -98,8 +97,8 @@
      * @param {import("$lib/signal_types/SignalSetViewEvent").SignalSetViewEventKey} type
      * @param {Object | undefined} [options]
      */
-    function dispatchSignalEvent(type, options) {
-        signalSetViewEventTarget?.dispatchEvent(
+    async function dispatchSignalEvent(type, options) {
+        await signalSetViewEventTarget?.dispatchEvent(
             createCustomEvent(
                 {...{
                     frame:signalSetView.getPlayerFrame() || 0,
@@ -111,8 +110,8 @@
         )
     }
 
-    function restart() {
-        dispatchSignalEvent("restart")
+    async function restart() {
+        await dispatchSignalEvent("restart")
     }
 
     function onRestart() {
@@ -167,10 +166,14 @@
     }
 
     function onPlay() {
+        if (atEnd) {
+            restart().then(play)
+            return
+        }
+
         signalSetView.playVerify(circuitController, step)
 
         playButtonInnerText = "⏸"
-        if (atEnd) restart()
 
         playing = true
     }

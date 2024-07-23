@@ -25,7 +25,7 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
     export let circuitDraggable
 
     /**
-     * @type {GameViewCircuitPanelEventTarget | null}
+     * @type {GameViewCircuitPanelEventTarget}
      */
     export let editorEventTarget
 
@@ -381,7 +381,7 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
     /**
      * @param {[number, number] | undefined} outputOffset
      * @param {[number, number][] | undefined} inputOffsets
-     * @param {import("$lib/circuit_types/GateType").ConnectionValue} value
+     * @param {import("$lib/circuit_types/GateType").ConnectionValue | "last"} value if "last", use whatever value was passed to this wire previously
      * @param {Element} wire
      */
     function wireRefresher(outputOffset, inputOffsets, value, wire) {
@@ -393,7 +393,7 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
         const innerWires = inputOffsets.map(v => drawWire(outputOffset, v))
         wire.innerHTML = innerWires.join('\n')
 
-        wire.setAttribute('stroke', connectionValueToColor(value))
+        if (value !== "last") wire.setAttribute('stroke', connectionValueToColor(value))
     }   
 
     export function drawGates() {
@@ -444,9 +444,11 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
 
     /**
      * @param {[number, number]} index
-     * @param {import("$lib/circuit_types/GateType").ConnectionValue} value
+     * @param {import("$lib/circuit_types/GateType").ConnectionValue | "last"} value If "last" is passed as the value, update the wire using whatever value it was last updated with
      */
-    export function updateWire(index, value = undefined) {
+    export function updateWire(index, value) {
+
+        console.log("redrawing wire ", index, " with value ", value)
 
         const fCType = circuitController.getGateTypeController(index[0])
         const fGPos = circuitController.getGatePosition(index[0])

@@ -24,7 +24,7 @@
     export let circuitDraggable
 
     /**
-     * @type {GameViewCircuitPanelEventTarget}
+     * @type {GameViewCircuitPanelEventTarget | null}
      */
     export let editorEventTarget
 
