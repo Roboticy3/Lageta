@@ -3,13 +3,16 @@
 export class ShelfTreeNode {
     name:string
     children:(string | ShelfTreeNode)[]
+    minNodeCapacity=4
 
     constructor(
         name:string,
-        children:(string | ShelfTreeNode)[]
+        children:(string | ShelfTreeNode)[],
+        minNodeCapacity?:number
     ) { 
         this.name = name
         this.children = children
+        if (minNodeCapacity !== undefined) this.minNodeCapacity = minNodeCapacity
     }
 }
 
@@ -17,48 +20,49 @@ export const GameViewShelfTree = new ShelfTreeNode(
     "Shelf",
     [
         "Buf", "Not", 
-        {
-            name:"2-Input",
-            children:[
+        new ShelfTreeNode(
+            "2-Input",
+            [
                 "And", "Or", "Nand", "Nor", "Xor", "Xand"
             ]
-        },
-        {
-            name:"3-Input",
-            children:[
+        ),
+        new ShelfTreeNode(
+            "3-Input",
+            [
                 "3-Input Or","3-Input And","FullAdder"
             ]
-        },
-        {
-            name:"Nibbles",
-            children:[
+        ),
+        new ShelfTreeNode(
+            "Nibbles",
+            [
                 "4-Input Or","4-Input And","4-2 Encoder","Binary Coded Decimal to 7-Segment Decoder"
             ]
-        },
-        {
-            name:"Arithmetic",
-            children:[
+        ),
+        new ShelfTreeNode(
+            "Arithmetic",
+            [
                 "4-2 Encoder", "2-4 Decoder", "HalfAdder", "FullAdder"
             ]
-        },
-        {
-            name:"Displays",
-            children:[
+        ),
+        new ShelfTreeNode(
+            "Displays",
+            [
                 "7-Segment Display"
             ]
-        },
-        {
-            name:"Bigger",
-            children:[
+        ),
+        new ShelfTreeNode(
+            "Bigger",
+            [
                 "3-Input Or","3-Input And","4-Input Or","4-Input And",
             ]
-        },
-        {
-            name:"Stickers",
-            children:[
+        ),
+        new ShelfTreeNode(
+            "Stickers",
+            [
                 "Cow"
-            ]
-        }
+            ],
+            0
+        )
     ]
 )
 
@@ -76,7 +80,7 @@ export function filterShelfTreeWithUnlocks(unlocks:string[], tree:ShelfTreeNode)
     )
 }
 
-export function filterShelfTreeWithUnlocksStep(unlocks:Map<string, boolean>, tree:ShelfTreeNode, depth:number, minNodeCapacity=4) {
+export function filterShelfTreeWithUnlocksStep(unlocks:Map<string, boolean>, tree:ShelfTreeNode, depth:number) {
 
     //iterate through this layer of the tree
     let children = Array.from(tree.children)
@@ -92,7 +96,7 @@ export function filterShelfTreeWithUnlocksStep(unlocks:Map<string, boolean>, tre
         }
         //if another node is there, search it recursively
         else if (typeof item !== "string") {
-            const result = filterShelfTreeWithUnlocksStep(unlocks, item, depth + 1, minNodeCapacity)
+            const result = filterShelfTreeWithUnlocksStep(unlocks, item, depth + 1)
             //if the recursion returns undefined, this child will not be marked and removed later
             if (result) {
                 children[i] = result
@@ -110,7 +114,7 @@ export function filterShelfTreeWithUnlocksStep(unlocks:Map<string, boolean>, tre
     ))
 
     //if the minimum capacity of this node is not satisfied, return undefined to indicate that this node should be removed
-    if (children.length < minNodeCapacity && depth > 1) {
+    if (children.length < tree.minNodeCapacity && depth > 1) {
         return undefined
     }
 
