@@ -450,7 +450,13 @@ export class CircuitController {
         }
 
         existing.forEach((c) => {
-            if (c) this.renderer?.updateWire(c.from)
+            if (!c) return
+            if (c.from[0] === id) {
+                this.renderer?.updateWire(c.from, undefined)
+            }
+            else {
+                this.renderer?.updateWire(c.from, "last")
+            }
         })
 
         this.renderer?.updateGate(id)

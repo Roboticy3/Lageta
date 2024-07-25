@@ -23,13 +23,13 @@
      * @type {CircuitSignalSetViewEventTarget | null}
      */
     export let eventTarget = null
-    $: {
-        eventTarget?.addEventListener("play", onPlay)
-        eventTarget?.addEventListener("pause", onPause)
-        eventTarget?.addEventListener("step", onStep)
-        eventTarget?.addEventListener("done", onDone)
-        eventTarget?.addEventListener("restart", onRestart)
-    }
+    $: { if (eventTarget) {
+        eventTarget.addEventListener("play", onPlay)
+        eventTarget.addEventListener("pause", onPause)
+        eventTarget.addEventListener("step", onStep)
+        eventTarget.addEventListener("done", onDone)
+        eventTarget.addEventListener("restart", onRestart)
+    }}
 
     let circuitValid = true
     let playing = false
@@ -37,11 +37,11 @@
     //stop the user from using InputCheckBoxes while the signal is playing to avoid interrupting the verification process
     function onPlay() {
         playing = true
-        document.querySelectorAll("input").forEach((n) => n.setAttribute('disabled','disabled'))
+        document.querySelectorAll(`[id^="input-checkbox-"]`).forEach((n) => n.setAttribute('disabled','disabled'))
     }
     function onPause() {
         playing = false
-        document.querySelectorAll("input").forEach((n) => n.removeAttribute('disabled'))
+        document.querySelectorAll(`[id^="input-checkbox-"]`).forEach((n) => n.removeAttribute('disabled'))
     }
 
     function onDone() {

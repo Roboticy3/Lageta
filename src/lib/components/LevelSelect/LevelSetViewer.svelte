@@ -107,6 +107,7 @@
 <div class="level-panel" data-sveltekit-noscroll>
     <CircuitEditorComponent
         editorEventTarget={editorEventTarget}
+        signalSetViewEventTarget={null}
         gameParams={gameParams}
         circuitController={circuitController}
         editorParams={editorParams}

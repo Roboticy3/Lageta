@@ -95,9 +95,16 @@
     }
 
     /**
+     * @type {GameViewCircuitPanelEventTarget | null}
+    */
+    export let editorEventTarget = null
+    $: {console.log("editor event target: ", editorEventTarget)}
+
+    /**
      * @type {CircuitSignalSetViewEventTarget | null}
      */
     export let signalSetViewEventTarget = null
+    $: {console.log("signal set view event target: ", signalSetViewEventTarget)}
 
     export function isCircuitValid() {
         return signalSetView?.isCircuitValid()
@@ -212,7 +219,8 @@
                     editorParams={editorParams}
                     rendererParams={rendererParams}
                     maxSizeState={maxSizeState}
-                    editorEventTarget={new GameViewCircuitPanelEventTarget()}
+                    bind:editorEventTarget={editorEventTarget}
+                    bind:signalSetViewEventTarget={signalSetViewEventTarget}
                     shelf={gameParams.allUnlocks ? GameViewShelfTree:shelf}
                     progress={progressStorage}
                 />
