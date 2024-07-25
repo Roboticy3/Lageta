@@ -120,6 +120,10 @@ export class ProgressStorage {
         return this.progressStorage.tools.findIndex((p) => p.name === toolName)
     }
 
+    getTool(toolName:string) {
+        return this.progressStorage.tools.find((p) => p.name === toolName)
+    }
+
     addTool(item:string) {
         const tParams = getToolParams(item)
         if (this.findTool(item) === -1 && tParams)
@@ -202,4 +206,5 @@ type LevelProgress = {
 
 type ToolProgress = {
     name:string,
+    data:any
 }

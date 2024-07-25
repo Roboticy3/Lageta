@@ -1,18 +1,19 @@
+import { CowSticker, Sticker } from "../Tools/Tools"
 
 //to represent GateTypes and folders recursively, gates are represented as strings, and folders as ShelfTreeNode
 export class ShelfTreeNode {
     name:string
     children:(string | ShelfTreeNode)[]
-    minNodeCapacity=4
+    minNodeCapacity:number
 
     constructor(
         name:string,
         children:(string | ShelfTreeNode)[],
-        minNodeCapacity?:number
+        minNodeCapacity:number = 4
     ) { 
         this.name = name
         this.children = children
-        if (minNodeCapacity !== undefined) this.minNodeCapacity = minNodeCapacity
+        this.minNodeCapacity = minNodeCapacity
     }
 }
 
@@ -59,9 +60,8 @@ export const GameViewShelfTree = new ShelfTreeNode(
         new ShelfTreeNode(
             "Stickers",
             [
-                "Cow"
-            ],
-            0
+                CowSticker.name
+            ], 0
         )
     ]
 )
@@ -80,7 +80,7 @@ export function filterShelfTreeWithUnlocks(unlocks:string[], tree:ShelfTreeNode)
     )
 }
 
-export function filterShelfTreeWithUnlocksStep(unlocks:Map<string, boolean>, tree:ShelfTreeNode, depth:number) {
+function filterShelfTreeWithUnlocksStep(unlocks:Map<string, boolean>, tree:ShelfTreeNode, depth:number) {
 
     //iterate through this layer of the tree
     let children = Array.from(tree.children)
@@ -95,7 +95,7 @@ export function filterShelfTreeWithUnlocksStep(unlocks:Map<string, boolean>, tre
             }
         }
         //if another node is there, search it recursively
-        else if (typeof item !== "string") {
+        else {
             const result = filterShelfTreeWithUnlocksStep(unlocks, item, depth + 1)
             //if the recursion returns undefined, this child will not be marked and removed later
             if (result) {

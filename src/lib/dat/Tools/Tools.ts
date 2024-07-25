@@ -14,16 +14,21 @@ export class Sticker {
 
 export const TruthTableTool = {
     name:"TruthTable",
+    data:{}
 }
+
+export const CowSticker = new Sticker(
+    "Cow",
+    "https://purepng.com/public/uploads/large/purepng.com-cowmeatcowanimalgodmilkbuffalo-981524635397i1xu4.png" //royalty free cow
+)
 
 export const StickersTool = {
     name:"Stickers",
-    stickers: [
-        new Sticker(
-            "Cow",
-            "https://purepng.com/public/uploads/large/purepng.com-cowmeatcowanimalgodmilkbuffalo-981524635397i1xu4.png" //royalty free cow
-        ),
-    ]
+    data:{
+        stickers: [
+            CowSticker
+        ]
+    }
 }
 
 //Since tools are mostly handled by other code, they store generic objects
@@ -37,5 +42,6 @@ export function getToolParams(toolName:string): ToolParameters | undefined {
 }
 
 export type ToolParameters = {
-    name:string
+    name:string,
+    data:any
 }

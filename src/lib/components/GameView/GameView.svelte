@@ -16,7 +16,7 @@
     import { filterShelfTreeWithUnlocks, GameViewShelfTree, ShelfTreeNode } from "$lib/dat/Shelf/ShelfTree";
     import TruthTableView from "./TruthTableView.svelte";
     import { TruthTable } from "$lib/circuit_types/TruthTable";
-    import { getToolParams } from "$lib/dat/Tools/Tools";
+    import { getToolParams, Sticker } from "$lib/dat/Tools/Tools";
     import GameViewDialog from "$lib/components/GameView/Dialogs/GameViewDialog.svelte";
     import { SFXPlayer } from "$lib/misc_types/SFXPlayer";
     import { browser } from "$app/environment";
@@ -75,7 +75,17 @@
             )
         }
         else {
-            shelf = filterShelfTreeWithUnlocks(progressStorage.gateNames(), GameViewShelfTree)
+            /**
+             * @type {Array<Sticker> | undefined}
+             */
+            const stickers = progressStorage.getTool("Stickers")?.data?.stickers
+            const unlocks = progressStorage.gateNames().concat((
+                    stickers instanceof Array ? stickers : []
+                ).map((/** @type {{ name: string; }} */ s) => s.name)
+            )
+            shelf = filterShelfTreeWithUnlocks(
+                unlocks, GameViewShelfTree
+            )
         }
 
         //remove the current level as a "new" level, so it doesn't direct the player's attention anymore on the level select screen

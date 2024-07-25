@@ -8,7 +8,8 @@
     import { ShelfTreeNode } from "$lib/dat/Shelf/ShelfTree";
     import { onMount } from "svelte";
     import GameViewShelfFolder from "./GameViewShelfFolder.svelte";
-    import { getToolParams, Sticker } from "$lib/dat/Tools/Tools";
+    import { getToolParams, Sticker, StickersTool } from "$lib/dat/Tools/Tools";
+    import { ProgressStorage } from "$lib/storage_types/ProgressStore";
 
     /**
      * @type {any}
@@ -16,33 +17,29 @@
     export let maxSizeState = null
 
     /**
+     * @type {ProgressStorage | null}
+     */
+    export let progress = null
+    /**
+     * @type {Array<Sticker> | undefined}
+     */
+    $: stickers = progress?.getTool(StickersTool.name)?.data?.stickers
+
+    /**
      * @type {(string | ShelfTreeNode)[]}
      */
     export let items = []
-    /**
-     * @type {(string | ShelfTreeNode | GateTypeController | Sticker | undefined)[]}
-     */
-    let processedItems = []
-    $: {
-        processedItems = items.map((item) => {
-            if (typeof item === "string") {
-                const gParams = getGateTypeParams(item)
-                if (gParams) {
-                    return getGateType(gParams)
-                }
-                else {
-                    
-                }
-                return item
-            }
-            else if (item instanceof ShelfTreeNode) {
-                return item
-            }
-            return undefined
-        })
-    }
+    $: processedItems = items.map((item) => {
+        if (item instanceof ShelfTreeNode) return item
 
-    $: console.log("creating shelf with items ", items)
+        const gParams = getGateTypeParams(item)
+        if (gParams) return getGateType(gParams)
+
+        const sticker = stickers?.find((v) => v.name === item)
+        if (sticker) return sticker
+    })
+
+    $: console.log("creating shelf with items ", processedItems)
 
     export let circuitDraggable
 
@@ -68,6 +65,8 @@
                     gateType={item}
                     editorEventTarget={editorEventTarget}
                 />
+            {:else if item instanceof Sticker}
+                <div>the mitochondria is the powerhouse of the cell</div>
             {:else if item instanceof ShelfTreeNode}
                 {#if item.name === "Stickers"}
                     {#if depth === 1} <!--Filter stamps folder out if this isn't the top shelf-->
@@ -77,6 +76,7 @@
                             circuitDraggable={circuitDraggable}
                             editorEventTarget={editorEventTarget}
                             depth={depth}
+                            progress={progress}
                         />
                     {/if}
                 {:else}
@@ -86,10 +86,9 @@
                         circuitDraggable={circuitDraggable}
                         editorEventTarget={editorEventTarget}
                         depth={depth}
+                        progress={progress}
                     />
                 {/if} 
-            {:else if item instanceof Sticker}
-                <div>:)</div>
             {/if}
 
         </div>

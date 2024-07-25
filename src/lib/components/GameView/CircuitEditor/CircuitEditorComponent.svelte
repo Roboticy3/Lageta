@@ -189,6 +189,7 @@
                 items={shelf.children}
                 circuitDraggable={circuitDraggable}
                 editorEventTarget={editorEventTarget}
+                progress={progress}
             />
         {/if}
 
