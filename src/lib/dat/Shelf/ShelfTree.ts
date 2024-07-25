@@ -52,6 +52,12 @@ export const GameViewShelfTree = new ShelfTreeNode(
             children:[
                 "3-Input Or","3-Input And","4-Input Or","4-Input And",
             ]
+        },
+        {
+            name:"Stickers",
+            children:[
+                "Cow"
+            ]
         }
     ]
 )
@@ -60,6 +66,7 @@ export function filterShelfTreeWithUnlocks(unlocks:string[], tree:ShelfTreeNode)
 
     const initialUnlocks = new Map(unlocks.map((v) => [v, false]))
     const result = filterShelfTreeWithUnlocksStep(initialUnlocks, tree, 1)
+    console.log("finished filtering tree ", result)
     if (result) return result
 
     //if the final recursion returns undefined, simply convert the unlocks into a one-layer "tree"
@@ -78,7 +85,7 @@ export function filterShelfTreeWithUnlocksStep(unlocks:Map<string, boolean>, tre
         //if a gate is there, check if it's unlocked
         if (typeof item === "string") {
             if (unlocks.has(item)) {
-                //if so, mark the gate and remove the unlock
+                //if so, mark the gate
                 marks[i] = true
             }
         }
@@ -95,6 +102,11 @@ export function filterShelfTreeWithUnlocksStep(unlocks:Map<string, boolean>, tre
 
     //remove the unmarked gates from this node
     children = children.filter((_v, i) => marks[i])
+
+    console.log("attempting to trim tree into ", new ShelfTreeNode(
+        tree.name,
+        children
+    ))
 
     //if the minimum capacity of this node is not satisfied, return undefined to indicate that this node should be removed
     if (children.length < minNodeCapacity) {

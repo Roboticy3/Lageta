@@ -13,7 +13,7 @@
     import { getGateTypeNoRegister, FullAdder, getGateType, getGateTypeParams } from "$lib/dat/GateTypes/GateTypes";
     import { getLevelParams } from "$lib/dat/Levels/Levels";
     import SignalViewer from "./Signal/SignalViewer.svelte";
-    import { filterShelfTreeWithUnlocks, GameViewShelfTree, ShelfTreeNode } from "$lib/shelf_types/ShelfTree";
+    import { filterShelfTreeWithUnlocks, GameViewShelfTree, ShelfTreeNode } from "$lib/dat/Shelf/ShelfTree";
     import TruthTableView from "./TruthTableView.svelte";
     import { TruthTable } from "$lib/circuit_types/TruthTable";
     import { getToolParams } from "$lib/dat/Tools/Tools";

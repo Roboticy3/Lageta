@@ -3,7 +3,7 @@
     import { GameViewCircuitPanelEventTarget } from "$lib/circuit_types/GameViewCircuitPanelEvent";
     import { GateTypeController } from "$lib/circuit_types/GateType";
     import HeavyButton from "$lib/components/Misc/HeavyButton.svelte";
-    import { ShelfTreeNode } from "$lib/shelf_types/ShelfTree";
+    import { ShelfTreeNode } from "$lib/dat/Shelf/ShelfTree";
     import GameViewShelf from "./GameViewShelf.svelte";
 
 
@@ -42,7 +42,7 @@
                 items={items}
                 circuitDraggable={circuitDraggable}
                 editorEventTarget={editorEventTarget}
-                depth={depth}
+                depth={depth + 1}
             />
         </div>
     {/if}

@@ -7,7 +7,7 @@
     import { GameViewParameters } from "$lib/level_types/GameViewParameters";
     import { GameViewCircuitPanelEventTarget } from "$lib/circuit_types/GameViewCircuitPanelEvent";
     import GameViewShelf from "./Shelf/GameViewShelf.svelte";
-    import { GameViewShelfTree, ShelfTreeNode } from "$lib/shelf_types/ShelfTree";
+    import { GameViewShelfTree, ShelfTreeNode } from "$lib/dat/Shelf/ShelfTree";
     import { SFXPlayer } from "$lib/misc_types/SFXPlayer";
 
     /**

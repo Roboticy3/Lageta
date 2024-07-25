@@ -16,7 +16,7 @@
     import { ProgressStorage } from "$lib/storage_types/ProgressStore";
     import { browser } from "$app/environment";
     import TutorialFrame from "$lib/components/GameView/Tutorial/TutorialFrame.svelte";
-    import { ShelfTreeNode } from "$lib/shelf_types/ShelfTree";
+    import { ShelfTreeNode } from "$lib/dat/Shelf/ShelfTree";
 
     /**
      * @type {CircuitController}
