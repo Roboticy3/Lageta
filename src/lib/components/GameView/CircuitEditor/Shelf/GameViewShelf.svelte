@@ -100,7 +100,7 @@
                     />
                 {/if} 
             {:else if item instanceof Sticker}
-
+                
             {/if}
 
         </div>

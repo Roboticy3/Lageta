@@ -54,10 +54,6 @@
         height:100%;
     }
 
-    .dropdown-button {
-        overflow: hidden;
-    }
-
     .dropdown:hover > .dropdown-content {
         display:block;
     }
@@ -68,9 +64,5 @@
         background:var(--main-bg-color);
         height:10vh;
         top:100%;
-    }
-    
-    .dropdown-button {
-        
     }
 </style>

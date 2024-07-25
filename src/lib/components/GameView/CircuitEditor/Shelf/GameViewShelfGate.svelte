@@ -7,7 +7,6 @@
     import { GameViewCircuitPanelEventTarget } from "$lib/circuit_types/GameViewCircuitPanelEvent";
     import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControllerQueryResult";
     import { createCustomEvent } from "$lib/misc_types/CustomEventSystem";
-    import HeavyButton from "$lib/components/Misc/HeavyButton.svelte";
     import GameViewShelfButton from "./GameViewShelfButton.svelte";
 
     /**
