@@ -65,6 +65,7 @@ export const GameViewShelfTree = new ShelfTreeNode(
 export function filterShelfTreeWithUnlocks(unlocks:string[], tree:ShelfTreeNode) {
 
     const initialUnlocks = new Map(unlocks.map((v) => [v, false]))
+    console.log("filtering tree ", tree, " with unlocks ", unlocks)
     const result = filterShelfTreeWithUnlocksStep(initialUnlocks, tree, 1)
     console.log("finished filtering tree ", result)
     if (result) return result
@@ -109,7 +110,7 @@ export function filterShelfTreeWithUnlocksStep(unlocks:Map<string, boolean>, tre
     ))
 
     //if the minimum capacity of this node is not satisfied, return undefined to indicate that this node should be removed
-    if (children.length < minNodeCapacity) {
+    if (children.length < minNodeCapacity && depth > 1) {
         return undefined
     }
 
@@ -120,6 +121,7 @@ export function filterShelfTreeWithUnlocksStep(unlocks:Map<string, boolean>, tre
 
     //if this is the last recursion, add all the gates that haven't been explored yet to the top level
     if (depth === 1) for (const [k, v] of unlocks) {
+        console.log("untrimming tree item ", k)
         if (!v) children.push(k)
     }
 
