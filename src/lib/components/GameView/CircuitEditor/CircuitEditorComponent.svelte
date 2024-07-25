@@ -9,6 +9,8 @@
     import GameViewShelf from "./Shelf/GameViewShelf.svelte";
     import { GameViewShelfTree, ShelfTreeNode } from "$lib/dat/Shelf/ShelfTree";
     import { SFXPlayer } from "$lib/misc_types/SFXPlayer";
+    import { ProgressStorage } from "$lib/storage_types/ProgressStore";
+    import { TruthTableTool } from "$lib/dat/Tools/Tools";
 
     /**
      * @type {CircuitController | null}
@@ -49,9 +51,16 @@
     export let shelf = new ShelfTreeNode("None", [])
 
     /**
-     * @type {string[]}
+     * @type {ProgressStorage | null}
      */
-    export let tools = []
+    export let progress = null
+    let showTruthTables = false
+    $: {
+        const truthTableIndex = progress?.findTool(TruthTableTool.name)
+        if (truthTableIndex !== -1 && truthTableIndex !== undefined) {
+            showTruthTables = true
+        }
+    }
 
     onMount(async () => {
         if (!circuitController) {
@@ -185,7 +194,7 @@
 
         <CircuitDraggable 
             editorEventTarget={editorEventTarget}
-            showTruthTables={tools.indexOf("TruthTable") !== -1}
+            showTruthTables={showTruthTables}
             bind:this={circuitDraggable}
         />
     {/if}

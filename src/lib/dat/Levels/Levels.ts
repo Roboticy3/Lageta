@@ -6,6 +6,7 @@ import type { OrganizedCircuitContents, SerializableGate } from "$lib/storage_ty
 import { ProgressStorage } from "$lib/storage_types/ProgressStore";
 import { GameViewParameters } from "../../level_types/GameViewParameters";
 import { Level } from "../../level_types/Level";
+import { StickersTool, TruthTableTool } from "../Tools/Tools";
 
 export type LevelParameters = {
     params?:GameViewParameters,
@@ -241,7 +242,7 @@ export const RandomLevel1 = {
         },
         countingSignal(getGateType(RandomGate1), 5, 3),
         [
-            "TruthTable"
+            TruthTableTool.name
         ]
     ),
     x:0,y:6,desiredId:14,
@@ -814,7 +815,8 @@ export const OrLevel = {
         ),
         [
             Or3Level.params.name,
-            NorLevel.params.name
+            NorLevel.params.name,
+            StickersTool.name
         ]
     ),
     x:4, y:3, desiredId:2,

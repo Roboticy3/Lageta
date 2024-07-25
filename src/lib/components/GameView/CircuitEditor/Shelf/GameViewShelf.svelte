@@ -16,11 +16,6 @@
     export let maxSizeState = null
 
     /**
-     * @type {any}
-     */
-    const sParams = getToolParams("Stickers")
-
-    /**
      * @type {(string | ShelfTreeNode)[]}
      */
     export let items = []
@@ -36,13 +31,7 @@
                     return getGateType(gParams)
                 }
                 else {
-                    const stickerList = sParams?.stickers
-                    if (stickerList instanceof Array) {
-                        const sticker = stickerList.find((v) => v.name === item)
-                        if (sticker instanceof Sticker) {
-                            return sticker
-                        }
-                    }
+                    
                 }
                 return item
             }
@@ -100,7 +89,7 @@
                     />
                 {/if} 
             {:else if item instanceof Sticker}
-                
+                <div>:)</div>
             {/if}
 
         </div>

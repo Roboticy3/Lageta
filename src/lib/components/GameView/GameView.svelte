@@ -204,7 +204,7 @@
                     maxSizeState={maxSizeState}
                     editorEventTarget={new GameViewCircuitPanelEventTarget()}
                     shelf={gameParams.allUnlocks ? GameViewShelfTree:shelf}
-                    tools={progressStorage.getTools()}
+                    progress={progressStorage}
                 />
             {/if}
         </div>

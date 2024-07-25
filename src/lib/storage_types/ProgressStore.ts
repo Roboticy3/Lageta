@@ -3,6 +3,7 @@ import { all_levels, Level } from "$lib/level_types/Level"
 import { Freeplay, getLevel, getLevelParams, type LevelParameters } from "$lib/dat/Levels/Levels"
 import { parseStorage } from "./ParseStorage"
 import { browser } from "$app/environment"
+import { getToolParams } from "$lib/dat/Tools/Tools"
 //storage format
 /*
     {
@@ -116,12 +117,13 @@ export class ProgressStorage {
     }
 
     findTool(toolName:string) {
-        return this.progressStorage.tools.indexOf(toolName)
+        return this.progressStorage.tools.findIndex((p) => p.name === toolName)
     }
 
     addTool(item:string) {
-        if (this.findTool(item) === -1)
-            this.progressStorage.tools.push(item)
+        const tParams = getToolParams(item)
+        if (this.findTool(item) === -1 && tParams)
+            this.progressStorage.tools.push(tParams)
         this.commit()
     }
 
@@ -177,7 +179,7 @@ export class ProgressStorage {
 class ProgressStorageObject {
     gates:Array<string> = []
     levels:Array<LevelProgress> = []
-    tools:Array<string> = []
+    tools:Array<ToolProgress> = []
     passedTutorials:Array<string> = []
 
     currentTutorial:string = "Tutorial"
@@ -196,4 +198,8 @@ type LevelProgress = {
     name:string,
     new:boolean,
     complete:boolean
+}
+
+type ToolProgress = {
+    name:string,
 }
