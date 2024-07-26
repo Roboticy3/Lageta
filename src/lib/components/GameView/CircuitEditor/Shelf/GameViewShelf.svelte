@@ -10,6 +10,7 @@
     import GameViewShelfFolder from "./GameViewShelfFolder.svelte";
     import { getToolParams, Sticker, StickersTool } from "$lib/dat/Tools/Tools";
     import { ProgressStorage } from "$lib/storage_types/ProgressStore";
+    import GameViewShelfSticker from "./GameViewShelfSticker.svelte";
 
     /**
      * @type {any}
@@ -65,8 +66,6 @@
                     gateType={item}
                     editorEventTarget={editorEventTarget}
                 />
-            {:else if item instanceof Sticker}
-                <div>the mitochondria is the powerhouse of the cell</div>
             {:else if item instanceof ShelfTreeNode}
                 {#if item.name === "Stickers"}
                     {#if depth === 1} <!--Filter stamps folder out if this isn't the top shelf-->
@@ -89,6 +88,12 @@
                         progress={progress}
                     />
                 {/if} 
+            {:else}
+                <GameViewShelfSticker
+                    circuitDraggable={circuitDraggable}
+                    sticker={item}
+                    editorEventTarget={editorEventTarget}
+                />
             {/if}
 
         </div>
