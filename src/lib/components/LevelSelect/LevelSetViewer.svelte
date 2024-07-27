@@ -13,6 +13,9 @@
     import { CircuitStorage } from "$lib/storage_types/CircuitStorage";
     import { Level } from "$lib/level_types/Level";
     import HeavyButton from "../Misc/HeavyButton.svelte";
+    import CircuitStickerContainer from "../GameView/CircuitEditor/Sticker/CircuitStickerContainer.svelte";
+    import StickerViewer from "../GameView/CircuitEditor/Sticker/StickerViewer.svelte";
+    import { CowSticker } from "$lib/dat/Tools/Tools";
 
     const gridWidth = 24
     const gridHeight = 12
@@ -143,6 +146,14 @@
                 Back
             </HeavyButton>
         </CircuitDiv>
+
+        <CircuitStickerContainer
+            position={[10, 10]}
+            size={[1, 1]}
+            circuitController={circuitController}
+        >
+            <StickerViewer sticker={CowSticker}/>
+        </CircuitStickerContainer>
     </CircuitEditorComponent>
 </div>
 
