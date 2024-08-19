@@ -106,7 +106,7 @@ export class CircuitController {
         const gate = this.gateGrid.get(x, y)
         if (gate === undefined) {
             return new CircuitControllerQueryResult(
-                undefined, undefined, undefined, undefined,
+                undefined, undefined, undefined, undefined, undefined,
                 [localX, localY], [pageX, pageY],
                 timeStamp
             )
@@ -116,7 +116,7 @@ export class CircuitController {
         const cType = all_gates.get(gType.name)
         if (cType === undefined) {
             return new CircuitControllerQueryResult(
-                undefined, undefined, undefined, undefined,
+                undefined, undefined, undefined, undefined, undefined,
                 [localX, localY], [pageX, pageY],
                 timeStamp
             )
@@ -139,7 +139,7 @@ export class CircuitController {
         if (i != gType.sizeIn) {
             return new CircuitControllerQueryResult(
                 gate,
-                "Input", i, cType,
+                "Input", i, cType, undefined,
                 [localX, localY], [pageX, pageY],
                 timeStamp
             ) 
@@ -161,14 +161,14 @@ export class CircuitController {
         if (i != gType.sizeOut) {
             return new CircuitControllerQueryResult(
                 gate,
-                "Output", i, cType,
+                "Output", i, cType, undefined,
                 [localX, localY], [pageX, pageY],
                 timeStamp
             ) 
         }
 
         return new CircuitControllerQueryResult(
-            gate, "Gate", undefined, cType,
+            gate, "Gate", undefined, cType, undefined,
             [localX, localY], [pageX, pageY],
             timeStamp
         ) 
@@ -186,6 +186,7 @@ export class CircuitController {
         return new CircuitControllerQueryResult(
             gate, type, connectionIndex, 
             this.getGateTypeController(id || 0), 
+            undefined,
             localOffset, pageOffset,
             timeStamp
         )

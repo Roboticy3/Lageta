@@ -1,3 +1,4 @@
+import { Sticker } from "$lib/dat/Tools/Tools";
 import type { ConnectionIndex } from "./CircuitController";
 import { Gate } from "./Gate";
 import { GateTypeController } from "./GateType";
@@ -15,6 +16,8 @@ export class CircuitControllerQueryResult {
 
     readonly gateTypeController: GateTypeController | undefined;
 
+    readonly sticker: Sticker | undefined;
+
     readonly type: CircuitControllerQueryResultContentType;
     readonly connectionIndex: number | undefined;
 
@@ -29,6 +32,7 @@ export class CircuitControllerQueryResult {
         type: CircuitControllerQueryResultContentType = "",
         connectionIndex?: number,
         gateTypeController?: GateTypeController,
+        sticker?: Sticker,
         localOffset?: [number, number],
         pageOffset?: [number, number],
         timeStamp?: number
@@ -40,6 +44,8 @@ export class CircuitControllerQueryResult {
             gate !== undefined && connectionIndex !== undefined) {
             this.connectionIndex = connectionIndex;
         }
+
+        this.sticker = sticker
 
         this.localOffset = localOffset
         this.pageOffset = pageOffset
@@ -63,6 +69,7 @@ export class CircuitControllerQueryResult {
                 other.type === this.type &&
                 other.connectionIndex === this.connectionIndex &&
                 other.gate === this.gate &&
+                other.sticker === this.sticker &&
                 (includeOffset !== true || ( 
                     other.localOffset?.at(0) === this.localOffset?.at(0) &&
                     other.localOffset?.at(1) === this.localOffset?.at(1)
@@ -77,4 +84,4 @@ export class CircuitControllerQueryResult {
     }
 }
 
-export type CircuitControllerQueryResultContentType = "Gate" | "Input" | "Output" | ""
+export type CircuitControllerQueryResultContentType = "Gate" | "Input" | "Output" | "Sticker" | ""

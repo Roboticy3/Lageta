@@ -42,7 +42,7 @@
      */
     export let onMouseDown = (e) => {
         const newQuery = new CircuitControllerQueryResult(
-            undefined, "Gate", undefined, gateType, undefined, [e.pageX, e.pageY], e.timeStamp
+            undefined, "Gate", undefined, gateType, undefined, undefined, [e.pageX, e.pageY], e.timeStamp
         )
 
         editorEventTarget?.dispatchEvent(createCustomEvent({
