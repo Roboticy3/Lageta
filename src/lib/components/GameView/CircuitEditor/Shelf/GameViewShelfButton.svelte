@@ -2,11 +2,6 @@
     import { onMount } from "svelte";
     
     import CircuitDraggable from "$lib/components/GameView/CircuitEditor/CircuitDraggable.svelte";
-    import { Buf, getGateType, wrapGateTypeViewInSvgHeader } from "$lib/dat/GateTypes/GateTypes";
-    import { GateType, GateTypeController, GateTypeView } from "$lib/circuit_types/GateType";
-    import { GameViewCircuitPanelEventTarget } from "$lib/circuit_types/GameViewCircuitPanelEvent";
-    import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControllerQueryResult";
-    import { createCustomEvent } from "$lib/misc_types/CustomEventSystem";
     import HeavyButton from "$lib/components/Misc/HeavyButton.svelte";
 
     /**
