@@ -35,13 +35,13 @@ export class GateGrid {
         this.graph = graph
     }
 
-    offsetToIndex(offsetX:number, offsetY:number) {
+    offsetToIndex(offsetX:number, offsetY:number): [number, number] {
         const x = Math.floor(offsetX / 10)
         const y = Math.floor(offsetY / 10)
         return [x, y]
     }
 
-    offsetToIndexUnrounded(offsetX:number, offsetY:number) {
+    offsetToIndexUnrounded(offsetX:number, offsetY:number): [number, number] {
         return [offsetX / 10, offsetY / 10]
     }
 

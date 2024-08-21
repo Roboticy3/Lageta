@@ -177,13 +177,14 @@
             bind:this={circuitContainer}
             title="Circuit"
         >
-            <div style="grid-column: 1; grid:row:1">
+            <div style="grid-column-start: 1; grid-row-start:1">
                 <GameViewStickerPanel
-
+                    bind:editorEventTarget={editorEventTarget}
+                    circuitController={circuitController}
                 >
                 </GameViewStickerPanel>
             </div>
-            <div style="grid-column: 1; grid:row:1">
+            <div style="grid-column-start: 1; grid-row-start:1">
                 <GameViewCircuitPanel 
                     bind:this={circuitPanel}
                     gameParams={gameParams}

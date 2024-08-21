@@ -202,7 +202,7 @@ export class CircuitController {
         return this.gateGrid.indexToOffset(x,y)
     }
 
-    localOffsetToIndex(offsetX:number, offsetY:number, round=true) {
+    localOffsetToIndex(offsetX:number, offsetY:number, round=true): [number, number] {
         return round ? this.gateGrid.offsetToIndex(offsetX, offsetY) : this.gateGrid.offsetToIndexUnrounded(offsetX, offsetY)
     }
 

@@ -30,6 +30,10 @@
      */
     let container
 
+    export function getContainer() {
+        return container
+    }
+
     let rect = {
         top:0,
         left:0,
@@ -69,5 +73,5 @@
     style="position:absolute; left:{rect.left}px; top:{rect.top}px; width:{rect.width}px; height:{rect.height}px;" 
     bind:this={container}
 >
-    <slot/>
+    <slot name="sticker"/>
 </div>
