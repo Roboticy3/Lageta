@@ -12,6 +12,7 @@
     import { ProgressStorage } from "$lib/storage_types/ProgressStore";
     import { TruthTableTool } from "$lib/dat/Tools/Tools";
     import { CircuitSignalSetViewEventTarget } from "$lib/signal_types/SignalSetViewEvent";
+    import GameViewStickerPanel from "./Sticker/GameViewStickerPanel.svelte";
 
     /**
      * @type {CircuitController | null}
@@ -176,18 +177,26 @@
             bind:this={circuitContainer}
             title="Circuit"
         >
-            <GameViewCircuitPanel 
-                bind:this={circuitPanel}
-                gameParams={gameParams}
-                circuitController={circuitController}
-                circuitDraggable={circuitDraggable}
-                editorParams={editorParams}
-                rendererParams={rendererParams}
-                bind:editorEventTarget={editorEventTarget}
-                signalSetViewEventTarget={signalSetViewEventTarget}
-            >
-                <slot />
-            </GameViewCircuitPanel>
+            <div style="grid-column: 1; grid:row:1">
+                <GameViewStickerPanel
+
+                >
+                </GameViewStickerPanel>
+            </div>
+            <div style="grid-column: 1; grid:row:1">
+                <GameViewCircuitPanel 
+                    bind:this={circuitPanel}
+                    gameParams={gameParams}
+                    circuitController={circuitController}
+                    circuitDraggable={circuitDraggable}
+                    editorParams={editorParams}
+                    rendererParams={rendererParams}
+                    bind:editorEventTarget={editorEventTarget}
+                    signalSetViewEventTarget={signalSetViewEventTarget}
+                >
+                    <slot />
+                </GameViewCircuitPanel>
+            </div>
         </div>
 
         {#if editorParams.showShelf !== false}
@@ -222,6 +231,11 @@
 
         border: thick double;
         color: var(--circuit-color);
+
+        /* pure evil */
+        display: grid;
+        grid-template-columns: 1fr;
+        grid-template-rows: 1fr;
     }
 
     .floating {
