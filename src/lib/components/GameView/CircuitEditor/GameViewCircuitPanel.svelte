@@ -495,7 +495,6 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
             case "Output":
                 dropConnection({from, to})
                 break
-            default: return
         }
         
         setInitialEventListeners()
