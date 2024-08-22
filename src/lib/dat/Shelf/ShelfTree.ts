@@ -56,12 +56,6 @@ export const GameViewShelfTree = new ShelfTreeNode(
             [
                 "3-Input Or","3-Input And","4-Input Or","4-Input And",
             ]
-        ),
-        new ShelfTreeNode(
-            "Stickers",
-            [
-                CowSticker.name
-            ], 0
         )
     ]
 )

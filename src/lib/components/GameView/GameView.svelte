@@ -79,13 +79,14 @@
              * @type {Array<Sticker> | undefined}
              */
             const stickers = progressStorage.getTool("Stickers")?.data?.stickers
-            const unlocks = progressStorage.gateNames().concat((
-                    stickers instanceof Array ? stickers : []
-                ).map((/** @type {{ name: string; }} */ s) => s.name)
-            )
-            shelf = filterShelfTreeWithUnlocks(
+            const unlocks = progressStorage.gateNames()
+            let newShelf = filterShelfTreeWithUnlocks(
                 unlocks, GameViewShelfTree
             )
+            newShelf.children.push(new ShelfTreeNode("Stickers", (
+                    stickers instanceof Array ? stickers : []
+                ).map((/** @type {{ name: string; }} */ s) => s.name)))
+            shelf = newShelf
         }
 
         //remove the current level as a "new" level, so it doesn't direct the player's attention anymore on the level select screen

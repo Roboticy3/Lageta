@@ -88,7 +88,7 @@
                         progress={progress}
                     />
                 {/if} 
-            {:else}
+            {:else if item !== undefined}
                 <GameViewShelfSticker
                     circuitDraggable={circuitDraggable}
                     sticker={item}

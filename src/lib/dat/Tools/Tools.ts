@@ -10,6 +10,21 @@ export class Sticker {
         this.name = name
         this.url = url
     }
+
+    static fromJSON(json:string) {
+        try {
+            const ob = JSON.parse(json)
+            return Sticker.fromObject(ob)
+        }
+        catch (e) {
+            return undefined
+        }   
+    }
+
+    static fromObject(ob:any) {
+        if (!ob.name || !ob.url) return undefined
+        return new Sticker(ob.name, ob.url)
+    }
 }
 
 export const TruthTableTool = {

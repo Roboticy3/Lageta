@@ -51,7 +51,7 @@ export class ProgressStorage {
         }
     }
 
-    private commit(storage = this.progressStorage) {
+    commit(storage = this.progressStorage) {
         //don't update the progress if we're hacking lol
         if (this.allUnlocks) {
             return
