@@ -69,23 +69,36 @@
     export let shelf = new ShelfTreeNode("None", [])
     
     function readProgress() {
-        if (progressStorage.gateNames().length < 10) {
-            shelf = new ShelfTreeNode(
+        //if there are fewer than 7 gates, don't run to algorithm that splits things into folders
+        if (progressStorage.gateNames().length < 7) {
+            let newShelf = new ShelfTreeNode(
                 "Shelf", progressStorage.gateNames()
             )
+            //add stickers into their own folder
+            const stickers = progressStorage.getTool("Stickers")?.data?.stickers
+            newShelf.children.push(new ShelfTreeNode("Stickers", (
+                    stickers instanceof Array ? stickers : []
+            ).map((/** @type {{ name: string; }} */ s) => s.name)))
+
+            shelf = newShelf
         }
+        //otherwise, do, packing as many gates as possible into easily legible folders
         else {
             /**
              * @type {Array<Sticker> | undefined}
              */
             const stickers = progressStorage.getTool("Stickers")?.data?.stickers
             const unlocks = progressStorage.gateNames()
+            //pack the tree into folders
             let newShelf = filterShelfTreeWithUnlocks(
                 unlocks, GameViewShelfTree
             )
+            //add stickers into their own folder
             newShelf.children.push(new ShelfTreeNode("Stickers", (
                     stickers instanceof Array ? stickers : []
                 ).map((/** @type {{ name: string; }} */ s) => s.name)))
+            
+            //update the shelf
             shelf = newShelf
         }
 

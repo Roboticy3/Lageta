@@ -20,7 +20,7 @@
 
     $: {
         currentTutorial = progressStorage?.getCurrentTutorial() || ""
-        stickersUnlocked = progressStorage?.findTool("Stickers") !== undefined
+        stickersUnlocked = progressStorage?.findTool("Stickers") !== -1
     }
 
 </script>
