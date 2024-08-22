@@ -4,17 +4,24 @@
     import { ProgressStorage } from "$lib/storage_types/ProgressStore";
     import { onMount } from "svelte";
     import MainMenuOption from "./MainMenuOption.svelte";
+    import { CowSticker } from "$lib/dat/Tools/Tools";
 
     /**
-     * @type {string | null}
+     * @type {string}
      */
-    let currentTutorial = null
+    let currentTutorial = ""
+    let stickersUnlocked = false
 
-    onMount(() => {
-        if (browser) {
-            currentTutorial = new ProgressStorage().getCurrentTutorial()
-        }
-    })
+    /**
+     * @type {ProgressStorage}
+     */
+    let progressStorage
+    $: if (browser) progressStorage = new ProgressStorage()
+
+    $: {
+        currentTutorial = progressStorage?.getCurrentTutorial() || ""
+        stickersUnlocked = progressStorage?.findTool("Stickers") !== undefined
+    }
 
 </script>
 
@@ -24,18 +31,20 @@
     </div>
     <div class="menu">
         <div class="options">
-            
-            {#if currentTutorial !== null}
-                <!--If there's an avilable tutorial, force the user to go through it--> 
-                {#if currentTutorial !== ""}
-                    <MainMenuOption path={`tutorial/${currentTutorial}`}>Tutorial</MainMenuOption>
-                <!--If there's no tutorial, let the user browse old ones-->
-                {:else}
-                    <MainMenuOption path={`campaign`}>Continue</MainMenuOption>
-                    <MainMenuOption path={`tutorial/`} vType={getGateType(And).view}>Tutorials</MainMenuOption>
-                {/if}
 
-                <MainMenuOption path={"level/Freeplay"} vType={getGateType(Or).view}>Options</MainMenuOption>
+            <!--If there's an avilable tutorial, force the user to go through it--> 
+            {#if currentTutorial !== ""}
+                <MainMenuOption path={`tutorial/${currentTutorial}`}>Tutorial</MainMenuOption>
+            <!--If there's no tutorial, let the user browse old ones-->
+            {:else}
+                <MainMenuOption path={`campaign`}>Continue</MainMenuOption>
+                <MainMenuOption path={`tutorial/`} vType={getGateType(And).view}>Tutorials</MainMenuOption>
+            {/if}
+
+            <MainMenuOption path={"level/Freeplay"} vType={getGateType(Or).view}>Options</MainMenuOption>
+
+            {#if stickersUnlocked} 
+                <MainMenuOption path={'stickers'} spriteMode="Sticker" >Stickers</MainMenuOption>
             {/if}
 
         </div>
