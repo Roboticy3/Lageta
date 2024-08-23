@@ -69,34 +69,28 @@
     export let shelf = new ShelfTreeNode("None", [])
     
     function readProgress() {
+        console.log("reading progress...")
+
         //if there are fewer than 7 gates, don't run to algorithm that splits things into folders
         if (progressStorage.gateNames().length < 7) {
             let newShelf = new ShelfTreeNode(
                 "Shelf", progressStorage.gateNames()
             )
+
             //add stickers into their own folder
-            const stickers = progressStorage.getTool("Stickers")?.data?.stickers
-            newShelf.children.push(new ShelfTreeNode("Stickers", (
-                    stickers instanceof Array ? stickers : []
-            ).map((/** @type {{ name: string; }} */ s) => s.name)))
+            appendStickersToShelf(newShelf)
 
             shelf = newShelf
         }
         //otherwise, do, packing as many gates as possible into easily legible folders
         else {
-            /**
-             * @type {Array<Sticker> | undefined}
-             */
-            const stickers = progressStorage.getTool("Stickers")?.data?.stickers
             const unlocks = progressStorage.gateNames()
             //pack the tree into folders
             let newShelf = filterShelfTreeWithUnlocks(
                 unlocks, GameViewShelfTree
             )
             //add stickers into their own folder
-            newShelf.children.push(new ShelfTreeNode("Stickers", (
-                    stickers instanceof Array ? stickers : []
-                ).map((/** @type {{ name: string; }} */ s) => s.name)))
+            appendStickersToShelf(newShelf)
             
             //update the shelf
             shelf = newShelf
@@ -106,6 +100,19 @@
         progressStorage.removeNewLevel(gameParams.name)
 
         console.log("gameview loaded shelf ", shelf, " and unmarked ", gameParams.name, " as new!")
+    }
+
+    /**
+     * @param {ShelfTreeNode} shelf
+     */
+    function appendStickersToShelf(shelf) {
+        const stickers = progressStorage.getTool("Stickers")?.data?.stickers
+        
+        if (stickers && stickers.length > 0) {
+            shelf.children.push(new ShelfTreeNode("Stickers", (
+                stickers instanceof Array ? stickers : []
+            ).map((/** @type {{ name: string; }} */ s) => s.name)))
+        }
     }
 
     /**
@@ -209,7 +216,7 @@
 
         //load the outro sfx
         SFXPlayer.loadAudio(["outro1.wav", "outro2.wav"])
-        
+
         //wait a bit before starting the slide in bc that makes it look nicer
         setTimeout(slideIn, 200)
 
