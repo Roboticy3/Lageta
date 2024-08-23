@@ -3,7 +3,9 @@
     import { GameViewCircuitPanelEventTarget } from "$lib/circuit_types/GameViewCircuitPanelEvent";
     import { GateTypeController } from "$lib/circuit_types/GateType";
     import HeavyButton from "$lib/components/Misc/HeavyButton.svelte";
-    import { ShelfTreeNode } from "$lib/shelf_types/ShelfTree";
+    import { ShelfTreeNode } from "$lib/dat/Shelf/ShelfTree";
+    import { Sticker } from "$lib/dat/Tools/Tools";
+    import { ProgressStorage } from "$lib/storage_types/ProgressStore";
     import GameViewShelf from "./GameViewShelf.svelte";
 
 
@@ -22,6 +24,11 @@
     export let depth
 
     export let name
+
+    /**
+     * @type {ProgressStorage | null}
+     */
+    export let progress = null
 
     const dropdownButtonStyle = 
 `
@@ -42,7 +49,8 @@
                 items={items}
                 circuitDraggable={circuitDraggable}
                 editorEventTarget={editorEventTarget}
-                depth={depth}
+                depth={depth + 1}
+                progress={progress}
             />
         </div>
     {/if}
@@ -52,10 +60,6 @@
     .dropdown {
         position:relative;
         height:100%;
-    }
-
-    .dropdown-button {
-        overflow: hidden;
     }
 
     .dropdown:hover > .dropdown-content {
@@ -68,9 +72,5 @@
         background:var(--main-bg-color);
         height:10vh;
         top:100%;
-    }
-    
-    .dropdown-button {
-        
     }
 </style>

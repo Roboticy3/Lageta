@@ -7,9 +7,12 @@
     import { GameViewParameters } from "$lib/level_types/GameViewParameters";
     import { GameViewCircuitPanelEventTarget } from "$lib/circuit_types/GameViewCircuitPanelEvent";
     import GameViewShelf from "./Shelf/GameViewShelf.svelte";
-    import { GameViewShelfTree, ShelfTreeNode } from "$lib/shelf_types/ShelfTree";
+    import { GameViewShelfTree, ShelfTreeNode } from "$lib/dat/Shelf/ShelfTree";
     import { SFXPlayer } from "$lib/misc_types/SFXPlayer";
+    import { ProgressStorage } from "$lib/storage_types/ProgressStore";
+    import { TruthTableTool } from "$lib/dat/Tools/Tools";
     import { CircuitSignalSetViewEventTarget } from "$lib/signal_types/SignalSetViewEvent";
+    import GameViewStickerPanel from "./Sticker/GameViewStickerPanel.svelte";
 
     /**
      * @type {CircuitController | null}
@@ -55,9 +58,16 @@
     export let shelf = new ShelfTreeNode("None", [])
 
     /**
-     * @type {string[]}
+     * @type {ProgressStorage | null}
      */
-    export let tools = []
+    export let progress = null
+    let showTruthTables = false
+    $: {
+        const truthTableIndex = progress?.findTool(TruthTableTool.name)
+        if (truthTableIndex !== -1 && truthTableIndex !== undefined) {
+            showTruthTables = true
+        }
+    }
 
     onMount(async () => {
         if (!circuitController) {
@@ -167,18 +177,27 @@
             bind:this={circuitContainer}
             title="Circuit"
         >
-            <GameViewCircuitPanel 
-                bind:this={circuitPanel}
-                gameParams={gameParams}
-                circuitController={circuitController}
-                circuitDraggable={circuitDraggable}
-                editorParams={editorParams}
-                rendererParams={rendererParams}
-                bind:editorEventTarget={editorEventTarget}
-                signalSetViewEventTarget={signalSetViewEventTarget}
-            >
-                <slot />
-            </GameViewCircuitPanel>
+            <div style="grid-column-start: 1; grid-row-start:1">
+                <GameViewStickerPanel
+                    bind:editorEventTarget={editorEventTarget}
+                    circuitController={circuitController}
+                >
+                </GameViewStickerPanel>
+            </div>
+            <div style="grid-column-start: 1; grid-row-start:1">
+                <GameViewCircuitPanel 
+                    bind:this={circuitPanel}
+                    gameParams={gameParams}
+                    circuitController={circuitController}
+                    circuitDraggable={circuitDraggable}
+                    editorParams={editorParams}
+                    rendererParams={rendererParams}
+                    bind:editorEventTarget={editorEventTarget}
+                    signalSetViewEventTarget={signalSetViewEventTarget}
+                >
+                    <slot />
+                </GameViewCircuitPanel>
+            </div>
         </div>
 
         {#if editorParams.showShelf !== false}
@@ -186,13 +205,14 @@
                 bind:maxSizeState={maxSizeState}
                 items={shelf.children}
                 circuitDraggable={circuitDraggable}
+                progress={progress}
                 bind:editorEventTarget={editorEventTarget}
             />
         {/if}
 
         <CircuitDraggable 
+            showTruthTables={showTruthTables}
             bind:editorEventTarget={editorEventTarget}
-            showTruthTables={tools.indexOf("TruthTable") !== -1}
             bind:this={circuitDraggable}
         />
     {/if}
@@ -212,6 +232,11 @@
 
         border: thick double;
         color: var(--circuit-color);
+
+        /* pure evil */
+        display: grid;
+        grid-template-columns: 1fr;
+        grid-template-rows: 1fr;
     }
 
     .floating {

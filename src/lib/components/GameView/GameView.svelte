@@ -13,10 +13,10 @@
     import { getGateTypeNoRegister, FullAdder, getGateType, getGateTypeParams } from "$lib/dat/GateTypes/GateTypes";
     import { getLevelParams } from "$lib/dat/Levels/Levels";
     import SignalViewer from "./Signal/SignalViewer.svelte";
-    import { filterShelfTreeWithUnlocks, GameViewShelfTree, ShelfTreeNode } from "$lib/shelf_types/ShelfTree";
+    import { filterShelfTreeWithUnlocks, GameViewShelfTree, ShelfTreeNode } from "$lib/dat/Shelf/ShelfTree";
     import TruthTableView from "./TruthTableView.svelte";
     import { TruthTable } from "$lib/circuit_types/TruthTable";
-    import { getToolParams } from "$lib/dat/Tools/Tools";
+    import { getToolParams, Sticker } from "$lib/dat/Tools/Tools";
     import GameViewDialog from "$lib/components/GameView/Dialogs/GameViewDialog.svelte";
     import { SFXPlayer } from "$lib/misc_types/SFXPlayer";
     import { browser } from "$app/environment";
@@ -69,13 +69,37 @@
     export let shelf = new ShelfTreeNode("None", [])
     
     function readProgress() {
-        if (progressStorage.gateNames().length < 10) {
-            shelf = new ShelfTreeNode(
+        //if there are fewer than 7 gates, don't run to algorithm that splits things into folders
+        if (progressStorage.gateNames().length < 7) {
+            let newShelf = new ShelfTreeNode(
                 "Shelf", progressStorage.gateNames()
             )
+            //add stickers into their own folder
+            const stickers = progressStorage.getTool("Stickers")?.data?.stickers
+            newShelf.children.push(new ShelfTreeNode("Stickers", (
+                    stickers instanceof Array ? stickers : []
+            ).map((/** @type {{ name: string; }} */ s) => s.name)))
+
+            shelf = newShelf
         }
+        //otherwise, do, packing as many gates as possible into easily legible folders
         else {
-            shelf = filterShelfTreeWithUnlocks(progressStorage.gateNames(), GameViewShelfTree)
+            /**
+             * @type {Array<Sticker> | undefined}
+             */
+            const stickers = progressStorage.getTool("Stickers")?.data?.stickers
+            const unlocks = progressStorage.gateNames()
+            //pack the tree into folders
+            let newShelf = filterShelfTreeWithUnlocks(
+                unlocks, GameViewShelfTree
+            )
+            //add stickers into their own folder
+            newShelf.children.push(new ShelfTreeNode("Stickers", (
+                    stickers instanceof Array ? stickers : []
+                ).map((/** @type {{ name: string; }} */ s) => s.name)))
+            
+            //update the shelf
+            shelf = newShelf
         }
 
         //remove the current level as a "new" level, so it doesn't direct the player's attention anymore on the level select screen
@@ -212,7 +236,7 @@
                     bind:editorEventTarget={editorEventTarget}
                     bind:signalSetViewEventTarget={signalSetViewEventTarget}
                     shelf={gameParams.allUnlocks ? GameViewShelfTree:shelf}
-                    tools={progressStorage.getTools()}
+                    progress={progressStorage}
                 />
             {/if}
         </div>

@@ -3,6 +3,7 @@
     import { onMount } from "svelte";
     import TruthTableTutorial from "./TruthTableTutorial.svelte";
     import HeavyButton from "$lib/components/Misc/HeavyButton.svelte";
+    import StampTutorial from "./StampTutorial.svelte";
 
     /**
      * @type {string[]}
@@ -72,6 +73,8 @@
 <div class="tool-container">
     {#if currentTool === "TruthTable"}
         <TruthTableTutorial />
+    {:else if currentTool === "Stickers"}
+        <StampTutorial />
     {/if}
     <HeavyButton on:click={onNext}>Next</HeavyButton>
 </div>

@@ -205,7 +205,8 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
 
         const q = query(e)     
 
-        if (q.type === "") {
+        //ignore stickers from the circuit editor, since they should have their own interaction code elsewhere
+        if (q.type === "" || q.type === "Sticker") {
             return "Nothing Under Mouse"
         }
 
@@ -438,7 +439,7 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
         if (e.target !== svg) {
             to = new CircuitControllerQueryResult(
                 to.gate, to.type, to.connectionIndex, 
-                to.gateTypeController, undefined, to.pageOffset,
+                to.gateTypeController, undefined, undefined, to.pageOffset,
                 e.timeStamp
             )
         }
@@ -494,7 +495,6 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
             case "Output":
                 dropConnection({from, to})
                 break
-            default: return
         }
         
         setInitialEventListeners()
@@ -646,7 +646,7 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
      */
     function onRemoveWire({to}) {
         const [id, index] = [to.getId(), to.connectionIndex]
-        if (id === undefined || index === undefined || to.type === "Gate") return
+        if (id === undefined || index === undefined || to.type === "Gate" || to.type === "Sticker") return
         circuitController.removeConnection(
             {id:id, type:to.type, index:index}
         )

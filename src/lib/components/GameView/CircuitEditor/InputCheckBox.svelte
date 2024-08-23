@@ -136,8 +136,7 @@
         style={checkboxStyle}
         hoverStyle={checkboxHoverStyle}
         bind:this={checkbox} 
-        on:click={onChange} 
-        id={`input-checkbox-${new Rand().next()}`}
+        on:click={onChange}
     >
         <ResizingSvg>
             <g font-size="10">

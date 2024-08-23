@@ -8,6 +8,7 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
     import { GameViewCircuitPanelEventTarget } from "$lib/circuit_types/GameViewCircuitPanelEvent";
     import TruthTableView from "../TruthTableView.svelte";
     import { TruthTable } from "$lib/circuit_types/TruthTable";
+    import { Sticker } from "$lib/dat/Tools/Tools";
 
     let contents = ""
 
@@ -38,12 +39,25 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
 
 
     export function resolveContents() {
-        console.log("resolving contents")
-        const vType = query.gateTypeController?.view
-        if (vType !== undefined) {
-            contents = wrapGateTypeViewInSvgHeader(vType.gridWidth, vType.gridHeight, vType.draw())
-            return
+        switch (query.type) {
+            case "Gate":
+                const vType = query.gateTypeController?.view
+                if (vType !== undefined) {
+                    contents = wrapGateTypeViewInSvgHeader(vType.gridWidth, vType.gridHeight, vType.draw())
+                    console.log("resolving contents ", contents)
+                    return
+                }
+                break
+            case "Sticker":
+                const sticker = query.sticker
+                if (sticker !== undefined) {
+                    contents = wrapSticker(sticker)
+                    console.log("resolving contents ", contents)
+                    hoverGateType = null
+                    return
+                }
         }
+        
         contents = ""
         hoverGateType = null
     }
@@ -64,6 +78,15 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
             hoverGateType = gType
         }
             
+    }
+
+    /**
+     * @param {Sticker} sticker
+     */
+    function wrapSticker(sticker) {
+        return `
+<img src="${sticker.url}" alt="${sticker.name}" style="width:100px;"/>
+`
     }
 
     /**

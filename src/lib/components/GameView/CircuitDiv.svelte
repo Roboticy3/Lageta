@@ -1,6 +1,7 @@
 
 <script>
     import { CircuitController } from "$lib/circuit_types/CircuitController";
+    import { getCircuitDivRect } from "$lib/circuit_types/CircuitDiv";
     import { onMount, tick } from "svelte";
 
     export let active = false
@@ -14,6 +15,12 @@
      * @type {[number, number]}
      */
     export let size
+    $: gridRect = {
+        left:position[0],
+        top:position[1],
+        width:size[0],
+        height:size[1]
+    }
 
     export let bob = false
 
@@ -33,27 +40,16 @@
      */
     let container
 
-    let start = [0, 0]
-    let end = [0, 0]
+    let rect = {
+        top:0,
+        left:0,
+        width:0,
+        height:0
+    }
 
     export function setOffset() {
-
-        const localStart = circuitController.indexToLocalOffset(position[0], position[1])
-        const transform = circuitController.getMatrix()
-        if (!transform) return
-
-        start = circuitController.projectOffset(
-            localStart[0],
-            localStart[1]
-        )
-
-        const gridEnd = [position[0] + size[0], position[1] + size[1]]
-        const localEnd = circuitController.indexToLocalOffset(gridEnd[0], gridEnd[1])
-
-        end = circuitController.projectOffset(
-            localEnd[0],
-            localEnd[1]
-        )
+        const newRect = getCircuitDivRect(gridRect, circuitController)
+        if (newRect) rect = newRect
     }
 
     let resizeObserver = null
@@ -103,7 +99,7 @@
 
 <div 
     class="circuit-div {hidden ? 'hidden':''} {active ? '':'unavailable'} {bob ? 'bobbing-circuit-div':''} {smooth ? 'smooth-circuit-div':''} {flash ? 'flash-circuit-div':''}" 
-    style="left:{start[0]}px; top:{start[1]}px; width:{end[0] - start[0]}px; height:{end[1] - start[1]}px;" 
+    style="left:{rect.left}px; top:{rect.top}px; width:{rect.width}px; height:{rect.height}px;" 
     bind:this={container}
 >
     <slot/>
