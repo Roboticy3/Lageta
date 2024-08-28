@@ -141,7 +141,7 @@ export class CircuitStorage {
             const pair = this.circuitStorage[i]
             if (pair.k == k) {
                 const ret = pair.v
-                this.circuitStorage = this.circuitStorage.splice(i, 1)
+                this.circuitStorage.splice(i, 1)
                 return ret
             }
         }
