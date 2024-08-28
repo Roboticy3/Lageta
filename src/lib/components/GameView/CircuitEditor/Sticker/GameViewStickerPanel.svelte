@@ -3,8 +3,9 @@
     import { GameViewCircuitPanelEventTarget } from "$lib/circuit_types/GameViewCircuitPanelEvent";
     import { onMount } from "svelte";
     import StickerViewer from "./StickerViewer.svelte";
-    import CircuitStickerContainer from "./CircuitStickerContainer.svelte";
+    import CircuitStickerContainer from "$lib/components/GameView/CircuitEditor/Sticker/CircuitStickerContainer.svelte";
     import { CircuitController } from "$lib/circuit_types/CircuitController";
+    import { SerializableSticker } from "$lib/storage_types/StickerStorage";
 
     /**
      * @type {GameViewCircuitPanelEventTarget | null}
@@ -52,6 +53,11 @@
     }
 
     /**
+     * @type {Array<SerializableSticker>}
+     */
+    let stickerRegistry = []
+
+    /**
      * 
      * @param {{from:CircuitControllerQueryResult, to:CircuitControllerQueryResult}} param0 
      */
@@ -89,6 +95,9 @@
                 }
             }
         )  
+
+        //then, finally, track the sticker so we can serialize it later
+        stickerRegistry.push(new SerializableSticker(gridPos[0], gridPos[1], from.sticker))
         
     }
     
