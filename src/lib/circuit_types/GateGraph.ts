@@ -595,18 +595,6 @@ export class Connection {
         this.from = [from, output]
         this.to = [[to, input]]
     }
-
-    copy() {
-        let newC = new Connection(
-            this.from[0], this.from[1],
-            0, 0
-        )
-
-        newC.to = this.to.map((v, i) => {
-            return v
-        })
-        return newC
-    }
 }
 
 export type ConnectionType = ""|"Input"|"Output"

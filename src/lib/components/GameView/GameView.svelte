@@ -20,6 +20,8 @@
     import GameViewDialog from "$lib/components/GameView/Dialogs/GameViewDialog.svelte";
     import { SFXPlayer } from "$lib/misc_types/SFXPlayer";
     import { browser } from "$app/environment";
+    import { CircuitStorage } from "$lib/storage_types/CircuitStorage";
+    import { GateGrid } from "$lib/circuit_types/GateGrid";
 
 
     /**
@@ -48,7 +50,17 @@
         instructionsFlex:3
     }
 
-    export let circuitController = new CircuitController(gameParams.grid, onComplete, gameParams.completeCondition?.solver)
+    function loadGrid() {
+        const circuitStorage = new CircuitStorage(gameParams.name)
+        const gridResult = circuitStorage.loadNew()
+
+        if (gridResult instanceof GateGrid) {
+            return gridResult
+        }
+        return gameParams.grid
+    }
+    
+    export let circuitController = new CircuitController(loadGrid(), onComplete, gameParams.completeCondition?.solver)
 
     /**
      * Passing an existing editor should induce GameView to "steal" the editor
@@ -100,8 +112,6 @@
         progressStorage.removeNewLevel(gameParams.name)
 
         console.log("gameview loaded shelf ", shelf, " and unmarked ", gameParams.name, " as new!")
-
-        //check if the level has existing progress
     }
 
     /**
@@ -111,11 +121,10 @@
     export let saveDisabled = false
     $: {
         if (browser && !saveDisabled) setInterval(() => {
-            console.log("checking if the level should be saved here...")
             if (shouldSave) {
                 //save the current level, including all gates and stickers
-
-                console.log("im gonna save the level now !")
+                const circuitStorage = new CircuitStorage(gameParams.name, circuitController)
+                circuitStorage.save()
 
                 shouldSave = false
             }
