@@ -67,8 +67,7 @@
     
     onMount(async () => {
         editorEventTarget.addEventListener("setinput", readInputCheckBox)
-        editorEventTarget.addEventListener("addwire", save)
-        editorEventTarget.addEventListener("removewire", save)
+        editorEventTarget.addUpdateListener(save)
 
         await tick()
         

@@ -100,7 +100,30 @@
         progressStorage.removeNewLevel(gameParams.name)
 
         console.log("gameview loaded shelf ", shelf, " and unmarked ", gameParams.name, " as new!")
+
+        //check if the level has existing progress
     }
+
+    /**
+     * GameView checks shouldSave every 10 seconds. If true, the circuit is saved under the current level name, then shouldSave is set to false
+     */
+    let shouldSave = false
+    export let saveDisabled = false
+    $: {
+        if (browser && !saveDisabled) setInterval(() => {
+            console.log("checking if the level should be saved here...")
+            if (shouldSave) {
+                //save the current level, including all gates and stickers
+
+                console.log("im gonna save the level now !")
+
+                shouldSave = false
+            }
+        }, 20000)
+    }
+    $: editorEventTarget?.addUpdateListener(() => {
+        shouldSave = true
+    })
 
     /**
      * @param {ShelfTreeNode} shelf
