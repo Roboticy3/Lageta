@@ -7,4 +7,4 @@
     export let sticker
 </script>
 
-<img style="height:100%;" src={sticker.url} alt={sticker.name}>
+<img style="height:100%; pointer-events:none;" src={sticker.url} alt={sticker.name}>

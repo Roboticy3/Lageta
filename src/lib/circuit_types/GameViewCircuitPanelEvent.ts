@@ -15,7 +15,7 @@ export const GAMEVIEWCIRCUITPANELEVENTKEYS = [
     "movegate", // 5
     "removegate", // 6 
     "addsticker", // 7
-    "movesticker", // 8
+    "movesticker", // 8, unused
     "removesticker", // 9
     "addgate", // 10
     "setinput", // 11

@@ -1,7 +1,10 @@
 
 <script>
     import { CircuitController } from "$lib/circuit_types/CircuitController";
+    import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControllerQueryResult";
     import { getCircuitDivRect } from "$lib/circuit_types/CircuitDiv";
+    import { GameViewCircuitPanelEventTarget } from "$lib/circuit_types/GameViewCircuitPanelEvent";
+    import { Sticker } from "$lib/dat/Tools/Tools";
     import { onMount, tick } from "svelte";
 
     /**
@@ -24,6 +27,17 @@
      * @type {CircuitController}
      */
     export let circuitController
+
+    /**
+     * @type {GameViewCircuitPanelEventTarget | null}
+     */
+    export let editorEventTarget = null
+    $: editorEventTarget?.addEventListener("removesticker", onRemoveSticker)
+
+    /**
+     * @type {Sticker}
+     */
+    export let sticker
 
     /**
      * @type {HTMLDivElement}
@@ -68,14 +82,45 @@
         setOffset()
     }
 
-    function kill() {
-        container.parentElement?.removeChild(container)
+    /**
+     * @param {MouseEvent} e
+     */
+    function removeSticker(e) {
+        const q = circuitController.query(e)
+        const modQ = new CircuitControllerQueryResult(
+            q.gate,
+            "Sticker",
+            q.connectionIndex,
+            q.gateTypeController,
+            sticker,
+            q.localOffset,
+            q.pageOffset,
+            q.timeStamp
+        )
+
+        editorEventTarget?.dispatchEvent({
+            type:"removesticker", 
+            timeStamp:e.timeStamp, 
+            target:e.target,
+            from:modQ,
+            to:modQ
+        })
+    }
+
+    /**
+     * @param {{from:CircuitControllerQueryResult, to:CircuitControllerQueryResult, target:EventTarget | null}} param0 
+     */
+    function onRemoveSticker({from, to, target}) {
+        console.log(target)
+        if (target === container) {
+            container.parentElement?.removeChild(container)
+        }
     }
 </script>
 
 <div 
     class="container" style="left:{rect.left}px; top:{rect.top}px; width:{rect.width}px; height:{rect.height}px;" 
-    on:click={kill}
+    on:click={removeSticker}
     bind:this={container}
 >
     <slot name="sticker"/>

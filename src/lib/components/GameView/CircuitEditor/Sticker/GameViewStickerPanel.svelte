@@ -69,7 +69,6 @@
     }
 
     /**
-     * 
      * @param {{from:CircuitControllerQueryResult, to:CircuitControllerQueryResult}} param0 
      */
     function onDrop({from, to}) {
@@ -111,6 +110,8 @@
                     position:gridPos,
                     size:[2, 2],
                     circuitController:circuitController,
+                    editorEventTarget:editorEventTarget,
+                    sticker:sticker
                 }
             }
         )
@@ -127,7 +128,7 @@
                     sticker:sticker
                 }
             }
-        )  
+        )
     }
 
 </script>

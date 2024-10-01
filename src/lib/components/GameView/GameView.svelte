@@ -137,7 +137,9 @@
     export let saveDisabled = false
     $: {
         if (browser && !saveDisabled) setInterval(() => {
+            console.log("checking if the circuit should save...")
             if (shouldSave) {
+                console.log("saving!")
                 //save the current level, including all gates and stickers
                 const circuitStorage = new CircuitStorage(gameParams.name, circuitController)
                 circuitStorage.save()
@@ -150,6 +152,7 @@
         }, 20000)
     }
     $: editorEventTarget?.addUpdateListener(() => {
+        console.log("bruh")
         shouldSave = true
     })
 
