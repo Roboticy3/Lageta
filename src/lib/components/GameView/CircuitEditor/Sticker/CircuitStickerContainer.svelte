@@ -67,11 +67,23 @@
         position = newPosition
         setOffset()
     }
+
+    function kill() {
+        container.parentElement?.removeChild(container)
+    }
 </script>
 
 <div 
-    style="position:absolute; left:{rect.left}px; top:{rect.top}px; width:{rect.width}px; height:{rect.height}px;" 
+    class="container" style="left:{rect.left}px; top:{rect.top}px; width:{rect.width}px; height:{rect.height}px;" 
+    on:click={kill}
     bind:this={container}
 >
     <slot name="sticker"/>
 </div>
+
+<style>
+    .container {
+        position: absolute;
+        pointer-events: all;
+    }
+</style>

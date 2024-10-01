@@ -58,8 +58,10 @@
      */
     let stickerContainer
 
-    function onDrag() {
-
+    /**
+     * @param {{from:CircuitControllerQueryResult, to:CircuitControllerQueryResult}} param0 
+     */
+    function onDrag({from, to}) {
     }
 
     function onDragStart() {
@@ -127,7 +129,7 @@
             }
         )  
     }
-    
+
 </script>
 
 <!--Stickers laid out to mimic the slot on a GameViewCircuitPanel-->
@@ -144,5 +146,6 @@
         height:100%;
         overflow: hidden;
         position:relative;
+        pointer-events: none;
     }
 </style>
