@@ -3,18 +3,18 @@ import { parseStorage } from "./ParseStorage"
 
 export class StickerStorage {
 
-    private stickerRegistry:Array<SerializableSticker>
+    private stickerRegistry:Array<SerializableSticker> | undefined
     private name:string
 
     private stickerStorage:Array<{k:string, v:OrganizedCircuitStickerContents}>
     private storageKey = "StickerStorage"
 
     constructor(
-        stickerRegistry:Array<SerializableSticker>,
         circuitName:string,
-        storageKey:string | undefined = undefined
+        stickerRegistry?:Array<SerializableSticker>,
+        storageKey?:string
     ) {
-        this.stickerRegistry = stickerRegistry
+        this.stickerRegistry = stickerRegistry 
         this.name = circuitName
 
         this.storageKey = storageKey || this.storageKey
@@ -34,7 +34,7 @@ export class StickerStorage {
             this.name = name
         }
 
-        if (this.stickerRegistry.length === 0) {
+        if (!(this.stickerRegistry?.length)) {
             return "No Stickers"
         }
 

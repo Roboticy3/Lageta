@@ -16,12 +16,13 @@
     import { filterShelfTreeWithUnlocks, GameViewShelfTree, ShelfTreeNode } from "$lib/dat/Shelf/ShelfTree";
     import TruthTableView from "./TruthTableView.svelte";
     import { TruthTable } from "$lib/circuit_types/TruthTable";
-    import { getToolParams, Sticker } from "$lib/dat/Tools/Tools";
+    import { CowSticker, getToolParams, Sticker } from "$lib/dat/Tools/Tools";
     import GameViewDialog from "$lib/components/GameView/Dialogs/GameViewDialog.svelte";
     import { SFXPlayer } from "$lib/misc_types/SFXPlayer";
     import { browser } from "$app/environment";
     import { CircuitStorage } from "$lib/storage_types/CircuitStorage";
     import { GateGrid } from "$lib/circuit_types/GateGrid";
+    import { SerializableSticker, StickerStorage } from "$lib/storage_types/StickerStorage";
 
 
     /**
@@ -59,8 +60,23 @@
         }
         return gameParams.grid
     }
+
+    function loadStickers() {
+        const result = new StickerStorage(gameParams.name).load()
+        if (typeof result === "string") {
+            return []
+        }
+        else {
+            return result
+        }
+    }
     
     export let circuitController = new CircuitController(loadGrid(), onComplete, gameParams.completeCondition?.solver)
+
+    /**
+     * @type {Array<SerializableSticker>}
+     */
+    export let stickerRegistry = loadStickers()
 
     /**
      * Passing an existing editor should induce GameView to "steal" the editor
@@ -115,7 +131,7 @@
     }
 
     /**
-     * GameView checks shouldSave every 10 seconds. If true, the circuit is saved under the current level name, then shouldSave is set to false
+     * GameView checks shouldSave every 20 seconds. If true, the circuit is saved under the current level name, then shouldSave is set to false
      */
     let shouldSave = false
     export let saveDisabled = false
@@ -125,6 +141,9 @@
                 //save the current level, including all gates and stickers
                 const circuitStorage = new CircuitStorage(gameParams.name, circuitController)
                 circuitStorage.save()
+
+                const stickerStorage = new StickerStorage(gameParams.name, stickerRegistry)
+                stickerStorage.save()
 
                 shouldSave = false
             }
@@ -268,6 +287,7 @@
             {#if !existingEditor}
                 <CircuitEditorComponent 
                     circuitController={circuitController} 
+                    stickerRegistry={stickerRegistry}
                     gameParams={gameParams} 
                     editorParams={editorParams}
                     rendererParams={rendererParams}

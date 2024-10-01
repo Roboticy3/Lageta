@@ -13,6 +13,7 @@
     import { TruthTableTool } from "$lib/dat/Tools/Tools";
     import { CircuitSignalSetViewEventTarget } from "$lib/signal_types/SignalSetViewEvent";
     import GameViewStickerPanel from "./Sticker/GameViewStickerPanel.svelte";
+    import { SerializableSticker } from "$lib/storage_types/StickerStorage";
 
     /**
      * @type {CircuitController | null}
@@ -22,6 +23,11 @@
     export function getController() {
         return circuitController
     }
+
+    /**
+     * @type {Array<SerializableSticker>}
+    */
+    export let stickerRegistry = []
 
     /**
      * @type {GameViewParameters}
@@ -181,6 +187,7 @@
                 <GameViewStickerPanel
                     bind:editorEventTarget={editorEventTarget}
                     circuitController={circuitController}
+                    stickerRegistry={stickerRegistry}
                 >
                 </GameViewStickerPanel>
             </div>

@@ -1,11 +1,12 @@
 <script>
     import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControllerQueryResult";
     import { GameViewCircuitPanelEventTarget } from "$lib/circuit_types/GameViewCircuitPanelEvent";
-    import { onMount } from "svelte";
+    import { onMount, tick } from "svelte";
     import StickerViewer from "./StickerViewer.svelte";
     import CircuitStickerContainer from "$lib/components/GameView/CircuitEditor/Sticker/CircuitStickerContainer.svelte";
     import { CircuitController } from "$lib/circuit_types/CircuitController";
     import { SerializableSticker } from "$lib/storage_types/StickerStorage";
+    import { Sticker } from "$lib/dat/Tools/Tools";
 
     /**
      * @type {GameViewCircuitPanelEventTarget | null}
@@ -24,6 +25,27 @@
         editorEventTarget.addEventListener("drag", onDrag)
         editorEventTarget.addEventListener("dragstart", onDragStart)
         editorEventTarget.addEventListener("drop", onDrop)
+    }
+
+    /**
+     * @type {Array<SerializableSticker>}
+     */
+    export let stickerRegistry = []
+    //replace stickers from scratch if the registry or container are switched out
+    $: { if (stickerRegistry && stickerContainer) {
+        resetStickers()
+    }}
+
+    //replace waits for the next tick, since this will crash if the circuit renderer is not up to date
+    //this is because stickers are CircuitDivs, which scale off of the circuitController, and thus CircuitRenderer
+    //it's a big shit show and super flaky, but I don't care enough to fix that
+    async function resetStickers() {
+        await tick()
+
+        stickerContainer.replaceChildren(...[])
+        stickerRegistry.forEach((ss) => {
+            addSticker([ss.x, ss.y], ss.sticker)
+        })
     }
 
     /**
@@ -53,24 +75,33 @@
     }
 
     /**
-     * @type {Array<SerializableSticker>}
-     */
-    let stickerRegistry = []
-
-    /**
      * 
      * @param {{from:CircuitControllerQueryResult, to:CircuitControllerQueryResult}} param0 
      */
     function onAddSticker({from, to}) {
         if (!stickerContainer || !from.sticker || !to.localOffset) return
 
-        //awful workaround to slot hierarchies in dynamically created components
-        //want to see how it works? no? too bad!
+        const gridPos = circuitController.localOffsetToIndex(to.localOffset[0], to.localOffset[1])
 
+        
+        addSticker(gridPos, from.sticker)
+        
+
+        //then, finally, track the sticker so we can serialize it later
+        stickerRegistry.push(new SerializableSticker(gridPos[0], gridPos[1], from.sticker))
+        
+    }
+
+    /**
+     * awful workaround to slot hierarchies in dynamically created components
+     * want to see how it works? no? too bad!
+     * @param {[number, number]} gridPos
+     * @param {Sticker} sticker
+     */
+    function addSticker(gridPos, sticker) {
         //step 1, create a parent component
         //remember, components imply that elements exist somewhere, but are not equal to those elements, because the Geneva Conventions cannot protect you from the web development context
         //we can technically access the associated elements through something like newStickerContainer.$$.root..., but that's explicitly an internal API
-        const gridPos = circuitController.localOffsetToIndex(to.localOffset[0], to.localOffset[1])
         const newStickerContainer = new CircuitStickerContainer(
             {
                 target:stickerContainer,
@@ -91,14 +122,10 @@
             {
                 target:slot,
                 props:{ 
-                    sticker:from.sticker
+                    sticker:sticker
                 }
             }
         )  
-
-        //then, finally, track the sticker so we can serialize it later
-        stickerRegistry.push(new SerializableSticker(gridPos[0], gridPos[1], from.sticker))
-        
     }
     
 </script>
