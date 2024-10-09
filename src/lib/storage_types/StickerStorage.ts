@@ -1,5 +1,5 @@
 import { StickerController } from "$lib/circuit_types/sticker/StickerController"
-import { Sticker } from "$lib/dat/Tools/Tools"
+import { StickerType } from "$lib/circuit_types/sticker/Sticker"
 import { parseStorage } from "./ParseStorage"
 
 export class StickerStorage {
@@ -145,12 +145,12 @@ export type OrganizedCircuitStickerContents = {
 export class SerializableSticker {
     x:number
     y:number
-    sticker:Sticker
+    sticker:StickerType
 
     constructor(
         x:number,
         y:number,
-        sticker:Sticker
+        sticker:StickerType
     ) {
         this.x = x
         this.y = y

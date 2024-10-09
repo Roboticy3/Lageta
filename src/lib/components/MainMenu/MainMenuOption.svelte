@@ -1,8 +1,8 @@
 <script>
     import { goto, invalidateAll } from "$app/navigation";
     import { Buf, getGateType, wrapGateTypeViewInSvgHeader } from "$lib/dat/GateTypes/GateTypes";
-    import { CowSticker, Sticker } from "$lib/dat/Tools/Tools";
-    import StickerViewer from "../GameView/CircuitEditor/Sticker/StickerViewer.svelte";
+    import { CowSticker } from "$lib/dat/Tools/Tools";
+import { StickerType } from "$lib/circuit_types/sticker/Sticker";    import StickerViewer from "../GameView/CircuitEditor/Sticker/StickerViewer.svelte";
     import HeavyButton from "../Misc/HeavyButton.svelte";
     import ResizingSvg from "../Misc/ResizingSvg.svelte";
 

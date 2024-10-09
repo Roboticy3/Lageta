@@ -1,38 +1,11 @@
-
-export class Sticker {
-    readonly name:string
-    readonly url:string
-
-    constructor(
-        name:string,
-        url:string
-    ) {
-        this.name = name
-        this.url = url
-    }
-
-    static fromJSON(json:string) {
-        try {
-            const ob = JSON.parse(json)
-            return Sticker.fromObject(ob)
-        }
-        catch (e) {
-            return undefined
-        }   
-    }
-
-    static fromObject(ob:any) {
-        if (!ob.name || !ob.url) return undefined
-        return new Sticker(ob.name, ob.url)
-    }
-}
+import { StickerType } from "../../circuit_types/sticker/Sticker"
 
 export const TruthTableTool = {
     name:"TruthTable",
     data:{}
 }
 
-export const CowSticker = new Sticker(
+export const CowSticker = new StickerType(
     "Cow",
     "https://purepng.com/public/uploads/large/purepng.com-cowmeatcowanimalgodmilkbuffalo-981524635397i1xu4.png" //royalty free cow
 )

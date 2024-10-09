@@ -4,7 +4,7 @@
     import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControllerQueryResult";
     import { getCircuitDivRect } from "$lib/circuit_types/CircuitDiv";
     import { GameViewCircuitPanelEventTarget } from "$lib/circuit_types/GameViewCircuitPanelEvent";
-    import { Sticker } from "$lib/dat/Tools/Tools";
+    import { Sticker, StickerType } from "$lib/circuit_types/sticker/Sticker";
     import { onMount, tick } from "svelte";
 
     /**
@@ -33,8 +33,6 @@
      */
     export let editorEventTarget = null
     $: editorEventTarget?.addEventListener("removesticker", onRemoveSticker)
-
-    export let id = -1
 
     /**
      * @type {Sticker}

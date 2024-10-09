@@ -1,4 +1,5 @@
-import { CowSticker, Sticker } from "../Tools/Tools"
+import { CowSticker } from "../Tools/Tools"
+import { StickerType } from "../../circuit_types/sticker/Sticker"
 
 //to represent GateTypes and folders recursively, gates are represented as strings, and folders as ShelfTreeNode
 export class ShelfTreeNode {

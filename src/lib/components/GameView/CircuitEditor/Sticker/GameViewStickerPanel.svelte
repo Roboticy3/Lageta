@@ -6,7 +6,7 @@
     import CircuitStickerContainer from "$lib/components/GameView/CircuitEditor/Sticker/CircuitStickerContainer.svelte";
     import { CircuitController } from "$lib/circuit_types/CircuitController";
     import { SerializableSticker } from "$lib/storage_types/StickerStorage";
-    import { Sticker } from "$lib/dat/Tools/Tools";
+    import { Sticker, StickerType } from "$lib/circuit_types/sticker/Sticker";
     import { StickerController } from "$lib/circuit_types/sticker/StickerController";
 
     /**
@@ -45,7 +45,7 @@
 
         stickerContainer.replaceChildren(...[])
         stickerController.forEach((ss, i) => {
-            if (ss) addSticker([ss.x, ss.y], ss.sticker, i)
+            if (ss) addSticker([ss.x, ss.y], new Sticker(ss.sticker, i))
         })
     }
 
@@ -85,9 +85,11 @@
 
         const gridPos = circuitController.localOffsetToIndex(to.localOffset[0], to.localOffset[1])
 
-        const id = stickerController.registerSticker(new SerializableSticker(gridPos[0], gridPos[1], from.sticker))
+        const id = stickerController.registerSticker(new SerializableSticker(gridPos[0], gridPos[1], from.sticker.type))
  
-        addSticker(gridPos, from.sticker, id)
+        let sticker = new Sticker(from.sticker.type, id)
+
+        addSticker(gridPos, sticker)
 
         console.log("added sticker! controller: ", stickerController)
     }
@@ -97,9 +99,8 @@
      * want to see how it works? no? too bad!
      * @param {[number, number]} gridPos
      * @param {Sticker} sticker
-     * @param {number} id
      */
-    function addSticker(gridPos, sticker, id) {
+    function addSticker(gridPos, sticker) {
         //step 1, create a parent component
         //remember, components imply that elements exist somewhere, but are not equal to those elements, because the Geneva Conventions cannot protect you from the web development context
         //we can technically access the associated elements through something like newStickerContainer.$$.root..., but that's explicitly an internal API
@@ -109,7 +110,6 @@
                 props:{
                     position:gridPos,
                     size:[2, 2],
-                    id:id,
                     circuitController:circuitController,
                     editorEventTarget:editorEventTarget,
                     sticker:sticker
@@ -126,7 +126,7 @@
             {
                 target:slot,
                 props:{ 
-                    sticker:sticker
+                    sticker:sticker.type
                 }
             }
         )

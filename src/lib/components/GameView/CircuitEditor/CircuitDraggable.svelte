@@ -8,8 +8,7 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
     import { GameViewCircuitPanelEventTarget } from "$lib/circuit_types/GameViewCircuitPanelEvent";
     import TruthTableView from "../TruthTableView.svelte";
     import { TruthTable } from "$lib/circuit_types/TruthTable";
-    import { Sticker } from "$lib/dat/Tools/Tools";
-
+import { StickerType } from "$lib/circuit_types/sticker/Sticker";
     let contents = ""
 
     /*
@@ -51,7 +50,7 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
             case "Sticker":
                 const sticker = query.sticker
                 if (sticker !== undefined) {
-                    contents = wrapSticker(sticker)
+                    contents = wrapSticker(sticker.type)
                     console.log("resolving contents ", contents)
                     hoverGateType = null
                     return
@@ -81,7 +80,7 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
     }
 
     /**
-     * @param {Sticker} sticker
+     * @param {StickerType} sticker
      */
     function wrapSticker(sticker) {
         return `

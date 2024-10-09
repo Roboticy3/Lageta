@@ -16,7 +16,8 @@
     import { filterShelfTreeWithUnlocks, GameViewShelfTree, ShelfTreeNode } from "$lib/dat/Shelf/ShelfTree";
     import TruthTableView from "./TruthTableView.svelte";
     import { TruthTable } from "$lib/circuit_types/TruthTable";
-    import { CowSticker, getToolParams, Sticker } from "$lib/dat/Tools/Tools";
+    import { CowSticker, getToolParams } from "$lib/dat/Tools/Tools";
+    import { StickerType } from "$lib/circuit_types/sticker/Sticker";
     import GameViewDialog from "$lib/components/GameView/Dialogs/GameViewDialog.svelte";
     import { SFXPlayer } from "$lib/misc_types/SFXPlayer";
     import { browser } from "$app/environment";

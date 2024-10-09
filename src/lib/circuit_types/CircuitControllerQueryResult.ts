@@ -1,4 +1,4 @@
-import { Sticker } from "$lib/dat/Tools/Tools";
+import { Sticker, StickerType } from "$lib/circuit_types/sticker/Sticker";
 import type { ConnectionIndex } from "./CircuitController";
 import { Gate } from "./Gate";
 import { GateTypeController } from "./GateType";
