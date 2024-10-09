@@ -48,9 +48,9 @@ import { StickerType } from "$lib/circuit_types/sticker/Sticker";
                 }
                 break
             case "Sticker":
-                const sticker = query.sticker
-                if (sticker !== undefined) {
-                    contents = wrapSticker(sticker.type)
+                const stickerType = query.stickerType
+                if (stickerType !== undefined) {
+                    contents = wrapSticker(stickerType)
                     console.log("resolving contents ", contents)
                     hoverGateType = null
                     return

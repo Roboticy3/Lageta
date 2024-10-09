@@ -25,9 +25,12 @@
      * @param {MouseEvent} e
      */
     function onMouseDown(e) {
-        const newQuery = new CircuitControllerQueryResult(
-            undefined, "Sticker", undefined, undefined, new Sticker(sticker, -1), undefined, [e.pageX, e.pageY], e.timeStamp
-        )
+        const newQuery = new CircuitControllerQueryResult({
+            type:"Sticker",
+            stickerType:sticker,
+            pageOffset:[e.pageX, e.pageY],
+            timeStamp:e.timeStamp
+        })
 
         editorEventTarget?.dispatchEvent(createCustomEvent({
                 from:newQuery,

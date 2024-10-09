@@ -81,13 +81,13 @@
      * @param {{from:CircuitControllerQueryResult, to:CircuitControllerQueryResult}} param0 
      */
     function onAddSticker({from, to}) {
-        if (!stickerContainer || !from.sticker || !to.localOffset) return
+        if (!stickerContainer || !from.stickerType || !to.localOffset) return
 
         const gridPos = circuitController.localOffsetToIndex(to.localOffset[0], to.localOffset[1])
 
-        const id = stickerController.registerSticker(new SerializableSticker(gridPos[0], gridPos[1], from.sticker.type))
+        const id = stickerController.registerSticker(new SerializableSticker(gridPos[0], gridPos[1], from.stickerType))
  
-        let sticker = new Sticker(from.sticker.type, id)
+        let sticker = new Sticker(from.stickerType, id)
 
         addSticker(gridPos, sticker)
 

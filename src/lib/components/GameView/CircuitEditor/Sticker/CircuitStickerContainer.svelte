@@ -87,16 +87,17 @@
      */
     function removeSticker(e) {
         const q = circuitController.query(e)
-        const modQ = new CircuitControllerQueryResult(
-            q.gate,
-            "Sticker",
-            q.connectionIndex,
-            q.gateTypeController,
-            sticker,
-            q.localOffset,
-            q.pageOffset,
-            q.timeStamp
-        )
+        const modQ = new CircuitControllerQueryResult({
+            gate:q.gate,
+            type:"Sticker",
+            connectionIndex:q.connectionIndex,
+            gateTypeController:q.gateTypeController,
+            sticker:sticker,
+            stickerType:sticker.type,
+            localOffset:q.localOffset,
+            pageOffset:q.pageOffset,
+            timeStamp:q.timeStamp
+        })
 
         editorEventTarget?.dispatchEvent({
             type:"removesticker", 

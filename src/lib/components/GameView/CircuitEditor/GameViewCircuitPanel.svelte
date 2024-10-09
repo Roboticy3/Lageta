@@ -437,11 +437,14 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
         //since drop looks for window events, check if the query was over the circuit, and clear the local offset if not
         const svg = getRenderer().getSvgHead()
         if (e.target !== svg) {
-            to = new CircuitControllerQueryResult(
-                to.gate, to.type, to.connectionIndex, 
-                to.gateTypeController, undefined, undefined, to.pageOffset,
-                e.timeStamp
-            )
+            to = new CircuitControllerQueryResult({
+                gate:to.gate, 
+                type:to.type, 
+                connectionIndex:to.connectionIndex, 
+                gateTypeController:to.gateTypeController, 
+                pageOffset:to.pageOffset,
+                timeStamp:e.timeStamp
+            })
         }
 
         if (
