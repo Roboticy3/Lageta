@@ -24,6 +24,8 @@
     }
 
     /**
+     * Used as a source for queries to modify into sticker queries,
+     * and for positioning on the circuit as an argument to getCircuitDivRect
      * @type {CircuitController}
      */
     export let circuitController
@@ -112,7 +114,6 @@
      * @param {{from:CircuitControllerQueryResult, to:CircuitControllerQueryResult, target:EventTarget | null}} param0 
      */
     function onRemoveSticker({from, to, target}) {
-        console.log(target)
         if (target === container) {
             container.parentElement?.removeChild(container)
         }

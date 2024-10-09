@@ -154,7 +154,7 @@
         }, 20000)
     }
     $: editorEventTarget?.addUpdateListener(() => {
-        console.log("bruh")
+        console.log("setting shouldSave to true. stickerController: ", stickerController)
         shouldSave = true
     })
 

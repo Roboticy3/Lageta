@@ -48,7 +48,7 @@ export class GameViewCircuitPanelEventTarget extends CustomEventTarget<GameViewC
      * @param listener 
      */
     addUpdateListener(listener:GameViewCircuitPanelEventListener) {
-        for (let i = 0; i < 11; i++) {
+        for (let i = 3; i < 11; i++) {
             this.addEventListener(GAMEVIEWCIRCUITPANELEVENTKEYS[i], listener)
         }
     }

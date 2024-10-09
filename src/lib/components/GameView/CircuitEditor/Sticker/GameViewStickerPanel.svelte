@@ -15,6 +15,7 @@
     export let editorEventTarget = null
     $: {
         editorEventTarget?.addEventListener("addsticker", onAddSticker)
+        editorEventTarget?.addEventListener("removesticker", onRemoveSticker)
 
         addDragEventListeners()
     }
@@ -90,8 +91,6 @@
         let sticker = new Sticker(from.stickerType, id)
 
         addSticker(gridPos, sticker)
-
-        console.log("added sticker! controller: ", stickerController)
     }
 
     /**
@@ -130,6 +129,17 @@
                 }
             }
         )
+    }
+
+    /**
+     * GameViewStickerPanel doesn't actually remember references to sticker containers, so just trust that they've been removed
+     * The job of this function is to update the StickerController so that the removed stickers are not saved
+     * @param {{from:CircuitControllerQueryResult, to:CircuitControllerQueryResult}} param0 
+    */
+    function onRemoveSticker({from, to}) {
+        if (!from.sticker) return
+
+        stickerController.removeSticker(from.sticker.id)
     }
 
 </script>
