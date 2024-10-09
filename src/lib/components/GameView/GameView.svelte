@@ -16,10 +16,15 @@
     import { filterShelfTreeWithUnlocks, GameViewShelfTree, ShelfTreeNode } from "$lib/dat/Shelf/ShelfTree";
     import TruthTableView from "./TruthTableView.svelte";
     import { TruthTable } from "$lib/circuit_types/TruthTable";
-    import { getToolParams, Sticker } from "$lib/dat/Tools/Tools";
+    import { CowSticker, getToolParams } from "$lib/dat/Tools/Tools";
+    import { StickerType } from "$lib/circuit_types/sticker/Sticker";
     import GameViewDialog from "$lib/components/GameView/Dialogs/GameViewDialog.svelte";
     import { SFXPlayer } from "$lib/misc_types/SFXPlayer";
     import { browser } from "$app/environment";
+    import { CircuitStorage } from "$lib/storage_types/CircuitStorage";
+    import { GateGrid } from "$lib/circuit_types/GateGrid";
+    import { SerializableSticker, StickerStorage } from "$lib/storage_types/StickerStorage";
+    import { StickerController } from "$lib/circuit_types/sticker/StickerController"
 
 
     /**
@@ -48,7 +53,32 @@
         instructionsFlex:3
     }
 
-    export let circuitController = new CircuitController(gameParams.grid, onComplete, gameParams.completeCondition?.solver)
+    function loadGrid() {
+        const circuitStorage = new CircuitStorage(gameParams.name)
+        const gridResult = circuitStorage.loadNew()
+
+        if (gridResult instanceof GateGrid) {
+            return gridResult
+        }
+        return gameParams.grid
+    }
+
+    function loadStickers() {
+        const stickers = new StickerStorage(gameParams.name).load()
+        if (typeof stickers === "string") {
+            return new StickerController()
+        }
+        else {
+            return new StickerController(stickers)
+        }
+    }
+    
+    export let circuitController = new CircuitController(loadGrid(), onComplete, gameParams.completeCondition?.solver)
+
+    /**
+     * @type {StickerController}
+     */
+    export let stickerController = loadStickers()
 
     /**
      * Passing an existing editor should induce GameView to "steal" the editor
@@ -101,6 +131,32 @@
 
         console.log("gameview loaded shelf ", shelf, " and unmarked ", gameParams.name, " as new!")
     }
+
+    /**
+     * GameView checks shouldSave every 20 seconds. If true, the circuit is saved under the current level name, then shouldSave is set to false
+     */
+    let shouldSave = false
+    export let saveDisabled = false
+    $: {
+        if (browser && !saveDisabled) setInterval(() => {
+            console.log("checking if the circuit should save...")
+            if (shouldSave) {
+                console.log("saving!")
+                //save the current level, including all gates and stickers
+                const circuitStorage = new CircuitStorage(gameParams.name, circuitController)
+                circuitStorage.save()
+
+                const stickerStorage = new StickerStorage(gameParams.name, stickerController)
+                stickerStorage.save()
+
+                shouldSave = false
+            }
+        }, 20000)
+    }
+    $: editorEventTarget?.addUpdateListener(() => {
+        console.log("setting shouldSave to true. stickerController: ", stickerController)
+        shouldSave = true
+    })
 
     /**
      * @param {ShelfTreeNode} shelf
@@ -236,6 +292,7 @@
             {#if !existingEditor}
                 <CircuitEditorComponent 
                     circuitController={circuitController} 
+                    stickerController={stickerController}
                     gameParams={gameParams} 
                     editorParams={editorParams}
                     rendererParams={rendererParams}

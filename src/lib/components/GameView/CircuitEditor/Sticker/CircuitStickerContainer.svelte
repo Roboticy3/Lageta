@@ -1,7 +1,10 @@
 
 <script>
     import { CircuitController } from "$lib/circuit_types/CircuitController";
+    import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControllerQueryResult";
     import { getCircuitDivRect } from "$lib/circuit_types/CircuitDiv";
+    import { GameViewCircuitPanelEventTarget } from "$lib/circuit_types/GameViewCircuitPanelEvent";
+    import { Sticker, StickerType } from "$lib/circuit_types/sticker/Sticker";
     import { onMount, tick } from "svelte";
 
     /**
@@ -21,9 +24,22 @@
     }
 
     /**
+     * Used as a source for queries to modify into sticker queries,
+     * and for positioning on the circuit as an argument to getCircuitDivRect
      * @type {CircuitController}
      */
     export let circuitController
+
+    /**
+     * @type {GameViewCircuitPanelEventTarget | null}
+     */
+    export let editorEventTarget = null
+    $: editorEventTarget?.addEventListener("removesticker", onRemoveSticker)
+
+    /**
+     * @type {Sticker}
+     */
+    export let sticker
 
     /**
      * @type {HTMLDivElement}
@@ -67,11 +83,54 @@
         position = newPosition
         setOffset()
     }
+
+    /**
+     * @param {MouseEvent} e
+     */
+    function removeSticker(e) {
+        const q = circuitController.query(e)
+        const modQ = new CircuitControllerQueryResult({
+            gate:q.gate,
+            type:"Sticker",
+            connectionIndex:q.connectionIndex,
+            gateTypeController:q.gateTypeController,
+            sticker:sticker,
+            stickerType:sticker.type,
+            localOffset:q.localOffset,
+            pageOffset:q.pageOffset,
+            timeStamp:q.timeStamp
+        })
+
+        editorEventTarget?.dispatchEvent({
+            type:"removesticker", 
+            timeStamp:e.timeStamp, 
+            target:e.target,
+            from:modQ,
+            to:modQ
+        })
+    }
+
+    /**
+     * @param {{from:CircuitControllerQueryResult, to:CircuitControllerQueryResult, target:EventTarget | null}} param0 
+     */
+    function onRemoveSticker({from, to, target}) {
+        if (target === container) {
+            container.parentElement?.removeChild(container)
+        }
+    }
 </script>
 
 <div 
-    style="position:absolute; left:{rect.left}px; top:{rect.top}px; width:{rect.width}px; height:{rect.height}px;" 
+    class="container" style="left:{rect.left}px; top:{rect.top}px; width:{rect.width}px; height:{rect.height}px;" 
+    on:click={removeSticker}
     bind:this={container}
 >
     <slot name="sticker"/>
 </div>
+
+<style>
+    .container {
+        position: absolute;
+        pointer-events: all;
+    }
+</style>

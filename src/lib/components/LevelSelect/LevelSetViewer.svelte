@@ -67,14 +67,13 @@
     
     onMount(async () => {
         editorEventTarget.addEventListener("setinput", readInputCheckBox)
-        editorEventTarget.addEventListener("addwire", save)
-        editorEventTarget.addEventListener("removewire", save)
+        editorEventTarget.addUpdateListener(save)
 
         await tick()
         
         connections.forEach(({from, output, to, input}) => circuitController.addConnection(from, output, to, input))
         if (browser) {
-            const circuitStorage = new CircuitStorage(circuitController, "Campaign")
+            const circuitStorage = new CircuitStorage("Campaign", circuitController)
             const result = circuitStorage.load(undefined, 0, 0, true)
             console.log("loaded saved campaign screen with result ", result)
             if (result === "Ok") loaded = true
@@ -91,7 +90,7 @@
 
     function save() {
         if (browser) {
-            const circuitStorage = new CircuitStorage(circuitController, "Campaign")
+            const circuitStorage = new CircuitStorage("Campaign", circuitController)
             circuitStorage.save("Campaign", false)
         }
     }

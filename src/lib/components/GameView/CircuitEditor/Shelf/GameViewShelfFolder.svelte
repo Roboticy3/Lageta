@@ -4,8 +4,7 @@
     import { GateTypeController } from "$lib/circuit_types/GateType";
     import HeavyButton from "$lib/components/Misc/HeavyButton.svelte";
     import { ShelfTreeNode } from "$lib/dat/Shelf/ShelfTree";
-    import { Sticker } from "$lib/dat/Tools/Tools";
-    import { ProgressStorage } from "$lib/storage_types/ProgressStore";
+import { StickerType } from "$lib/circuit_types/sticker/Sticker";    import { ProgressStorage } from "$lib/storage_types/ProgressStore";
     import GameViewShelf from "./GameViewShelf.svelte";
 
 

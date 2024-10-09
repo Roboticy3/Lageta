@@ -8,8 +8,8 @@
     import { ShelfTreeNode } from "$lib/dat/Shelf/ShelfTree";
     import { onMount } from "svelte";
     import GameViewShelfFolder from "./GameViewShelfFolder.svelte";
-    import { getToolParams, Sticker, StickersTool } from "$lib/dat/Tools/Tools";
-    import { ProgressStorage } from "$lib/storage_types/ProgressStore";
+    import { getToolParams, StickersTool } from "$lib/dat/Tools/Tools";
+import { StickerType } from "$lib/circuit_types/sticker/Sticker";    import { ProgressStorage } from "$lib/storage_types/ProgressStore";
     import GameViewShelfSticker from "./GameViewShelfSticker.svelte";
 
     /**
@@ -22,7 +22,7 @@
      */
     export let progress = null
     /**
-     * @type {Array<Sticker> | undefined}
+     * @type {Array<StickerType> | undefined}
      */
     $: stickers = progress?.getTool(StickersTool.name)?.data?.stickers
 

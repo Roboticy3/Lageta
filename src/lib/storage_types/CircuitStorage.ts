@@ -28,20 +28,19 @@ import { parseStorage } from "./ParseStorage";
 */
 export class CircuitStorage {
 
-    private grid:GateGrid
+    private grid:GateGrid | undefined = undefined
     private name:string
 
     private circuitStorage:Array<{k:string, v:OrganizedCircuitContents}>
     private storageKey = "CircuitStorage"
 
     constructor(
-        circuitController:CircuitController,
         circuitName:string,
-        storageKey:string | undefined = undefined
+        circuitController:CircuitController | undefined = undefined,
+        storageKey:string | undefined = undefined,
     ) {
-        this.grid = circuitController.gateGrid
         this.name = circuitName
-
+        this.grid = circuitController?.gateGrid
         this.storageKey = storageKey || this.storageKey
 
         this.circuitStorage = parseStorage(
@@ -54,7 +53,15 @@ export class CircuitStorage {
         localStorage.setItem(this.storageKey, JSON.stringify(storage))
     }
 
+    getGrid() {
+        return this.grid
+    }
+
     save(name?:string, compressIdSpace=true) {
+        if (this.grid === undefined) {
+            return "No Grid"
+        }
+        
         if (name !== undefined) {
             this.name = name
         }
@@ -71,24 +78,16 @@ export class CircuitStorage {
     }
 
     load(name?:string, x=0, y=0, inPlaceGraphMerge=false) {
-        if (name !== undefined) {
-            this.name = name
+        const newGridResult = this.loadNew(name || this.name)
+        if (!(newGridResult instanceof GateGrid)) {
+            return newGridResult
         }
+        const newGrid = newGridResult
 
-        let existing = this.getKey(this.name)
-        if (existing === undefined) {
-            return "Grid Not Found In Storage"
-        }
+        if (this.grid === undefined) {
+            this.grid = newGrid
 
-        let circuit = new OrganizedCircuit(existing)
-
-        if (name !== undefined) {
-            this.name = name
-        }
-
-        const newGrid = circuit.unpack()
-        if (newGrid === undefined) {
-            return "Grid Failed To Unpack"
+            return "Ok"
         }
 
         if (inPlaceGraphMerge) {
@@ -100,6 +99,26 @@ export class CircuitStorage {
             const result = this.grid.addGrid(newGrid, x, y)
             return result
         }
+    }
+
+    loadNew(name?:string) {
+        if (name !== undefined) {
+            this.name = name
+        }
+
+        let existing = this.getKey(this.name)
+        if (existing === undefined) {
+            return "Grid Not Found In Storage"
+        }
+
+        let circuit = new OrganizedCircuit(existing)
+
+        const newGrid = circuit.unpack()
+        if (newGrid === undefined) {
+            return "Grid Failed To Unpack"
+        }
+
+        return newGrid
     }
 
     remove(s:string | undefined) {
@@ -141,7 +160,7 @@ export class CircuitStorage {
             const pair = this.circuitStorage[i]
             if (pair.k == k) {
                 const ret = pair.v
-                this.circuitStorage = this.circuitStorage.splice(i, 1)
+                this.circuitStorage.splice(i, 1)
                 return ret
             }
         }
@@ -182,15 +201,12 @@ export class OrganizedCircuit {
         }
     }
 
-    fromGrid(grid:GateGrid, compressIdSpace=true) {
+    fromGrid(grid:GateGrid, compressIdSpace=true, trim=false) {
         let types = new Set<string>()
 
         this.gates = []
         let indexMap = new Map<number, number>()
 
-        this.offset = [Infinity, Infinity]
-        this.size = [0, 0]
-        
         for (let i = 0; i < grid.gates.length; i++) {
             const g = grid.gates[i]
             if (g === undefined) {
@@ -203,20 +219,25 @@ export class OrganizedCircuit {
             indexMap.set(g.id || 0, this.gates.length)
             g.id = this.gates.length
             this.gates.push(new SerializableGate(g, gType.name))
-
-            this.offset[0] = Math.min(this.offset[0], g.x || 0)
-            this.offset[1] = Math.min(this.offset[1], g.y || 0)
-            this.size[0] = Math.max(this.size[0], (g.x || 0) + gType.gridWidth)
-            this.size[1] = Math.max(this.size[1], (g.y || 0) + gType.gridHeight)
         }
-        
-        this.size[0] -= this.offset[0]
-        this.size[1] -= this.offset[1]
+
+        if (trim) this.setDimensionsFromGridTrimmed(grid)
+        else {
+            this.size = [grid.sizeX, grid.sizeY]
+            this.offset = [0, 0]
+        }
 
         const graph = grid.graph
         let connections = new Set<Connection>()
         graph.iterConnections((_g, _o, _t, _i, c) => {
-            let newC = c.copy()
+            //copy the connection so it can be modified safely
+            let newC = new Connection(
+                c.from[0], c.from[1],
+                0, 0
+            )
+    
+            newC.to = Array.from(c.to)
+            
             connections.add(newC)
             newC.from[0] = indexMap.get(c.from[0]) || 0
             newC.from[1] = indexMap.get(c.from[1]) || 0
@@ -233,6 +254,23 @@ export class OrganizedCircuit {
         this.connections = [...connections.values()]
     }
 
+    setDimensionsFromGridTrimmed(grid:GateGrid) {
+        this.offset = [Infinity, Infinity]
+        this.size = [0, 0]
+        
+        grid.iterGates((g) => {
+            this.offset[0] = Math.min(this.offset[0], g.x || 0)
+            this.offset[1] = Math.min(this.offset[1], g.y || 0)
+
+            const gType = g.type
+            this.size[0] = Math.max(this.size[0], (g.x || 0) + gType.gridWidth)
+            this.size[1] = Math.max(this.size[1], (g.y || 0) + gType.gridHeight)
+        })
+        
+        this.size[0] -= this.offset[0]
+        this.size[1] -= this.offset[1]
+    }
+
     fromString(string:string) {
         const ob = JSON.parse(string)
         this.fromObject(ob) 
@@ -240,7 +278,7 @@ export class OrganizedCircuit {
 
     //there literally has to be a better way to do this but I have no idea how TypeScript works so oh well
     fromObject(ob:OrganizedCircuitContents){
-        this.gateTypes = ob.gateTypes?.map((v) => v.model.name) || this.gateTypes
+        this.gateTypes = ob.gateTypes?.map((v) => typeof v === "string" ? v:v.model.name)|| this.gateTypes
         this.gates = ob.gates || this.gates
         this.connections = ob.connections || this.connections
         this.size = ob.size || this.size
@@ -273,9 +311,9 @@ export class OrganizedCircuit {
     }
 
     pack() {
-        const packed:OrganizedCircuitContents = {
+        const packed = {
             gates:this.gates,
-            gateTypes:this.gateTypes.map((v) => all_gates.get(v) || getGateType(Buf)),
+            gateTypes:this.gateTypes,
             connections:this.connections,
             size:this.size,
             offset:this.offset
@@ -308,7 +346,7 @@ export class OrganizedCircuit {
 }
 
 export type OrganizedCircuitContents = {
-    gateTypes?:Array<GateTypeController>
+    gateTypes?:Array<string | GateTypeController>
     gates?:Array<SerializableGate | undefined>
     connections?:Array<Connection>
     size?:[number, number]

@@ -105,21 +105,21 @@ export class CircuitController {
         const [x, y] = this.gateGrid.offsetToIndex(localX, localY)
         const gate = this.gateGrid.get(x, y)
         if (gate === undefined) {
-            return new CircuitControllerQueryResult(
-                undefined, undefined, undefined, undefined, undefined,
-                [localX, localY], [pageX, pageY],
-                timeStamp
-            )
+            return new CircuitControllerQueryResult({
+                localOffset:[localX, localY],
+                pageOffset:[pageX, pageY],
+                timeStamp:timeStamp
+            })
         }
         const [gridOffsetX, gridOffsetY] = [gate.x * 10, gate.y * 10]
         const gType = gate.type
         const cType = all_gates.get(gType.name)
         if (cType === undefined) {
-            return new CircuitControllerQueryResult(
-                undefined, undefined, undefined, undefined, undefined,
-                [localX, localY], [pageX, pageY],
-                timeStamp
-            )
+            return new CircuitControllerQueryResult({
+                localOffset:[localX, localY],
+                pageOffset:[pageX, pageY],
+                timeStamp:timeStamp
+            })
         }
         const vType = cType.view
 
@@ -137,12 +137,15 @@ export class CircuitController {
         }
 
         if (i != gType.sizeIn) {
-            return new CircuitControllerQueryResult(
-                gate,
-                "Input", i, cType, undefined,
-                [localX, localY], [pageX, pageY],
-                timeStamp
-            ) 
+            return new CircuitControllerQueryResult({
+                gate:gate,
+                type:"Input",
+                connectionIndex:i,
+                gateTypeController:cType,
+                localOffset:[localX, localY],
+                pageOffset:[pageX, pageY],
+                timeStamp:timeStamp
+            }) 
         }
 
         const outputOffsets = vType.outputOffsets
@@ -159,19 +162,25 @@ export class CircuitController {
         }
 
         if (i != gType.sizeOut) {
-            return new CircuitControllerQueryResult(
-                gate,
-                "Output", i, cType, undefined,
-                [localX, localY], [pageX, pageY],
-                timeStamp
-            ) 
+            return new CircuitControllerQueryResult({
+                gate:gate,
+                type:"Output",
+                connectionIndex:i,
+                gateTypeController:cType,
+                localOffset:[localX, localY],
+                pageOffset:[pageX, pageY],
+                timeStamp:timeStamp
+            }) 
         }
 
-        return new CircuitControllerQueryResult(
-            gate, "Gate", undefined, cType, undefined,
-            [localX, localY], [pageX, pageY],
-            timeStamp
-        ) 
+        return new CircuitControllerQueryResult({
+            gate:gate,
+            type:"Gate",
+            gateTypeController:cType,
+            localOffset:[localX, localY],
+            pageOffset:[pageX, pageY],
+            timeStamp:timeStamp
+        }) 
     }
 
     toQuery(
@@ -183,13 +192,16 @@ export class CircuitController {
         timeStamp?:number
     ) {
         const gate = this.gateGrid.gates[id || 0]
-        return new CircuitControllerQueryResult(
-            gate, type, connectionIndex, 
-            this.getGateTypeController(id || 0), 
-            undefined,
-            localOffset, pageOffset,
-            timeStamp
-        )
+
+        return new CircuitControllerQueryResult({
+            gate:gate,
+            type:type,
+            connectionIndex:connectionIndex,
+            gateTypeController:(id === undefined ? undefined : this.getGateTypeController(id)),
+            localOffset:localOffset,
+            pageOffset:pageOffset,
+            timeStamp:timeStamp
+        })
     }
 
     /**

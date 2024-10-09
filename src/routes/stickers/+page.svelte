@@ -1,8 +1,8 @@
 <script>
     import { browser } from "$app/environment";
     import StickerViewer from "$lib/components/GameView/CircuitEditor/Sticker/StickerViewer.svelte";
-    import { CowSticker, Sticker } from "$lib/dat/Tools/Tools";
-    import { ProgressStorage } from "$lib/storage_types/ProgressStore";
+    import { CowSticker } from "$lib/dat/Tools/Tools";
+import { StickerType } from "$lib/circuit_types/sticker/Sticker";    import { ProgressStorage } from "$lib/storage_types/ProgressStore";
 
     /**
      * @type {ProgressStorage}
@@ -11,7 +11,7 @@
     $: if (browser) progressStorage = new ProgressStorage()
 
     /**
-     * @type {Array<Sticker> | undefined}
+     * @type {Array<StickerType> | undefined}
      */
     let stickers
     $: stickers = progressStorage?.getTool("Stickers")?.data.stickers
@@ -65,12 +65,12 @@
                     }
 
                     /**
-                     * @type {Array<Sticker>}
+                     * @type {Array<StickerType>}
                      */
                     // @ts-ignore bc filter is too stupid
                     const stickerList = ob.
                         map((o) => {
-                            const result = Sticker.fromObject(o)
+                            const result = StickerType.fromObject(o)
 
                             if (!o.name && o.url) {
                                 lastImportErrors.missingFields.push("url: " + o.url)
@@ -107,7 +107,7 @@
 
     /**
      * 
-     * @param {Array<Sticker>} stickerList
+     * @param {Array<StickerType>} stickerList
      */
     function exportStickers(stickerList) {
 

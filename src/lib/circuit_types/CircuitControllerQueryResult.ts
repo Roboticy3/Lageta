@@ -1,4 +1,4 @@
-import { Sticker } from "$lib/dat/Tools/Tools";
+import { Sticker, StickerType } from "$lib/circuit_types/sticker/Sticker";
 import type { ConnectionIndex } from "./CircuitController";
 import { Gate } from "./Gate";
 import { GateTypeController } from "./GateType";
@@ -18,6 +18,8 @@ export class CircuitControllerQueryResult {
 
     readonly sticker: Sticker | undefined;
 
+    readonly stickerType: StickerType | undefined;
+
     readonly type: CircuitControllerQueryResultContentType;
     readonly connectionIndex: number | undefined;
 
@@ -28,29 +30,34 @@ export class CircuitControllerQueryResult {
     readonly timeStamp: number | undefined
 
     constructor(
-        gate?: Gate,
-        type: CircuitControllerQueryResultContentType = "",
-        connectionIndex?: number,
-        gateTypeController?: GateTypeController,
-        sticker?: Sticker,
-        localOffset?: [number, number],
-        pageOffset?: [number, number],
-        timeStamp?: number
+        params:{
+            gate?: Gate,
+            type?: CircuitControllerQueryResultContentType,
+            connectionIndex?: number,
+            gateTypeController?: GateTypeController,
+            sticker?: Sticker,
+            stickerType?: StickerType,
+            localOffset?: [number, number],
+            pageOffset?: [number, number],
+            timeStamp?: number
+        } = {}
     ) {
-        this.gate = gate;
-        this.gateTypeController = gateTypeController;
-        this.type = type;
-        if ((type === "Input" || type === "Output") &&
-            gate !== undefined && connectionIndex !== undefined) {
-            this.connectionIndex = connectionIndex;
+
+        this.gate = params.gate;
+        this.gateTypeController = params.gateTypeController;
+        this.type = params.type === undefined ? "":params.type;
+        if ((params.type === "Input" || params.type === "Output") &&
+            params.gate !== undefined && params.connectionIndex !== undefined) {
+            this.connectionIndex = params.connectionIndex;
         }
 
-        this.sticker = sticker
+        this.sticker = params.sticker
+        this.stickerType = params.stickerType
 
-        this.localOffset = localOffset
-        this.pageOffset = pageOffset
+        this.localOffset = params.localOffset
+        this.pageOffset = params.pageOffset
 
-        this.timeStamp = timeStamp
+        this.timeStamp = params.timeStamp
     }
 
     getId() { return this.gate?.id; }

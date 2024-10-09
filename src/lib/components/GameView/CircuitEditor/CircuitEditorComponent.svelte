@@ -13,6 +13,8 @@
     import { TruthTableTool } from "$lib/dat/Tools/Tools";
     import { CircuitSignalSetViewEventTarget } from "$lib/signal_types/SignalSetViewEvent";
     import GameViewStickerPanel from "./Sticker/GameViewStickerPanel.svelte";
+    import { SerializableSticker } from "$lib/storage_types/StickerStorage";
+    import { StickerController } from "$lib/circuit_types/sticker/StickerController";
 
     /**
      * @type {CircuitController | null}
@@ -22,6 +24,11 @@
     export function getController() {
         return circuitController
     }
+
+    /**
+     * @type {StickerController}
+    */
+    export let stickerController = new StickerController()
 
     /**
      * @type {GameViewParameters}
@@ -176,28 +183,27 @@
             class="circuit-panel" 
             bind:this={circuitContainer}
             title="Circuit"
-        >
-            <div style="grid-column-start: 1; grid-row-start:1">
-                <GameViewStickerPanel
-                    bind:editorEventTarget={editorEventTarget}
-                    circuitController={circuitController}
-                >
-                </GameViewStickerPanel>
-            </div>
-            <div style="grid-column-start: 1; grid-row-start:1">
-                <GameViewCircuitPanel 
-                    bind:this={circuitPanel}
-                    gameParams={gameParams}
-                    circuitController={circuitController}
-                    circuitDraggable={circuitDraggable}
-                    editorParams={editorParams}
-                    rendererParams={rendererParams}
-                    bind:editorEventTarget={editorEventTarget}
-                    signalSetViewEventTarget={signalSetViewEventTarget}
-                >
-                    <slot />
-                </GameViewCircuitPanel>
-            </div>
+        >    
+            <GameViewCircuitPanel 
+                bind:this={circuitPanel}
+                gameParams={gameParams}
+                circuitController={circuitController}
+                circuitDraggable={circuitDraggable}
+                editorParams={editorParams}
+                rendererParams={rendererParams}
+                bind:editorEventTarget={editorEventTarget}
+                signalSetViewEventTarget={signalSetViewEventTarget}
+            >
+                <div style="position:absolute; height:100%; width:100%; pointer-events:none;">
+                    <GameViewStickerPanel
+                        bind:editorEventTarget={editorEventTarget}
+                        circuitController={circuitController}
+                        stickerController={stickerController}
+                    >
+                    </GameViewStickerPanel>
+                </div>
+                <slot />
+            </GameViewCircuitPanel>   
         </div>
 
         {#if editorParams.showShelf !== false}
