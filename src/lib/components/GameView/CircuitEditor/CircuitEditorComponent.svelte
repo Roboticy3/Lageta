@@ -14,6 +14,7 @@
     import { CircuitSignalSetViewEventTarget } from "$lib/signal_types/SignalSetViewEvent";
     import GameViewStickerPanel from "./Sticker/GameViewStickerPanel.svelte";
     import { SerializableSticker } from "$lib/storage_types/StickerStorage";
+    import { StickerController } from "$lib/circuit_types/sticker/StickerController";
 
     /**
      * @type {CircuitController | null}
@@ -25,9 +26,9 @@
     }
 
     /**
-     * @type {Array<SerializableSticker>}
+     * @type {StickerController}
     */
-    export let stickerRegistry = []
+    export let stickerController = new StickerController()
 
     /**
      * @type {GameViewParameters}
@@ -197,7 +198,7 @@
                     <GameViewStickerPanel
                         bind:editorEventTarget={editorEventTarget}
                         circuitController={circuitController}
-                        stickerRegistry={stickerRegistry}
+                        stickerController={stickerController}
                     >
                     </GameViewStickerPanel>
                 </div>

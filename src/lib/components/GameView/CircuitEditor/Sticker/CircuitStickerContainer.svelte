@@ -34,6 +34,8 @@
     export let editorEventTarget = null
     $: editorEventTarget?.addEventListener("removesticker", onRemoveSticker)
 
+    export let id = -1
+
     /**
      * @type {Sticker}
      */

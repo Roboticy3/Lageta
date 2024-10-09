@@ -1,3 +1,4 @@
+import { StickerController } from "$lib/circuit_types/sticker/StickerController"
 import { Sticker } from "$lib/dat/Tools/Tools"
 import { parseStorage } from "./ParseStorage"
 
@@ -11,10 +12,10 @@ export class StickerStorage {
 
     constructor(
         circuitName:string,
-        stickerRegistry?:Array<SerializableSticker>,
+        stickerController?:StickerController,
         storageKey?:string
     ) {
-        this.stickerRegistry = stickerRegistry 
+        this.stickerRegistry = stickerController?.getRegistry() 
         this.name = circuitName
 
         this.storageKey = storageKey || this.storageKey

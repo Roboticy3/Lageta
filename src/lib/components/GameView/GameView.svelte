@@ -23,6 +23,7 @@
     import { CircuitStorage } from "$lib/storage_types/CircuitStorage";
     import { GateGrid } from "$lib/circuit_types/GateGrid";
     import { SerializableSticker, StickerStorage } from "$lib/storage_types/StickerStorage";
+    import { StickerController } from "$lib/circuit_types/sticker/StickerController"
 
 
     /**
@@ -62,21 +63,21 @@
     }
 
     function loadStickers() {
-        const result = new StickerStorage(gameParams.name).load()
-        if (typeof result === "string") {
-            return []
+        const stickers = new StickerStorage(gameParams.name).load()
+        if (typeof stickers === "string") {
+            return new StickerController()
         }
         else {
-            return result
+            return new StickerController(stickers)
         }
     }
     
     export let circuitController = new CircuitController(loadGrid(), onComplete, gameParams.completeCondition?.solver)
 
     /**
-     * @type {Array<SerializableSticker>}
+     * @type {StickerController}
      */
-    export let stickerRegistry = loadStickers()
+    export let stickerController = loadStickers()
 
     /**
      * Passing an existing editor should induce GameView to "steal" the editor
@@ -144,7 +145,7 @@
                 const circuitStorage = new CircuitStorage(gameParams.name, circuitController)
                 circuitStorage.save()
 
-                const stickerStorage = new StickerStorage(gameParams.name, stickerRegistry)
+                const stickerStorage = new StickerStorage(gameParams.name, stickerController)
                 stickerStorage.save()
 
                 shouldSave = false
@@ -290,7 +291,7 @@
             {#if !existingEditor}
                 <CircuitEditorComponent 
                     circuitController={circuitController} 
-                    stickerRegistry={stickerRegistry}
+                    stickerController={stickerController}
                     gameParams={gameParams} 
                     editorParams={editorParams}
                     rendererParams={rendererParams}
