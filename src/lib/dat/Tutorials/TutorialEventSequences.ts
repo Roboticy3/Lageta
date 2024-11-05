@@ -14,6 +14,7 @@ export function EventSequenceTutorial(state:any): TutorialEventSequence {return 
                 state.circuitController.addGateAtCell(getGateType(OutputLabelledPrebaked[1]), 14, 4) 
                 state.circuitController.setDesiredOutputs([true])
                 state.expectedOutput = true
+                console.log("set indicator position to ", {id:1,type:"Input",index:0})
                 state.indicator?.setPositionToConnectionPoint({id:1,type:"Input",index:0})
                 return 1
             }
@@ -23,6 +24,7 @@ export function EventSequenceTutorial(state:any): TutorialEventSequence {return 
             ) {
                 state.circuitController.setDesiredOutputs([true])
                 state.expectedOutput = true
+                console.log("set indicator position to ", {id:0,type:"Output",index:0})
                 state.indicator?.setPositionToConnectionPoint({id:0,type:"Output",index:0})
                 return 1
             }
@@ -41,6 +43,7 @@ export function EventSequenceTutorial(state:any): TutorialEventSequence {return 
                 return 1
             }
             else {
+                console.log("set indicator position to ", {id:0,type:"Output",index:0})
                 state.indicator?.setPositionToConnectionPoint({id:0,type:"Output",index:0})
                 return -1
             }
