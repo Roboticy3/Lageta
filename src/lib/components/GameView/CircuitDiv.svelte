@@ -1,6 +1,7 @@
 
 <script>
     import { CircuitController } from "$lib/circuit_types/CircuitController";
+
     import { getCircuitDivRect } from "$lib/circuit_types/CircuitDiv";
     import { onMount, tick } from "svelte";
 
@@ -15,12 +16,12 @@
      * @type {[number, number]}
      */
     export let size
-    $: gridRect = {
-        left:position[0],
-        top:position[1],
-        width:size[0],
-        height:size[1]
-    }
+
+    $: setOffset({
+        left:position[0], 
+        top:position[1], 
+        width:size[0], 
+        height:size[1]})
 
     export let bob = false
 
@@ -47,22 +48,36 @@
         height:0
     }
 
-    export function setOffset() {
+    /**
+     * 
+     * @param {import("$lib/circuit_types/CircuitDiv").Rect} gridRect
+     */
+    export function setOffset(gridRect) {
         const newRect = getCircuitDivRect(gridRect, circuitController)
-        if (newRect) rect = newRect
+        if (newRect) {
+            rect = newRect
+            //console.log("set a circuitdiv offset to", rect)
+        }
     }
+
+    function setOffsetNoArgs() {setOffset({
+        left:position[0], 
+        top:position[1], 
+        width:size[0], 
+        height:size[1]}
+    )}
 
     let resizeObserver = null
 
     onMount(async () => {
         if (container?.parentElement) {
-            resizeObserver = new ResizeObserver(setOffset)
+            resizeObserver = new ResizeObserver(setOffsetNoArgs)
             resizeObserver.observe(container.parentElement)
         }
 
         await tick()
 
-        setOffset()
+        setOffsetNoArgs()
     })
 
     export function activate() {
@@ -78,14 +93,6 @@
 
     export function getPosition() {
         return position
-    }
-
-    /**
-     * @param {[number, number]} newPosition
-     */
-    export function setPosition(newPosition) {
-        position = newPosition
-        setOffset()
     }
 
     export function hide() {

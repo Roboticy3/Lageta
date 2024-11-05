@@ -40,25 +40,25 @@
     let container;
 
     /**
-     * @param {[number, number]} newPosition
-     */
-    export function setPosition(newPosition) {
-        position = newPosition;
-        container.setPosition(newPosition);
-    }
-
-    /**
      * @param {import("$lib/circuit_types/CircuitController").ConnectionIndex} index
      */
-     export function setPositionToConnectionPoint(index) {
-        const offset1 = circuitController.getConnectionPoint(index)
+    export function setPositionToConnectionPoint(index) {
+        const offset = circuitController.getConnectionPoint(index)
         const gPos = circuitController.getGatePosition(index.id)
-        if (!gPos || !offset1) return
+        if (!gPos || !offset) return
         /**
          * @type {[number, number]}
          */
-        const offset2 = [(gPos[0] + offset1[0] / 10) - 0.5, (gPos[1] + offset1[1] / 10) - 1.5]
-        setPosition(offset2)
+        position = [(gPos[0] + offset[0] / 10) - 0.5, (gPos[1] + offset[1] / 10) - 1.5]
+        console.log("set indicator position to ", position)
+        
+    }
+
+    /**
+     * @param {[number, number]} newPosition
+     */
+     export function setPosition(newPosition) {
+        position = newPosition
     }
 
     export function hide() {
