@@ -25,11 +25,11 @@
 
 </script>
 
-<div class="full">
+<div class="menu-column">
     <div class="title">
         Lageta
     </div>
-    <div class="menu">
+    <div class="smaller">
         <div class="options">
 
             <!--If there's an avilable tutorial, force the user to go through it--> 
@@ -37,14 +37,14 @@
                 <MainMenuOption path={`tutorial/${currentTutorial}`}>Tutorial</MainMenuOption>
             <!--If there's no tutorial, let the user browse old ones-->
             {:else}
-                <MainMenuOption path={`campaign`}>Continue</MainMenuOption>
+                <MainMenuOption path={`campaign/`}>Continue</MainMenuOption>
                 <MainMenuOption path={`tutorial/`} vType={getGateType(And).view}>Tutorials</MainMenuOption>
             {/if}
 
-            <MainMenuOption path={"level/Freeplay"} vType={getGateType(Or).view}>Options</MainMenuOption>
+            <MainMenuOption path={"options/"} vType={getGateType(Or).view}>Options</MainMenuOption>
 
             {#if stickersUnlocked} 
-                <MainMenuOption path={'stickers'} spriteMode="Sticker" >Stickers</MainMenuOption>
+                <MainMenuOption path={'stickers/'} spriteMode="Sticker" >Stickers</MainMenuOption>
             {/if}
 
         </div>
@@ -59,25 +59,10 @@
         gap:1em;
     }
 
-    .full {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        width:100%;
-        height:100%;
-        background-color: var(--main-bg-color);
-    }
-
-    .title {
-        margin: 1em;
-        font-size: min(20vw, 20vh);
-        color:var(--text-color);
-        text-shadow: 0.03em 0.03em var(--connection-color-on), -0.03em -0.03em var(--connection-color-off);
-    }
-
-    .menu {
+    .smaller {
         width:20%;
-        height:30%;
-        
+        height:30%; 
     }
+
+    
 </style>
