@@ -8,8 +8,7 @@
   justify-content:space-between;
   flex-direction:row;
   background:none;
-  height:25px;
-  width:20%;
+  width:100%;
   margin-top:1vh;
 `
 
@@ -24,24 +23,35 @@
 
   }
 </script>
-<HeavyButton style={buttonStyle} on:click={onExportPressed}>
-  <div>Export Progress</div>
-  {@html wrapGateTypeViewInSvgHeader(
-    ExportGateSprite.gridWidth, ExportGateSprite.gridHeight, 
-    ExportGateSprite.draw({override:[true]}), `height="20px"`
-  )}
-</HeavyButton>
-<HeavyButton style={buttonStyle} on:click={onExportPressed}>
-  <div>Import Progress</div>
-  {@html wrapGateTypeViewInSvgHeader(
-    ImportGateSprite.gridWidth, ImportGateSprite.gridHeight, 
-    ImportGateSprite.draw({override:[true]}), `height="20px"`
-  )}
-</HeavyButton>
-<HeavyButton style={buttonStyle} on:click={onExportPressed}>
-  <div>Delete Progress</div>
-  {@html wrapGateTypeViewInSvgHeader(
-    DeleteGateSprite.gridWidth, DeleteGateSprite.gridHeight, 
-    DeleteGateSprite.draw(), `height="20px"`
-  )}
-</HeavyButton>
+
+<div class="options">
+  <HeavyButton style={buttonStyle} on:click={onExportPressed}>
+    <div>Export Progress</div>
+    {@html wrapGateTypeViewInSvgHeader(
+      ExportGateSprite.gridWidth, ExportGateSprite.gridHeight, 
+      ExportGateSprite.draw({override:[true]}), `height="20px"`
+    )}
+  </HeavyButton>
+  <HeavyButton style={buttonStyle} on:click={onExportPressed}>
+    <div>Import Progress</div>
+    {@html wrapGateTypeViewInSvgHeader(
+      ImportGateSprite.gridWidth, ImportGateSprite.gridHeight, 
+      ImportGateSprite.draw({override:[true]}), `height="20px"`
+    )}
+  </HeavyButton>
+  <HeavyButton style={buttonStyle} on:click={onExportPressed}>
+    <div>Delete Progress</div>
+    {@html wrapGateTypeViewInSvgHeader(
+      DeleteGateSprite.gridWidth, DeleteGateSprite.gridHeight, 
+      DeleteGateSprite.draw(), `height="20px"`
+    )}
+  </HeavyButton>
+</div>
+
+<style>
+  .options {
+    display:flex;
+    flex-direction:column;
+    gap:1em;
+  }
+</style>

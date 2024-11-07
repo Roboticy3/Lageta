@@ -8,6 +8,15 @@ import VolumeBar from "./VolumeBar.svelte";
   <div class="title" style="font-size: min(10vw, 10vh);">
     Options
   </div>
-  <VolumeBar />
-  <ProgressExportMenu />
+  <div class="smaller">
+    <VolumeBar />
+    <ProgressExportMenu />
+  </div>
 </div>
+
+<style>
+  .smaller {
+    width:20%;
+    height:50%; 
+  }
+</style>
