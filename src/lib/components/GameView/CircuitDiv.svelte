@@ -60,7 +60,7 @@
         }
     }
 
-    function setOffsetNoArgs() {setOffset({
+    export function setOffsetNoArgs() {setOffset({
         left:position[0], 
         top:position[1], 
         width:size[0], 
