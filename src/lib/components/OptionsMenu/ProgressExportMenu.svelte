@@ -46,10 +46,37 @@
   }
 
   /**
+     * @param {Event} e
+     */
+  function onImportFileSelected(e) {
+    
+  }
+
+  let importAvailable = false
+  /**
+   * @type {HTMLInputElement}
+   */
+  let importElement
+  /**
+   * @type {HTMLDialogElement}
+   */
+  let importErrorDialog
+  let importErrorReason = ""
+  $: if (importErrorDialog) {
+    importErrorDialog.close()
+  }
+
+  /**
    * @param {CustomEvent<any>} e
    */
   function onImportPressed(e) {
-    onExportPressed(e)
+    const file = importElement.files?.item(0)
+    if (!file || file.type !== 'application/json') {
+      importErrorDialog.show()
+      importErrorReason = `File ${file?.name || ""} is missing or not in the right format.`
+    }
+    
+    if (exportUrl !== '') onExportPressed(e) //update the export url if it was already visible
   }
 
   /**
@@ -65,7 +92,20 @@
   }
 </script>
 
+<dialog bind:this={importErrorDialog}>
+  <div class="options" style="text-align:center; width:25vw;">
+    <div class="title" style="font-size: min(5vw, 5vh);">
+      Import Failed !
+    </div>
+    <div>{@html importErrorReason}</div>
+    <button on:click={() => importErrorDialog.close()}>Ok</button>
+  </div>
+</dialog>
+
 <div class="options">
+  {#if exportUrl !== ''}
+    <div>Finished processing, <a download={"lageta.lagetaprogress"} href={exportUrl}>click here to download.</a></div>
+  {/if}
   <HeavyButton style={buttonStyle} on:click={onExportPressed}>
     <div>Export Progress</div>
     {@html wrapGateTypeViewInSvgHeader(
@@ -73,9 +113,7 @@
       ExportGateSprite.draw({override:[true]}), `height="20px"`
     )}
   </HeavyButton>
-  {#if exportUrl !== ''}
-    <div>Finished processing, <a download={"progress.json"} href={exportUrl}>click here to download.</a></div>
-  {/if}
+  <input type="file" accept=".lagetaprogress" on:change={onImportFileSelected} bind:this={importElement}/>
   <HeavyButton style={buttonStyle} on:click={onImportPressed}>
     <div>Import Progress</div>
     {@html wrapGateTypeViewInSvgHeader(
