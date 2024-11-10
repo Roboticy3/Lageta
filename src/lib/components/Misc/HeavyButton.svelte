@@ -106,9 +106,4 @@
 		font-size:large;
 		background-color: var(--secondary-bg-color);
 	}
-
-	.unavailable {
-        filter:blur(2px) brightness(50%);
-        pointer-events: none;     
-    }
 </style>

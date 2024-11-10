@@ -1,14 +1,16 @@
 <script>
     import { browser } from "$app/environment";
     import { Decoder2t4, Encoder4t2, getGateType, Not, wrapGateTypeViewInSvgHeader } from "$lib/dat/GateTypes/GateTypes";
-  import HeavyButton from "../Misc/HeavyButton.svelte";
+    import { onMount } from "svelte";
+    import HeavyButton from "../Misc/HeavyButton.svelte";
+    import GameViewDialog from "../GameView/Dialogs/GameViewDialog.svelte";
+    import { ProgressStorage } from "$lib/storage_types/ProgressStore";
 
   const buttonStyle = 
 `
   display:flex;
   justify-content:space-between;
   flex-direction:row;
-  background:none;
   width:100%;
   margin-top:1vh;
 `
@@ -17,8 +19,23 @@
   const ImportGateSprite = getGateType(Decoder2t4).view
   const DeleteGateSprite = getGateType(Not).view
 
-  const exportKeys = ["CircuitStorage", "ProgressStorage"]
+  /**
+   * @type {Event}
+   */
+  let simulatedClick 
+  $: if (browser) simulatedClick = new MouseEvent("click", {
+    "view": window,
+    "bubbles": true,
+    "cancelable": false
+  });
+
+  const exportKeys = ["CircuitStorage", "ProgressStorage", "StickerStorage"]
   let exportUrl = ''
+
+  function hasProgress() {
+    const progress = new ProgressStorage()
+    return progress.getPassedTutorials().length > 0
+  }
 
   /**
      * @param {string} k
@@ -38,90 +55,127 @@
   }
 
   /**
+   * @type {HTMLAnchorElement}
+   */
+  let exportElement
+
+  /**
    * @param {CustomEvent<any>} e
    */
   function onExportPressed(e) {
     const blob = storageToBlob()
     exportUrl = URL.createObjectURL(blob)
+    exportElement.dispatchEvent(simulatedClick)
   }
 
   /**
-     * @param {Event} e
-     */
-  function onImportFileSelected(e) {
-    
+   * @param {any} e
+   */
+   function onImportSelect(e) {
+    importElement.dispatchEvent(simulatedClick)
   }
 
-  let importAvailable = false
+  function getCurrentImportSelection() {
+    return importElement.files?.item(0)
+  }
+
+  /**
+     * @type {HeavyButton}
+     */
+  let exportButton
+
+  /**
+     * @type {HeavyButton}
+     */
+  let deleteButton
+
+  /**
+     * @param {Event | undefined} e
+     */
+  function onImportFileSelected(e) {
+    const file = getCurrentImportSelection()
+    console.log("should import be available?", file)
+
+    file?.text().then((s) => { 
+      const obj = JSON.parse(s)
+      exportKeys.forEach(k => localStorage.setItem(k, JSON.stringify(obj[k]))) //horrendous double work, oh well
+    })
+
+    exportButton.setUnavailable(!hasProgress())
+    deleteButton.setUnavailable(!hasProgress())
+  }
+
   /**
    * @type {HTMLInputElement}
    */
   let importElement
-  /**
-   * @type {HTMLDialogElement}
-   */
-  let importErrorDialog
-  let importErrorReason = ""
-  $: if (importErrorDialog) {
-    importErrorDialog.close()
-  }
 
   /**
-   * @param {CustomEvent<any>} e
-   */
-  function onImportPressed(e) {
-    const file = importElement.files?.item(0)
-    if (!file || file.type !== 'application/json') {
-      importErrorDialog.show()
-      importErrorReason = `File ${file?.name || ""} is missing or not in the right format.`
-    }
-    
-    if (exportUrl !== '') onExportPressed(e) //update the export url if it was already visible
-  }
+     * @type {GameViewDialog}
+     */
+  let confirmDeleteDialog
 
   /**
    * @param {CustomEvent<any>} e
    */
   function onDeletePressed(e) {
-    
+    confirmDeleteDialog.show()
   }
 
   function onDelete() {
-    URL.revokeObjectURL(exportUrl)
-    exportUrl = ''
+
+    confirmDeleteDialog.close()
+
+    for (const k of exportKeys) {
+      console.log("REMOVING ", k, " FROM LOCAL STORAGE!!")
+      localStorage.removeItem(k)
+    }
+
+    exportButton.setUnavailable(true)
+    deleteButton.setUnavailable(true)
   }
+
+  onMount(() => {
+    exportButton.setUnavailable(!hasProgress())
+    deleteButton.setUnavailable(!hasProgress())
+  })
 </script>
 
-<dialog bind:this={importErrorDialog}>
-  <div class="options" style="text-align:center; width:25vw;">
+<GameViewDialog bind:this={confirmDeleteDialog}>
+  <div class="options" style="align-items:center; justify-content:space-between; height:100%;">
     <div class="title" style="font-size: min(5vw, 5vh);">
-      Import Failed !
+      Warning
     </div>
-    <div>{@html importErrorReason}</div>
-    <button on:click={() => importErrorDialog.close()}>Ok</button>
+    <div>Are you sure you want to delete your data?</div>
+    <div style="display:flex; justify-content:space-evenly; width:100%;">
+      <button on:click={onDelete}>Yes</button>
+      <button on:click={() => confirmDeleteDialog.close()}>Nevermind</button>
+    </div>
+    
   </div>
-</dialog>
+</GameViewDialog>
+
+<div style="display:none;">
+  <a download={"lageta.lagetaprogress"} href={exportUrl} bind:this={exportElement}> </a>
+  <input style="display:none;" type="file" accept=".lagetaprogress" on:change={onImportFileSelected} bind:this={importElement} />
+</div>
 
 <div class="options">
-  {#if exportUrl !== ''}
-    <div>Finished processing, <a download={"lageta.lagetaprogress"} href={exportUrl}>click here to download.</a></div>
-  {/if}
-  <HeavyButton style={buttonStyle} on:click={onExportPressed}>
-    <div>Export Progress</div>
+  <HeavyButton style={buttonStyle} unavailable={true} on:click={onExportPressed}  bind:this={exportButton}>
+    <div>Export Progress to File</div>
     {@html wrapGateTypeViewInSvgHeader(
       ExportGateSprite.gridWidth, ExportGateSprite.gridHeight, 
       ExportGateSprite.draw({override:[true]}), `height="20px"`
     )}
   </HeavyButton>
-  <input type="file" accept=".lagetaprogress" on:change={onImportFileSelected} bind:this={importElement}/>
-  <HeavyButton style={buttonStyle} on:click={onImportPressed}>
+  <HeavyButton style={buttonStyle} on:click={onImportSelect}>
     <div>Import Progress</div>
     {@html wrapGateTypeViewInSvgHeader(
       ImportGateSprite.gridWidth, ImportGateSprite.gridHeight, 
       ImportGateSprite.draw({override:[true]}), `height="20px"`
     )}
   </HeavyButton>
-  <HeavyButton style={buttonStyle} on:click={onDeletePressed}>
+  <HeavyButton style={buttonStyle} unavailable={true} on:click={onDeletePressed} bind:this={deleteButton}>
     <div>Delete Progress</div>
     {@html wrapGateTypeViewInSvgHeader(
       DeleteGateSprite.gridWidth, DeleteGateSprite.gridHeight, 

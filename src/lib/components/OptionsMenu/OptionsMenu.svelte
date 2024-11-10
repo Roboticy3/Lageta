@@ -1,6 +1,5 @@
 <script>
     import ProgressExportMenu from "./ProgressExportMenu.svelte";
-import VolumeBar from "./VolumeBar.svelte";
 
 </script>
 
@@ -9,7 +8,6 @@ import VolumeBar from "./VolumeBar.svelte";
     Options
   </div>
   <div class="smaller">
-    <VolumeBar />
     <ProgressExportMenu />
   </div>
 </div>

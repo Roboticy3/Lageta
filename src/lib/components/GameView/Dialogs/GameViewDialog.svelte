@@ -11,7 +11,7 @@
         visible = true
     }
 
-    export function hide() {
+    export function close() {
         dialog.close()
         visible = false
     }
@@ -31,9 +31,10 @@
         animation-duration: var(--animation-speed);
         overflow-y: scroll;
         border:4px ridge black;
+        z-index: 10000; /* yucky, but makes sure the dialog properly draws over filtered elements like unavailable HeavyButtons*/
     }
 
-    @keyframes dialog {
+    @keyframes dialog { /* Nice slide in from the bottom */
         0% {
             top: 50%;
         }
