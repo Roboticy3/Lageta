@@ -145,14 +145,6 @@
                 Back
             </HeavyButton>
         </CircuitDiv>
-
-        <CircuitStickerContainer
-            position={[10, 10]}
-            size={[1, 1]}
-            circuitController={circuitController}
-        >
-            <StickerViewer sticker={CowSticker}/>
-        </CircuitStickerContainer>
     </CircuitEditorComponent>
 </div>
 
