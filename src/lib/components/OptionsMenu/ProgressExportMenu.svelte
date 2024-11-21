@@ -1,7 +1,7 @@
 <script>
     import { browser } from "$app/environment";
     import { Decoder2t4, Encoder4t2, getGateType, Not, wrapGateTypeViewInSvgHeader } from "$lib/dat/GateTypes/GateTypes";
-    import { onMount } from "svelte";
+    import { onMount, tick } from "svelte";
     import HeavyButton from "../Misc/HeavyButton.svelte";
     import GameViewDialog from "../GameView/Dialogs/GameViewDialog.svelte";
     import { ProgressStorage } from "$lib/storage_types/ProgressStore";
@@ -31,6 +31,12 @@
 
   const exportKeys = ["CircuitStorage", "ProgressStorage", "StickerStorage"]
   let exportUrl = ''
+  $: {
+    if (exportUrl && exportUrl.length > 0) {
+      exportElement.href = exportUrl
+      exportElement.dispatchEvent(simulatedClick)
+    }
+  }
 
   function hasProgress() {
     const progress = new ProgressStorage()
@@ -51,7 +57,7 @@
   }
 
   function storageToBlob() {
-    return new Blob([`{${exportKeys.map(parseStorageKey).join(',')}\n}`], {type: 'application/json'})
+    return new Blob([`{${exportKeys.map(parseStorageKey).filter((s) => s.length > 0).join(',')}\n}`], {type: 'application/json'})
   }
 
   /**
@@ -62,10 +68,9 @@
   /**
    * @param {CustomEvent<any>} e
    */
-  function onExportPressed(e) {
+  async function onExportPressed(e) {
     const blob = storageToBlob()
     exportUrl = URL.createObjectURL(blob)
-    exportElement.dispatchEvent(simulatedClick)
   }
 
   /**
@@ -92,17 +97,22 @@
   /**
      * @param {Event | undefined} e
      */
-  function onImportFileSelected(e) {
+  async function onImportFileSelected(e) {
     const file = getCurrentImportSelection()
     console.log("should import be available?", file)
 
     file?.text().then((s) => { 
-      const obj = JSON.parse(s)
-      exportKeys.forEach(k => localStorage.setItem(k, JSON.stringify(obj[k]))) //horrendous double work, oh well
+      try {
+        //s = s.replaceAll("\n","")
+        const obj = JSON.parse(s)
+        exportKeys.map(k => [k, JSON.stringify(obj[k])]).filter(([key, value]) => value).forEach(([key, value]) => localStorage.setItem(key, value)) //horrendous
+        exportButton.setUnavailable(false)
+        deleteButton.setUnavailable(false)
+      } catch (e) {
+        console.log("PARSER ERROR: ", e, s)
+      }
+      
     })
-
-    exportButton.setUnavailable(!hasProgress())
-    deleteButton.setUnavailable(!hasProgress())
   }
 
   /**
@@ -156,7 +166,7 @@
 </GameViewDialog>
 
 <div style="display:none;">
-  <a download={"lageta.lagetaprogress"} href={exportUrl} bind:this={exportElement}> </a>
+  <a download={"lageta.lagetaprogress"} href="/" bind:this={exportElement}> </a>
   <input style="display:none;" type="file" accept=".lagetaprogress" on:change={onImportFileSelected} bind:this={importElement} />
 </div>
 
