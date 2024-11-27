@@ -284,9 +284,6 @@
 </script>
 
 <div class="base-vertical" data-sveltekit-noscroll>
-    <div class="nav {slidinParams ? 'slidein':''}" title="Nav" style="flex:{maxSizeState.navFlex};">
-        
-    </div>
     <div class="sandbox-horizontal" title="Sandbox">
         <div class="circuit-editor" title="Editor" bind:this={editorContainer}>
             {#if !existingEditor}
@@ -369,10 +366,6 @@
         height:100%;
     }
 
-    .base-vertical .nav {
-        background-color: var(--secondary-bg-color);
-    }
-
     .base-vertical .sandbox-horizontal {
         flex: 7;
         
@@ -397,10 +390,6 @@
 
     .base-vertical .signal {
         flex:3;
-
-        background-color: var(--secondary-bg-color);
-        padding:2%;
-        width: 96%;
     }
 
     .slidein {

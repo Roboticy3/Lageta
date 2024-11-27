@@ -3,6 +3,7 @@
     import { createCustomEvent } from "$lib/misc_types/CustomEventSystem";
     import { CircuitSignalSetView } from "$lib/signal_types/SignalSetView";
     import { CircuitSignalSetViewEventTarget } from "$lib/signal_types/SignalSetViewEvent";
+    import Led from "./Led.svelte";
 
     /**
      * @type {CircuitController}
@@ -33,6 +34,22 @@
 
     let circuitValid = true
     let playing = false
+    let failuerLedOn = false
+    /**
+     * @type {NodeJS.Timeout | null}
+     */
+    let failureFlashInterval = null
+    $: if (!failureFlashInterval && !circuitValid && playing) {
+        failureFlashInterval = setInterval(() => {
+            console.log(failureFlashInterval)
+            failuerLedOn = !failuerLedOn
+        }, 125)
+    }
+    $: if (!playing && failureFlashInterval) {
+        console.log("STOP FLASHING")
+        clearInterval(failureFlashInterval)
+        failureFlashInterval = null
+    }
 
     //stop the user from using InputCheckBoxes while the signal is playing to avoid interrupting the verification process
     function onPlay() {
@@ -81,23 +98,30 @@
         )
     }
 
+    const root = document.documentElement; 
+    const styles = getComputedStyle(root);
+    const failureColor = styles.getPropertyValue('--failure-color');
+    const verificationColor = styles.getPropertyValue('--verification-color');
+
 </script>
 
-{#if playing && visible}
-    {#if circuitValid}
-        <div class="success">
-            <span style="color:var(--verification-color);">Correct!</span> 
-            <p>Keep playing to <span style="color:var(--verification-color);">verify</span> the <span style="color:var(--circuit-color);">circuit</span>!</p>
-        </div>
-    {:else}
-        <div class="failure">
-            <span style="color:var(--failure-color);">Incorrect!</span> 
-            <p>Restart the <span style="color:var(--circuit-color);">signal</span> and edit your <span style="color:var(--circuit-color);">circuit</span> to try again.</p>
-        </div>
-    {/if}
+{#if visible}
+    <div class="error-container">
+        <div>STATUS: </div>
+        <Led on={failuerLedOn} color={failureColor}/>
+        <Led color={verificationColor}/>
+    </div>
+    
 {/if}
 
 <style>
+
+    .error-container {
+        display:flex;
+        width:100%;
+        height:100%;
+        align-items: center;
+    }
 
     .failure {
         animation: tilt-shaking var(--animation-speed)
