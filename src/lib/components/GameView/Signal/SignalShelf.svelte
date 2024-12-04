@@ -78,6 +78,7 @@
     let playing = false
     let atStart = true
     let atEnd = false
+    let circuitValid = false
 
     /**
      * @type {HTMLElement}
@@ -145,6 +146,8 @@
         if (done) {
             dispatchSignalEvent("done") 
         }
+
+        circuitValid = signalSetView.isCircuitValid()
         
     }
 
@@ -205,7 +208,7 @@
     }
 
 </script>
-<div class="signomatic-box" bind:this={container}>
+<div class="signomatic-box {circuitValid ? "":"failure"}" bind:this={container}>
     <!--apply shadow color to 3 quarters of box grid-->
     <div style="grid-row: 1/3; grid-column:2; background-color:var(--signomatic-box-shadow);"></div>
     <div style="grid-row: 2; grid-column:1; background-color:var(--signomatic-box-shadow)"></div>
@@ -369,5 +372,17 @@ box-shadow: 1em 1em 1em rgba(0, 0, 0, 0.25); /* Added box-shadow */
     .signal-verifier {
         grid-column: 2;
         grid-row:2;
+    }
+
+    .failure {
+        animation: tilt-n-move-shaking calc(var(--animation-speed) * 0.1) 10;
+    }
+
+    @keyframes tilt-n-move-shaking {
+    0% { transform: translate(0, 0) rotate(0deg); }
+    25% { transform: translate(3px, 3px) rotate(.5deg); }
+    50% { transform: translate(0, 0) rotate(0eg); }
+    75% { transform: translate(-3px, 3px) rotate(-.5deg); }
+    100% { transform: translate(0, 0) rotate(0deg); }
     }
 </style>

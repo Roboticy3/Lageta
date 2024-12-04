@@ -34,7 +34,8 @@
 
     let circuitValid = true
     let playing = false
-    let failuerLedOn = false
+    let failureLedOn = false
+    let validLedOn = false
     /**
      * @type {NodeJS.Timeout | null}
      */
@@ -42,13 +43,18 @@
     $: if (!failureFlashInterval && !circuitValid && playing) {
         failureFlashInterval = setInterval(() => {
             console.log(failureFlashInterval)
-            failuerLedOn = !failuerLedOn
+            failureLedOn = !failureLedOn
         }, 125)
+    } else if (playing) {
+        validLedOn = circuitValid
     }
     $: if (!playing && failureFlashInterval) {
         console.log("STOP FLASHING")
         clearInterval(failureFlashInterval)
         failureFlashInterval = null
+    } else if (!playing) {
+        validLedOn = false
+        failureLedOn = false
     }
 
     //stop the user from using InputCheckBoxes while the signal is playing to avoid interrupting the verification process
@@ -108,8 +114,8 @@
 {#if visible}
     <div class="error-container">
         <div>STATUS: </div>
-        <Led on={failuerLedOn} color={failureColor}/>
-        <Led color={verificationColor}/>
+        <Led on={failureLedOn} color={failureColor}/>
+        <Led on={validLedOn} color={verificationColor}/>
     </div>
     
 {/if}
@@ -121,17 +127,5 @@
         width:100%;
         height:100%;
         align-items: center;
-    }
-
-    .failure {
-        animation: tilt-shaking var(--animation-speed)
-    }
-
-    @keyframes tilt-shaking {
-        0% { transform: rotate(0deg) scale(1); }
-        25% { transform: rotate(5deg) scale(1.2); }
-        50% { transform: rotate(0eg) scale(1.25); }
-        75% { transform: rotate(-5deg) scale(1.2); }
-        100% { transform: rotate(0deg) scale(1); }
     }
 </style>

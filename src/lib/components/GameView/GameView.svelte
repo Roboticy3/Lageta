@@ -137,8 +137,8 @@
      */
     let shouldSave = false
     export let saveDisabled = false
-    $: {
-        if (browser && !saveDisabled) setInterval(() => {
+    function checkSave() {
+        if (browser && !saveDisabled) {
             console.log("checking if the circuit should save...")
             if (shouldSave) {
                 console.log("saving!")
@@ -151,7 +151,7 @@
 
                 shouldSave = false
             }
-        }, 20000)
+        }
     }
     $: editorEventTarget?.addUpdateListener(() => {
         console.log("setting shouldSave to true. stickerController: ", stickerController)
@@ -182,6 +182,9 @@
      */
     export let signalSetViewEventTarget = null
     $: {console.log("signal set view event target: ", signalSetViewEventTarget)}
+    $: if (signalSetViewEventTarget) {
+        signalSetViewEventTarget.addEventListener("play",checkSave)
+    }
 
     export function isCircuitValid() {
         return signalSetView?.isCircuitValid()
@@ -355,7 +358,7 @@
 </div>
 
 <GameViewDialog bind:this={completionPopup}>
-    <CompletionDisplay newGates={gateRewards} newLevels={levelRewards} newTools={toolRewards}/>
+    <CompletionDisplay newGates={gateRewards} newLevels={levelRewards} newTools={toolRewards} on:close={() => {completionPopup.close()}}/>
 </GameViewDialog>
 
 <style>

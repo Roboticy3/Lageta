@@ -1,9 +1,11 @@
 <script>
     import { getToolParams } from "$lib/dat/Tools/Tools";
-    import { onMount } from "svelte";
+    import { createEventDispatcher, onMount } from "svelte";
     import TruthTableTutorial from "./TruthTableTutorial.svelte";
     import HeavyButton from "$lib/components/Misc/HeavyButton.svelte";
     import StickerTutorial from "./StickerTutorial.svelte";
+
+    const dispatch = createEventDispatcher()
 
     /**
      * @type {string[]}
@@ -61,12 +63,17 @@
                 {/each}
             </div>
         </div>
-        <div class="to-level-select">
-            <HeavyButton 
-                on:click={() => {window.location.pathname = "/campaign"}}
-            >
-                See Level Select Screen
-            </HeavyButton>
+        <div style="display:flex; flex-direction:column;">
+            <div class="center">
+                <HeavyButton 
+                    on:click={() => {window.location.pathname = "/campaign"}}
+                >
+                    See Level Select Screen
+                </HeavyButton>
+            </div>
+            <div class="center">
+                <HeavyButton on:click={dispatch.bind(dispatch, "close")}>Stick Around</HeavyButton>
+            </div>
         </div>
     </div>
 {:else}
@@ -112,7 +119,7 @@
         text-align: center;
     }
 
-    .to-level-select {
+    .center {
         display: inline-flex;
         align-self: center;
     }
