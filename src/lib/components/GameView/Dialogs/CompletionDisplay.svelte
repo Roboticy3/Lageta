@@ -7,6 +7,8 @@
     import CircuitEditorComponent from "../CircuitEditor/CircuitEditorComponent.svelte";
     import { GameViewParameters } from "$lib/level_types/GameViewParameters";
     import { getGateType, Input } from "$lib/dat/GateTypes/GateTypes";
+    import CircuitDiv from "../CircuitDiv.svelte";
+    import { CircuitController } from "$lib/circuit_types/CircuitController";
 
     const dispatch = createEventDispatcher()
 
@@ -56,19 +58,15 @@
     )
     const editorParams = {canDragGates:false, showShelf:false}
     const rendererParams = {}
+    /**
+     * @type {CircuitController}
+     */
+    let circuitController //steal its circuitController using dirty binds
 
 </script>
 
 {#if !currentTool}
-<div style="display:flex;" >
-    <div style="width:100%; height:100%;">
-        <CircuitEditorComponent
-            gameParams={gameParams}
-            editorParams={editorParams}
-            rendererParams={rendererParams}
-        >
-        </CircuitEditorComponent>
-    </div>
+<div style="display:flex; height:100%;" >
     <div class="end-container">
         <div class="title-container">
             <div class="title">
@@ -89,6 +87,14 @@
                 {/each}
             </div>
         </div>
+    </div>
+    <div style="width:100%; height:100%; padding:3%; box-sizing:border-box;">
+        <CircuitEditorComponent
+            gameParams={gameParams}
+            editorParams={editorParams}
+            rendererParams={rendererParams}
+            bind:circuitController={circuitController}
+        />
     </div>
     <div style="display:flex; flex-direction:column; justify-content:space-evenly;">
         <div class="center">
@@ -122,6 +128,7 @@
         display:flex;
         flex-direction: column;
         justify-content:space-between;
+        padding-bottom: 10vh;
     }
 
     .title-container {
