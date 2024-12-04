@@ -4,6 +4,9 @@
     import TruthTableTutorial from "./TruthTableTutorial.svelte";
     import HeavyButton from "$lib/components/Misc/HeavyButton.svelte";
     import StickerTutorial from "./StickerTutorial.svelte";
+    import CircuitEditorComponent from "../CircuitEditor/CircuitEditorComponent.svelte";
+    import { GameViewParameters } from "$lib/level_types/GameViewParameters";
+    import { getGateType, Input } from "$lib/dat/GateTypes/GateTypes";
 
     const dispatch = createEventDispatcher()
 
@@ -37,17 +40,40 @@
         console.log("set currentTool to ", currentTool)
     }
 
+    //set up a circuit editor component
+    const gridWidth = 24
+    const gridHeight = 12
+    const gameParams = new GameViewParameters(
+        "LevelSelect", "", 
+        {
+            size:[gridWidth, gridHeight],
+            gateTypes:[getGateType(Input(10))],
+            gates:[
+                {type:"Input10",x:0,y:1,id:0,state:{override:[true]}}
+            ]
+        }, 
+        undefined, []
+    )
+    const editorParams = {canDragGates:false, showShelf:false}
+    const rendererParams = {}
+
 </script>
 
 {#if !currentTool}
+<div style="display:flex;" >
+    <div style="width:100%; height:100%;">
+        <CircuitEditorComponent
+            gameParams={gameParams}
+            editorParams={editorParams}
+            rendererParams={rendererParams}
+        >
+        </CircuitEditorComponent>
+    </div>
     <div class="end-container">
         <div class="title-container">
             <div class="title">
                 You Win!
             </div>
-            <h2>
-                You unlocked:
-            </h2>
         </div>
         <div class="rewards-container">
             <div>
@@ -63,19 +89,20 @@
                 {/each}
             </div>
         </div>
-        <div style="display:flex; flex-direction:column;">
-            <div class="center">
-                <HeavyButton 
-                    on:click={() => {window.location.pathname = "/campaign"}}
-                >
-                    See Level Select Screen
-                </HeavyButton>
-            </div>
-            <div class="center">
-                <HeavyButton on:click={dispatch.bind(dispatch, "close")}>Stick Around</HeavyButton>
-            </div>
+    </div>
+    <div style="display:flex; flex-direction:column; justify-content:space-evenly;">
+        <div class="center">
+            <HeavyButton 
+                on:click={() => {window.location.pathname = "/campaign"}}
+            >
+                See Level Select Screen
+            </HeavyButton>
+        </div>
+        <div class="center">
+            <HeavyButton on:click={dispatch.bind(dispatch, "close")}>Stick Around</HeavyButton>
         </div>
     </div>
+</div>
 {:else}
 <div class="tool-container">
     {#if currentTool === "TruthTable"}
@@ -113,8 +140,8 @@
 
     .rewards-container {
         display:flex;
-        justify-content:space-between;
-        flex-direction:row;
+        justify-content:space-evenly;
+        flex-direction:column;
 
         text-align: center;
     }
