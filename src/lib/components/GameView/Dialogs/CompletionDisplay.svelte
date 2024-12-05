@@ -1,7 +1,7 @@
 <script>
     import { getToolParams } from "$lib/dat/Tools/Tools";
-    import { createEventDispatcher, onMount } from "svelte";
-    import TruthTableTutorial from "./TruthTableTutorial.svelte";
+    import { createEventDispatcher, onMount, tick } from "svelte";
+    import TruthTabletutorial from "./TruthTabletutorial.svelte";
     import HeavyButton from "$lib/components/Misc/HeavyButton.svelte";
     import StickerTutorial from "./StickerTutorial.svelte";
     import CircuitEditorComponent from "../CircuitEditor/CircuitEditorComponent.svelte";
@@ -9,8 +9,9 @@
     import { getGateType, Input } from "$lib/dat/GateTypes/GateTypes";
     import CircuitDiv from "../CircuitDiv.svelte";
     import { CircuitController } from "$lib/circuit_types/CircuitController";
+    import { ShelfTreeNode } from "$lib/dat/Shelf/ShelfTree";
 
-    const dispatch = createEventDispatcher()
+    let dispatch = createEventDispatcher()
 
     /**
      * @type {string[]}
@@ -43,25 +44,28 @@
     }
 
     //set up a circuit editor component
-    const gridWidth = 24
-    const gridHeight = 12
-    const gameParams = new GameViewParameters(
+    export let rewardTestInputSize = 6
+    $: gridWidth = Math.ceil(rewardTestInputSize / 9 * 16)
+    $: gridHeight = rewardTestInputSize
+    $: rendererParams = {}
+    $: gameParams = new GameViewParameters(
         "LevelSelect", "", 
         {
             size:[gridWidth, gridHeight],
-            gateTypes:[getGateType(Input(10))],
+            gateTypes:[getGateType(Input(rewardTestInputSize))],
             gates:[
-                {type:"Input10",x:0,y:1,id:0,state:{override:[true]}}
+                {type:`Input${rewardTestInputSize}`,x:0,y:0,id:0,state:{override:[true, false, true, false, true, false, true, false, true, false]}}
             ]
         }, 
-        undefined, []
+        undefined, [], false
     )
-    const editorParams = {canDragGates:false, showShelf:false}
-    const rendererParams = {}
     /**
      * @type {CircuitController}
      */
-    let circuitController //steal its circuitController using dirty binds
+    $: circuitController = new CircuitController(gameParams.grid, () => {}, undefined)
+
+    $: editorParams = {showShelf:newGates.length > 0}
+    $: shelf = new ShelfTreeNode("Rewards", newGates, 0)
 
 </script>
 
@@ -93,7 +97,8 @@
             gameParams={gameParams}
             editorParams={editorParams}
             rendererParams={rendererParams}
-            bind:circuitController={circuitController}
+            circuitController={circuitController}
+            shelf={shelf}
         />
     </div>
     <div style="display:flex; flex-direction:column; justify-content:space-evenly;">
@@ -112,7 +117,7 @@
 {:else}
 <div class="tool-container">
     {#if currentTool === "TruthTable"}
-        <TruthTableTutorial />
+        <TruthTabletutorial />
     {:else if currentTool === "Stickers"}
         <StickerTutorial />
     {/if}

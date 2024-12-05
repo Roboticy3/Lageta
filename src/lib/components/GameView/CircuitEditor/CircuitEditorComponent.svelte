@@ -45,9 +45,7 @@
     /**
      * @type {any}
      */
-    export let maxSizeState = {
-        shelfMaxHeight:'0%'
-    }
+    export let maxSizeState = {}
 
     /**
      * @type {GameViewCircuitPanelEventTarget | null}
@@ -208,7 +206,7 @@
 
         {#if editorParams.showShelf !== false}
             <GameViewShelf
-                bind:maxSizeState={maxSizeState}
+                maxSizeState={maxSizeState}
                 items={shelf.children}
                 circuitDraggable={circuitDraggable}
                 progress={progress}

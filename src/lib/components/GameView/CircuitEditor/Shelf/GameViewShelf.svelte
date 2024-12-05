@@ -6,16 +6,17 @@
     import GameViewShelfButton from "$lib/components/GameView/CircuitEditor/Shelf/GameViewShelfGate.svelte";
     import { Buf, getGateType, getGateTypeParams } from "$lib/dat/GateTypes/GateTypes";
     import { ShelfTreeNode } from "$lib/dat/Shelf/ShelfTree";
-    import { onMount } from "svelte";
+    import { onMount, tick } from "svelte";
     import GameViewShelfFolder from "./GameViewShelfFolder.svelte";
     import { getToolParams, StickersTool } from "$lib/dat/Tools/Tools";
 import { StickerType } from "$lib/circuit_types/sticker/Sticker";    import { ProgressStorage } from "$lib/storage_types/ProgressStore";
     import GameViewShelfSticker from "./GameViewShelfSticker.svelte";
 
     /**
+     * Currently broken, supposed to make the shelf slide in. Should use css animations instead of this bs
      * @type {any}
      */
-    export let maxSizeState = null
+    export let maxSizeState = {}
 
     /**
      * @type {ProgressStorage | null}
@@ -34,6 +35,7 @@ import { StickerType } from "$lib/circuit_types/sticker/Sticker";    import { Pr
         if (item instanceof ShelfTreeNode) return item
 
         const gParams = getGateTypeParams(item)
+        console.log("adding item ", gParams)
         if (gParams) return getGateType(gParams)
 
         const sticker = stickers?.find((v) => v.name === item)
@@ -51,11 +53,17 @@ import { StickerType } from "$lib/circuit_types/sticker/Sticker";    import { Pr
 
     export let depth = 1
 
+    let growingState = true
+    onMount(async() => {
+        await tick()
+
+        growingState = false
+    })
+
 </script>
 
 <div 
     class="shelf" 
-    style="{maxSizeState?.shelfMaxHeight ? `max-height:${maxSizeState.shelfMaxHeight};`:''}" 
     title="Shelf"
 >
     {#each processedItems as item}
