@@ -1,4 +1,5 @@
 <script>
+    import { browser } from "$app/environment";
     import { CircuitController } from "$lib/circuit_types/CircuitController";
     import { createCustomEvent } from "$lib/misc_types/CustomEventSystem";
     import { CircuitSignalSetView } from "$lib/signal_types/SignalSetView";
@@ -104,18 +105,27 @@
         )
     }
 
-    const root = document.documentElement; 
-    const styles = getComputedStyle(root);
-    const failureColor = styles.getPropertyValue('--failure-color');
-    const verificationColor = styles.getPropertyValue('--verification-color');
+    
+    let failureColor = "#00000"
+    let verificationColor = "#00000"
+    $: if (browser) {
+        const root = document.documentElement; 
+        const style = getComputedStyle(root)
+        failureColor = style.getPropertyValue('--failure-color');
+        verificationColor = style.getPropertyValue('--verification-color');
+    }
 
 </script>
 
 {#if visible}
     <div class="error-container">
         <div>STATUS: </div>
-        <Led on={failureLedOn} color={failureColor}/>
-        <Led on={validLedOn} color={verificationColor}/>
+        <div style="height:2em; width:2em;">
+            <Led on={failureLedOn} color={failureColor}/>
+        </div>
+        <div style="height:2em; width:2em;">
+            <Led on={validLedOn} color={verificationColor}/>
+        </div>
     </div>
     
 {/if}

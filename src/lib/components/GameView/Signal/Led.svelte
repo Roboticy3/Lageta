@@ -25,8 +25,8 @@
 
 <style>
   .led {
-    width: 2em;
-    height: 2em;
+    width: 100%;
+    height: 100%;
     
     position:relative;
   }
