@@ -5,6 +5,7 @@
 import { Sticker, StickerType } from "$lib/circuit_types/sticker/Sticker";    import { ProgressStorage } from "$lib/storage_types/ProgressStore";
     import HeavyButton from "$lib/components/Misc/HeavyButton.svelte";
     import { StickerStorage } from "$lib/storage_types/StickerStorage";
+    import GameViewDialog from "$lib/components/GameView/Dialogs/GameViewDialog.svelte";
     /**
      * @type {ProgressStorage}
      */
@@ -21,11 +22,15 @@ import { Sticker, StickerType } from "$lib/circuit_types/sticker/Sticker";    im
     let stickers
     $: stickerTool = progressStorage?.getTool("Stickers")
     $: stickers = stickerTool?.data.stickers
+    $: console.log("stickers updated  : ", stickers)
 
     /**
      * @type {HeavyButton}
      */
     let exportButton
+    /**
+     * @type {HeavyButton}
+     */
     let importButton
     /**
      * @type {HeavyButton}
@@ -120,6 +125,7 @@ import { Sticker, StickerType } from "$lib/circuit_types/sticker/Sticker";    im
         console.log("adding stickers ", stickerList)
         stickers?.push(...stickerList)
         stickerTool.data.stickers = stickers
+        stickerTool = stickerTool 
         console.log("writing save data...", stickers)
         progressStorage.commit()
         progressStorage = progressStorage
@@ -175,6 +181,35 @@ import { Sticker, StickerType } from "$lib/circuit_types/sticker/Sticker";    im
         exportUrl = URL.createObjectURL(blob)
     }
 
+    /**
+     * @type {GameViewDialog}
+     */
+    let confirmDeleteDialog
+
+    /**
+     * @param {any} e
+     */
+    async function onDeletePressed(e) {
+        confirmDeleteDialog.show()
+    }
+
+    function onDelete() {
+
+        confirmDeleteDialog.close()
+
+        if (stickerTool) {
+            console.log("deleting stickers... ", stickers)
+            stickerTool.data.stickers = undefined
+            stickerTool = stickerTool
+            console.log("writing save data...")
+            progressStorage.commit()
+            progressStorage = progressStorage
+        }
+
+        exportButton.setUnavailable(true)
+        deleteButton.setUnavailable(true)
+    }
+
     const buttonStyle = 
     `
     display:flex;
@@ -185,6 +220,20 @@ import { Sticker, StickerType } from "$lib/circuit_types/sticker/Sticker";    im
     `
 
 </script>
+
+<GameViewDialog bind:this={confirmDeleteDialog}>
+    <div class="options" style="align-items:center; justify-content:space-between; height:100%;">
+      <div class="title" style="font-size: min(5vw, 5vh);">
+        Warning
+      </div>
+      <div>Are you sure you want to delete your stickers?</div>
+      <div style="display:flex; justify-content:space-evenly; width:100%;">
+        <button on:click={onDelete}>Yes</button>
+        <button on:click={() => confirmDeleteDialog.close()}>Nevermind</button>
+      </div>
+      
+    </div>
+  </GameViewDialog>
 
 <div style="display:none;">
     <a download={"lageta.stickers"} href="/" bind:this={exportElement}> </a>
@@ -228,6 +277,12 @@ import { Sticker, StickerType } from "$lib/circuit_types/sticker/Sticker";    im
             {#if lastImportErrors.noArray}
                 <p style="color:var(--failure-color);">Last import did not contain a top-level list! Importer does not search for lists nested in other objects.</p>
             {/if}
+        <HeavyButton style={buttonStyle} unavailable={stickers === undefined} on:click={onDeletePressed} bind:this={deleteButton}>
+            <div>Delete Progress</div>
+            <div style="height:20px;">
+                <StickerViewer sticker={BoredomSticker}/>
+              </div>
+            </HeavyButton>
         
     </div>
 </div>
