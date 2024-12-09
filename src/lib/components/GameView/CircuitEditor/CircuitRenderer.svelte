@@ -154,30 +154,55 @@
      * @param {"lines" | "dots"} gridStyle
      */
     function gridConstructor(gridStyle) {
-        let grid = new Array(gridSize[0] + gridSize[1] - 2).fill("")
-        const endX = cellOffset * gridSize[0]
-        const endY = cellOffset * gridSize[1]
-        for (let i = 0; i < gridSize[0] - 1; i++) {
-            const x = cellOffset * (i + 1)
-            grid[i] = svgLine(x, 0, x, endY)
+
+        console.log("generating grid", gridSize, gridStyle)
+
+        let grid = []
+
+        switch (gridStyle) {
+            case "lines":
+                grid = new Array(gridSize[0] + gridSize[1] - 2).fill("")
+                const endX = cellOffset * gridSize[0]
+                const endY = cellOffset * gridSize[1]
+                for (let i = 0; i < gridSize[0] - 1; i++) {
+                    const x = cellOffset * (i + 1)
+                    grid[i] = svgLine(x, 0, x, endY)
+                }
+                for (let i = 0; i < gridSize[1] - 1; i++) {
+                    const y = cellOffset * (i + 1)
+                    grid[gridSize[0] + i - 1] = svgLine(0, y, endX, y)
+                }
+                break
+            case "dots":
+                grid = new Array((gridSize[0] + 1) * (gridSize[1] + 1)).fill("")
+                for (let i = 0; i < gridSize[1] + 1; i++) {
+                    for (let j = 0; j < gridSize[0] + 1; j++) {
+                        const [x, y] = [cellOffset * j, cellOffset * ]
+                        grid[(gridSize[1] + 1) * i + j] = `<circle cx="${x}" cy="${y}" r="${cellOffset / 20}" fill="var(--secondary-bg-color)" stroke="none" />`
+
+                        console.log("generating point", i, j, " at ", x, y, " : ", grid[(gridSize[1] + 1) * i + j])
+                    }
+                }
+
+                
+                break
         }
-        for (let i = 0; i < gridSize[1] - 1; i++) {
-            const y = cellOffset * (i + 1)
-            grid[gridSize[0] + i - 1] = svgLine(0, y, endX, y)
-        }
-        const g = svgWrapGroup(grid.join('\n'), "")
+
+        const inner = grid.join('')
+        const g = svgWrapGroup(inner, "", idSpace.gridIdString())
         gridGroup.replaceChildren(g)
+        
+        //console.log("generated group", g.innerHTML, inner)
         return g
     }
 
     export function drawGrid() {
-        if (rendererParams.gridStyle) {
-            updateItem(
-                idSpace.gridIdString(), 
-                () => {},
-                gridConstructor.bind(gridConstructor, rendererParams.gridStyle)
-            )
-        }
+        const style = rendererParams.gridStyle || "dots"
+        updateItem(
+            idSpace.gridIdString(), 
+            () => {},
+            gridConstructor.bind(gridConstructor, style)
+        )
     }
 
     /**
