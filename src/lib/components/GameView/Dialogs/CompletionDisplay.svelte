@@ -1,15 +1,16 @@
 <script>
     import { getToolParams } from "$lib/dat/Tools/Tools";
     import { createEventDispatcher, onMount, tick } from "svelte";
-    import TruthTabletutorial from "./TruthTabletutorial.svelte";
+    import TruthTableTutorial from "./TruthTableTutorial.svelte";
     import HeavyButton from "$lib/components/Misc/HeavyButton.svelte";
     import StickerTutorial from "./StickerTutorial.svelte";
     import CircuitEditorComponent from "../CircuitEditor/CircuitEditorComponent.svelte";
     import { GameViewParameters } from "$lib/level_types/GameViewParameters";
-    import { getGateType, Input } from "$lib/dat/GateTypes/GateTypes";
+    import { getGateType, getGateTypeParams, Input } from "$lib/dat/GateTypes/GateTypes";
     import CircuitDiv from "../CircuitDiv.svelte";
     import { CircuitController } from "$lib/circuit_types/CircuitController";
     import { ShelfTreeNode } from "$lib/dat/Shelf/ShelfTree";
+    import { GateTypeController } from "$lib/circuit_types/GateType";
 
     let dispatch = createEventDispatcher()
 
@@ -48,7 +49,30 @@
     $: gridWidth = Math.ceil(rewardTestInputSize / 9 * 16)
     $: gridHeight = rewardTestInputSize
     $: rendererParams = {}
-    $: gameParams = new GameViewParameters(
+
+    $: newGateTypeControllers = getNewGateTypeControllers(newGates)
+
+    /**
+     * @param {string[]} newGateTypeNames
+     */
+    function getNewGateTypeControllers(newGateTypeNames) {
+        /**
+         * @type {GateTypeController[]}
+         */
+        let out = []
+        newGateTypeNames.forEach((s) => {
+            const p = getGateTypeParams(s)
+            if (p) out.push(getGateType(p))
+        })
+
+        return out
+    }
+
+    /**
+     * @type {GameViewParameters | null}
+     */
+    let gameParams = null
+    $: if (newGates.length > 0) gameParams = new GameViewParameters(
         "LevelSelect", "", 
         {
             size:[gridWidth, gridHeight],
@@ -59,10 +83,12 @@
         }, 
         undefined, [], false
     )
+
     /**
-     * @type {CircuitController}
+     * @type {CircuitController | null}
      */
-    $: circuitController = new CircuitController(gameParams.grid, () => {}, undefined)
+    let circuitController = null
+    $: if (gameParams) circuitController = new CircuitController(gameParams.grid, () => {}, undefined)
 
     $: editorParams = {showShelf:newGates.length > 0}
     $: shelf = new ShelfTreeNode("Rewards", newGates, 0)
@@ -78,29 +104,35 @@
             </div>
         </div>
         <div class="rewards-container">
-            <div>
+            {#if newGates.length > 0} <div>
                 <h2>New Gates:</h2>
                 {#each newGates as gate}
                     <div>{gate}</div>
                 {/each}
-            </div>
-            <div>
+            </div> {/if}
+            {#if newLevels.length > 0}<div>
                 <h2>New Levels:</h2>
                 {#each newLevels as level}
                     <div>{level}</div>
                 {/each}
-            </div>
+            </div> {/if}
         </div>
     </div>
-    <div style="width:100%; height:100%; padding:3%; box-sizing:border-box;">
-        <CircuitEditorComponent
-            gameParams={gameParams}
-            editorParams={editorParams}
-            rendererParams={rendererParams}
-            circuitController={circuitController}
-            shelf={shelf}
-        />
-    </div>
+    {#if gameParams}
+        <div style="display:flex; flex-direction:column; width:100%;">
+            <div>Try out new gates here!</div>
+            <div style="width:100%; height:100%; padding:3%; box-sizing:border-box;">
+                <CircuitEditorComponent
+                    gameParams={gameParams}
+                    editorParams={editorParams}
+                    rendererParams={rendererParams}
+                    circuitController={circuitController}
+                    shelf={shelf}
+                />
+            </div>
+        </div>
+    {/if}
+    
     <div style="display:flex; flex-direction:column; justify-content:space-evenly;">
         <div class="center">
             <HeavyButton 
@@ -117,7 +149,7 @@
 {:else}
 <div class="tool-container">
     {#if currentTool === "TruthTable"}
-        <TruthTabletutorial />
+        <TruthTableTutorial />
     {:else if currentTool === "Stickers"}
         <StickerTutorial />
     {/if}
