@@ -1,15 +1,12 @@
 <svelte:options accessors={true}/>
 <script>
     import { CircuitController } from "$lib/circuit_types/CircuitController";
-import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControllerQueryResult";
+    import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControllerQueryResult";
     import CircuitDraggable from './CircuitDraggable.svelte';
-    import { GateType, GateTypeController, GateTypeView } from "$lib/circuit_types/GateType";
-    import { onMount, tick } from "svelte";
-    import { compose, fromString, identity, scale, toSVG, transform, translate } from "transformation-matrix";
-    import { draw } from "svelte/transition";
+    import { GateTypeController } from "$lib/circuit_types/GateType";
+    import { onMount } from "svelte";
     import ResizingSvg from "$lib/components/Misc/ResizingSvg.svelte";
     import { CircuitRendererIDStandard } from "$lib/renderer_types/CircuitRendererIDSpace";
-    import { browser } from "$app/environment";
     import { GameViewCircuitPanelEventTarget } from "$lib/circuit_types/GameViewCircuitPanelEvent";
     import { WireRenderer } from "$lib/renderer_types/WireRenderer";
     import { SFXPlayer } from "$lib/misc_types/SFXPlayer";
@@ -152,7 +149,11 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
         svg.innerHTML = ""
     }
 
-    function gridConstructor() {
+    /**
+     * 
+     * @param {"lines" | "dots"} gridStyle
+     */
+    function gridConstructor(gridStyle) {
         let grid = new Array(gridSize[0] + gridSize[1] - 2).fill("")
         const endX = cellOffset * gridSize[0]
         const endY = cellOffset * gridSize[1]
@@ -170,11 +171,11 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
     }
 
     export function drawGrid() {
-        if (rendererParams.showGrid === true) {
+        if (rendererParams.gridStyle) {
             updateItem(
                 idSpace.gridIdString(), 
                 () => {},
-                gridConstructor
+                gridConstructor.bind(gridConstructor, rendererParams.gridStyle)
             )
         }
     }

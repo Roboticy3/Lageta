@@ -31,6 +31,8 @@
 
     export let flash = false
 
+    export let border = false
+
     /**
      * @type {CircuitController}
      */
@@ -105,7 +107,7 @@
 </script>
 
 <div 
-    class="circuit-div {hidden ? 'hidden':''} {active ? '':'unavailable'} {bob ? 'bobbing-circuit-div':''} {smooth ? 'smooth-circuit-div':''} {flash ? 'flash-circuit-div':''}" 
+    class="circuit-div {hidden ? 'hidden':''} {active ? '':'unavailable'} {bob ? 'bobbing-circuit-div':''} {smooth ? 'smooth-circuit-div':''} {flash ? 'flash-circuit-div':''} {border ? 'border':''}" 
     style="left:{rect.left}px; top:{rect.top}px; width:{rect.width}px; height:{rect.height}px;" 
     bind:this={container}
 >
@@ -142,6 +144,11 @@
 
     .hidden {
         opacity: 0%;
+    }
+
+    .border {
+        border: ridge 4px black;
+        border-radius: 4px;
     }
 
     @keyframes bob-y {

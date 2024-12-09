@@ -1,16 +1,10 @@
 <script>
     import { browser } from "$app/environment";
-
-    //@ts-ignore
     import { CircuitController } from "$lib/circuit_types/CircuitController";
-    import { onMount, tick } from "svelte";
+    import { onMount } from "svelte";
     import CircuitDiv from "../CircuitDiv.svelte";
     import { GameViewCircuitPanelEventTarget, createGameViewCircuitPanelEvent } from "$lib/circuit_types/GameViewCircuitPanelEvent";
-    import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControllerQueryResult";
-    import ResizingSvg from "$lib/components/Misc/ResizingSvg.svelte";
-    import { Buf, getGateType } from "$lib/dat/GateTypes/GateTypes";
     import HeavyButton from "$lib/components/Misc/HeavyButton.svelte";
-    import Rand from "rand-seed";
     import Led from "../Signal/Led.svelte";
 
     
@@ -159,8 +153,8 @@
         on:click={onChange}
     >
     <div style="display:flex; position:absolute; width:100%; height:100%; top:0; left:8%; font-size:small; box-sizing:border-box; padding:5%;">
-        <Led color={highColor} on={highLedOn}/>
         <Led color={lowColor} on={lowLedOn}/>
+        <Led color={highColor} on={highLedOn}/>
     </div>
     
         
