@@ -56,11 +56,13 @@
     } else if (playing) {
         validLedOn = circuitValid
     }
-    $: if (!playing && failureFlashInterval) {
-        console.log("STOP FLASHING")
-        clearInterval(failureFlashInterval)
-        failureFlashInterval = null
-    } else if (!playing) {
+    $: if (!playing) {
+        if (failureFlashInterval) {
+            console.log("STOP FLASHING")
+            clearInterval(failureFlashInterval)
+            failureFlashInterval = null
+        } 
+
         validLedOn = false
         failureLedOn = false
     }
@@ -80,6 +82,7 @@
             circuitController.complete()
             dispatchSignalEvent("complete")
         }
+        playing = false
     }
 
     function onStep() {
@@ -93,6 +96,7 @@
 
     function onRestart() {
         circuitValid = true
+        playing = false
     }
 
     /**

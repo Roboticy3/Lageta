@@ -292,6 +292,7 @@ import { Sticker, StickerType } from "$lib/circuit_types/sticker/Sticker";    im
     .container {
         display:flex;
         width:100%;
+        overflow:hidden;
     }
 
     .sticker-list {
@@ -305,6 +306,12 @@ import { Sticker, StickerType } from "$lib/circuit_types/sticker/Sticker";    im
         flex-direction: column;
         
         flex:1;
+    }
+
+    .options {
+        display:flex;
+        flex-direction:column;
+        gap:1em;
     }
 
     
