@@ -60,7 +60,7 @@ export function EventSequenceTutorial(state:any): TutorialEventSequence {return 
                 state.circuitController.setDesiredOutputs([false])
                 state.expectedOutput = false
                 state.indicator?.show()
-                state.indicator?.setPosition([2.15, 1.25])
+                state.indicator?.setPosition([0.75, 2.0])
                 return 1
             }
         }
@@ -241,7 +241,7 @@ export function EventSequenceTutorial(state:any): TutorialEventSequence {return 
             if (
                 evt.from.contentEquals({id:0,type:"Output",index:0})
             ) {
-                state.indicator?.setPositionToConnectionPoint({id:2, type:"Input", index:0})
+                state.indicator?.setPositionToConnectionPoint({id:state.circuitController.getGateIdLength() - 1, type:"Input", index:0})
                 return 1
             }
         }
@@ -250,9 +250,9 @@ export function EventSequenceTutorial(state:any): TutorialEventSequence {return 
         //21: wait for the wire to be dropped in the right spot, go back if dropped in the wrong spot
         eventName:"drop",f: async (evt) => {
             if (
-                evt.to.contentEquals({id:2,type:"Input",index:0})
+                evt.to.contentEquals({id:state.circuitController.getGateIdLength() - 1,type:"Input",index:0})
             ) {
-                state.indicator?.setPositionToConnectionPoint({id:2, type:"Output", index:0})
+                state.indicator?.setPositionToConnectionPoint({id:state.circuitController.getGateIdLength() - 1, type:"Output", index:0})
                 return 1
             }
             else {
@@ -265,7 +265,7 @@ export function EventSequenceTutorial(state:any): TutorialEventSequence {return 
         //22: wait for wire from the not gate
         eventName:"dragstart",f: async (evt) => {
             if (
-                evt.from.contentEquals({id:2,type:"Output",index:0})
+                evt.from.contentEquals({id:state.circuitController.getGateIdLength() - 1,type:"Output",index:0})
             ) {
                 state.indicator?.setPositionToConnectionPoint({id:1, type:"Input", index:0})
                 return 1
@@ -282,7 +282,7 @@ export function EventSequenceTutorial(state:any): TutorialEventSequence {return 
                 return 1
             }
             else {
-                state.indicator?.setPositionToConnectionPoint({id:2, type:"Output", index:0})
+                state.indicator?.setPositionToConnectionPoint({id:state.circuitController.getGateIdLength() - 1, type:"Output", index:0})
                 return -1
             }
         }

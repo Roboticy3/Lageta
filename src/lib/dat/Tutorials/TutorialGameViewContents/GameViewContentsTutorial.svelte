@@ -166,11 +166,11 @@
 
 {#if state.currentEvent === 18}
     <TutorialText
-        position={[20, 70]}
+        position={[100, 70]}
         initialPosition={[85, 20]}
         showButton={false}
     >
-    <div style="color:black; width:15vw;">
+    <div style="color:black; width:80vw;">
         Let's see if the circuit works now! (press play)
     </div>
     </TutorialText>
@@ -227,12 +227,12 @@
 
 {#if state.currentEvent === 11}
     <TutorialText
-        position={[20, 70]}
+        position={[100, 70]}
         initialPosition={[85,30]}
         on:continue={dispatch.bind(dispatch, "continue")}
         showButton={false}
     >
-        <div style="color:black; width:10vw;">
+        <div style="color:black; width:80vw;">
             <div>This is the <span style="color:var(--circuit-color);">signal</span>. Press the play button</div>
             <div>to see what happens in the circuit.</div>
         </div>
