@@ -5,6 +5,9 @@
     import { CircuitSignalSetView } from "$lib/signal_types/SignalSetView";
     import { CircuitSignalSetViewEventTarget } from "$lib/signal_types/SignalSetViewEvent";
     import Led from "./Led.svelte";
+    import { SFXPlayer } from "$lib/misc_types/SFXPlayer";
+
+    $: if (browser) SFXPlayer.loadAudio(["blink.wav", "flash.wav"])
 
     /**
      * @type {CircuitController}
@@ -33,6 +36,8 @@
         eventTarget.addEventListener("restart", onRestart)
     }}
 
+    
+
     let circuitValid = true
     let playing = false
     let failureLedOn = false
@@ -42,10 +47,12 @@
      */
     let failureFlashInterval = null
     $: if (!failureFlashInterval && !circuitValid && playing) {
+        console.log("START FLASHING", failureFlashInterval)
         failureFlashInterval = setInterval(() => {
-            console.log(failureFlashInterval)
             failureLedOn = !failureLedOn
+            SFXPlayer.play("blink.wav")
         }, 125)
+        SFXPlayer.play("flash.wav")
     } else if (playing) {
         validLedOn = circuitValid
     }
@@ -117,7 +124,7 @@
 
 </script>
 
-{#if visible}
+{#if visible !== false}
     <div class="error-container">
         <div>STATUS: </div>
         <div style="height:2em; width:2em;">
