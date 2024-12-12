@@ -44,7 +44,7 @@
     /**
      * @type {NodeJS.Timeout | null}
      */
-    let failureFlashInterval = null
+    let failureBlinkInterval = null
 
     //stop the user from using InputCheckBoxes while the signal is playing to avoid interrupting the verification process
     function onPlay() {
@@ -52,10 +52,10 @@
     }
     function onPause() {
         document.querySelectorAll(`[id^="input-checkbox-"]`).forEach((n) => n.removeAttribute('disabled'))
-        if (failureFlashInterval) {
-            console.log("STOP FLASHING")
-            clearInterval(failureFlashInterval)
-            failureFlashInterval = null
+        if (failureBlinkInterval) {
+            console.log("STOP BLINKING")
+            clearInterval(failureBlinkInterval)
+            failureBlinkInterval = null
         } 
         if (!circuitValid) {
             validLedOn = false
@@ -75,9 +75,9 @@
         circuitValid = signalSetView.isCircuitValid()
         console.log("checking circuit valid ", circuitValid)
         validLedOn = circuitValid
-        if (!failureFlashInterval && !circuitValid) {
-            console.log("START FLASHING", failureFlashInterval)
-            failureFlashInterval = setInterval(() => {
+        if (!failureBlinkInterval && !circuitValid) {
+            console.log("START BLINKIN", failureBlinkInterval)
+            failureBlinkInterval = setInterval(() => {
                 failureLedOn = !failureLedOn
                 SFXPlayer.play("blink.wav")
             }, 125)
@@ -95,11 +95,11 @@
     }
 
     function resetLeds() {
-        console.log("resetting", failureFlashInterval)
-        if (failureFlashInterval) {
-            console.log("STOP FLASHING")
-            clearInterval(failureFlashInterval)
-            failureFlashInterval = null
+        console.log("resetting", failureBlinkInterval)
+        if (failureBlinkInterval) {
+            console.log("STOP BLINKING")
+            clearInterval(failureBlinkInterval)
+            failureBlinkInterval = null
         } 
 
         validLedOn = false

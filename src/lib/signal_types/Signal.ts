@@ -390,9 +390,7 @@ export class SignalPlayer<T> {
 
         this.nextSignal = 0
 
-        if (this.scrubIntervalId) clearInterval(this.scrubIntervalId)
-        this.scrubIntervalId = undefined
-        this.scrubbing = false
+        this.abortScrub()
     }
 
     private scrubStep(iter:SignalFrameReader<T> | undefined = undefined) {
@@ -425,6 +423,9 @@ export class SignalPlayer<T> {
     }
 
     abortScrub() {
+        this.scrubbing = false
+        if (this.scrubIntervalId) clearInterval(this.scrubIntervalId)
+        this.scrubIntervalId = undefined
         this.scrubbing = false
     }
 

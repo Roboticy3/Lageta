@@ -46,6 +46,8 @@
      */
     export let editorParams
 
+    let failurePlaying = false
+
     onMount(async () => {
         signalSetView.createPlayer(100)
         signalSetView.sendPlayerToController(circuitController)
@@ -68,14 +70,8 @@
         circuitController.setDesiredOutputs(withKeyFrame.value.slice(-signalSetView.getOutputSize()))
     }
 
-    /**
-     * @type {SVGElement | null}
-     */
-    let playBarGroup
-
     let playButtonInnerText = "⏵"
 
-    let playing = false
     let atStart = true
     let atEnd = false
     let circuitValid = false
@@ -86,7 +82,7 @@
     let container
 
     async function playPause() {
-        if (playing) {
+        if (signalSetView.isPlaying()) {
             await pause()
         }
         else {
@@ -148,6 +144,8 @@
         }
 
         circuitValid = signalSetView.isCircuitValid()
+
+        failurePlaying = !circuitValid
         
     }
 
@@ -178,7 +176,7 @@
 
         playButtonInnerText = "⏸"
 
-        playing = true
+        signalSetView.isPlaying()
     }
 
     function pause() {
@@ -187,9 +185,9 @@
 
     function onPause() {
         signalSetView.pausePlayer()
-
+        failurePlaying = false
         playButtonInnerText = "⏵"
-        playing = false
+        
     }
 
     /**
@@ -208,7 +206,7 @@
     }
 
 </script>
-<div class="signomatic-box {circuitValid ? "":"failure"}" bind:this={container}>
+<div class="signomatic-box {failurePlaying ? "failure":""}" bind:this={container}>
     <!--apply shadow color to 3 quarters of box grid-->
     <div style="grid-row: 1/3; grid-column:2; background-color:var(--signomatic-box-shadow);"></div>
     <div style="grid-row: 2; grid-column:1; background-color:var(--signomatic-box-shadow)"></div>

@@ -139,6 +139,10 @@ export class SignalSetView<T> {
         return this.player !== undefined
     }
 
+    isPlaying() {
+        return this.player?.isScrubbing()
+    }
+
     resetPlayer() {
         if (this.player) {
             this.player.resetScrub()
