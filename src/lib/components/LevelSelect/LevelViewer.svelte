@@ -97,6 +97,7 @@
     smooth={false}
     size={[level.type.model.gridWidth - 1.05, level.type.model.gridHeight - 0.3]}
     flash={levelProgress.new || false}
+    border={true}
     bind:this={container}
 >
 <div style="display:flex; flex-direction:column; justify-content:center; height:100%;">

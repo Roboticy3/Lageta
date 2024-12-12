@@ -27,8 +27,7 @@ export class CircuitController {
     constructor(
         gateGrid?:GateGrid,
         onComplete:() => void = () => {},
-        solver?:GateTypeController,
-        makeMain:boolean = true
+        solver?:GateTypeController
     )
     {
 
@@ -39,10 +38,6 @@ export class CircuitController {
             let graph = new GateGraph()
             let gateGrid = new GateGrid(graph)
             this.gateGrid = gateGrid
-        }
-
-        if (makeMain) {
-            mainController = this
         }
 
         this.onComplete = onComplete
@@ -893,8 +888,3 @@ export class CircuitController {
     }
 
 }
-
-/**
- * Reference to whatever the current controller is of the circuit being displayed
- */
-export var mainController:CircuitController | undefined = undefined

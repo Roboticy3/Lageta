@@ -1,9 +1,18 @@
 <script>
     import { getToolParams } from "$lib/dat/Tools/Tools";
-    import { onMount } from "svelte";
+    import { createEventDispatcher, onMount, tick } from "svelte";
     import TruthTableTutorial from "./TruthTableTutorial.svelte";
     import HeavyButton from "$lib/components/Misc/HeavyButton.svelte";
     import StickerTutorial from "./StickerTutorial.svelte";
+    import CircuitEditorComponent from "../CircuitEditor/CircuitEditorComponent.svelte";
+    import { GameViewParameters } from "$lib/level_types/GameViewParameters";
+    import { getGateType, getGateTypeParams, Input } from "$lib/dat/GateTypes/GateTypes";
+    import CircuitDiv from "../CircuitDiv.svelte";
+    import { CircuitController } from "$lib/circuit_types/CircuitController";
+    import { ShelfTreeNode } from "$lib/dat/Shelf/ShelfTree";
+    import { GateTypeController } from "$lib/circuit_types/GateType";
+
+    let dispatch = createEventDispatcher()
 
     /**
      * @type {string[]}
@@ -35,40 +44,108 @@
         console.log("set currentTool to ", currentTool)
     }
 
+    //set up a circuit editor component
+    export let rewardTestInputSize = 6
+    $: gridWidth = Math.ceil(rewardTestInputSize / 9 * 16)
+    $: gridHeight = rewardTestInputSize
+    $: rendererParams = {}
+
+    $: newGateTypeControllers = getNewGateTypeControllers(newGates)
+
+    /**
+     * @param {string[]} newGateTypeNames
+     */
+    function getNewGateTypeControllers(newGateTypeNames) {
+        /**
+         * @type {GateTypeController[]}
+         */
+        let out = []
+        newGateTypeNames.forEach((s) => {
+            const p = getGateTypeParams(s)
+            if (p) out.push(getGateType(p))
+        })
+
+        return out
+    }
+
+    /**
+     * @type {GameViewParameters | null}
+     */
+    let gameParams = null
+    $: if (newGates.length > 0) gameParams = new GameViewParameters(
+        "LevelSelect", "", 
+        {
+            size:[gridWidth, gridHeight],
+            gateTypes:[getGateType(Input(rewardTestInputSize))],
+            gates:[
+                {type:`Input${rewardTestInputSize}`,x:0,y:0,id:0,state:{override:[true, false, true, false, true, false, true, false, true, false]}}
+            ]
+        }, 
+        undefined, [], false
+    )
+
+    /**
+     * @type {CircuitController | null}
+     */
+    let circuitController = null
+    $: if (gameParams) circuitController = new CircuitController(gameParams.grid, () => {}, undefined)
+
+    $: editorParams = {showShelf:newGates.length > 0}
+    $: shelf = new ShelfTreeNode("Rewards", newGates, 0)
+
 </script>
 
 {#if !currentTool}
+<div style="display:flex; height:100%;" >
     <div class="end-container">
         <div class="title-container">
             <div class="title">
                 You Win!
             </div>
-            <h2>
-                You unlocked:
-            </h2>
         </div>
         <div class="rewards-container">
-            <div>
+            {#if newGates.length > 0} <div>
                 <h2>New Gates:</h2>
                 {#each newGates as gate}
                     <div>{gate}</div>
                 {/each}
-            </div>
-            <div>
+            </div> {/if}
+            {#if newLevels.length > 0}<div>
                 <h2>New Levels:</h2>
                 {#each newLevels as level}
                     <div>{level}</div>
                 {/each}
+            </div> {/if}
+        </div>
+    </div>
+    {#if gameParams}
+        <div style="display:flex; flex-direction:column; width:100%;">
+            <div>Try out new gates here!</div>
+            <div style="width:100%; height:100%; padding:3%; box-sizing:border-box;">
+                <CircuitEditorComponent
+                    gameParams={gameParams}
+                    editorParams={editorParams}
+                    rendererParams={rendererParams}
+                    circuitController={circuitController}
+                    shelf={shelf}
+                />
             </div>
         </div>
-        <div class="to-level-select">
+    {/if}
+    
+    <div style="display:flex; flex-direction:column; justify-content:space-evenly;">
+        <div class="center">
             <HeavyButton 
                 on:click={() => {window.location.pathname = "/campaign"}}
             >
                 See Level Select Screen
             </HeavyButton>
         </div>
+        <div class="center">
+            <HeavyButton on:click={dispatch.bind(dispatch, "close")}>Stick Around</HeavyButton>
+        </div>
     </div>
+</div>
 {:else}
 <div class="tool-container">
     {#if currentTool === "TruthTable"}
@@ -88,6 +165,7 @@
         display:flex;
         flex-direction: column;
         justify-content:space-between;
+        padding-bottom: 10vh;
     }
 
     .title-container {
@@ -106,13 +184,13 @@
 
     .rewards-container {
         display:flex;
-        justify-content:space-between;
-        flex-direction:row;
+        justify-content:space-evenly;
+        flex-direction:column;
 
         text-align: center;
     }
 
-    .to-level-select {
+    .center {
         display: inline-flex;
         align-self: center;
     }

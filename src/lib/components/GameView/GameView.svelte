@@ -137,8 +137,8 @@
      */
     let shouldSave = false
     export let saveDisabled = false
-    $: {
-        if (browser && !saveDisabled) setInterval(() => {
+    function checkSave() {
+        if (browser && !saveDisabled) {
             console.log("checking if the circuit should save...")
             if (shouldSave) {
                 console.log("saving!")
@@ -151,7 +151,7 @@
 
                 shouldSave = false
             }
-        }, 20000)
+        }
     }
     $: editorEventTarget?.addUpdateListener(() => {
         console.log("setting shouldSave to true. stickerController: ", stickerController)
@@ -182,6 +182,9 @@
      */
     export let signalSetViewEventTarget = null
     $: {console.log("signal set view event target: ", signalSetViewEventTarget)}
+    $: if (signalSetViewEventTarget) {
+        signalSetViewEventTarget.addEventListener("play",checkSave)
+    }
 
     export function isCircuitValid() {
         return signalSetView?.isCircuitValid()
@@ -284,9 +287,6 @@
 </script>
 
 <div class="base-vertical" data-sveltekit-noscroll>
-    <div class="nav {slidinParams ? 'slidein':''}" title="Nav" style="flex:{maxSizeState.navFlex};">
-        
-    </div>
     <div class="sandbox-horizontal" title="Sandbox">
         <div class="circuit-editor" title="Editor" bind:this={editorContainer}>
             {#if !existingEditor}
@@ -358,7 +358,7 @@
 </div>
 
 <GameViewDialog bind:this={completionPopup}>
-    <CompletionDisplay newGates={gateRewards} newLevels={levelRewards} newTools={toolRewards}/>
+    <CompletionDisplay newGates={gateRewards} newLevels={levelRewards} newTools={toolRewards} on:close={() => {completionPopup.close()}}/>
 </GameViewDialog>
 
 <style>
@@ -367,10 +367,6 @@
         display:flex;
         flex-direction: column;
         height:100%;
-    }
-
-    .base-vertical .nav {
-        background-color: var(--secondary-bg-color);
     }
 
     .base-vertical .sandbox-horizontal {
@@ -397,10 +393,6 @@
 
     .base-vertical .signal {
         flex:3;
-
-        background-color: var(--secondary-bg-color);
-        padding:2%;
-        width: 96%;
     }
 
     .slidein {

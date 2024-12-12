@@ -1,15 +1,12 @@
 <svelte:options accessors={true}/>
 <script>
     import { CircuitController } from "$lib/circuit_types/CircuitController";
-import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControllerQueryResult";
+    import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControllerQueryResult";
     import CircuitDraggable from './CircuitDraggable.svelte';
-    import { GateType, GateTypeController, GateTypeView } from "$lib/circuit_types/GateType";
-    import { onMount, tick } from "svelte";
-    import { compose, fromString, identity, scale, toSVG, transform, translate } from "transformation-matrix";
-    import { draw } from "svelte/transition";
+    import { GateTypeController } from "$lib/circuit_types/GateType";
+    import { onMount } from "svelte";
     import ResizingSvg from "$lib/components/Misc/ResizingSvg.svelte";
     import { CircuitRendererIDStandard } from "$lib/renderer_types/CircuitRendererIDSpace";
-    import { browser } from "$app/environment";
     import { GameViewCircuitPanelEventTarget } from "$lib/circuit_types/GameViewCircuitPanelEvent";
     import { WireRenderer } from "$lib/renderer_types/WireRenderer";
     import { SFXPlayer } from "$lib/misc_types/SFXPlayer";
@@ -40,7 +37,6 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
      */
     function updateParams(_params) {
         drawGates()
-        drawGrid()
     }
 
     /**
@@ -150,33 +146,6 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
      */
     function clearRefresher(svg) {
         svg.innerHTML = ""
-    }
-
-    function gridConstructor() {
-        let grid = new Array(gridSize[0] + gridSize[1] - 2).fill("")
-        const endX = cellOffset * gridSize[0]
-        const endY = cellOffset * gridSize[1]
-        for (let i = 0; i < gridSize[0] - 1; i++) {
-            const x = cellOffset * (i + 1)
-            grid[i] = svgLine(x, 0, x, endY)
-        }
-        for (let i = 0; i < gridSize[1] - 1; i++) {
-            const y = cellOffset * (i + 1)
-            grid[gridSize[0] + i - 1] = svgLine(0, y, endX, y)
-        }
-        const g = svgWrapGroup(grid.join('\n'), "")
-        gridGroup.replaceChildren(g)
-        return g
-    }
-
-    export function drawGrid() {
-        if (rendererParams.showGrid === true) {
-            updateItem(
-                idSpace.gridIdString(), 
-                () => {},
-                gridConstructor
-            )
-        }
     }
 
     /**
@@ -916,6 +885,7 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
     bind:this={resizer}
     ancestry={1 || rendererParams.resizeAncestry}
 >
+
     <g transform="scale(1, 1)">
         <g id="circuit-bounding-box">
             <!--white border forces the size to be more consistent-->
@@ -928,9 +898,25 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
                 y="0"
             >
         </g>
-        <g bind:this={gridGroup} stroke="var(--circuit-color)" stroke-width="0.25px" fill="none"></g>
+        <g bind:this={gridGroup} stroke="white" stroke-width="0.25px" fill="var(--connection-color-x)" pointer-events="none">
+
+        <defs>
+            <pattern id="circlePattern" x=0 y=0 width={cellOffset} height={cellOffset} patternUnits="userSpaceOnUse">
+            <!-- Single circle in the pattern -->
+            <circle cx={0} cy={0} r="0.25" fill="var(--connection-color-x)" />
+            <circle cx={cellOffset} cy={0} r="0.25" fill="var(--connection-color-x)" />
+            <circle cx={0} cy={cellOffset} r="0.25" fill="var(--connection-color-x)" />
+            <circle cx={cellOffset} cy={cellOffset} r="0.25" />
+            </pattern>
+        </defs>
+        
+        <!-- Use the pattern to fill the background -->
+        <rect width={gridSize[0] * cellOffset} height={gridSize[1] * cellOffset} fill="url(#circlePattern)" />
+    </g>
+
         <g bind:this={wireGroup} stroke="var(--gate-color)" stroke-width="0.5px" fill="none"></g>
-        <g bind:this={gateGroup} stroke="var(--gate-color)" stroke-width="0.5px" fill="none"></g>
+        
+        <g bind:this={gateGroup} stroke="var(--gate-color)" stroke-width="0.5px" fill="var(--tertiary-bg-color)"></g>
         <g bind:this={activeGroup} stroke="var(--gate-color)" stroke-width="0.5px" fill="none"></g>
     </g>
     <path></path>

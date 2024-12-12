@@ -78,9 +78,10 @@
     let playing = false
     let atStart = true
     let atEnd = false
+    let circuitValid = false
 
     /**
-     * @type {HTMLDivElement}
+     * @type {HTMLElement}
      */
     let container
 
@@ -145,6 +146,8 @@
         if (done) {
             dispatchSignalEvent("done") 
         }
+
+        circuitValid = signalSetView.isCircuitValid()
         
     }
 
@@ -205,69 +208,139 @@
     }
 
 </script>
-
-<div class="signal-viewer-container" bind:this={container}>
-    <div class="button-container">
-        <HeavyButton on:click={playPause} id="signal-play-button">
-            {playButtonInnerText}
-        </HeavyButton>
-        <HeavyButton on:click={restart} id="signal-restart-button">
-            Restart
-        </HeavyButton>
-    </div>
-    <div class="signal-verifier">
-        <SignalVerifier 
-            eventTarget={signalSetViewEventTarget}
-            signalSetView={signalSetView}
-            circuitController={circuitController}
-            visible={editorParams.showVerifier}
-        />
-    </div>
-    <div class="signal-container">
-        <div class="signal-channel-labels">
-            {#each labels as label}
-                <div>{@html label}</div>
-            {/each}
+<div class="signomatic-box {circuitValid ? "":"failure"}" bind:this={container}>
+    <!--apply shadow color to 3 quarters of box grid-->
+    <div style="grid-row: 1/3; grid-column:2; background-color:var(--signomatic-box-shadow);"></div>
+    <div style="grid-row: 2; grid-column:1; background-color:var(--signomatic-box-shadow)"></div>
+    <div style="grid-row: 1; grid-column:1; background-color:var(--signomatic-box-bg)"></div>
+    
+    <div class="signomatic-frame">
+        <div class="signal-verifier">
+            <SignalVerifier 
+                eventTarget={signalSetViewEventTarget}
+                signalSetView={signalSetView}
+                circuitController={circuitController}
+                visible={editorParams.showVerifier}
+            />
         </div>
-        <div class="signal-svg-container">
-            <ResizingSvg
-            bind:this={signalSvg}
-                overflowWidth={true}
-                ancestry={1}
-            >
-                <g transform="translate(0, 8)">
-                    <slot />
-                    <g>
-                        <SignalPlayBar
-                            signalSetView={signalSetView}
-                            length={labels.length}
-                            bind:eventTarget={signalSetViewEventTarget}
-                        />
-                    </g>
-                </g>
+        <div class="signal-container">
+            <div class="signal-label-column">
+                <div style="font-style:italic;">
+                    <div>
+                        Signo-
+                    </div>
+                    <div>
+                        matic
+                    </div>
+                </div>
+            </div>
+            <div style="height:100%;width:2px;">
 
-            </ResizingSvg>
+            </div>
+            <div class="signal-label-column">
+                {#each labels as label}
+                    <div>{@html label}</div>
+                {/each}
+            </div>
+            <div class="signal-svg-container">
+                <ResizingSvg
+                bind:this={signalSvg}
+                    overflowWidth={true}
+                    ancestry={1}
+                >
+                    <g transform="translate(0, 8)">
+                        <slot />
+                        <g>
+                            <SignalPlayBar
+                                signalSetView={signalSetView}
+                                length={labels.length}
+                                bind:eventTarget={signalSetViewEventTarget}
+                            />
+                        </g>
+                    </g>
+
+                </ResizingSvg>
+            </div>
+            <!--
+            <div class="signal-label-column">
+                <div>Play</div>
+                <div>Restart</div>
+            </div>
+            -->
+        </div>
+
+        <div class="button-container">
+            <HeavyButton on:click={playPause} id="signal-play-button">
+                {playButtonInnerText}
+            </HeavyButton>
+            <HeavyButton on:click={restart} id="signal-restart-button">
+                Restart
+            </HeavyButton>
         </div>
     </div>
 </div>
 
 
+
 <style>
-    .signal-viewer-container {
-        display:grid;
-        grid-template-columns: 1fr 1fr 8fr;
-        gap: 5%;
-        height:100%;
+    /* Implement the figma design */
+    .signomatic-box {
+        --signomatic-box-bg: #D9D9D9;
+        --signomatic-box-shadow: #B9B9B9;
+        --signomatic-frame-bg: #CDCDCD;
+        --signomatic-waveform-bg: #2A2A2A;
+        --signomatic-waveform-text: #93DFC0;
+        --signomatic-waveform-text-bg: #585BF4;
+
+        box-sizing: border-box; 
+
+        /* curved border, darker on the bottom */
+        border-radius: 2em;
+        border:solid var(--signomatic-box-bg) 2em;
+        border-left-width: 2em;
+        border-bottom-width: 1em;
+        border-bottom-color: var(--signomatic-box-shadow);
+        border-right-width: 2em;
+        border-right-color: var(--signomatic-box-shadow);
+
+        /* shadows inside the border, only in the 3 quarters touching shadow borders */
+        /* rest of space will be overlaid by inner elements with their own backgrounds */
+        display: grid; 
+        grid-template-rows: 1fr 1fr;
+        grid-template-columns: 1fr 1fr;
+        height: calc(100%);
+    }
+
+    .signomatic-frame {
+
+        grid-row: 1/3; 
+        grid-column: 1/3;
+
+        display: grid;
+grid-template-columns: 12fr 1fr;
+grid-template-rows: 3fr 1fr;
+gap: 5vh;
+height: calc(100% - 3em);
+background-color: var(--signomatic-frame-bg);
+
+border: solid #00000000 1em;
+border-top-width: 2em;
+border-radius: 2em;
+box-shadow: 1em 1em 1em rgba(0, 0, 0, 0.25); /* Added box-shadow */
+
     }
 
     .signal-container {
         display:flex;
         flex-direction: row;
         justify-content: space-around;
+        background-color: var(--signomatic-waveform-bg);
+
+        grid-column: 1;
+        grid-row: 1/3;
     }
 
     .signal-svg-container {
-        grid-column: 3;
         overflow-x: hidden;
         position:relative;
 
@@ -275,24 +348,41 @@
         height:100%;
     }
 
-    .signal-channel-labels {
+    .signal-label-column {
         display:flex;
         flex-direction: column;
         justify-content:space-evenly;
-
+        padding-left:1em;
+        padding-right: 1em;
         text-wrap: nowrap;
-        margin-right:3%;
+        background-color: var(--signomatic-waveform-text-bg);
+        color:var(--signomatic-waveform-text);
     }
 
     .button-container {
-        grid-column: 1;
+        grid-column: 2;
+        grid-row:1;
 
         display: flex;
         flex-direction: column;
         justify-content: center;
+        justify-content:space-evenly;
     }
 
     .signal-verifier {
         grid-column: 2;
+        grid-row:2;
+    }
+
+    .failure {
+        animation: tilt-n-move-shaking calc(var(--animation-speed) * 0.1) 10;
+    }
+
+    @keyframes tilt-n-move-shaking {
+    0% { transform: translate(0, 0) rotate(0deg); }
+    25% { transform: translate(3px, 3px) rotate(.5deg); }
+    50% { transform: translate(0, 0) rotate(0eg); }
+    75% { transform: translate(-3px, 3px) rotate(-.5deg); }
+    100% { transform: translate(0, 0) rotate(0deg); }
     }
 </style>

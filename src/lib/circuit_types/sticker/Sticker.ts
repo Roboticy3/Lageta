@@ -1,13 +1,16 @@
 export class StickerType {
     readonly name: string;
     readonly url: string;
+    readonly options: any;
 
     constructor(
         name: string,
-        url: string
+        url: string,
+        options?: any
     ) {
         this.name = name;
         this.url = url;
+        this.options = options
     }
 
     static fromJSON(json: string) {
@@ -22,7 +25,7 @@ export class StickerType {
 
     static fromObject(ob: any) {
         if (!ob.name || !ob.url) return undefined;
-        return new StickerType(ob.name, ob.url);
+        return new StickerType(ob.name, ob.url, ob.options);
     }
 }
 

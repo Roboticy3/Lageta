@@ -1,8 +1,13 @@
 <script>
+    import { browser } from "$app/environment";
     import { CircuitController } from "$lib/circuit_types/CircuitController";
     import { createCustomEvent } from "$lib/misc_types/CustomEventSystem";
     import { CircuitSignalSetView } from "$lib/signal_types/SignalSetView";
     import { CircuitSignalSetViewEventTarget } from "$lib/signal_types/SignalSetViewEvent";
+    import Led from "./Led.svelte";
+    import { SFXPlayer } from "$lib/misc_types/SFXPlayer";
+
+    $: if (browser) SFXPlayer.loadAudio(["blink.wav", "flash.wav"])
 
     /**
      * @type {CircuitController}
@@ -31,17 +36,31 @@
         eventTarget.addEventListener("restart", onRestart)
     }}
 
+    
+
     let circuitValid = true
-    let playing = false
+    let failureLedOn = false
+    let validLedOn = false
+    /**
+     * @type {NodeJS.Timeout | null}
+     */
+    let failureFlashInterval = null
 
     //stop the user from using InputCheckBoxes while the signal is playing to avoid interrupting the verification process
     function onPlay() {
-        playing = true
         document.querySelectorAll(`[id^="input-checkbox-"]`).forEach((n) => n.setAttribute('disabled','disabled'))
     }
     function onPause() {
-        playing = false
         document.querySelectorAll(`[id^="input-checkbox-"]`).forEach((n) => n.removeAttribute('disabled'))
+        if (failureFlashInterval) {
+            console.log("STOP FLASHING")
+            clearInterval(failureFlashInterval)
+            failureFlashInterval = null
+        } 
+        if (!circuitValid) {
+            validLedOn = false
+            failureLedOn = true
+        }
     }
 
     function onDone() {
@@ -49,11 +68,21 @@
             circuitController.complete()
             dispatchSignalEvent("complete")
         }
+        resetLeds()
     }
 
     function onStep() {
         circuitValid = signalSetView.isCircuitValid()
         console.log("checking circuit valid ", circuitValid)
+        validLedOn = circuitValid
+        if (!failureFlashInterval && !circuitValid) {
+            console.log("START FLASHING", failureFlashInterval)
+            failureFlashInterval = setInterval(() => {
+                failureLedOn = !failureLedOn
+                SFXPlayer.play("blink.wav")
+            }, 125)
+            SFXPlayer.play("flash.wav")
+        }
     }
 
     export function isCircuitValid() {
@@ -62,6 +91,19 @@
 
     function onRestart() {
         circuitValid = true
+        resetLeds()
+    }
+
+    function resetLeds() {
+        console.log("resetting", failureFlashInterval)
+        if (failureFlashInterval) {
+            console.log("STOP FLASHING")
+            clearInterval(failureFlashInterval)
+            failureFlashInterval = null
+        } 
+
+        validLedOn = false
+        failureLedOn = false
     }
 
     /**
@@ -81,33 +123,37 @@
         )
     }
 
+    
+    let failureColor = "#00000"
+    let verificationColor = "#00000"
+    $: if (browser) {
+        const root = document.documentElement; 
+        const style = getComputedStyle(root)
+        failureColor = style.getPropertyValue('--failure-color');
+        verificationColor = style.getPropertyValue('--verification-color');
+    }
+
 </script>
 
-{#if playing && visible}
-    {#if circuitValid}
-        <div class="success">
-            <span style="color:var(--verification-color);">Correct!</span> 
-            <p>Keep playing to <span style="color:var(--verification-color);">verify</span> the <span style="color:var(--circuit-color);">circuit</span>!</p>
+{#if visible !== false}
+    <div class="error-container">
+        <div>STATUS: </div>
+        <div style="height:2em; width:2em;">
+            <Led on={failureLedOn} color={failureColor}/>
         </div>
-    {:else}
-        <div class="failure">
-            <span style="color:var(--failure-color);">Incorrect!</span> 
-            <p>Restart the <span style="color:var(--circuit-color);">signal</span> and edit your <span style="color:var(--circuit-color);">circuit</span> to try again.</p>
+        <div style="height:2em; width:2em;">
+            <Led on={validLedOn} color={verificationColor}/>
         </div>
-    {/if}
+    </div>
+    
 {/if}
 
 <style>
 
-    .failure {
-        animation: tilt-shaking var(--animation-speed)
-    }
-
-    @keyframes tilt-shaking {
-        0% { transform: rotate(0deg) scale(1); }
-        25% { transform: rotate(5deg) scale(1.2); }
-        50% { transform: rotate(0eg) scale(1.25); }
-        75% { transform: rotate(-5deg) scale(1.2); }
-        100% { transform: rotate(0deg) scale(1); }
+    .error-container {
+        display:flex;
+        width:100%;
+        height:100%;
+        align-items: center;
     }
 </style>

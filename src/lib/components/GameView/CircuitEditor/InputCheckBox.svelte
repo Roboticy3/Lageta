@@ -1,16 +1,11 @@
 <script>
     import { browser } from "$app/environment";
-
-    //@ts-ignore
     import { CircuitController } from "$lib/circuit_types/CircuitController";
-    import { onMount, tick } from "svelte";
+    import { onMount } from "svelte";
     import CircuitDiv from "../CircuitDiv.svelte";
     import { GameViewCircuitPanelEventTarget, createGameViewCircuitPanelEvent } from "$lib/circuit_types/GameViewCircuitPanelEvent";
-    import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControllerQueryResult";
-    import ResizingSvg from "$lib/components/Misc/ResizingSvg.svelte";
-    import { Buf, getGateType } from "$lib/dat/GateTypes/GateTypes";
     import HeavyButton from "$lib/components/Misc/HeavyButton.svelte";
-    import Rand from "rand-seed";
+    import Led from "../Signal/Led.svelte";
 
     
     /**
@@ -97,6 +92,13 @@
     export function isChecked() {
         return checked
     }
+
+    export let gridOffset = [-1.25, -0.3]
+    /**
+     * @type {[number, number]}
+     */
+    let position = [0.0, 0.0]
+    $: if (gridOffset) position = getPosition()
     
     /**
      * @returns {[number, number]}
@@ -105,7 +107,7 @@
         const gateOffset = gridController.getGatePosition(from[0])
         const connectionOffset = gridController.getConnectionPoint({id:from[0], index:from[1], type:"Output"})
         if (connectionOffset === undefined || gateOffset === undefined) return [0, 0]
-        return [gateOffset[0] + connectionOffset[0] / 10 + 0.5, gateOffset[1] + connectionOffset[1] / 10 - 1.25]
+        return [gateOffset[0] + connectionOffset[0] / 10 + gridOffset[0], gateOffset[1] + connectionOffset[1] / 10 + gridOffset[1]]
     }
 
     const checkboxStyle =
@@ -122,12 +124,24 @@
     scale:1.2;
 `
 
+    let highColor = "#00000"
+    let lowColor = "#00000"
+    $: if (browser) {
+        const root = document.documentElement; 
+        const style = getComputedStyle(root)
+        highColor = style.getPropertyValue('--connection-color-on');
+        lowColor = style.getPropertyValue('--connection-color-off');
+    }
+
+    $: highLedOn = checked
+    $: lowLedOn = !checked
+
 </script>
 
 <CircuitDiv
     circuitController={gridController}
-    position={getPosition()}
-    size={[0.5, 0.75]}
+    position={position}
+    size={[1.1, 0.6]}
     active={active}
     smooth={true}
     >
@@ -138,15 +152,12 @@
         bind:this={checkbox} 
         on:click={onChange}
     >
-        <ResizingSvg>
-            <g font-size="10">
-                <text x="5" y="10" fill="var(--connection-color-on)">H</text>
-                <g transform="rotate(12)"><text x="7" y="9" fill="black">_</text></g>
-                <text x="5" y="20" fill="var(--connection-color-off)">L</text>
-                <circle fill="none" stroke="{color}" cx="8" r="6" cy="{checked ? 6:17}"/>
-            </g>
-            
-        </ResizingSvg>
+    <div style="display:flex; position:absolute; width:100%; height:100%; top:0; left:8%; font-size:small; box-sizing:border-box; padding:5%;">
+        <Led color={lowColor} on={lowLedOn}/>
+        <Led color={highColor} on={highLedOn}/>
+    </div>
+    
+        
     </HeavyButton>
     
     

@@ -396,6 +396,10 @@ export class SignalPlayer<T> {
     }
 
     private scrubStep(iter:SignalFrameReader<T> | undefined = undefined) {
+        if (!this.scrubbing) {
+            this.abortScrub()
+            return
+        }
         const nextKeyFrame:SignalKeyFrame<T[]> | undefined = this.signal.unpack()[this.nextSignal]
         const nextFrame = nextKeyFrame.frame
 

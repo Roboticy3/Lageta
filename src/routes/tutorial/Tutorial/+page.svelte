@@ -42,7 +42,6 @@
         showShelf:false,
         signalPlaying:false,
         rendererParams: {
-            showGrid:false,
             showGates:false,
             showLabels:false
         },
