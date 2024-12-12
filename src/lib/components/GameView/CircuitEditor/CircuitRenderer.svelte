@@ -709,7 +709,7 @@
         const id = typeof idOrState === "number" ? idOrState : undefined
 
         const inner = cType.view.draw(state)
-        if (id !== undefined && rendererParams.showIds) {
+        if (id !== undefined && rendererParams.showIds !== false) {
             return `${inner}\n<text stroke="none" fill="black" style="font-size:0.25em;" y="${10 * cType.view.gridHeight}">${id}</text>`
         }
         return inner

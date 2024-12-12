@@ -153,10 +153,6 @@
             }
         }
     }
-    $: editorEventTarget?.addUpdateListener(() => {
-        console.log("setting shouldSave to true. stickerController: ", stickerController)
-        shouldSave = true
-    })
 
     /**
      * @param {ShelfTreeNode} shelf
@@ -171,20 +167,29 @@
         }
     }
 
+    function debugGraph() {
+        console.log("debugging grid", JSON.parse(JSON.stringify(circuitController.gateGrid.graph.inputs)), JSON.parse(JSON.stringify(circuitController.gateGrid.graph.outputs)))
+    }
+
     /**
      * @type {GameViewCircuitPanelEventTarget | null}
     */
     export let editorEventTarget = null
     $: {console.log("editor event target: ", editorEventTarget)}
+    $: editorEventTarget?.addUpdateListener(() => {
+        console.log("setting shouldSave to true. stickerController: ", stickerController)
+        shouldSave = true
+        
+        debugGraph()
+    })
 
     /**
      * @type {CircuitSignalSetViewEventTarget | null}
      */
     export let signalSetViewEventTarget = null
     $: {console.log("signal set view event target: ", signalSetViewEventTarget)}
-    $: if (signalSetViewEventTarget) {
-        signalSetViewEventTarget.addEventListener("play",checkSave)
-    }
+    $: signalSetViewEventTarget?.addEventListener("play",checkSave)
+    $: signalSetViewEventTarget?.addEventListener("play",debugGraph)
 
     export function isCircuitValid() {
         return signalSetView?.isCircuitValid()
