@@ -39,42 +39,28 @@
     
 
     let circuitValid = true
-    let playing = false
     let failureLedOn = false
     let validLedOn = false
     /**
      * @type {NodeJS.Timeout | null}
      */
     let failureFlashInterval = null
-    $: if (!failureFlashInterval && !circuitValid && playing) {
-        console.log("START FLASHING", failureFlashInterval)
-        failureFlashInterval = setInterval(() => {
-            failureLedOn = !failureLedOn
-            SFXPlayer.play("blink.wav")
-        }, 125)
-        SFXPlayer.play("flash.wav")
-    } else if (playing) {
-        validLedOn = circuitValid
+
+    //stop the user from using InputCheckBoxes while the signal is playing to avoid interrupting the verification process
+    function onPlay() {
+        document.querySelectorAll(`[id^="input-checkbox-"]`).forEach((n) => n.setAttribute('disabled','disabled'))
     }
-    $: if (!playing) {
+    function onPause() {
+        document.querySelectorAll(`[id^="input-checkbox-"]`).forEach((n) => n.removeAttribute('disabled'))
         if (failureFlashInterval) {
             console.log("STOP FLASHING")
             clearInterval(failureFlashInterval)
             failureFlashInterval = null
         } 
-
-        validLedOn = false
-        failureLedOn = false
-    }
-
-    //stop the user from using InputCheckBoxes while the signal is playing to avoid interrupting the verification process
-    function onPlay() {
-        playing = true
-        document.querySelectorAll(`[id^="input-checkbox-"]`).forEach((n) => n.setAttribute('disabled','disabled'))
-    }
-    function onPause() {
-        playing = false
-        document.querySelectorAll(`[id^="input-checkbox-"]`).forEach((n) => n.removeAttribute('disabled'))
+        if (!circuitValid) {
+            validLedOn = false
+            failureLedOn = true
+        }
     }
 
     function onDone() {
@@ -82,12 +68,21 @@
             circuitController.complete()
             dispatchSignalEvent("complete")
         }
-        playing = false
+        resetLeds()
     }
 
     function onStep() {
         circuitValid = signalSetView.isCircuitValid()
         console.log("checking circuit valid ", circuitValid)
+        validLedOn = circuitValid
+        if (!failureFlashInterval && !circuitValid) {
+            console.log("START FLASHING", failureFlashInterval)
+            failureFlashInterval = setInterval(() => {
+                failureLedOn = !failureLedOn
+                SFXPlayer.play("blink.wav")
+            }, 125)
+            SFXPlayer.play("flash.wav")
+        }
     }
 
     export function isCircuitValid() {
@@ -96,7 +91,19 @@
 
     function onRestart() {
         circuitValid = true
-        playing = false
+        resetLeds()
+    }
+
+    function resetLeds() {
+        console.log("resetting", failureFlashInterval)
+        if (failureFlashInterval) {
+            console.log("STOP FLASHING")
+            clearInterval(failureFlashInterval)
+            failureFlashInterval = null
+        } 
+
+        validLedOn = false
+        failureLedOn = false
     }
 
     /**
