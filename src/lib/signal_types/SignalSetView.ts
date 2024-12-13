@@ -112,10 +112,11 @@ export class SignalSetView<T> {
         )
     }
 
-    startPlayer(iter: SignalFrameReader<T> | undefined, reset:boolean = false) {
+    startPlayer(iter: SignalFrameReader<T> | undefined, args:any, reset:boolean = false) {
         if (this.player) {
             this.player.scrub(
                 iter,
+                args,
                 reset
             )
         } 
@@ -298,7 +299,13 @@ export class CircuitSignalSetView extends SignalSetView<ConnectionValue> impleme
 
     playVerify(circuitController:CircuitController, iter: SignalFrameReader<ConnectionValue>, reset:boolean = false) {
         const ourIter = (this.ourIterTemplate).bind(this, iter, circuitController)
-        this.startPlayer(ourIter, reset)
+        this.startPlayer(ourIter, () => {console.log("player debugging step", 
+            JSON.parse(
+                JSON.stringify(circuitController.gateGrid.graph.inputs)
+            ), JSON.parse(
+                JSON.stringify(circuitController.gateGrid.graph.outputs)
+            )
+        )}, reset)
     }
 
     forceValidate() {

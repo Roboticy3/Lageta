@@ -185,8 +185,6 @@
 
         playButtonInnerText = "⏸"
 
-        signalSetView.isPlaying()
-
         //tracking #149. at this point, the ghost wires have yet to appear
         console.log("signal debugging onPlay", 
             JSON.parse(

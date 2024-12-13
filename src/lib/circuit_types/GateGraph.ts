@@ -25,6 +25,23 @@ export class GateGraph extends GateGraphEventTarget {
         this.fromGrid(grid)
     }
 
+    /* //debugging stuff
+    static watchObject(obj:any, name:string) {
+        return new Proxy(obj, {
+            set(target, prop, value) {
+                console.log(`graph debugging ${name} set: ${String(prop)} =`, value);
+                target[prop] = value;
+                return true;
+            },
+            deleteProperty(target, prop) {
+                console.log(`graph debugging ${name} deleted: ${String(prop)}`);
+                return Reflect.deleteProperty(target, prop);
+            }
+        });
+    }
+    */
+    
+
     fromGrid(grid:GateGrid) {     
         this.gates = grid.gates
 
@@ -127,6 +144,11 @@ export class GateGraph extends GateGraphEventTarget {
     }
 
     private addConnectionNoChecks(c:Connection):CircuitResolutionResult {
+
+        /*
+        c.from = GateGraph.watchObject(c.from, `con-to-from${c.from}`)
+        c = GateGraph.watchObject(c, `con-from${c.from}`)
+        */
 
         const to = c.to
         for (let i = 0; i < to.length; i++) {
