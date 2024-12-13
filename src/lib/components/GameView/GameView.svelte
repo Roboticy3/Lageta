@@ -176,10 +176,12 @@
     */
     export let editorEventTarget = null
     $: {console.log("editor event target: ", editorEventTarget)}
-    $: editorEventTarget?.addUpdateListener(() => {
+    $: editorEventTarget?.addUpdateListener(async () => {
         console.log("setting shouldSave to true. stickerController: ", stickerController)
         shouldSave = true
         
+        await tick() //evil mode
+
         debugGraph()
     })
 
