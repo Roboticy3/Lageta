@@ -24,22 +24,6 @@ export class GateGraph extends GateGraphEventTarget {
         }
         this.fromGrid(grid)
     }
-
-    /* //debugging stuff
-    static watchObject(obj:any, name:string) {
-        return new Proxy(obj, {
-            set(target, prop, value) {
-                console.log(`graph debugging ${name} set: ${String(prop)} =`, value);
-                target[prop] = value;
-                return true;
-            },
-            deleteProperty(target, prop) {
-                console.log(`graph debugging ${name} deleted: ${String(prop)}`);
-                return Reflect.deleteProperty(target, prop);
-            }
-        });
-    }
-    */
     
 
     fromGrid(grid:GateGrid) {     
@@ -299,8 +283,6 @@ export class GateGraph extends GateGraphEventTarget {
         for (let i = 0; i < inputs.length; i++) {
             this.removeInput([gateId, i])
         }
-
-        //console.log("graph debugging disconnectGate", JSON.parse(JSON.stringify(this.inputs)), JSON.parse(JSON.stringify(this.outputs)))
 
         this.inputs[gateId] = []
         this.outputs[gateId] =[]

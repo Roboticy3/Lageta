@@ -198,10 +198,6 @@
         }
     }
 
-    function debugGraph() {
-        console.log("debugging grid", JSON.parse(JSON.stringify(circuitController.gateGrid.graph.inputs)), JSON.parse(JSON.stringify(circuitController.gateGrid.graph.outputs)))
-    }
-
     /**
      * @type {GameViewCircuitPanelEventTarget | null}
     */
@@ -212,8 +208,6 @@
         shouldSave = true
         
         await tick() //evil mode
-
-        debugGraph()
     })
 
     /**
@@ -222,7 +216,6 @@
     export let signalSetViewEventTarget = null
     $: {console.log("signal set view event target: ", signalSetViewEventTarget)}
     $: signalSetViewEventTarget?.addEventListener("play",checkSave)
-    $: signalSetViewEventTarget?.addEventListener("play",debugGraph)
 
     export function isCircuitValid() {
         return signalSetView?.isCircuitValid()

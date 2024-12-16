@@ -133,14 +133,6 @@
      * @param {boolean} done
      */
     function step(currentValue, currentFrame, update, done) {
-        //tracking #149. At this point, the ghost wires have appeared in Scenario 1
-        console.log("signal debugging step", 
-            JSON.parse(
-                JSON.stringify(circuitController.gateGrid.graph.inputs)
-            ), JSON.parse(
-                JSON.stringify(circuitController.gateGrid.graph.outputs)
-            )
-        )
 
         dispatchSignalEvent("step")   
         if (update) {
@@ -184,15 +176,6 @@
         signalSetView.playVerify(circuitController, step)
 
         playButtonInnerText = "⏸"
-
-        //tracking #149. at this point, the ghost wires have yet to appear
-        console.log("signal debugging onPlay", 
-            JSON.parse(
-                JSON.stringify(circuitController.gateGrid.graph.inputs)
-            ), JSON.parse(
-                JSON.stringify(circuitController.gateGrid.graph.outputs)
-            )
-        )
     }
 
     function pause() {

@@ -369,14 +369,14 @@ export class SignalPlayer<T> {
     private nextSignal = 0
     private scrubIntervalId:NodeJS.Timeout | undefined = undefined
     private scrubbing = false
-    scrub(iter:SignalFrameReader<T> | undefined = undefined, args:any, reset:boolean = false) {
+    scrub(iter:SignalFrameReader<T> | undefined = undefined, reset:boolean = false) {
         if (reset || this.currentFrame >= this.length) {
             this.resetScrub()
         }
         
         this.scrubbing = true
 
-        this.scrubStep(iter, args)
+        this.scrubStep(iter)
     }
 
     resetScrub() {
@@ -391,9 +391,7 @@ export class SignalPlayer<T> {
         this.abortScrub()
     }
 
-    private scrubStep(iter:SignalFrameReader<T> | undefined = undefined, args:any) {
-
-        args?.call()
+    private scrubStep(iter:SignalFrameReader<T> | undefined = undefined) {
 
         if (!this.scrubbing) {
             this.abortScrub()
@@ -422,7 +420,7 @@ export class SignalPlayer<T> {
             this.scrubbing = false
         }
         else {
-            setTimeout(this.scrubStep.bind(this, iter, args), this.frameTime)
+            setTimeout(this.scrubStep.bind(this, iter), this.frameTime)
         }
     }
 
