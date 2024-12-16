@@ -216,9 +216,9 @@ export class OrganizedCircuit {
             const gType = g.type
             types.add(gType.name)
 
-            indexMap.set(g.id || 0, this.gates.length)
-            g.id = this.gates.length
-            this.gates.push(new SerializableGate(g, gType.name))
+            const compressedId = this.gates.length
+            indexMap.set(g.id, compressedId)
+            this.gates.push(new SerializableGate(g.x, g.y, compressedId, gType.name))
         }
 
         if (trim) this.setDimensionsFromGridTrimmed(grid)
@@ -228,30 +228,18 @@ export class OrganizedCircuit {
         }
 
         const graph = grid.graph
-        let connections = new Set<Connection>()
+        let connections = new Array<Connection>()
         graph.iterConnections((_g, _o, _t, _i, c) => {
-            //copy the connection so it can be modified safely
-            let newC = new Connection(
-                c.from[0], c.from[1],
-                0, 0
-            )
-    
-            newC.to = Array.from(c.to)
-            
-            connections.add(newC)
-            newC.from[0] = indexMap.get(c.from[0]) || 0
-            newC.from[1] = indexMap.get(c.from[1]) || 0
-            
-            const to = newC.to
-            for (let i = 0; i < to.length; i++) {
-                const toi = to[i]
-                toi[0] = indexMap.get(toi[0]) || 0
-                toi[1] = indexMap.get(toi[1]) || 0
+            const newC = new Connection(c.from[0], c.from[1], -1, -1)
+            newC.to = new Array<[number, number]>(c.to.length)
+            for (let i = 0; i < c.to.length; i++) {
+                newC.to[i] = [c.to[i][0], c.to[i][1]]
             }
+            connections.push(newC)
         })
 
         this.gateTypes = [...types.keys()]
-        this.connections = [...connections.values()]
+        this.connections = connections
     }
 
     setDimensionsFromGridTrimmed(grid:GateGrid) {
@@ -337,10 +325,6 @@ export class OrganizedCircuit {
         let nG = createGate(type)
         nG.givePos(g.x, g.y) 
         nG.giveId(g.id)
-        if (g.state){
-            nG.state = g.state
-            nG.execute()
-        }
         return nG
     }
 }
@@ -358,16 +342,16 @@ export class SerializableGate {
     x:number
     y:number
     id:number
-    state?:GateState
     type:string
     constructor(
-        gate:Gate,
+        x:number,
+        y:number,
+        id:number,
         type:string
     ) {
-        this.x = gate.x || 0
-        this.y = gate.y || 0
-        this.id = gate.id || 0
-        this.state = gate.state
+        this.x = x
+        this.y = y
+        this.id = id
         this.type = type
     }
 }

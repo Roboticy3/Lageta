@@ -376,10 +376,6 @@ export class SignalPlayer<T> {
         
         this.scrubbing = true
 
-        this.scrubIntervalId = setInterval(
-            this.scrubStep.bind(this, iter, args), this.frameTime
-        )
-
         this.scrubStep(iter, args)
     }
 
@@ -397,6 +393,8 @@ export class SignalPlayer<T> {
 
     private scrubStep(iter:SignalFrameReader<T> | undefined = undefined, args:any) {
 
+        args?.call()
+
         if (!this.scrubbing) {
             this.abortScrub()
             return
@@ -404,16 +402,12 @@ export class SignalPlayer<T> {
         const nextKeyFrame:SignalKeyFrame<T[]> | undefined = this.signal.unpack()[this.nextSignal]
         const nextFrame = nextKeyFrame.frame
 
-        args?.call()
-
         const update = this.currentFrame >= nextFrame
         if (update) {
             this.nextSignal++
             this.currentKeyFrame = nextKeyFrame
         }
         this.currentFrame++
-
-        args?.call()
 
         const done = this.currentFrame >= this.length
         const val = this.currentKeyFrame.value
@@ -423,12 +417,12 @@ export class SignalPlayer<T> {
             update,
             done
         ) || false
-        
-        args?.call()
 
         if (done || !this.scrubbing || result) {
-            clearInterval(this.scrubIntervalId)
             this.scrubbing = false
+        }
+        else {
+            setTimeout(this.scrubStep.bind(this, iter, args), this.frameTime)
         }
     }
 

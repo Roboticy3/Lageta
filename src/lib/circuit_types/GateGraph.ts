@@ -421,14 +421,14 @@ export class GateGraph extends GateGraphEventTarget {
     }
 
     setFlows(val:ConnectionValue[], ids:(number | undefined)[]) {
-        const gates = ids.map((i) => {
+        const flows = ids.map((i) => {
             if (i === undefined) return undefined
             return this.gates[i]
         })
 
         let consumed = 0
-        for (let i = 0; i < gates.length; i++) {
-            let gate = gates[i]
+        for (let i = 0; i < flows.length; i++) {
+            let gate = flows[i]
             if (!(gate instanceof Flow)) {
                 continue
             }
@@ -576,7 +576,7 @@ export class GateGraph extends GateGraphEventTarget {
                     continue
                 }
                 toGate.state.override[toj[1]] = outputs.override[c.from[1]]
-                const result = this.resolveInputsFrom(toGate, cycleCheck, depth - 1)
+                const result = this.resolveInputsFrom(toGate, cycleCheck, depth + 1)
                 if (result.error !== "") {
                     return result
                 }
