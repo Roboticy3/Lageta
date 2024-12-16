@@ -139,6 +139,10 @@ export class SignalSetView<T> {
         return this.player !== undefined
     }
 
+    isPlaying() {
+        return this.player?.isScrubbing()
+    }
+
     resetPlayer() {
         if (this.player) {
             this.player.resetScrub()
@@ -294,7 +298,7 @@ export class CircuitSignalSetView extends SignalSetView<ConnectionValue> impleme
 
     playVerify(circuitController:CircuitController, iter: SignalFrameReader<ConnectionValue>, reset:boolean = false) {
         const ourIter = (this.ourIterTemplate).bind(this, iter, circuitController)
-        this.startPlayer(ourIter, reset)
+        this.startPlayer(ourIter)
     }
 
     forceValidate() {

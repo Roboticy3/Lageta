@@ -24,6 +24,7 @@ export class GateGraph extends GateGraphEventTarget {
         }
         this.fromGrid(grid)
     }
+    
 
     fromGrid(grid:GateGrid) {     
         this.gates = grid.gates
@@ -58,7 +59,6 @@ export class GateGraph extends GateGraphEventTarget {
     }
 
     verifyConnection(c:Connection) {
-        console.log("verifying connection ", c, " with ", this.gates.length, " gates and ", this.inputs.length, " inputs" )
         const outGate = this.gates[c.from[0]]
         if (outGate === undefined || c.from[1] > outGate.type.sizeOut )
         {
@@ -110,25 +110,6 @@ export class GateGraph extends GateGraphEventTarget {
 
         const cycleCheck = this.addConnectionPropogate(c)
         if (cycleCheck.error !== "") {
-            //if a cycleCheck fires, the branches of the connection may have given bad values
-            //reset by propagating forward from the branches
-            const to = c.to
-            for (let i = 0; i < to.length; i++) {
-                let toGate = this.gates[to[i][0]]
-                if (toGate === undefined) continue
-    
-                toGate.state.override[to[i][1]] = cycleCheck.result.override[i]
-
-                const backwardResultI = this.resolveInputsTo(toGate)
-                if (backwardResultI.error !== "") {
-                    return backwardResultI
-                }
-                const forwardResultI = this.resolveInputsFrom(toGate)
-                if (forwardResultI.error !== "") {
-                    return forwardResultI
-                }
-            }
-    
             return cycleCheck
         }
 
@@ -147,6 +128,11 @@ export class GateGraph extends GateGraphEventTarget {
     }
 
     private addConnectionNoChecks(c:Connection):CircuitResolutionResult {
+
+        /*
+        c.from = GateGraph.watchObject(c.from, `con-to-from${c.from}`)
+        c = GateGraph.watchObject(c, `con-from${c.from}`)
+        */
 
         const to = c.to
         for (let i = 0; i < to.length; i++) {
@@ -223,29 +209,36 @@ export class GateGraph extends GateGraphEventTarget {
     }
 
     removeInput(a:[number, number], recompute=true) {
+        //get the connection object connected to this input pin
         const c = this.getInput(a)
         if (c === undefined) {
             return
         }
         const to = c.to
+        //find the index of this input pin in the connection
         const i = this.findInput(c, a)
         if (i === -1) {
             return
         }
-        const result = to.splice(i, 1)[0]
+        //remove the input pin from the connection object using the index ans Array.splice
+        to.splice(i, 1)[0]
+
+        //detach the connection from the inputs list at the input pin
         this.setInput(a, undefined)
 
+        //if the connection touches 0 input pins, remove it from the output, as well
+        //in issue #149, the wires persisting may imply to.length is not zero when its supposed to be.
         if (to.length === 0) {
             this.setOutput(c.from, undefined)
         }
-
+        
+        //if the gate exists and the recompute flag is checked, erase the current state at the input pin 
+        //then solve forwards from the gate because its state has changed
         let gate = this.gates[a[0]]
         if (gate !== undefined && recompute) {
             gate.state.override[a[1]] = undefined
             this.resolveInputsFrom(gate)
         }
-
-        return result
     }
 
     removeOutput(c:Connection) {
@@ -410,14 +403,14 @@ export class GateGraph extends GateGraphEventTarget {
     }
 
     setFlows(val:ConnectionValue[], ids:(number | undefined)[]) {
-        const gates = ids.map((i) => {
+        const flows = ids.map((i) => {
             if (i === undefined) return undefined
             return this.gates[i]
         })
 
         let consumed = 0
-        for (let i = 0; i < gates.length; i++) {
-            let gate = gates[i]
+        for (let i = 0; i < flows.length; i++) {
+            let gate = flows[i]
             if (!(gate instanceof Flow)) {
                 continue
             }
@@ -565,7 +558,7 @@ export class GateGraph extends GateGraphEventTarget {
                     continue
                 }
                 toGate.state.override[toj[1]] = outputs.override[c.from[1]]
-                const result = this.resolveInputsFrom(toGate, cycleCheck, depth - 1)
+                const result = this.resolveInputsFrom(toGate, cycleCheck, depth + 1)
                 if (result.error !== "") {
                     return result
                 }

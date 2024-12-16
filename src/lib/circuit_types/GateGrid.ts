@@ -1,5 +1,5 @@
 import type { Gate } from "./Gate"
-import type { GateGraph } from "./GateGraph"
+import { GateGraph } from "./GateGraph"
 
 /**
  * Store a grid of gates, keeping track of their position

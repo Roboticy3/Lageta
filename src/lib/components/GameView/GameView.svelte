@@ -72,8 +72,39 @@
             return new StickerController(stickers)
         }
     }
+
+    /**
+     * Debugging tool, mainly for catching stuff that happens to circuitController outside of the main stack
+     * @param {any} target
+     * @param {((arg0: string | symbol) => any)} exclude
+     */
+    function bingo(target, exclude) {
+    return new Proxy(target, {
+        get(obj, prop) {
+            const originalValue = obj[prop];
+            if (typeof originalValue === "function" && !exclude(prop)) {
+                // If the property is a method, wrap it
+                return (/** @type {any} */ ...args) => {
+                    console.log(`Method called: ${String(prop)} with arguments:`, args);
+                    const result = originalValue.apply(obj, args);
+                    console.log(`Method result: ${String(prop)} returned:`, result);
+                    console.log(`proxy debugging step ${String(prop)}`, 
+                        JSON.parse(
+                            JSON.stringify(target?.gateGrid?.graph?.inputs)
+                        ), JSON.parse(
+                            JSON.stringify(target?.gateGrid?.graph?.outputs)
+                        )
+                    )
+                    return result;
+                };
+            }
+            return originalValue; // For non-method properties, return as-is
+        }
+    });
+    }
     
     export let circuitController = new CircuitController(loadGrid(), onComplete, gameParams.completeCondition?.solver)
+        
 
     /**
      * @type {StickerController}
@@ -153,10 +184,6 @@
             }
         }
     }
-    $: editorEventTarget?.addUpdateListener(() => {
-        console.log("setting shouldSave to true. stickerController: ", stickerController)
-        shouldSave = true
-    })
 
     /**
      * @param {ShelfTreeNode} shelf
@@ -176,15 +203,19 @@
     */
     export let editorEventTarget = null
     $: {console.log("editor event target: ", editorEventTarget)}
+    $: editorEventTarget?.addUpdateListener(async () => {
+        console.log("setting shouldSave to true. stickerController: ", stickerController)
+        shouldSave = true
+        
+        await tick() //evil mode
+    })
 
     /**
      * @type {CircuitSignalSetViewEventTarget | null}
      */
     export let signalSetViewEventTarget = null
     $: {console.log("signal set view event target: ", signalSetViewEventTarget)}
-    $: if (signalSetViewEventTarget) {
-        signalSetViewEventTarget.addEventListener("play",checkSave)
-    }
+    $: signalSetViewEventTarget?.addEventListener("play",checkSave)
 
     export function isCircuitValid() {
         return signalSetView?.isCircuitValid()

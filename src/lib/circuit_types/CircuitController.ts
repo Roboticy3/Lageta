@@ -663,12 +663,15 @@ export class CircuitController {
     }
 
     setInputs(val:ConnectionValue[], computeDesired=true) {
+        //get the ids of the input gates from gateGrid
         const inputs = this.gateGrid.inputs.map((g) => {
             return g?.id
         })
+        //apply the given inputs to them in the graph
         const graph = this.gateGrid.graph
         graph.setFlows(val, inputs)
 
+        //if asked for, update the desired inputs for future validation
         if (computeDesired) this.computeDesiredOutputs()
     }
 
