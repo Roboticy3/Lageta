@@ -233,7 +233,7 @@ export class OrganizedCircuit {
             const newC = new Connection(c.from[0], c.from[1], -1, -1)
             newC.to = new Array<[number, number]>(c.to.length)
             for (let i = 0; i < c.to.length; i++) {
-                newC.to[i] = [c.to[i][0], c.to[i][1]]
+                newC.to[i] = [indexMap.get(c.to[i][0]) || -1, c.to[i][1]]
             }
             connections.push(newC)
         })
