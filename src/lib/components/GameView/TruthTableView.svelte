@@ -13,6 +13,8 @@
 
     export let verticalSeparators = [truthTable.sizeIn]
 
+    export let border = true
+
     /**
      * @param {boolean} value
      */
@@ -39,15 +41,15 @@
 </script>
 
 <div 
-    class="truth-table" 
+    class="truth-table {border ? 'ridge':''}" 
     style="
         grid-template-columns:repeat({truthTable.getWidth()}, 1fr);
         grid-template-rows:repeat({truthTable.getHeight() + 1}, 1fr);
     "
 >
 
-    {#each customLabels || truthTable.columnLabels as columnLabel, i}
-        <div style="grid-column:{i + 1}; grid-row:1;">{columnLabel}</div>
+    {#each truthTable.columnLabels as columnLabel, i}
+        <div style="grid-column:{i + 1}; grid-row:1;">{customLabels?.at(i) || columnLabel}</div>
     {/each}
 
     <div class="title-bar" style="grid-column:1 / {truthTable.getWidth() + 1}; grid-row:1;"></div>
@@ -70,7 +72,7 @@
         text-align: center;
         background-color: var(--main-bg-color);
 
-        border: 4px ridge black;
+        min-width:100%;
     }
 
     .title-bar {
@@ -79,5 +81,6 @@
 
     .column-bar {
         border-left: 2px solid black;
+        min-width: 1em;
     }
 </style>
