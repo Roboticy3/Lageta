@@ -44,7 +44,8 @@ export const Xor:GateTypeParameters = {
 
 export const Xand:GateTypeParameters = {
     name: "Xand", inputs: 2, outputs: 1,
-    f: (s:GateState) => { return {override:[(s.override[0] || false) === (s.override[1] || false)]}}
+    f: (s:GateState) => { return {override:[(s.override[0] || false) === (s.override[1] || false)]}},
+    draw: (s) => {return `<path d="M 4 2 C 22 4 22 16 4 18 C 7 18 7 2 4 2 Z" style="pointer-events:none;" />\n<path d="M 2 18 C 5 18 5 2 2 2" style="pointer-events:none;" />\n<circle cx=18 cy=10 r="2" style="pointer-events:none;" />\n`}
 }
 
 export const RandomGate1:GateTypeParameters = {
