@@ -45,15 +45,12 @@
     
 
     onMount(async () => {
-        if (browser) {
-            window.addEventListener('load', onChange)
-        }
+        onChangeExternal(from[0])
 
         gridController.addGraphListener("update", ({id}) => {
             onChangeExternal(id)
         })
-
-        onChangeExternal(from[0])
+    
     })
 
     /**

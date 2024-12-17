@@ -20,7 +20,7 @@ export type ConnectionIndex = {id:number, type:ConnectionType, index:number}
  */
 export class CircuitController {
     readonly gateGrid:GateGrid
-    onComplete:() => void
+    onComplete?:() => void
 
     private renderer?:any = null
 
@@ -857,7 +857,7 @@ export class CircuitController {
 
     //tell the view that the level has been beaten
     complete() {
-        this.onComplete()
+        this.onComplete?.call(this)
     }
 
     castLineOnGrid(localX:number, localY:number, dx:number, dy:number, ignoreStart?:boolean) {
