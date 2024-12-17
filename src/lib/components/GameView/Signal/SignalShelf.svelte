@@ -320,7 +320,9 @@
         display: grid; 
         grid-template-rows: 1fr 1fr;
         grid-template-columns: 1fr 1fr;
-        height: calc(100%);
+
+        /* grow to fit if the signal gets too funky to contain in our measely perception of reality */
+        min-height: 100%;
     }
 
     .signomatic-frame {
@@ -332,7 +334,6 @@
 grid-template-columns: 12fr 1fr;
 grid-template-rows: 3fr 1fr;
 gap: 5vh;
-height: calc(100% - 3em);
 background-color: var(--signomatic-frame-bg);
 
 border: solid #00000000 1em;
@@ -350,6 +351,9 @@ box-shadow: 1em 1em 1em rgba(0, 0, 0, 0.25); /* Added box-shadow */
 
         grid-column: 1;
         grid-row: 1/3;
+        margin-left: 0.5em;
+
+
     }
 
     .signal-svg-container {
