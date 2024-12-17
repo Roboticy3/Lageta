@@ -132,18 +132,22 @@ import { StickerType } from "$lib/circuit_types/sticker/Sticker";
     }
 </script>
 
-<div class="contents" style="top:{posY}px; left:{posX}px;">
+<div class="contents {contents || (showTruthTables && hoverGateType) ? 'ridge':''}" style="top:{posY}px; left:{posX}px;">
     {@html contents}
     {#if showTruthTables && hoverGateType}
-        <TruthTableView truthTable={new TruthTable(hoverGateType)}/>
+        <TruthTableView truthTable={new TruthTable(hoverGateType)} border={false}/>
     {/if}
 </div>
 
 <style>
     .contents {
         pointer-events: none;
-        position: absolute;
+        position: fixed;
         display:flex;
         flex-direction: column;
+
+        background-color: white;
+
+        align-items: center;
     }
 </style>
