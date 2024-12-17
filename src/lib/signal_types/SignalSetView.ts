@@ -105,10 +105,10 @@ export class SignalSetView<T> {
     }
     
     protected player:SignalPlayer<T> | undefined = undefined
-    createPlayer(frameTime=250) {
+    createPlayer(timer:(currentFrame:number) => number) {
         this.player = new SignalPlayer(
             this.signalSet,
-            frameTime
+            timer
         )
     }
 

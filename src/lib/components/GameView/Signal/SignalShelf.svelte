@@ -48,8 +48,23 @@
 
     let failurePlaying = false
 
+    export let initialFrameTime = 100
+    $: frameTime = initialFrameTime
+
+    /**
+     * @param {number} currentFrame
+     * @returns {number}
+     */
+    function timingFunction(currentFrame) {
+        if (currentFrame >= 15 && frameTime >= 2) frameTime -= 2
+
+        if (!circuitValid) frameTime = initialFrameTime
+
+        return frameTime
+    }
+
     onMount(async () => {
-        signalSetView.createPlayer(100)
+        signalSetView.createPlayer(timingFunction)
         signalSetView.sendPlayerToController(circuitController)
 
         if (!signalSetViewEventTarget) signalSetViewEventTarget = new CircuitSignalSetViewEventTarget()
@@ -186,7 +201,7 @@
         signalSetView.pausePlayer()
         failurePlaying = false
         playButtonInnerText = "⏵"
-        
+        frameTime = initialFrameTime
     }
 
     /**
