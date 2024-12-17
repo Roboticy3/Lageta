@@ -103,7 +103,7 @@
     });
     }
     
-    export let circuitController = new CircuitController(loadGrid(), onComplete, gameParams.completeCondition?.solver)
+    export let circuitController = new CircuitController(loadGrid(), gameParams.completeCondition ? onComplete:undefined, gameParams.completeCondition?.solver)
         
 
     /**

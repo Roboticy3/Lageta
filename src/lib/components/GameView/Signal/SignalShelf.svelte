@@ -56,7 +56,7 @@
      * @returns {number}
      */
     function timingFunction(currentFrame) {
-        if (currentFrame >= 15 && frameTime >= 2) frameTime -= 2
+        if (currentFrame >= 15 && circuitValid && frameTime >= 2) frameTime -= 2
 
         if (!circuitValid) frameTime = initialFrameTime
 
