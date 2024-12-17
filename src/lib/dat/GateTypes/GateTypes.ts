@@ -170,17 +170,18 @@ export const registerGateType = (gateType: GateTypeController) => {
  * Set of optional arguments for constructing a GateType
  */
 export type GateTypeParameters = {
-    name:string,
-    inputs?:number | Array<[number, number]>,
-    outputs?:number | Array<[number, number]>,
-    gridSize?:[number, number],
-    inputLabels?:string[],
-    outputLabels?:string[],
-    moveable?:boolean,
-    variant?:GateTypeVariant,
-    f?:(s:GateState) => GateState,
-    draw?:(s:GateState) => string
-    register?:boolean
+    name:string, //name of the type
+    gridSize?:[number, number], //the size of the gate in the grid
+    inputs?:number | Array<[number, number]>, //the number of inputs, or a list of input offsets. a number of inputs will be automatically spaced out on the left depending on gridSize
+    outputs?:number | Array<[number, number]>, //the number of outputs, or a list of output offsets. a number of outputs will be automatically spaced out like inputs but on the right
+    buttonOffset?:[number, number], //if the gate has interactive elements, apply this offset to them in the view (such as InputCheckBox)
+    inputLabels?:string[], //the labels of each input point
+    outputLabels?:string[], //the labels of each output point
+    moveable?:boolean, //whether the gate can be moved by the user or not, true if not given
+    variant?:GateTypeVariant, //variants allow support for extending gates to other types, like designating inputs as "Flows" when they have 0 inputs and their state is used as their outputs rather than inputs
+    f?:(s:GateState) => GateState, //the computation this gate performs on its inputs
+    draw?:(s:GateState) => string, //the svg appearance of this gate in the grid
+    register?:boolean, //whether this gate should be registered to all_gates on creation or not, true if not given
 }
 
 /**
@@ -199,6 +200,7 @@ export function combineGateTypeParameters(a:GateTypeParameters, b:GateTypeParame
         gridSize:b.gridSize || a.gridSize,
         inputLabels:b.inputLabels || a.inputLabels,
         outputLabels:b.outputLabels || a.outputLabels,
+        buttonOffset:b.buttonOffset || a.buttonOffset,
         moveable:b.moveable !== undefined ? b.moveable : a.moveable,
         variant:b.variant || a.variant,
         f:b.f || a.f,
@@ -263,7 +265,8 @@ export const drawGateTypeEncode = (s:GateState, gridWidth:number, gridHeight:num
 }
 
 export const drawGateTypeDecode = (s:GateState, gridWidth:number, gridHeight:number, 
-    extraParams:string=`fill="black" stroke="none" style="pointer-events:none;"`
+    extraParams:string=`fill="black" stroke="none" style="pointer-events:none;" text-anchor="middle"`, 
+    offset:[number, number] = [0, 5]
 ) => {
     const result = [drawGateTypeRect(gridWidth, gridHeight)]
     let pow = 1
@@ -274,9 +277,8 @@ export const drawGateTypeDecode = (s:GateState, gridWidth:number, gridHeight:num
     }
     result.push(
 `<text 
-    x="${gridWidth * 10 / 2}" 
-    y="${gridHeight * 10 / 2 + 5}" 
-    text-anchor="middle"
+    x="${gridWidth * 10 / 2 + offset[0]}" 
+    y="${gridHeight * 10 / 2 + offset[1]}" 
     ${extraParams}
     >
     ${sum}
@@ -398,10 +400,13 @@ export function exampleInputVariable(variableName:string) {
             name:`InputVariable${variableName}1`, 
             outputLabels: (new Array(1).fill("").map((_v, i) => `${variableName}`)),
             gridSize:[2,2], 
+            buttonOffset:[-1.25,-0.75],
             draw:(s) => drawGateTypeDecode(s, 2, 2, 
                 `stroke="none" 
                 fill="${connectionValueToColor(s.override[0])}" 
-                style="pointer-events:none;"`
+                style="pointer-events:none; font-size:10px;"
+                text-anchor="middle"
+                `
             )
         }
     )
@@ -416,7 +421,8 @@ export function exampleOutputVariable(variableName:string) {
             draw:(s) => s.override[0] === undefined ? drawGateTypeRect(2, 2):drawGateTypeDecode(s, 2, 2, 
                 `stroke="none" 
                 fill="${s.override[0] ? 'var(--connection-color-on)':'var(--connection-color-off)'}" 
-                style="pointer-events:none;"`
+                style="pointer-events:none;"
+                text-anchor="middle"`
             )
         }
     )

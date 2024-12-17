@@ -64,6 +64,7 @@ export class GateTypeView {
     readonly outputLabels: string[] = [];
     readonly gridWidth: number = 2;
     readonly gridHeight: number = 2;
+    readonly buttonOffset: [number, number] = [-1.25, -0.3]
     readonly moveable: boolean = true;
     private readonly drawInternal: (s:GateState) => string;
 
@@ -96,6 +97,8 @@ export class GateTypeView {
             this.sizeOut = params.outputs.length;
             this.outputOffsets = params.outputs;
         }
+
+        this.buttonOffset = params.buttonOffset || this.buttonOffset
 
         this.inputLabels = params.inputLabels ||
             Array(this.sizeIn).fill("");

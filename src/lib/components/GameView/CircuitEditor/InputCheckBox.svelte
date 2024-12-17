@@ -93,12 +93,26 @@
         return checked
     }
 
-    export let gridOffset = [-1.25, -0.3]
+    /**
+     * @type {[number, number] | undefined}
+     */
+    export let gridOffset = undefined
     /**
      * @type {[number, number]}
      */
     let position = [0.0, 0.0]
-    $: if (gridOffset) position = getPosition()
+    $: if (gridOffset) {
+        position = getPosition()
+    } else {
+        gridOffset = getButtonOffset()
+        position = getPosition()
+    }
+
+    function getButtonOffset() {
+        return gridController.
+            getGateTypeController(from[0])?.
+            view.buttonOffset
+    }
     
     /**
      * @returns {[number, number]}
@@ -107,7 +121,8 @@
         const gateOffset = gridController.getGatePosition(from[0])
         const connectionOffset = gridController.getConnectionPoint({id:from[0], index:from[1], type:"Output"})
         if (connectionOffset === undefined || gateOffset === undefined) return [0, 0]
-        return [gateOffset[0] + connectionOffset[0] / 10 + gridOffset[0], gateOffset[1] + connectionOffset[1] / 10 + gridOffset[1]]
+        const safeGridOffset = gridOffset || [0, 0]
+        return [gateOffset[0] + connectionOffset[0] / 10 + safeGridOffset[0], gateOffset[1] + connectionOffset[1] / 10 + safeGridOffset[1]]
     }
 
     const checkboxStyle =
