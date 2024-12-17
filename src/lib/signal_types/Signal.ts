@@ -345,16 +345,16 @@ export class SignalPlayer<T> {
 
     readonly length
     readonly initialValue
-    readonly frameTime
+    readonly timer:(currentFrame:number) => number
     readonly signal
 
     constructor(
         signalSet:SignalSet<T>,
-        frameTime:number
+        timer:(currentFrame:number) => number
     ) {
         this.length = signalSet.length
         this.initialValue = signalSet.getInitialValue()
-        this.frameTime = frameTime
+        this.timer = timer
 
         const s = signalSet.toSignal()
         s.bookend()
@@ -420,7 +420,7 @@ export class SignalPlayer<T> {
             this.scrubbing = false
         }
         else {
-            setTimeout(this.scrubStep.bind(this, iter), this.frameTime)
+            setTimeout(this.scrubStep.bind(this, iter), this.timer(this.currentFrame))
         }
     }
 
