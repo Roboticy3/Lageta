@@ -25,7 +25,7 @@
             size:[gridWidth, gridHeight],
             gateTypes:[getGateType(Input(1, {name:"LevelSelectInput1", inputLabels:[""]}))],
             gates:[
-                {type:"LevelSelectInput1",x:0,y:1,id:0,state:{override:[true]}}
+                {type:"LevelSelectInput1",x:0,y:1,id:0}
             ]
         }, 
         undefined, []
@@ -78,6 +78,8 @@
             console.log("loaded saved campaign screen with result ", result)
             if (result === "Ok") loaded = true
         }
+
+        circuitController.setInputs([true])
 
         console.log("mounted level viewer with grid: ", circuitController.gateGrid)
         console.log("new levels! ", newLevelSet)
