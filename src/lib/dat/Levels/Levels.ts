@@ -208,7 +208,7 @@ export const FourBitAdder = {
             ],
             size:[22, 11]
         },
-        countingSignal(getGateType(Add4), 1),
+        countingSignal(getGateType(Add4), 2),
         [
             SevenSegmentLevel.params.name,
             SevenSegmentOutput.name
