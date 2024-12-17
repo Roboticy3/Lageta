@@ -142,7 +142,7 @@ import { StickerType } from "$lib/circuit_types/sticker/Sticker";
 <style>
     .contents {
         pointer-events: none;
-        position: absolute;
+        position: fixed;
         display:flex;
         flex-direction: column;
     }
