@@ -21,7 +21,7 @@ export const And:GateTypeParameters = {
 export const Or:GateTypeParameters = { 
     name: "Or", inputs: 2, outputs: 1, 
     f: (s:GateState) => { return {override:[s.override[0] || s.override[1]]}; },
-    draw: (s) => {return `<path d="M 10 2 C 20 2 20 18 10 18 L 2 18 C 5 18 5 2 2 2 Z" style="pointer-events:none;" />\n`}
+    draw: (s) => {return `<path d="M 2 2 C 22 4 22 16 2 18 C 5 18 5 2 2 2 Z" style="pointer-events:none;" />\n`}
 };
 
 export const Nand:GateTypeParameters = { 
@@ -39,7 +39,7 @@ export const Nor:GateTypeParameters = {
 export const Xor:GateTypeParameters = { 
     name: "Xor", inputs: 2, outputs: 1, 
     f: (s:GateState) => { return {override:[(s.override[0] || false) !== (s.override[1] || false)]}; },
-    draw: (s) => {return `<path d="M 10 2 C 20 2 20 18 10 18 L 5 18 C 8 18 8 2 5 2 Z" style="pointer-events:none;" />\n<path d="M 2 18 C 5 18 5 2 2 2" style="pointer-events:none;" />\n`}
+    draw: (s) => {return `<path d="M 4 2 C 22 4 22 16 4 18 C 7 18 7 2 4 2 Z" style="pointer-events:none;" />\n<path d="M 2 18 C 5 18 5 2 2 2" style="pointer-events:none;" />\n`}
 }
 
 export const Xand:GateTypeParameters = {
@@ -63,15 +63,17 @@ export const AdderNoCarry1:GateTypeParameters = {
 }
 
 export const HalfAdder:GateTypeParameters = {
-    name: "HalfAdder", inputs: 2, outputs:2, outputLabels:["S", "C"],
-    f: (s:GateState) => { return {override:[(s.override[0] || false) !== (s.override[1] || false), s.override[0] && s.override[1]]}}
+    name: "HalfAdder", inputs: [[2, 5.5], [2, 14.5]], outputs:[[18, 10], [10, 18]], outputLabels:["S", "C"],
+    f: (s:GateState) => { return {override:[(s.override[0] || false) !== (s.override[1] || false), s.override[0] && s.override[1]]}},
+    draw: (s) => {return `<path d="M 10 16 L 10 18"/>\n<path d="M 2 2 L 16 6 L 16 14 L 2 18 L 2 11 L 8 10 L 2 9 Z"/>`}
 }
 
 export const FullAdder:GateTypeParameters ={
-    name: "FullAdder", inputs:3, outputs:2, outputLabels:["S", "C out"], inputLabels:["C in", "", ""],
+    name: "FullAdder", inputs: [[10, 2], [2, 5.5], [2, 14.5]], outputs:[[18, 10], [10, 18]], outputLabels:["S", "C out"], inputLabels:["C in", "", ""],
     f: (s:GateState) => { return {
         override:[((s.override[1] || false) !== (s.override[2] || false)) !== (s.override[0] || false), (s.override[1] && s.override[2]) || ((s.override[0] || false) && (s.override[1] || s.override[2]))]
-    }}
+    }},
+    draw: (s) => {return `<path d="M 10 4 L 10 2"/>\n<path d="M 10 16 L 10 18"/>\n<path d="M 2 2 L 16 6 L 16 14 L 2 18 L 2 11 L 8 10 L 2 9 Z"/>`}
 }
 
 const LEDSegmentPath = `M 0.5 2.5 L 2.5 0.5 L 17.5 0.5 L 19.5 2.5 L 17.5 4.5 L 2.5 4.5 Z"`
