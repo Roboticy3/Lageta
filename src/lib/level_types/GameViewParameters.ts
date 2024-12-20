@@ -12,10 +12,13 @@ export class GameViewParameters {
     readonly grid:GateGrid | undefined
     readonly completeCondition:CompleteConditionSource
     readonly completeRewards:string[]
+    
     readonly allUnlocks:boolean
 
     readonly editorParams:Object
     readonly rendererParams:Object
+
+    readonly storageKey:string | undefined
     
     constructor(
         name:string = "",
@@ -26,6 +29,8 @@ export class GameViewParameters {
         allUnlocks:boolean = false,
         editorParams = {},
         rendererParams = {},
+        storageKey?:string
+
     ) {
         this.name = name
 
@@ -42,6 +47,8 @@ export class GameViewParameters {
         this.allUnlocks = allUnlocks
         this.editorParams = editorParams
         this.rendererParams = rendererParams
+
+        this.storageKey = storageKey
     }
 
     initializeGrid() {

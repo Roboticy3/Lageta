@@ -54,7 +54,8 @@
     }
 
     function loadGrid() {
-        const circuitStorage = new CircuitStorage(gameParams.name)
+        
+        const circuitStorage = new CircuitStorage(gameParams.name, undefined, gameParams.storageKey)
         const gridResult = circuitStorage.loadNew()
 
         if (gridResult instanceof GateGrid) {

@@ -6,6 +6,7 @@
     import CircuitDiv from "../GameView/CircuitDiv.svelte";
     import { Level } from "$lib/level_types/Level";
     import HeavyButton from "../Misc/HeavyButton.svelte";
+    import { GateTypeController } from "$lib/circuit_types/GateType";
 
     /**
      * @type {import("$lib/dat/Levels/Levels").LevelParameters}
@@ -36,28 +37,35 @@
     let button
 
     /**
-     * @type {number | undefined}
+     * @type {[number, number] | undefined}
      */
-    let gateId = undefined
+    let gPos = [0, 0]
+    /**
+     * @type {GateTypeController | undefined}
+     */
+    let gType = undefined
+    $: if (level.desiredId) gPos = circuitController.getGatePosition(level.desiredId)
+    $: if (level.desiredId) gType = circuitController.getGateTypeController(level.desiredId)
 
     onMount(async () => {
         console.log("Mounting level selector for ",level)
         await tick()
 
-        console.log("My name is ", level.name(), " and I am located at ", level.desiredId)
         container.setOffsetNoArgs()
-        gateId = level.desiredId
-        circuitController.addGateAtCell(level.type, level.x, level.y, level.desiredId)
-        if (gateId === undefined) {
+
+        const id = level.desiredId
+        
+        if (id === undefined) {
             console.log("Unable to set gateId of ", level, "!")
             return
         }
+
         circuitController.addGraphListener("update", ({id}) => {
-            if (id === gateId) {
+            if (id === id) {
                 updateAvailability()
             }
         })
-        const id = gateId
+
         level.playCondition.forEach((v, i) => {
             circuitController.setDesiredValue({id:id, type:"Output", index:i}, v)
         })
@@ -65,8 +73,9 @@
     })
 
     function updateAvailability() {
-        if (gateId === undefined) return
-        const value = circuitController.getGateOutputs(gateId)?.override
+        const id = level.desiredId
+        if (id === undefined) return
+        const value = circuitController.getGateOutputs(id)?.override
         if (value === undefined) return
 
         let activate = true
@@ -92,10 +101,10 @@
 
 <CircuitDiv 
     circuitController={circuitController} 
-    position={[level.x + 0.35, level.y + 0.1]} 
+    position={gPos ? [gPos[0] + 0.2, gPos[1] + 0.1] : [0, 0]} 
     bob={false}
     smooth={false}
-    size={[level.type.model.gridWidth - 1.05, level.type.model.gridHeight - 0.3]}
+    size={gType ? [gType.view.gridWidth - 0.4, gType.view.gridHeight - 0.2] : [1, 1]}
     flash={levelProgress.new || false}
     border={true}
     bind:this={container}
