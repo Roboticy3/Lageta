@@ -1,5 +1,4 @@
 <script>
-    import { GameViewParameters } from "$lib/level_types/GameViewParameters";
     import { ProgressStorage } from "$lib/storage_types/ProgressStore";
     import { onMount, tick } from "svelte";
     import GameViewCircuitPanel from "$lib/components/GameView/CircuitEditor/GameViewCircuitPanel.svelte";
@@ -20,14 +19,18 @@
 
     const gridWidth = 24
     const gridHeight = 12
-    const gameParams = new GameViewParameters(
-        "LevelSelect", "", 
-        {
+    /**
+     * @type {import("$lib/level_types/GameViewParameters").GameViewParameters}
+     */
+    const gameParams = {
+        name:"LevelSelect", directions:"", 
+        grid: {
             size:[gridWidth, gridHeight],
             
         }, 
-        undefined, []
-    )
+        completeCondition:undefined, 
+        completeRewards:[]
+    }
     const editorParams = {canDragGates:false, showShelf:false}
     const rendererParams = {drawGates:true}
 

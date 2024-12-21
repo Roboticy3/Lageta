@@ -101,10 +101,10 @@
 
 <CircuitDiv 
     circuitController={circuitController} 
-    position={gPos ? [gPos[0] + 0.2, gPos[1] + 0.1] : [0, 0]} 
+    position={gPos ? [gPos[0] + 0.2, gPos[1] + 0.2] : [0, 0]} 
     bob={false}
     smooth={false}
-    size={gType ? [gType.view.gridWidth - 0.4, gType.view.gridHeight - 0.2] : [1, 1]}
+    size={gType ? [gType.view.gridWidth - 0.6, gType.view.gridHeight - 0.6] : [1, 1]}
     flash={levelProgress.new || false}
     border={true}
     bind:this={container}

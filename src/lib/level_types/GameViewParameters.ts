@@ -1,60 +1,30 @@
 import { CircuitController } from "$lib/circuit_types/CircuitController"
-import type { GateGrid } from "$lib/circuit_types/GateGrid"
-import { GateType, GateTypeController } from "$lib/circuit_types/GateType"
-import { Buf, getGateType } from "$lib/dat/GateTypes/GateTypes"
 import { ConnectionValueSignalSet, SignalSet } from "$lib/signal_types/Signal"
-import { CircuitSignalSetView } from "$lib/signal_types/SignalSetView"
 import { OrganizedCircuit, type OrganizedCircuitContents } from "$lib/storage_types/CircuitStorage"
 
-export class GameViewParameters {
-    readonly name:string
-    readonly directions:string
-    readonly grid:GateGrid | undefined
-    readonly completeCondition:CompleteConditionSource
-    readonly completeRewards:string[]
-    
-    readonly allUnlocks:boolean
+export type GameViewParameters = {
+    name?:string
+    directions?:string
+    grid?:GridSource
+    completeCondition?:CompleteConditionSource
+    completeRewards?:string[]
 
-    readonly editorParams:Object
-    readonly rendererParams:Object
+    allUnlocks?:boolean
 
-    readonly storageKey:string | undefined
-    
-    constructor(
-        name:string = "",
-        directions:string = "",
-        grid:GridSource = undefined,
-        completeCondition:CompleteConditionSource = undefined,
-        completeRewards:string[] = [],
-        allUnlocks:boolean = false,
-        editorParams = {},
-        rendererParams = {},
-        storageKey?:string
+    editorParams?:Object
+    rendererParams?:Object
 
-    ) {
-        this.name = name
-
-        this.directions = directions
-        if (grid === undefined || grid instanceof CircuitController) {
-            this.grid = grid?.gateGrid
-        }
-        else {
-            this.grid = new OrganizedCircuit(grid).unpack()
-        }
-
-        this.completeCondition = completeCondition
-        this.completeRewards = completeRewards
-        this.allUnlocks = allUnlocks
-        this.editorParams = editorParams
-        this.rendererParams = rendererParams
-
-        this.storageKey = storageKey
-    }
-
-    initializeGrid() {
-        return new CircuitController(this.grid)
-    }
+    storageKey?:string
 }
+
+export const MissingParameters = {
+    name:"?",
+    directions:"?",
+    allUnlocks:false,
+    editorParams:{},
+    rendererParams:{},
+    storageKey:"CircuitStorage"
+} as GameViewParameters
 
 export class CompleteCondition {
     inputSize=1
@@ -69,6 +39,15 @@ export class CompleteCondition {
         }
 
 
+    }
+}
+
+export function gridSourceToGrid(source:GridSource) {
+    if (source === undefined || source instanceof CircuitController) {
+        return source?.gateGrid
+    }
+    else {
+        return new OrganizedCircuit(source).unpack()
     }
 }
 

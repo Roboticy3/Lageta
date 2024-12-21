@@ -5,30 +5,34 @@
     import HeavyButton from "$lib/components/Misc/HeavyButton.svelte";
     import StickerTutorial from "./StickerTutorial.svelte";
     import CircuitEditorComponent from "../CircuitEditor/CircuitEditorComponent.svelte";
-    import { GameViewParameters } from "$lib/level_types/GameViewParameters";
     import { getGateType, getGateTypeParams, Input } from "$lib/dat/GateTypes/GateTypes";
     import CircuitDiv from "../CircuitDiv.svelte";
     import { CircuitController } from "$lib/circuit_types/CircuitController";
     import { ShelfTreeNode } from "$lib/dat/Shelf/ShelfTree";
     import { GateTypeController } from "$lib/circuit_types/GateType";
+    import { gridSourceToGrid } from "$lib/level_types/GameViewParameters";
 
     let dispatch = createEventDispatcher()
 
     /**
-     * @type {string[]}
+     * @type {string[] | undefined}
      */
     export let newGates
 
     /**
-     * @type {string[]}
+     * @type {string[] | undefined}
      */
     export let newLevels
 
     /**
-     * @type {string[]}
+     * @type {string[] | undefined}
      */
     export let newTools
-    $: newToolsCopy = Array.from(newTools)
+    /**
+     * @type {string[] | undefined}
+     */
+    let newToolsCopy = undefined
+    $: if (newTools) newToolsCopy = Array.from(newTools)
 
     /**
      * @type {string | undefined}
@@ -36,6 +40,7 @@
     let currentTool = undefined
     onMount(onNext)
     function onNext() {
+        if (!newToolsCopy) return
         currentTool = newToolsCopy.pop()
         while (currentTool !== undefined && getToolParams(currentTool) === undefined) {
             currentTool = newToolsCopy.pop()
@@ -50,7 +55,7 @@
     $: gridHeight = rewardTestInputSize
     $: rendererParams = {}
 
-    $: newGateTypeControllers = getNewGateTypeControllers(newGates)
+    $: newGateTypeControllers = getNewGateTypeControllers(newGates || [])
 
     /**
      * @param {string[]} newGateTypeNames
@@ -69,29 +74,31 @@
     }
 
     /**
-     * @type {GameViewParameters | null}
+     * @type {import("$lib/level_types/GameViewParameters").GameViewParameters | null}
      */
     let gameParams = null
-    $: if (newGates.length > 0) gameParams = new GameViewParameters(
-        "LevelSelect", "", 
-        {
+    $: if (newGates && newGates.length > 0) gameParams = {
+        name:"LevelSelect", directions:"", 
+        grid: {
             size:[gridWidth, gridHeight],
             gateTypes:[getGateType(Input(rewardTestInputSize))],
             gates:[
-                {type:`Input${rewardTestInputSize}`,x:0,y:0,id:0,state:{override:[true, false, true, false, true, false, true, false, true, false]}}
+                {type:`Input${rewardTestInputSize}`,x:0,y:0,id:0}
             ]
         }, 
-        undefined, [], false
-    )
+        completeCondition:undefined, 
+        completeRewards:[], 
+        allUnlocks:false
+    }
 
     /**
      * @type {CircuitController | null}
      */
     let circuitController = null
-    $: if (gameParams) circuitController = new CircuitController(gameParams.grid, () => {}, undefined)
+    $: if (gameParams) circuitController = new CircuitController(gridSourceToGrid(gameParams.grid), () => {}, undefined)
 
-    $: editorParams = {showShelf:newGates.length > 0}
-    $: shelf = new ShelfTreeNode("Rewards", newGates, 0)
+    $: editorParams = {showShelf:newGates ? newGates.length > 0:false}
+    $: shelf = new ShelfTreeNode("Rewards", newGates || [], 0)
 
 </script>
 
@@ -104,13 +111,13 @@
             </div>
         </div>
         <div class="rewards-container">
-            {#if newGates.length > 0} <div>
+            {#if newGates && newGates.length > 0} <div>
                 <h2>New Gates:</h2>
                 {#each newGates as gate}
                     <div>{gate}</div>
                 {/each}
             </div> {/if}
-            {#if newLevels.length > 0}<div>
+            {#if newLevels && newLevels.length > 0}<div>
                 <h2>New Levels:</h2>
                 {#each newLevels as level}
                     <div>{level}</div>

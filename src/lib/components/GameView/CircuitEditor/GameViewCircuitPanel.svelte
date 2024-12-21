@@ -7,7 +7,6 @@
     
     import { CircuitController } from '$lib/circuit_types/CircuitController';
 import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControllerQueryResult";
-    import { GameViewParameters } from '$lib/level_types/GameViewParameters';
     import { Buf, Input, all_gates, getGateType } from '$lib/dat/GateTypes/GateTypes';
     import InputCheckBox from './InputCheckBox.svelte';
     import { GateTypeController } from '$lib/circuit_types/GateType';
@@ -16,7 +15,7 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
     import { CircuitSignalSetViewEventTarget } from '$lib/signal_types/SignalSetViewEvent';
 
     /**
-     * @type {GameViewParameters}
+     * @type {any}
     */
     export let gameParams
 

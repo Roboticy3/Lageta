@@ -4,7 +4,6 @@
     import { onMount } from "svelte";
     import CircuitDraggable from "$lib/components/GameView/CircuitEditor/CircuitDraggable.svelte";
     import GameViewCircuitPanel from "$lib/components/GameView/CircuitEditor/GameViewCircuitPanel.svelte";
-    import { GameViewParameters } from "$lib/level_types/GameViewParameters";
     import { GameViewCircuitPanelEventTarget } from "$lib/circuit_types/GameViewCircuitPanelEvent";
     import GameViewShelf from "./Shelf/GameViewShelf.svelte";
     import { GameViewShelfTree, ShelfTreeNode } from "$lib/dat/Shelf/ShelfTree";
@@ -31,7 +30,7 @@
     export let stickerController = new StickerController()
 
     /**
-     * @type {GameViewParameters}
+     * @type {import("$lib/level_types/GameViewParameters").GameViewParameters}
      */
     export let gameParams
     

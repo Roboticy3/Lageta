@@ -5,7 +5,6 @@
   import GameView from "$lib/components/GameView/GameView.svelte";
   import HeavyButton from "$lib/components/Misc/HeavyButton.svelte";
   import { Freeplay } from "$lib/dat/Levels/Levels";
-    import { GameViewParameters } from "$lib/level_types/GameViewParameters";
   import { CircuitStorage } from "$lib/storage_types/CircuitStorage";
     import { tick } from "svelte";
 
@@ -36,12 +35,15 @@
 
 </script>
 
-{#if browser}<GameView gameParams={new GameViewParameters(
-  circuitName,
-  "",
-  {
+{#if browser}<GameView gameParams={{
+  name:circuitName,
+  directions:"",
+  grid:{
     size:[20,10]
-  },undefined,[],true,{},{}, circuitStorageKey)} 
+  },
+  completeRewards:[],
+  allUnlocks:true,
+  storageKey:circuitStorageKey}} 
   bind:circuitController={circuitController}
 > 
   <div style="display:flex; ">

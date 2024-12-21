@@ -25,26 +25,27 @@
     import { GateGrid } from "$lib/circuit_types/GateGrid";
     import { SerializableSticker, StickerStorage } from "$lib/storage_types/StickerStorage";
     import { StickerController } from "$lib/circuit_types/sticker/StickerController"
+    import { gridSourceToGrid } from "$lib/level_types/GameViewParameters";
 
 
     /**
      * @type {import("$lib/level_types/GameViewParameters").GameViewParameters}
      */
     export let gameParams
-    $: gateRewards = gameParams.completeRewards.filter(v => getGateTypeParams(v) !== undefined)
-    $: levelRewards = gameParams.completeRewards.filter(v => getLevelParams(v) !== undefined)
-    $: toolRewards = gameParams.completeRewards.filter(v => getToolParams(v) !== undefined)
+    $: gateRewards = gameParams.completeRewards?.filter((v) => getGateTypeParams(v) !== undefined)
+    $: levelRewards = gameParams.completeRewards?.filter((v) => getLevelParams(v) !== undefined)
+    $: toolRewards = gameParams.completeRewards?.filter((v) => getToolParams(v) !== undefined)
     $: solver = gameParams.completeCondition?.solver
     console.log("set to unlock", gateRewards, levelRewards, JSON.stringify(toolRewards))
 
     /**
      * @type {any}
      */
-    export let editorParams = gameParams.editorParams
+    export let editorParams = gameParams.editorParams || {}
     /**
      * @type {any}
      */
-    export let rendererParams = gameParams.rendererParams
+    export let rendererParams = gameParams.rendererParams || {}
 
     const slidinParams = {
         navFlex:1,
@@ -53,19 +54,23 @@
         instructionsFlex:3
     }
 
+    function getName() {
+        return gameParams.name || "?"
+    }
+
     function loadGrid() {
         
-        const circuitStorage = new CircuitStorage(gameParams.name, undefined, gameParams.storageKey)
+        const circuitStorage = new CircuitStorage(getName(), undefined, gameParams.storageKey)
         const gridResult = circuitStorage.loadNew()
 
         if (gridResult instanceof GateGrid) {
             return gridResult
         }
-        return gameParams.grid
+        return gridSourceToGrid(gameParams.grid)
     }
 
     function loadStickers() {
-        const stickers = new StickerStorage(gameParams.name).load()
+        const stickers = new StickerStorage(getName()).load()
         if (typeof stickers === "string") {
             return new StickerController()
         }
@@ -159,9 +164,9 @@
         }
 
         //remove the current level as a "new" level, so it doesn't direct the player's attention anymore on the level select screen
-        progressStorage.removeNewLevel(gameParams.name)
+        progressStorage.removeNewLevel(getName())
 
-        console.log("gameview loaded shelf ", shelf, " and unmarked ", gameParams.name, " as new!")
+        console.log("gameview loaded shelf ", shelf, " and unmarked ", getName(), " as new!")
     }
 
     /**
@@ -175,10 +180,10 @@
             if (shouldSave) {
                 console.log("saving!")
                 //save the current level, including all gates and stickers
-                const circuitStorage = new CircuitStorage(gameParams.name, circuitController)
+                const circuitStorage = new CircuitStorage(getName(), circuitController)
                 circuitStorage.save()
 
-                const stickerStorage = new StickerStorage(gameParams.name, stickerController)
+                const stickerStorage = new StickerStorage(getName(), stickerController)
                 stickerStorage.save()
 
                 shouldSave = false
@@ -235,19 +240,19 @@
     let editorContainerResizeObserver
 
     function onComplete() {
-        if (gameParams.name === progressStorage.getCurrentTutorial()) {
+        if (getName() === progressStorage.getCurrentTutorial()) {
             progressStorage.passTutorial()
         }
 
-        levelRewards.map(progressStorage.addLevel.bind(progressStorage))
-        gateRewards.map(progressStorage.addGate.bind(progressStorage))
-        toolRewards.map(progressStorage.addTool.bind(progressStorage))
+        levelRewards?.map(progressStorage.addLevel.bind(progressStorage))
+        gateRewards?.map(progressStorage.addGate.bind(progressStorage))
+        toolRewards?.map(progressStorage.addTool.bind(progressStorage))
 
-        progressStorage.completeLevel(gameParams.name)
+        progressStorage.completeLevel(getName())
 
         completionPopup.show()
 
-        if (toolRewards.length > 0) {
+        if (!toolRewards || toolRewards.length > 0) {
             SFXPlayer.play("outro2.wav")
         }
         else {

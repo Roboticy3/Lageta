@@ -2,7 +2,7 @@ import { CircuitController } from "$lib/circuit_types/CircuitController"
 import { GateGraph } from "$lib/circuit_types/GateGraph"
 import type { GateGrid } from "$lib/circuit_types/GateGrid"
 import { GateType, GateTypeController, type ConnectionValue } from "$lib/circuit_types/GateType"
-import { CompleteCondition, GameViewParameters } from "./GameViewParameters"
+import { CompleteCondition, type GameViewParameters } from "./GameViewParameters"
 import { Buf, LevelGateType, getGateType } from "../dat/GateTypes/GateTypes"
 import type { LevelParameters } from "$lib/dat/Levels/Levels"
 
@@ -27,7 +27,7 @@ export class Level {
         this.x = params.x || 0
         this.y = params.y || 0
         this.desiredId = params.desiredId === undefined ? undefined : params.desiredId
-        this.params = params.params || new GameViewParameters()
+        this.params = params.params || {}
 
         this.type = getGateType(params.type || Buf)
 
