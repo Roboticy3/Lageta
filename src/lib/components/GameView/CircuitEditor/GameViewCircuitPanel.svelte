@@ -15,7 +15,7 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
     import { CircuitSignalSetViewEventTarget } from '$lib/signal_types/SignalSetViewEvent';
 
     /**
-     * @type {any}
+     * @type {import("$lib/level_types/GameViewParameters").GameViewParameters}
     */
     export let gameParams
 
@@ -684,6 +684,10 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
     bind:this={circuitContainer}
     >
 
+    {#if editorParams.slotInFront === false}
+        <slot />
+    {/if}
+
     {#if editorEventTarget}
         <CircuitRenderer 
             bind:this={circuitRenderer}
@@ -704,8 +708,10 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
             {/each} 
         {/if}
     {/if}
-
-    <slot />
+    
+    {#if editorParams.slotInFront !== false}
+        <slot />
+    {/if}
 </div>
 
 <style>

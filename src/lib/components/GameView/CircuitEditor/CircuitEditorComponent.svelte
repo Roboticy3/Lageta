@@ -179,7 +179,6 @@
         <div 
             class="circuit-panel" 
             bind:this={circuitContainer}
-            title="Circuit"
         >    
             <GameViewCircuitPanel 
                 bind:this={circuitPanel}

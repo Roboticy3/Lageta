@@ -43,7 +43,7 @@
 </script>
 
 {#if gameParams && circuitController && signalSetView}
-<div class="signal" title="Signal Player" style="height:100%;">
+<div class="signal" style="height:100%;">
   <SignalShelf 
       circuitController={circuitController} 
       signalSetView={signalSetView} 

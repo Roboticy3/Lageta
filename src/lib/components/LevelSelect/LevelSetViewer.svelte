@@ -31,8 +31,8 @@
         completeCondition:undefined, 
         completeRewards:[]
     }
-    const editorParams = {canDragGates:false, showShelf:false}
-    const rendererParams = {drawGates:true}
+    const editorParams = {canDragGates:false, showShelf:false, slotInFront:false}
+    const rendererParams = {showGates:false, showGrid:false}
 
     $: progress = browser ? new ProgressStorage() : undefined
     $: levelSet = progress?.levels() || []

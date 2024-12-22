@@ -324,8 +324,8 @@
 </script>
 
 <div class="base-vertical" data-sveltekit-noscroll>
-    <div class="sandbox-horizontal" title="Sandbox">
-        <div class="circuit-editor" title="Editor" bind:this={editorContainer}>
+    <div class="sandbox-horizontal">
+        <div class="circuit-editor"bind:this={editorContainer}>
             {#if !existingEditor}
                 <CircuitEditorComponent 
                     circuitController={circuitController} 
@@ -341,7 +341,7 @@
                 />
             {/if}
         </div>
-        <div class="instructions {slidinParams ? 'slidein':''}" title="Instructions" style="flex:{maxSizeState.instructionsFlex};">
+        <div class="instructions {slidinParams ? 'slidein':''}" style="flex:{maxSizeState.instructionsFlex};">
             {@html gameParams.directions}
             {#if progressStorage?.findTool("TruthTable") !== -1 && 
                 solver?.variant === "Gate" &&
@@ -360,7 +360,7 @@
         </div>
     </div>
     {#if signalSetView}
-        <div class="signal {slidinParams ? 'slidein':''}" title="Signal Player" style="max-height:{maxSizeState.signalMaxHeight};">
+        <div class="signal {slidinParams ? 'slidein':''}" style="max-height:{maxSizeState.signalMaxHeight};">
             <SignalShelf 
                 circuitController={circuitController} 
                 signalSetView={signalSetView} 
