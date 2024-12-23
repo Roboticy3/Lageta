@@ -4,7 +4,7 @@ import { Add2, Add4, AdderNoCarry1, And, And3, And4, BCDDecoder, Buf, Decoder2t4
 import { ConnectionValueSignalSet, Signal, SignalSet, inverter, oscillator, repeater } from "$lib/signal_types/Signal";
 import type { OrganizedCircuitContents, SerializableGate } from "$lib/storage_types/CircuitStorage";
 import { ProgressStorage } from "$lib/storage_types/ProgressStore";
-import type { GameViewParameters } from "../../level_types/GameViewParameters";
+import type { GameViewParameters, GridSource } from "$lib/level_types/GameViewParameters";
 import { Level } from "../../level_types/Level";
 import { StickersTool, TruthTableTool } from "../Tools/Tools";
 export type LevelParameters = {
@@ -104,7 +104,7 @@ function countingSignal(solver: GateTypeController, step: number, repeat?: numbe
   console.log("created counting signal ", result);
   return result;
 }
-export const SevenSegmentLevel = {
+export const SevenSegmentLevel:LevelParameters = {
   params: {
     name: "Seven Segment Display",
     directions: `
@@ -113,7 +113,7 @@ export const SevenSegmentLevel = {
         <p>Try to match the signal for each output one-by-one.</p>
         <p>Good luck!</p>
         `,
-    params: {
+    grid: {
       gateTypes: [getGateType(InputVariable(4, 'X')), getGateType(SevenSegmentOutput)],
       gates: [{
         x: 0,
@@ -127,7 +127,7 @@ export const SevenSegmentLevel = {
         id: 1
       } as SerializableGate],
       size: [36, 16]
-    } as GameViewParameters,
+    } as GridSource,
     completeCondition: countingSignal(getGateType(SevenSegmentDecoder), 5, 1, 10),
     completeRewards: [SevenSegmentDecoder.name]
   },
@@ -136,7 +136,7 @@ export const SevenSegmentLevel = {
   y: 4,
   desiredId: 17
 };
-export const FourBitDecoder = {
+export const FourBitDecoder:LevelParameters = {
   params: {
     name: "BCD",
     directions: `
@@ -147,7 +147,7 @@ export const FourBitDecoder = {
         <p>If the input has a value of 10 through 15, you must not setting any of the outputs to <span style="color:var(--connection-color-on);">high</span>.</p>
         <p>Lageta largely automates displaying numbers for your circuits. But in real life, displaying numbers from circuits takes a lot of work. Understanding BCD's is the first step to learning how to make your own displays.</p>
         `,
-    params: {
+    grid: {
       gateTypes: [getGateType(InputVariable(4, "X")), getGateType(Output(10, {
         name: "Output10Decoded",
         inputLabels: new Array(10).fill('').map((_v, i) => `${i}`),
@@ -165,7 +165,7 @@ export const FourBitDecoder = {
         id: 1
       } as SerializableGate],
       size: [22, 12]
-    } as GameViewParameters,
+    } as GridSource,
     completeCondition: countingSignal(getGateType(BCDDecoder), 5, 1, 10),
     completeRewards: []
   },
@@ -174,7 +174,7 @@ export const FourBitDecoder = {
   y: 7,
   desiredId: 16
 };
-export const FourBitAdder = {
+export const FourBitAdder:LevelParameters = {
   params: {
     name: "4-bit Adder",
     directions: `
@@ -184,7 +184,7 @@ export const FourBitAdder = {
         <p>Adding and carrying works out the same way no matter which digit you're starting from, as long as you consider the "carry in" from the last digit, if it's there.</p>
         <p>Thanks to this property, you can link multiple Full Adders together with no modification to make larger adder <span style="color:var(--circuit-color);">circuit</span>!</p>
         `,
-    params: {
+    grid: {
       gateTypes: [getGateType(InputVariable(4, "X")), getGateType(InputVariable(4, "Y")), getGateType(OutputVariable(4, "S")), getGateType(exampleOutputVariable('Carry')), getGateType(FullAdder)],
       gates: [{
         x: 0,
@@ -214,9 +214,9 @@ export const FourBitAdder = {
       } as SerializableGate],
       connections: [new Connection(0, 0, 4, 1), new Connection(1, 0, 4, 2), new Connection(4, 0, 2, 0)],
       size: [22, 11]
-    } as GameViewParameters,
+    } as GridSource,
     completeCondition: countingSignal(getGateType(Add4), 2),
-    completeRewards: [SevenSegmentLevel.params.name, SevenSegmentOutput.name]
+    completeRewards: [SevenSegmentLevel.params?.name || "?", SevenSegmentOutput.name]
   },
   x: 22,
   y: 2,
@@ -224,13 +224,13 @@ export const FourBitAdder = {
   type: getGateType(Add4),
   playCondition: [false, false, false, true, false]
 };
-export const RandomLevel1 = {
+export const RandomLevel1:LevelParameters = {
   params: {
     name: "Random 1",
     directions: `
         <p>The <span style="color:var(--circuit-color);">circuit</span> you need to win has been randomly generated!</p>
         `,
-    params: {
+    grid: {
       gateTypes: [getGateType(InputLabelledPrebaked[2]), getGateType(OutputLabelledPrebaked[2])],
       gates: [{
         x: 0,
@@ -244,7 +244,7 @@ export const RandomLevel1 = {
         id: 1
       } as SerializableGate],
       size: [16, 8]
-    } as GameViewParameters,
+    } as GridSource,
     completeCondition: countingSignal(getGateType(RandomGate1), 5, 3),
     completeRewards: [TruthTableTool.name]
   },
@@ -254,14 +254,14 @@ export const RandomLevel1 = {
   type: RandomGate1,
   playCondition: [false, false]
 };
-export const NorLevel = {
+export const NorLevel:LevelParameters = {
   params: {
     name: "No Join",
     directions: `
         <p>This level requires making a "Nor" gate to win.</p>
         <p>Nor stands for "Not Or" and will always output the opposite of an Or gate with the same inputs.</p>
         `,
-    params: {
+    grid: {
       gateTypes: [getGateType(InputLabelledPrebaked[2]), getGateType(OutputLabelledPrebaked[1]), getGateType(Or)],
       gates: [{
         x: 0,
@@ -281,7 +281,7 @@ export const NorLevel = {
       } as SerializableGate],
       connections: [new Connection(0, 0, 2, 0), new Connection(0, 1, 2, 1), new Connection(2, 0, 1, 0)],
       size: [16, 8]
-    } as GameViewParameters,
+    } as GridSource,
     completeCondition: new ConnectionValueSignalSet([new Signal<ConnectionValue>([{
       frame: 0,
       value: false
@@ -299,7 +299,7 @@ export const NorLevel = {
   desiredId: 13,
   type: Nor
 };
-export const XandLevel = {
+export const XandLevel:LevelParameters = {
   params: {
     name: "Exclusion 2",
     directions: `
@@ -310,7 +310,7 @@ export const XandLevel = {
             <p>both of its inputs are <span style="color:var(--connection-color-off);">low</span></p>
         </p>
         `,
-    params: {
+    grid: {
       gateTypes: [getGateType(InputLabelledPrebaked[2]), getGateType(OutputLabelledPrebaked[1]), getGateType(And)],
       gates: [{
         x: 0,
@@ -330,7 +330,7 @@ export const XandLevel = {
       } as SerializableGate],
       connections: [new Connection(0, 0, 2, 0), new Connection(0, 1, 2, 1), new Connection(2, 0, 1, 0)],
       size: [16, 8]
-    } as GameViewParameters,
+    } as GridSource,
     completeCondition: new ConnectionValueSignalSet([new Signal<ConnectionValue>([{
       frame: 0,
       value: false
@@ -338,14 +338,14 @@ export const XandLevel = {
       frame: 5,
       value: false
     }]).push(oscillator(10, 9))], 200, getGateType(Xand)),
-    completeRewards: [getGateType(Xand).name, RandomLevel1.params.name]
+    completeRewards: [getGateType(Xand).name, RandomLevel1.params?.name || "?"]
   },
   x: 0,
   y: 4,
   desiredId: 12,
   type: Xand
 };
-export const FullAdderLevel = {
+export const FullAdderLevel:LevelParameters = {
   params: {
     name: "Full Adder",
     directions: `
@@ -379,7 +379,7 @@ export const FullAdderLevel = {
         </div>
         <p>Note that to add together the 2's places, you have to consider the carry from the 1's places as well as X1 and Y1.</p>
         `,
-    params: {
+    grid: {
       gateTypes: [getGateType(InputVariable(2, "X")), getGateType(InputVariable(2, "Y")), getGateType(OutputVariable(2, "S")), getGateType(exampleOutputVariable('C Out')), getGateType(Xor), getGateType(combineGateTypeParameters(And, {
         name: "Carry And",
         outputLabels: ["C in"]
@@ -417,9 +417,9 @@ export const FullAdderLevel = {
       } as SerializableGate],
       connections: [new Connection(0, 0, 4, 0), new Connection(1, 0, 4, 1), new Connection(4, 0, 2, 0), new Connection(0, 0, 5, 0), new Connection(1, 0, 5, 1)],
       size: [20, 9]
-    } as GameViewParameters,
+    } as GridSource,
     completeCondition: countingSignal(getGateType(Add2), 10, 2),
-    completeRewards: [FullAdder.name, FourBitAdder.params.name]
+    completeRewards: [FullAdder.name, FourBitAdder.params?.name || "?"]
   },
   x: 18,
   y: 6,
@@ -427,7 +427,7 @@ export const FullAdderLevel = {
   type: FullAdder,
   playCondition: [true, true]
 };
-export const CarryLevel = {
+export const CarryLevel:LevelParameters = {
   params: {
     name: "Half Adder",
     directions: `
@@ -444,7 +444,7 @@ export const CarryLevel = {
             <div style="grid-column: 1 / 5; grid-row: 4; width:100%; height:100%; border-top: 2px solid black;" ></div>
         </div>
         `,
-    params: {
+    grid: {
       gateTypes: [getGateType(exampleInputVariable('X')), getGateType(exampleInputVariable('Y')), getGateType(exampleOutputVariable('S')), getGateType(exampleOutputVariable('Carry'))],
       gates: [{
         x: 0,
@@ -468,9 +468,9 @@ export const CarryLevel = {
         id: 3
       } as SerializableGate],
       size: [16, 7]
-    } as GameViewParameters,
+    } as GridSource,
     completeCondition: countingSignal(getGateType(HalfAdder), 5, 3),
-    completeRewards: [HalfAdder.name, FullAdderLevel.params.name]
+    completeRewards: [HalfAdder.name, FullAdderLevel.params?.name || "?"]
   },
   x: 16,
   y: 4,
@@ -478,7 +478,7 @@ export const CarryLevel = {
   type: HalfAdder,
   playCondition: [false, true]
 };
-export const AdderLevel = {
+export const AdderLevel:LevelParameters = {
   params: {
     name: "1 and 0",
     directions: `
@@ -498,7 +498,7 @@ export const AdderLevel = {
         <span style="color:var(--connection-color-off);">0</span></p>
         <p>The best part is that the gate you need to win is already unlocked! You just have to pick the right one.</p>
         `,
-    params: {
+    grid: {
       gateTypes: [getGateType(exampleInputVariable('X')), getGateType(exampleInputVariable('Y')), getGateType(exampleOutputVariable('S'))],
       gates: [{
         x: 0,
@@ -517,16 +517,16 @@ export const AdderLevel = {
         id: 2
       } as SerializableGate],
       size: [16, 7]
-    } as GameViewParameters,
+    } as GridSource,
     completeCondition: countingSignal(getGateType(AdderNoCarry1), 5, 3),
-    completeRewards: [CarryLevel.params.name]
+    completeRewards: [CarryLevel.params?.name || "?"]
   },
   x: 14,
   y: 5,
   desiredId: 9,
   type: AdderNoCarry1
 };
-export const DecoderLevel = {
+export const DecoderLevel:LevelParameters = {
   params: {
     name: "Counting",
     directions: `
@@ -553,7 +553,7 @@ export const DecoderLevel = {
         <p>This is the opposite of the "encoder" <span style="color:var(--circuit-color);">circuit</span> you made before, and it turns out to be significantly more complicated.</p>
         <p>Take your time, most levels are optional to beat the final level!</p>
         `,
-    params: {
+    grid: {
       gateTypes: [getGateType(InputVariable(2, 'X')), getGateType(Output(4, {
         name: "Output4Decoded",
         inputLabels: ["0", "1", "2", "3"],
@@ -571,9 +571,9 @@ export const DecoderLevel = {
         id: 1
       } as SerializableGate],
       size: [20, 11]
-    } as GameViewParameters,
+    } as GridSource,
     completeCondition: DecoderLevelSignal,
-    completeRewards: [getGateType(Decoder2t4).name, FullAdderLevel.params.name, FourBitDecoder.params.name]
+    completeRewards: [getGateType(Decoder2t4).name, FullAdderLevel.params?.name || "?", FourBitDecoder.params?.name || "?"]
   },
   x: 18,
   y: 0,
@@ -581,7 +581,7 @@ export const DecoderLevel = {
   type: Decoder2t4,
   playCondition: [false, false, true, false]
 };
-export const EncoderLevel = {
+export const EncoderLevel:LevelParameters = {
   params: {
     name: "Counting Backwards",
     directions: `
@@ -597,7 +597,7 @@ export const EncoderLevel = {
         <p>The pair has its matching number displayed next to it.</p>
         <p>Your goal here is to "encode" the input, which is either 0, 1, 2, or 3, to the correct pair of outputs, X0 and X1, according to the table above.</p>
         `,
-    params: {
+    grid: {
       gateTypes: [getGateType(Input(4, {
         name: "Input4Decoded",
         outputLabels: ["0", "1", "2", "3"],
@@ -615,9 +615,9 @@ export const EncoderLevel = {
         id: 1
       } as SerializableGate],
       size: [20, 11]
-    } as GameViewParameters,
+    } as GridSource,
     completeCondition: DecoderLevelSignal.flipInputsOutputs() as ConnectionValueSignalSet,
-    completeRewards: [getGateType(Encoder4t2).name, DecoderLevel.params.name]
+    completeRewards: [getGateType(Encoder4t2).name, DecoderLevel.params?.name || "?"]
   },
   x: 14,
   y: 0,
@@ -625,14 +625,14 @@ export const EncoderLevel = {
   type: Encoder4t2,
   playCondition: [true, true]
 };
-export const XorLevel = {
+export const XorLevel:LevelParameters = {
   params: {
     name: "Exclusion",
     directions: `
         <p>Beating this level requires constructing a "Xor" gate, which is like an Or gate but more... exclusive.</p>
         <p>The Xor gate should output <span style="color:var(--connection-color-on);">high</span> when only one of its inputs are <span style="color:var(--connection-color-on);">high</span>.</p>
         `,
-    params: {
+    grid: {
       gateTypes: [getGateType(InputLabelledPrebaked[2]), getGateType(OutputLabelledPrebaked[1]), getGateType(Or)],
       gates: [{
         x: 0,
@@ -652,7 +652,7 @@ export const XorLevel = {
       } as SerializableGate],
       connections: [new Connection(0, 0, 2, 0), new Connection(0, 1, 2, 1), new Connection(2, 0, 1, 0)],
       size: [16, 8]
-    } as GameViewParameters,
+    } as GridSource,
     completeCondition: new ConnectionValueSignalSet([new Signal<ConnectionValue>([{
       frame: 0,
       value: false
@@ -660,21 +660,21 @@ export const XorLevel = {
       frame: 5,
       value: false
     }]).push(oscillator(10, 9))], 200, getGateType(Xor)),
-    completeRewards: [getGateType(Xor).name, AdderLevel.params.name, EncoderLevel.params.name, XandLevel.params.name]
+    completeRewards: [getGateType(Xor).name, AdderLevel.params?.name || "?", EncoderLevel.params?.name || "?", XandLevel.params?.name || "?"]
   },
   x: 11,
   y: 2,
   desiredId: 6,
   type: Xor
 };
-export const NandLevel = {
+export const NandLevel:LevelParameters = {
   params: {
     name: "No Combo",
     directions: `
         <p>This level requires making a "Nand" gate to win.</p>
         <p>Nand stands for "Not And" and will always output the opposite of an And gate with the same inputs.</p>
         `,
-    params: {
+    grid: {
       gateTypes: [getGateType(InputLabelledPrebaked[2]), getGateType(OutputLabelledPrebaked[1]), getGateType(And)],
       gates: [{
         x: 0,
@@ -694,7 +694,7 @@ export const NandLevel = {
       } as SerializableGate],
       connections: [new Connection(0, 0, 2, 0), new Connection(0, 1, 2, 1), new Connection(2, 0, 1, 0)],
       size: [16, 8]
-    } as GameViewParameters,
+    } as GridSource,
     completeCondition: new ConnectionValueSignalSet([new Signal<ConnectionValue>([{
       frame: 0,
       value: false
@@ -705,7 +705,7 @@ export const NandLevel = {
       frame: 50,
       value: true
     }])], 100, getGateType(Nand)),
-    completeRewards: [getGateType(Nand).name, XorLevel.params.name]
+    completeRewards: [getGateType(Nand).name, XorLevel.params?.name || "?"]
   },
   x: 9,
   y: 0,
@@ -779,7 +779,7 @@ const Or3LevelInputs = [new Signal<ConnectionValue>([{
   frame: 3,
   value: false
 }]).push(oscillator(3, 3))];
-export const And3Level = {
+export const And3Level:LevelParameters = {
   params: {
     name: "Bigger Combo",
     directions: `
@@ -787,7 +787,7 @@ export const And3Level = {
         only when all of its inputs are <span style="color:var(--connection-color-on);">high</span>.</p>
         <p>However, you might not have this exact gate already. If not, you'll have to connect multiple gates together to win.</p>
         `,
-    params: In3Out1,
+    grid: In3Out1,
     completeCondition: new ConnectionValueSignalSet(Or3LevelInputs.map(s => inverter(s)), 60, getGateType(And3)),
     completeRewards: [getGateType(And3).name, getGateType(And4).name]
   },
@@ -796,7 +796,7 @@ export const And3Level = {
   desiredId: 4,
   type: And3
 };
-export const Or3Level = {
+export const Or3Level:LevelParameters = {
   params: {
     name: "Joinyer",
     directions: `
@@ -804,16 +804,16 @@ export const Or3Level = {
         only when any of its inputs are <span style="color:var(--connection-color-on);">high</span>.</p>
         <p>However, you might not have this exact gate already. If not, you'll have to connect multiple gates together to win.</p>
         `,
-    params: In3Out1,
+    grid: In3Out1,
     completeCondition: new ConnectionValueSignalSet(Or3LevelInputs, 60, getGateType(Or3)),
-    completeRewards: [getGateType(Or3).name, getGateType(Or4).name, XorLevel.params.name]
+    completeRewards: [getGateType(Or3).name, getGateType(Or4).name, XorLevel.params?.name || "?"]
   },
   x: 4,
   y: 5,
   desiredId: 3,
   type: Or3
 };
-export const OrLevel = {
+export const OrLevel:LevelParameters = {
   params: {
     name: "Join",
     directions: `
@@ -821,7 +821,7 @@ export const OrLevel = {
         <p>An Or Gate outputs <span style="color:var(--connection-color-on);">high</span> only
         when either of it's inputs are <span style="color:var(--connection-color-on);">high</span>.</p>
         `,
-    params: In2Out1,
+    grid: In2Out1,
     completeCondition: new ConnectionValueSignalSet([new Signal<ConnectionValue>([{
       frame: 0,
       value: true
@@ -853,14 +853,14 @@ export const OrLevel = {
       frame: 3,
       value: false
     }])).push(oscillator(3, 4))], 70, getGateType(Or)),
-    completeRewards: [Or3Level.params.name, NorLevel.params.name, StickersTool.name]
+    completeRewards: [Or3Level.params?.name || "?", NorLevel.params?.name || "?", StickersTool.name]
   },
   x: 4,
   y: 3,
   desiredId: 2,
   type: Or
 };
-export const AndLevel = {
+export const AndLevel:LevelParameters = {
   params: {
     name: "Some Kind of Combo",
     directions: `
@@ -868,7 +868,7 @@ export const AndLevel = {
         <p>An And Gate outputs <span style="color:var(--connection-color-on);">high</span> only
         when both of it's inputs are <span style="color:var(--connection-color-on);">high</span>.</p>
         `,
-    params: In2Out1,
+    grid: In2Out1,
     completeCondition: new ConnectionValueSignalSet([new Signal<ConnectionValue>([{
       frame: 0,
       value: false
@@ -879,14 +879,14 @@ export const AndLevel = {
       frame: 50,
       value: true
     }])], 100, getGateType(And)),
-    completeRewards: [And3Level.params.name, NandLevel.params.name]
+    completeRewards: [And3Level.params?.name || "?", NandLevel.params?.name || "?"]
   },
   x: 6,
   y: 1,
   desiredId: 1,
   type: And
 };
-export const BufLevel = {
+export const BufLevel:LevelParameters = {
   params: {
     name: "A Simple Start",
     directions: `
@@ -896,7 +896,7 @@ export const BufLevel = {
         <p>When you press play, the input channels will be sent to the input, and the outputs will be measured into the output channels.</p>
         <p>If the measured output matches the expected output, you win!</p>
         `,
-    params: MinCircuit,
+    grid: MinCircuit,
     completeCondition: new ConnectionValueSignalSet([new Signal<ConnectionValue>([{
       frame: 0,
       value: false
@@ -907,11 +907,11 @@ export const BufLevel = {
   y: 1,
   type: Buf
 };
-export const Freeplay = {
+export const Freeplay:LevelParameters = {
   params: {
     name: "Freeplay",
     directions: "Have Fun!",
-    params: {
+    grid: {
       gateTypes: [getGateType(Input(10)), getGateType(Output(10))],
       gates: [{
         x: 0,
@@ -925,18 +925,18 @@ export const Freeplay = {
         type: "Output10"
       } as SerializableGate],
       size: [15, 10]
-    } as GameViewParameters,
+    } as GridSource,
     completeCondition: undefined,
     completeRewards: []
   },
   x: 18,
   y: 0
 };
-export const Tutorial = {
+export const Tutorial:LevelParameters= {
   params: {
     name: "Tutorial",
     directions: "",
-    params: {
+    grid: {
       gateTypes: [getGateType(InputLabelledPrebaked[1])],
       gates: [{
         x: 0,
@@ -945,22 +945,42 @@ export const Tutorial = {
         type: "Input1Labelled"
       } as SerializableGate],
       size: [16, 8]
-    } as GameViewParameters,
+    } as GridSource,
     completeCondition: new ConnectionValueSignalSet([new Signal<ConnectionValue>([{
       frame: 0,
       value: false
     }]).push(oscillator(10, 7))], 141, getGateType(Not)),
-    completeRewards: [getGateType(Not).name, getGateType(Or).name, getGateType(And).name, getGateType(Buf).name, AndLevel.params.name, OrLevel.params.name]
+    completeRewards: [getGateType(Not).name, getGateType(Or).name, getGateType(And).name, getGateType(Buf).name, AndLevel.params?.name || "?", OrLevel.params?.name || "?"]
   },
   x: 6,
   y: 1,
   type: Not
 };
-const all_params = new Map<string, LevelParameters>([[Freeplay.params.name, Freeplay], [BufLevel.params.name, BufLevel], [AndLevel.params.name, AndLevel], [OrLevel.params.name, OrLevel], [Or3Level.params.name, Or3Level], [And3Level.params.name, And3Level], [NandLevel.params.name, NandLevel], [NorLevel.params.name, NorLevel], [XorLevel.params.name, XorLevel], [XandLevel.params.name, XandLevel], [DecoderLevel.params.name, DecoderLevel], [EncoderLevel.params.name, EncoderLevel], [AdderLevel.params.name, AdderLevel], [CarryLevel.params.name, CarryLevel], [FullAdderLevel.params.name, FullAdderLevel], [RandomLevel1.params.name, RandomLevel1], [FourBitAdder.params.name, FourBitAdder], [FourBitDecoder.params.name, FourBitDecoder], [SevenSegmentLevel.params.name, SevenSegmentLevel]]);
+const all_params = new Map<string, LevelParameters>([
+  [Freeplay.params?.name || "?", Freeplay],
+  [BufLevel.params?.name || "?", BufLevel],
+  [AndLevel.params?.name || "?", AndLevel],
+  [OrLevel.params?.name || "?", OrLevel],
+  [Or3Level.params?.name || "?", Or3Level],
+  [And3Level.params?.name || "?", And3Level],
+  [NandLevel.params?.name || "?", NandLevel],
+  [NorLevel.params?.name || "?", NorLevel],
+  [XorLevel.params?.name || "?", XorLevel],
+  [XandLevel.params?.name || "?", XandLevel],
+  [DecoderLevel.params?.name || "?", DecoderLevel],
+  [EncoderLevel.params?.name || "?", EncoderLevel],
+  [AdderLevel.params?.name || "?", AdderLevel],
+  [CarryLevel.params?.name || "?", CarryLevel],
+  [FullAdderLevel.params?.name || "?", FullAdderLevel],
+  [RandomLevel1.params?.name || "?", RandomLevel1],
+  [FourBitAdder.params?.name || "?", FourBitAdder],
+  [FourBitDecoder.params?.name || "?", FourBitDecoder],
+  [SevenSegmentLevel.params?.name || "?", SevenSegmentLevel]]);
+
 export function getLevel(name: string) {
   const params = getLevelParams(name);
   if (params) return new Level(params);
 }
-export function getLevelParams(name: string) {
+export function getLevelParams(name:string) {
   return all_params.get(name);
 }

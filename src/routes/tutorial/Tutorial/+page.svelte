@@ -22,7 +22,7 @@
     /**
      * @type {CircuitController}
      */
-    const circuitController = new CircuitController(gridSourceToGrid(Tutorial.params.params), undefined, Tutorial.completeCondition?.solver)
+    const circuitController = new CircuitController(gridSourceToGrid(Tutorial.params.grid), undefined, Tutorial.completeCondition?.solver)
     circuitController.setInputs([true])
 
     let progressStorage = null

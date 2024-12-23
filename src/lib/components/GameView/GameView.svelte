@@ -110,7 +110,7 @@
     }
     
     export let circuitController = new CircuitController(loadGrid(), gameParams.completeCondition ? onComplete:undefined, gameParams.completeCondition?.solver)
-        
+    $: console.log("circuit controller ", circuitController, gridSourceToGrid(gameParams.grid))
 
     /**
      * @type {StickerController}

@@ -51,5 +51,5 @@ export function gridSourceToGrid(source:GridSource) {
     }
 }
 
-type GridSource = CircuitController | OrganizedCircuitContents | undefined
+export type GridSource = CircuitController | OrganizedCircuitContents | undefined
 export type CompleteConditionSource = ConnectionValueSignalSet | undefined

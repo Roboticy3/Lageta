@@ -17,26 +17,11 @@
     import { CowSticker } from "$lib/dat/Tools/Tools";
     import { CircuitController } from "$lib/circuit_types/CircuitController";
 
-    const gridWidth = 24
-    const gridHeight = 12
-    /**
-     * @type {import("$lib/level_types/GameViewParameters").GameViewParameters}
-     */
-    const gameParams = {
-        name:"LevelSelect", directions:"", 
-        grid: {
-            size:[gridWidth, gridHeight],
-            
-        }, 
-        completeCondition:undefined, 
-        completeRewards:[]
-    }
     const editorParams = {canDragGates:false, showShelf:false, slotInFront:false}
     const rendererParams = {showGates:false, showGrid:false}
 
     $: progress = browser ? new ProgressStorage() : undefined
     $: levelSet = progress?.levels() || []
-    $: newLevelSet = new Set((progress?.getNewLevels()))
 
     /**
      * @type {GameViewCircuitPanel}
@@ -44,8 +29,7 @@
     let circuitPanel
     
     onMount(async () => {
-        editorEventTarget.addEventListener("setinput", readInputCheckBox)
-        editorEventTarget.addUpdateListener(save)
+        editorEventTarget.addEventListener("setinput", readInputCheckBox) 
     })
 
     $: if (browser) {
@@ -59,15 +43,6 @@
      */
     let circuitController
     const editorEventTarget = new GameViewCircuitPanelEventTarget()
-
-    let loaded = false
-
-    function save() {
-        if (browser) {
-            const circuitStorage = new CircuitStorage("Campaign", circuitController)
-            circuitStorage.save("Campaign", false)
-        }
-    }
 
     /**
      * @type {InputCheckBox}
@@ -84,7 +59,6 @@
     <CircuitEditorComponent
         editorEventTarget={editorEventTarget}
         signalSetViewEventTarget={null}
-        gameParams={gameParams}
         circuitController={circuitController}
         editorParams={editorParams}
         rendererParams={rendererParams}
