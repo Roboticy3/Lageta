@@ -30,11 +30,6 @@
     export let stickerController = new StickerController()
 
     /**
-     * @type {import("$lib/level_types/GameViewParameters").GameViewParameters}
-     */
-    export let gameParams
-    
-    /**
      * @type {any}
      */
     export let editorParams = {}
@@ -182,7 +177,6 @@
         >    
             <GameViewCircuitPanel 
                 bind:this={circuitPanel}
-                gameParams={gameParams}
                 circuitController={circuitController}
                 stickerController={stickerController}
                 circuitDraggable={circuitDraggable}

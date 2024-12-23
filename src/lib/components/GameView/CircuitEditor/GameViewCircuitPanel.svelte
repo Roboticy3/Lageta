@@ -16,11 +16,6 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
     import GameViewStickerPanel from './Sticker/GameViewStickerPanel.svelte';
 
     /**
-     * @type {import("$lib/level_types/GameViewParameters").GameViewParameters}
-    */
-    export let gameParams
-
-    /**
      * @type {any}
      */
     export let rendererParams
@@ -702,14 +697,12 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
             >
             </CircuitRenderer>
 
-            <div style="position:absolute; height:100%; width:100%; pointer-events:none;">
-                <GameViewStickerPanel
+            <GameViewStickerPanel
                     bind:editorEventTarget={editorEventTarget}
                     circuitController={circuitController}
                     stickerController={stickerController}
                 >
-                </GameViewStickerPanel>
-            </div>
+            </GameViewStickerPanel>
         </div>  
 
         {#if editorParams.inputCheckboxes !== false && !signalPlaying}

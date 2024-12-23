@@ -330,7 +330,6 @@
                 <CircuitEditorComponent 
                     circuitController={circuitController} 
                     stickerController={stickerController}
-                    gameParams={gameParams} 
                     editorParams={editorParams}
                     rendererParams={rendererParams}
                     maxSizeState={maxSizeState}
