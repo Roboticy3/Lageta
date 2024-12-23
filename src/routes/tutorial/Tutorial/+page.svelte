@@ -17,11 +17,12 @@
     import { browser } from "$app/environment";
     import TutorialFrame from "$lib/components/GameView/Tutorial/TutorialFrame.svelte";
     import { ShelfTreeNode } from "$lib/dat/Shelf/ShelfTree";
+    import { gridSourceToGrid } from "$lib/level_types/GameViewParameters";
 
     /**
      * @type {CircuitController}
      */
-    const circuitController = Tutorial.params.initializeGrid()
+    const circuitController = new CircuitController(gridSourceToGrid(Tutorial.params), undefined, Tutorial.completeCondition?.solver)
     circuitController.setInputs([true])
 
     let progressStorage = null

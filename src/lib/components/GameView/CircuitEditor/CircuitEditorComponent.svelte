@@ -184,20 +184,13 @@
                 bind:this={circuitPanel}
                 gameParams={gameParams}
                 circuitController={circuitController}
+                stickerController={stickerController}
                 circuitDraggable={circuitDraggable}
                 editorParams={editorParams}
                 rendererParams={rendererParams}
                 bind:editorEventTarget={editorEventTarget}
                 signalSetViewEventTarget={signalSetViewEventTarget}
             >
-                <div style="position:absolute; height:100%; width:100%; pointer-events:none;">
-                    <GameViewStickerPanel
-                        bind:editorEventTarget={editorEventTarget}
-                        circuitController={circuitController}
-                        stickerController={stickerController}
-                    >
-                    </GameViewStickerPanel>
-                </div>
                 <slot />
             </GameViewCircuitPanel>   
         </div>

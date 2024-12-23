@@ -13,6 +13,7 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
     import { GameViewCircuitPanelEventTarget, createGameViewCircuitPanelEvent } from '$lib/circuit_types/GameViewCircuitPanelEvent';
     import { SFXPlayer } from '$lib/misc_types/SFXPlayer';
     import { CircuitSignalSetViewEventTarget } from '$lib/signal_types/SignalSetViewEvent';
+    import GameViewStickerPanel from './Sticker/GameViewStickerPanel.svelte';
 
     /**
      * @type {import("$lib/level_types/GameViewParameters").GameViewParameters}
@@ -28,6 +29,8 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
      * @type {CircuitController}
      */
     export let circuitController
+
+    export let stickerController
 
     /**
      * @type {CircuitDraggable}
@@ -333,7 +336,7 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
      * @param {MouseEvent} e
      */
     export function canDrag(e) {
-        if (e.target !== circuitRenderer.getSvgHead()) {
+        if (e.target !== circuitContainer) {
             return "Bad Target"
         }
 
@@ -435,7 +438,7 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
 
         //since drop looks for window events, check if the query was over the circuit, and clear the local offset if not
         const svg = getRenderer().getSvgHead()
-        if (e.target !== svg) {
+        if (e.target !== circuitContainer) {
             to = new CircuitControllerQueryResult({
                 gate:to.gate, 
                 type:to.type, 
@@ -661,7 +664,7 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
      */
     function onMouseMove(e) {
         const newQ = query(e)
-        if (e.target === circuitRenderer.getSvgHead()) {checkEntered(newQ)}
+        if (e.target === circuitContainer) {checkEntered(newQ)}
     }
 
     /**
@@ -689,14 +692,25 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
     {/if}
 
     {#if editorEventTarget}
-        <CircuitRenderer 
-            bind:this={circuitRenderer}
-            circuitController={circuitController} 
-            circuitDraggable={circuitDraggable} 
-            rendererParams={rendererParams}
-            editorEventTarget={editorEventTarget}
-        >
-        </CircuitRenderer>
+        <div style="width:100%; height:100%; pointer-events:none;">
+            <CircuitRenderer 
+                bind:this={circuitRenderer}
+                circuitController={circuitController} 
+                circuitDraggable={circuitDraggable} 
+                rendererParams={rendererParams}
+                editorEventTarget={editorEventTarget}
+            >
+            </CircuitRenderer>
+
+            <div style="position:absolute; height:100%; width:100%; pointer-events:none;">
+                <GameViewStickerPanel
+                    bind:editorEventTarget={editorEventTarget}
+                    circuitController={circuitController}
+                    stickerController={stickerController}
+                >
+                </GameViewStickerPanel>
+            </div>
+        </div>  
 
         {#if editorParams.inputCheckboxes !== false && !signalPlaying}
             {#each circuitController.getInputIds() as id}
