@@ -32,7 +32,7 @@
                 switch (state.currentEvent) {
                     case 12:
                     case 19:
-                    case 24:
+                    case 25:
                         await delayedContinue()
                         break
                     case 17:
@@ -190,8 +190,7 @@
 
 {#if state.currentEvent === 16}
     <TutorialText
-        position={[85, 20]}
-        initialPosition={[50,20]}
+        position={[50, 20]}
         on:continue={dispatch.bind(dispatch, "continue")}
         showButton={false}
     >
@@ -215,7 +214,7 @@
 
 {#if state.currentEvent === 12}
     <TutorialText
-        position={[20, 90]}
+        position={[100, 65]}
         initialPosition={[20,90]}
         showButton={false}
     >
@@ -227,8 +226,8 @@
 
 {#if state.currentEvent === 11}
     <TutorialText
-        position={[100, 70]}
-        initialPosition={[85,30]}
+        position={[100, 65]}
+        initialPosition={[95,30]}
         on:continue={dispatch.bind(dispatch, "continue")}
         showButton={false}
     >
