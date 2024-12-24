@@ -24,7 +24,11 @@
         slotInFront:false,
         interactionMask:interactionMask
     }
-    const rendererParams = {showGates:false, showGrid:false}
+    const rendererParams = {
+        showGates:false, 
+        showGrid:false,
+        showMask:interactionMask
+    }
 
     $: progress = browser ? new ProgressStorage() : undefined
     $: levelSet = progress?.levels() || []

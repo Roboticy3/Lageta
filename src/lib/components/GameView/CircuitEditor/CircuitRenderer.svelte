@@ -163,7 +163,8 @@
         const gate = svgWrapGroup(gateInner, '', `${idString}-body`)
 
         const g = svgWrapGroup('', gateTransform, idString)
-        if (rendererParams.showGates !== false) g.appendChild(gate)
+        
+        if (rendererParams.showGates !== false && !rendererParams.showMask?.has(id)) g.appendChild(gate)
 
         gateGroup.appendChild(g)
 
@@ -233,6 +234,7 @@
      * @param {[number, number]} gPos
      */
     function connectionPointConstructor(index, cType, gPos) {
+        
         const id = index.id
         const gateIdString = idSpace.gateIdString(id)
         let svg = svgHead.querySelector(`#${gateIdString}`)
@@ -262,11 +264,14 @@
             pointInner = svgConnectionPoint()
         }
 
-        const point = svgWrapGroup(
-            pointInner, 
-            `translate(${pointOffset[0]}, ${pointOffset[1]})`, 
-            '' //id is applied in updateItem
-        )
+        const point = rendererParams.showMask?.has(id) ? 
+            document.createElementNS("http://www.w3.org/2000/svg","g")
+        : //if the point is masked, return an empty element, otherwise fill it out
+            svgWrapGroup(
+                pointInner, 
+                `translate(${pointOffset[0]}, ${pointOffset[1]})`, 
+                '' //id is applied in updateItem
+            )
 
         if (rendererParams.showConnectionPoints !== false) svg.appendChild(point)
         return point
@@ -298,6 +303,9 @@
      */
     function connectionPointLabelConstructor(index, cType, gPos) {
         const id = index.id
+
+        if (rendererParams.showMask?.has(id)) return svgWrapGroup('')
+
         const gateIdString = idSpace.gateIdString(id)
         let svg = svgHead.querySelector(`#${gateIdString}`)
 
@@ -424,8 +432,9 @@
 
         const to = circuitController.getConnectedFrom(index[0], index[1])
 
-        //check that the input and the output array exists
-        if (!fCType || !fGPos || !to) {
+        //check that the input and the output array exists, also check that the wire's endpoint isn't being masked out
+        if (!fCType || !fGPos || !to || rendererParams.showMask?.has(index[0])) {
+            //if any of these conditions pass, bind the refresh loop for this wire with blank args
             updateItem(
                 idSpace.wireIdString(index),
                 wireRefresher.bind(wireRefresher, undefined, undefined, value),
@@ -446,6 +455,7 @@
                 circuitController.getGatePosition(toi[0])
             ]
 
+            //if the wire has any invalid endpoints, unbind it
             if (!tCType || !tGPos) {
                 updateItem(
                     idSpace.wireIdString(index),
@@ -454,6 +464,9 @@
                 )
                 return
             }
+
+            //if the wire has any masked endpoints, skip them
+            if (rendererParams.showMask?.has(toi[0])) continue
 
             tCTypes.push(tCType)
             tGPoss.push(tGPos)
