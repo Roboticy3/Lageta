@@ -445,44 +445,40 @@
 
         //check that the outputs exist
         /**
-         * @type {[GateTypeController[], [number, number][]]}
+         * @type {[(GateTypeController | undefined)[], ([number, number] | undefined)[]]}
          */
         const [tCTypes, tGPoss] = [[], []] //const means nothing in this language lol
-        for (let i = 0; i < to.length; i++) {
-            const toi = to[i]
+        for (const toi of to) {
+
+            const mask = rendererParams.showMask?.has(toi[0])
+
             const [tCType, tGPos] = [
-                circuitController.getGateTypeController(toi[0]),
-                circuitController.getGatePosition(toi[0])
+                mask ? undefined:circuitController.getGateTypeController(toi[0]),
+                mask? undefined:circuitController.getGatePosition(toi[0])
             ]
-
-            //if the wire has any invalid endpoints, unbind it
-            if (!tCType || !tGPos) {
-                updateItem(
-                    idSpace.wireIdString(index),
-                    wireRefresher.bind(wireRefresher, undefined, undefined, value),
-                    wireConstructor.bind(wireConstructor)
-                )
-                return
-            }
-
-            //if the wire has any masked endpoints, skip them
-            if (rendererParams.showMask?.has(toi[0])) continue
 
             tCTypes.push(tCType)
             tGPoss.push(tGPos)
-        }     
-
-        //process the gate positions 
-        const fromGateOffset = circuitController.indexToLocalOffset(fGPos[0], fGPos[1])
-        const toGateOffsets = tGPoss.map(v => circuitController.indexToLocalOffset(v[0], v[1]))
+        }    
         
-        const fromConnectionOffset = fCType.view.outputOffsets[index[1]]
-        const toConnectionOffsets = tCTypes.map((v, i) => v.view.inputOffsets[to[i][1]])
+        //process the wire data into offsets
+        //if a wire endpoint was missing, just replace that endpoint with the starting point of the wire
 
+        //process the gate positions
+        const fromGateOffset = circuitController.indexToLocalOffset(fGPos[0], fGPos[1])
+        const toGateOffsets = tGPoss.map(v => (v ? circuitController.indexToLocalOffset(v[0], v[1]):fromGateOffset))
+        
+        //process the connection offsets
+        const fromConnectionOffset = fCType.view.outputOffsets[index[1]]
+        const toConnectionOffsets = tCTypes.map((v, i) => v?.view.inputOffsets[to[i][1]] || fromConnectionOffset)
+
+        //add them together to get the circuit offsets of the wire endpoints
         /**
          * @type {[number, number]}
          */
-        const fromOffset = [fromGateOffset[0] + fromConnectionOffset[0], fromGateOffset[1] + fromConnectionOffset[1]]
+        const fromOffset = 
+            [fromGateOffset[0] + fromConnectionOffset[0], 
+            fromGateOffset[1] + fromConnectionOffset[1]]
         /**
          * @type {[number, number][]}
          */
