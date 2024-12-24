@@ -107,6 +107,7 @@
     size={gType ? [gType.view.gridWidth - 0.6, gType.view.gridHeight - 0.6] : [1, 1]}
     flash={levelProgress.new || false}
     border={true}
+    extraStyle={"pointer-events:none;"}
     bind:this={container}
 >
 <div style="display:flex; flex-direction:column; justify-content:center; height:100%;">
@@ -114,7 +115,7 @@
     {#if levelProgress.complete}
         <div>⭐</div>
     {/if}
-    <HeavyButton style="margin:10%; display:inline-flex; align-self:center;" on:click={playLevel} bind:this={button}>Play</HeavyButton>
+    <HeavyButton style="margin:10%; display:inline-flex; align-self:center; pointer-events:all;" on:click={playLevel} bind:this={button}>Play</HeavyButton>
 </div>
     
 </CircuitDiv>

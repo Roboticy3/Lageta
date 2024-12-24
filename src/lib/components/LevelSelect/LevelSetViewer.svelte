@@ -32,6 +32,7 @@
 
     $: progress = browser ? new ProgressStorage() : undefined
     $: levelSet = progress?.levels() || []
+    const nonLevelIds = [0]
 
     /**
      * @type {GameViewCircuitPanel}
@@ -69,7 +70,7 @@
     }
     $: {
         const maskNegative = new Set(levelSet.map(p => p.desiredId || -1))
-        maskNegative.add(0)
+        nonLevelIds.forEach(id => maskNegative.add(id))
         updateInteractionMask(
             circuitController?.getGateIdLength() || -1, 
             maskNegative, 

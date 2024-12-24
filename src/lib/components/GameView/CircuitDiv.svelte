@@ -33,6 +33,8 @@
 
     export let border = false
 
+    export let extraStyle = ""
+
     /**
      * @type {CircuitController}
      */
@@ -75,7 +77,7 @@
         if (container?.parentElement) {
             resizeObserver = new ResizeObserver(setOffsetNoArgs)
             resizeObserver.observe(container.parentElement)
-            resizeObserver.observe(document.body)
+            window.addEventListener('resize', setOffsetNoArgs)
         }
 
         await tick()
@@ -109,7 +111,7 @@
 
 <div 
     class="circuit-div {hidden ? 'hidden':''} {active ? '':'unavailable'} {bob ? 'bobbing-circuit-div':''} {smooth ? 'smooth-circuit-div':''} {flash ? 'flash-circuit-div':''} {border ? 'ridge':''}" 
-    style="left:{rect.left}px; top:{rect.top}px; width:{rect.width}px; height:{rect.height}px;" 
+    style="left:{rect.left}px; top:{rect.top}px; width:{rect.width}px; height:{rect.height}px; {extraStyle}" 
     bind:this={container}
 >
     <slot/>
