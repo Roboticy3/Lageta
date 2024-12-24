@@ -91,7 +91,7 @@ export class CircuitController {
         return [this.gateGrid.sizeX, this.gateGrid.sizeY]
     }
 
-    query(e:MouseEvent) {
+    query(e:MouseEvent, editorParams:any) {
         const [offsetX, offsetY] = [e.offsetX, e.offsetY]
         const [pageX, pageY] = [e.pageX, e.pageY]
         const timeStamp = e.timeStamp
@@ -99,7 +99,8 @@ export class CircuitController {
         
         const [x, y] = this.gateGrid.offsetToIndex(localX, localY)
         const gate = this.gateGrid.get(x, y)
-        if (gate === undefined) {
+
+        if (gate === undefined || editorParams.interactionMask?.has(gate.id)) {
             return new CircuitControllerQueryResult({
                 localOffset:[localX, localY],
                 pageOffset:[pageX, pageY],

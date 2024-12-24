@@ -17,7 +17,13 @@
     import { CowSticker } from "$lib/dat/Tools/Tools";
     import { CircuitController } from "$lib/circuit_types/CircuitController";
 
-    const editorParams = {canDragGates:false, showShelf:false, slotInFront:false}
+    const interactionMask = new Set()
+    let editorParams = {
+        canDragGates:false, 
+        showShelf:false, 
+        slotInFront:false,
+        interactionMask:interactionMask
+    }
     const rendererParams = {showGates:false, showGrid:false}
 
     $: progress = browser ? new ProgressStorage() : undefined
@@ -43,6 +49,28 @@
      */
     let circuitController
     const editorEventTarget = new GameViewCircuitPanelEventTarget()
+
+    /**
+     * editorParams allows for a set of uninteractive gates to be passed. This should be the complement on the set of unlocked levels
+     * @param {number} universe
+     * @param {Set<number>} lSet
+     * @param {Set<number>} iMask
+     */
+    function updateInteractionMask(universe, lSet, iMask) {
+        iMask.clear()
+        for (let id = 0; id < universe; id++) {
+            if (!lSet.has(id)) iMask.add(id)
+        }
+    }
+    $: {
+        updateInteractionMask(
+            circuitController?.getGateIdLength() || -1, 
+            new Set(levelSet.map(p => p.desiredId || -1)), 
+            interactionMask
+        )
+
+        editorParams = editorParams
+    }
 
     /**
      * @type {InputCheckBox}
