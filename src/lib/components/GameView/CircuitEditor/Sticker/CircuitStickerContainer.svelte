@@ -88,7 +88,7 @@
      * @param {MouseEvent} e
      */
     function removeSticker(e) {
-        const q = circuitController.query(e)
+        const q = circuitController.query(e, {})
         const modQ = new CircuitControllerQueryResult({
             gate:q.gate,
             type:"Sticker",

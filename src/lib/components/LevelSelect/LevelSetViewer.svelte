@@ -17,11 +17,22 @@
     import { CowSticker } from "$lib/dat/Tools/Tools";
     import { CircuitController } from "$lib/circuit_types/CircuitController";
 
-    const editorParams = {canDragGates:false, showShelf:false, slotInFront:false}
-    const rendererParams = {showGates:false, showGrid:false}
+    const interactionMask = new Set()
+    let editorParams = {
+        canDragGates:false, 
+        showShelf:false, 
+        slotInFront:false,
+        interactionMask:interactionMask
+    }
+    const rendererParams = {
+        showGates:false, 
+        showGrid:false,
+        showMask:interactionMask
+    }
 
     $: progress = browser ? new ProgressStorage() : undefined
     $: levelSet = progress?.levels() || []
+    const nonLevelIds = [0]
 
     /**
      * @type {GameViewCircuitPanel}
@@ -43,6 +54,31 @@
      */
     let circuitController
     const editorEventTarget = new GameViewCircuitPanelEventTarget()
+    $: console.log("level viewer circuitcontroller", circuitController)
+
+    /**
+     * editorParams allows for a set of uninteractive gates to be passed. This should be the complement on the set of unlocked levels
+     * @param {number} universe
+     * @param {Set<number>} lSet
+     * @param {Set<number>} iMask
+     */
+    function updateInteractionMask(universe, lSet, iMask) {
+        iMask.clear()
+        for (let id = 0; id < universe; id++) {
+            if (!lSet.has(id)) iMask.add(id)
+        }
+    }
+    $: {
+        const maskNegative = new Set(levelSet.map(p => p.desiredId || -1))
+        nonLevelIds.forEach(id => maskNegative.add(id))
+        updateInteractionMask(
+            circuitController?.getGateIdLength() || -1, 
+            maskNegative, 
+            interactionMask
+        )
+
+        editorParams = editorParams
+    }
 
     /**
      * @type {InputCheckBox}

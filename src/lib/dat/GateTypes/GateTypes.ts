@@ -12,39 +12,63 @@ export const Not:GateTypeParameters = {
     draw: (s) => {return `<path d="M 1 3 L 15 10 L 1 17 Z" style="pointer-events:none;" /><circle cx="17" cy="10" r="2"  style="pointer-events:none;" />\n`}
 };
 
+function isFloating(input:Iterable<ConnectionValue>) {
+    for (const i of input) {
+        if (i !== undefined) return false
+    } return true
+}
+
 export const And:GateTypeParameters = { 
     name: "And", inputs: 2, outputs: 1, 
-    f: (s:GateState) => { return {override:[s.override[0] && s.override[1]]}; },
+    f: (s:GateState) => {
+        const f = isFloating(s.override)
+        return {override:f ? [undefined]:[(s.override[0] || false) && (s.override[1] || false) ]}; 
+    },
     draw: (s) => {return `<path d="M 2 2 L 10 2 C 20 2 20 18 10 18 L 2 18 Z" style="pointer-events:none;" />\n`}
 };
 
 export const Or:GateTypeParameters = { 
     name: "Or", inputs: 2, outputs: 1, 
-    f: (s:GateState) => { return {override:[s.override[0] || s.override[1]]}; },
+    f: (s:GateState) => {
+        const f = isFloating(s.override)
+        return {override:f ? [undefined]:[(s.override[0] || false) || (s.override[1] || false)]}; 
+    },
     draw: (s) => {return `<path d="M 2 2 C 22 4 22 16 2 18 C 5 18 5 2 2 2 Z" style="pointer-events:none;" />\n`}
 };
 
 export const Nand:GateTypeParameters = { 
     name: "Nand", inputs: 2, outputs: 1, 
-    f: (s:GateState) => { return {override:[!(s.override[0] && s.override[1])]}; },
+    f: (s:GateState) => {
+        const f = isFloating(s.override)
+        return {override:f ? [undefined]:[!((s.override[0] || false) || (s.override[1] || false))]}; 
+    },
     draw: (s) => {return `<path d="M 2 2 L 10 2 C 20 2 20 18 10 18 L 2 18 Z" style="pointer-events:none;" />\n<circle cx=18 cy=10 r="2" style="pointer-events:none;" />\n`}
 };
 
 export const Nor:GateTypeParameters = {
     name: "Nor", inputs: 2, outputs: 1, 
-    f: (s:GateState) => { return {override:[!(s.override[0] || s.override[1])]}; },
+    f: (s:GateState) => {
+        const f = isFloating(s.override)
+        return {override:f ? [undefined]:[!((s.override[0] || false) && (s.override[1] || false))]}; 
+    },
     draw: (s) => {return `<path d="M 10 2 C 20 2 20 18 10 18 L 2 18 C 5 18 5 2 2 2 Z" style="pointer-events:none;" />\n<circle cx=18 cy=10 r="2" style="pointer-events:none;" />\n`}
 }
 
 export const Xor:GateTypeParameters = { 
     name: "Xor", inputs: 2, outputs: 1, 
-    f: (s:GateState) => { return {override:[(s.override[0] || false) !== (s.override[1] || false)]}; },
+    f: (s:GateState) => {
+        const f = isFloating(s.override)
+        return {override:f ? [undefined]:[((s.override[0] || false) !== (s.override[1] || false))]}; 
+    },
     draw: (s) => {return `<path d="M 4 2 C 22 4 22 16 4 18 C 7 18 7 2 4 2 Z" style="pointer-events:none;" />\n<path d="M 2 18 C 5 18 5 2 2 2" style="pointer-events:none;" />\n`}
 }
 
 export const Xand:GateTypeParameters = {
     name: "Xand", inputs: 2, outputs: 1,
-    f: (s:GateState) => { return {override:[(s.override[0] || false) === (s.override[1] || false)]}},
+    f: (s:GateState) => {
+        const f = isFloating(s.override)
+        return {override:f ? [undefined]:[((s.override[0] || false) === (s.override[1] || false))]}; 
+    },
     draw: (s) => {return `<path d="M 4 2 C 22 4 22 16 4 18 C 7 18 7 2 4 2 Z" style="pointer-events:none;" />\n<path d="M 2 18 C 5 18 5 2 2 2" style="pointer-events:none;" />\n<circle cx=18 cy=10 r="2" style="pointer-events:none;" />\n`}
 }
 
@@ -60,20 +84,36 @@ export const RandomGate1:GateTypeParameters = {
 
 export const AdderNoCarry1:GateTypeParameters = {
     name: "AdderNoCarry1", inputs: 2, outputs:1,
-    f: (s:GateState) => { return {override:[(s.override[0] || false) !== (s.override[1] || false)]}; },
+    f: (s:GateState) => {
+        const f = isFloating(s.override)
+        return {override:f ? [undefined]:[((s.override[0] || false) !== (s.override[1] || false))]}; 
+    },
 }
 
 export const HalfAdder:GateTypeParameters = {
     name: "HalfAdder", inputs: [[2, 5.5], [2, 14.5]], outputs:[[18, 10], [10, 18]], outputLabels:["S", "C"],
-    f: (s:GateState) => { return {override:[(s.override[0] || false) !== (s.override[1] || false), s.override[0] && s.override[1]]}},
+    f: (s:GateState) => { 
+        const f = isFloating(s.override)
+        return {
+            override:f?[undefined]:[
+                ((s.override[1] || false) !== (s.override[2] || false)) !== (s.override[0] || false), 
+            ]
+        }
+    },
     draw: (s) => {return `<path d="M 10 16 L 10 18"/>\n<path d="M 2 2 L 16 6 L 16 14 L 2 18 L 2 11 L 8 10 L 2 9 Z"/>`}
 }
 
 export const FullAdder:GateTypeParameters ={
     name: "FullAdder", inputs: [[10, 2], [2, 5.5], [2, 14.5]], outputs:[[18, 10], [10, 18]], outputLabels:["S", "C out"], inputLabels:["C in", "", ""],
-    f: (s:GateState) => { return {
-        override:[((s.override[1] || false) !== (s.override[2] || false)) !== (s.override[0] || false), (s.override[1] && s.override[2]) || ((s.override[0] || false) && (s.override[1] || s.override[2]))]
-    }},
+    f: (s:GateState) => { 
+        const f = isFloating(s.override)
+        return {
+            override:f?[undefined,undefined]:[
+                ((s.override[1] || false) !== (s.override[2] || false)) !== (s.override[0] || false), 
+                (s.override[1] && s.override[2]) || ((s.override[0] || false) && (s.override[1] || s.override[2]))
+            ]
+        }
+    },
     draw: (s) => {return `<path d="M 10 4 L 10 2"/>\n<path d="M 10 16 L 10 18"/>\n<path d="M 2 2 L 16 6 L 16 14 L 2 18 L 2 11 L 8 10 L 2 9 Z"/>`}
 }
 
@@ -92,7 +132,7 @@ const SevenSegmentNames = [
 ]
 export const SevenSegmentOutput:GateTypeParameters = {
     name: "7-Segment Display", inputs:7, outputs:0, gridSize:[4, 6], 
-    inputLabels: ['Segment A', 'Segment B', 'Segment C', 'Segment D', 'Segment E', 'Segment F', 'Segment G'],
+    inputLabels: SevenSegmentNames,
     draw: (s) => {
         let result = ''
         for (let i = 0; i < 7; i++) {

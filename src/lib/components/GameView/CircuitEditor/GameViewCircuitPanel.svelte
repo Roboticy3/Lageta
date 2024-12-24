@@ -106,14 +106,16 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
      * 
      * @param {MouseEvent} e
      * @param {CircuitController} controller
+     * @param {any} params
      * @returns {CircuitControllerQueryResult} A CircuitControllerQueryResult that may contain a gate, as well as a connection.
      */
     export function query(
         e,
-        controller = circuitController
+        controller = circuitController,
+        params = editorParams
     )
     {
-        return controller.query(e)
+        return controller.query(e, params)
     }
 
     /**
@@ -229,7 +231,7 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
     function dragStart(e) {
         let q = canDragStart(e)
 
-        console.log("trying to start drag from ", q)
+        console.log("trying to start drag from ", q, editorParams)
 
         if ( !(q instanceof CircuitControllerQueryResult)) return
         const [id, index] = [q.getId(), q.connectionIndex]

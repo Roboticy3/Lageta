@@ -108,10 +108,14 @@ export class GateGraph extends GateGraphEventTarget {
             return Corrupted
         }
 
-        const cycleCheck = this.addConnectionPropogate(c)
+        //check for cycles. Arguing "false" tells the graph not to update its state on this pass
+        const cycleCheck = this.addConnectionPropogate(c, false)
         if (cycleCheck.error !== "") {
             return cycleCheck
         }
+
+        //if there was no cycle, the circuit can be resolved safely
+        this.addConnectionPropogate(c)
 
         //check if a connection already exists at the output point
         //if so, merge with the existing connection
@@ -162,7 +166,7 @@ export class GateGraph extends GateGraphEventTarget {
      * @param c 
      * @returns 
      */
-    private addConnectionPropogate(c:Connection): CircuitResolutionResult {
+    private addConnectionPropogate(c:Connection, mutate=true): CircuitResolutionResult {
         let fromGate = this.gates[c.from[0]]
         if (fromGate === undefined) {
             return Corrupted
@@ -177,13 +181,12 @@ export class GateGraph extends GateGraphEventTarget {
             cycleTarget.add(toGate)
         }
 
-        const backResult = this.resolveInputsTo(fromGate, cycleTarget)
+        const backResult = this.resolveInputsTo(fromGate, cycleTarget, 0, mutate)
         if (backResult.error !== "") {
             return backResult
         }
         fromGate.state = backResult.result
-        const output = fromGate.execute().override[c.from[1]]
-
+        const output:ConnectionValue = mutate ? fromGate.execute().override[c.from[1]]:undefined
         cycleTarget = new Set<Gate>([fromGate])
 
         //return the old connection values at each branch of the connection so they can be undone
@@ -194,8 +197,8 @@ export class GateGraph extends GateGraphEventTarget {
 
             const input = to[i][1]
             result.override[i] = toGate.state.override[input]
-            toGate.state.override[input] = output
-            const forwardResultI = this.resolveInputsFrom(toGate, cycleTarget)
+            if (mutate) toGate.state.override[input] = output
+            const forwardResultI = this.resolveInputsFrom(toGate, cycleTarget, 0, mutate)
             if (forwardResultI.error !== "") {
                 return forwardResultI
             }
@@ -430,7 +433,8 @@ export class GateGraph extends GateGraphEventTarget {
     private resolveInputsTo(
         gate:Gate, 
         cycleCheck:Set<Gate> = new Set<Gate>(), 
-        depth:number=0
+        depth:number=0,
+        mutate=true
     ): CircuitResolutionResult {
         console.log("resolving to ", gate)
         const gType = gate.type
@@ -451,7 +455,7 @@ export class GateGraph extends GateGraphEventTarget {
 
         //loop through each input and check for a valid connection
         for (let i = 0; i < gType.sizeIn; i++) {
-            const nextResult = this.resolveInputTo(gate, i, cycleCheck, depth)
+            const nextResult = this.resolveInputTo(gate, i, cycleCheck, depth, mutate)
             if (nextResult.error !== "") {
                 return nextResult
             }
@@ -464,7 +468,8 @@ export class GateGraph extends GateGraphEventTarget {
         gate:Gate, 
         inputIndex:number, 
         cycleCheck:Set<Gate> = new Set<Gate>(),
-        depth:number=0
+        depth:number=0,
+        mutate=true
     ): CircuitResolutionResult {
         if (gate.state.override[inputIndex] !== undefined) {
             return {
@@ -475,7 +480,7 @@ export class GateGraph extends GateGraphEventTarget {
         }
         const c = this.inputs[gate.id][inputIndex]
         if (c === undefined) {
-            gate.state.override[inputIndex] = undefined
+            if (mutate) gate.state.override[inputIndex] = undefined
             return {
                 error:"",
                 result:gate.state,
@@ -486,7 +491,7 @@ export class GateGraph extends GateGraphEventTarget {
         const from = c.from
         const newGate = this.gates[from[0]]
         if (newGate === undefined) {
-            gate.state.override[inputIndex] = undefined
+            if (mutate) gate.state.override[inputIndex] = undefined
             return {
                 error:"",
                 result:gate.state,
@@ -497,13 +502,16 @@ export class GateGraph extends GateGraphEventTarget {
         const result = this.resolveInputsTo(
             newGate,
             cycleCheck, 
-            depth + 1
+            depth + 1,
+            mutate
         )
-        const output = newGate.execute(result.result)
 
-        this.dispatchEvent(createCustomEvent({id:gate.id}, "update", null))
-
-        gate.state.override[inputIndex] = output.override[from[1]]
+        if (mutate) {
+            const output = newGate.execute(result.result)
+            this.dispatchEvent(createCustomEvent({id:gate.id}, "update", null))
+            gate.state.override[inputIndex] = output.override[from[1]]
+        }
+        
         return result
     }
 
@@ -528,7 +536,8 @@ export class GateGraph extends GateGraphEventTarget {
     private resolveInputsFrom(
         gate:Gate, 
         cycleCheck:Set<Gate> = new Set<Gate>(), 
-        depth:number=0
+        depth:number=0,
+        mutate=true
     ): CircuitResolutionResult {
         console.log("resolving from ", gate)
         const gType = gate.type
@@ -541,9 +550,12 @@ export class GateGraph extends GateGraphEventTarget {
             }
         }
 
-        let outputs = gate.execute()
-        
-        this.dispatchEvent(createCustomEvent({id:gate.id}, "update", null))
+        let outputs = {override:[]}
+
+        if (mutate) {
+            let outputs = gate.execute()
+            this.dispatchEvent(createCustomEvent({id:gate.id}, "update", null))
+        }
 
         for (let i = 0; i < gType.sizeOut; i++) {
             const c = this.outputs[gate.id][i]
@@ -557,8 +569,8 @@ export class GateGraph extends GateGraphEventTarget {
                 if (toGate === undefined) {
                     continue
                 }
-                toGate.state.override[toj[1]] = outputs.override[c.from[1]]
-                const result = this.resolveInputsFrom(toGate, cycleCheck, depth + 1)
+                if (mutate) toGate.state.override[toj[1]] = outputs.override[c.from[1]]
+                const result = this.resolveInputsFrom(toGate, cycleCheck, depth + 1, mutate)
                 if (result.error !== "") {
                     return result
                 }
