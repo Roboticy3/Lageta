@@ -900,7 +900,7 @@
 >
 
     <g transform="scale(1, 1)">
-        {#if rendererParams.showGrid !== false}<g id="circuit-bounding-box">
+        <g id="circuit-bounding-box">
             <!--white border forces the size to be more consistent-->
             <rect 
                 stroke="white"
@@ -911,21 +911,26 @@
                 y="0"
             >
         </g>
-        <g bind:this={gridGroup} stroke="white" stroke-width="0.25px" fill="var(--connection-color-x)" pointer-events="none">
+        {#if rendererParams.showGrid !== false}
+            <g 
+                bind:this={gridGroup} 
+                stroke="white" stroke-width="0.25px" fill="var(--connection-color-x)" 
+                pointer-events="none"
+            >
 
-        <defs>
-            <pattern id="circlePattern" x=0 y=0 width={cellOffset} height={cellOffset} patternUnits="userSpaceOnUse">
-            <!-- Single circle in the pattern -->
-            <circle cx={0} cy={0} r="0.25" fill="var(--connection-color-x)" />
-            <circle cx={cellOffset} cy={0} r="0.25" fill="var(--connection-color-x)" />
-            <circle cx={0} cy={cellOffset} r="0.25" fill="var(--connection-color-x)" />
-            <circle cx={cellOffset} cy={cellOffset} r="0.25" />
-            </pattern>
-        </defs>
-        
-        <!-- Use the pattern to fill the background -->
-        <rect width={gridSize[0] * cellOffset} height={gridSize[1] * cellOffset} fill="url(#circlePattern)" />
-    </g> {/if}
+            <defs>
+                <pattern id="circlePattern" x=0 y=0 width={cellOffset} height={cellOffset} patternUnits="userSpaceOnUse">
+                <!-- Single circle in the pattern -->
+                <circle cx={0} cy={0} r="0.25" fill="var(--connection-color-x)" />
+                <circle cx={cellOffset} cy={0} r="0.25" fill="var(--connection-color-x)" />
+                <circle cx={0} cy={cellOffset} r="0.25" fill="var(--connection-color-x)" />
+                <circle cx={cellOffset} cy={cellOffset} r="0.25" />
+                </pattern>
+            </defs>
+            
+            <!-- Use the pattern to fill the background -->
+            <rect width={gridSize[0] * cellOffset} height={gridSize[1] * cellOffset} fill="url(#circlePattern)" />
+        </g> {/if}
 
         <g bind:this={wireGroup} stroke="var(--gate-color)" stroke-width="0.5px" fill="none"></g>
         

@@ -53,6 +53,7 @@
      */
     let circuitController
     const editorEventTarget = new GameViewCircuitPanelEventTarget()
+    $: console.log("level viewer circuitcontroller", circuitController)
 
     /**
      * editorParams allows for a set of uninteractive gates to be passed. This should be the complement on the set of unlocked levels
@@ -67,9 +68,11 @@
         }
     }
     $: {
+        const maskNegative = new Set(levelSet.map(p => p.desiredId || -1))
+        maskNegative.add(0)
         updateInteractionMask(
             circuitController?.getGateIdLength() || -1, 
-            new Set(levelSet.map(p => p.desiredId || -1)), 
+            maskNegative, 
             interactionMask
         )
 
