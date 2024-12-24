@@ -75,6 +75,7 @@
         if (container?.parentElement) {
             resizeObserver = new ResizeObserver(setOffsetNoArgs)
             resizeObserver.observe(container.parentElement)
+            resizeObserver.observe(document.body)
         }
 
         await tick()

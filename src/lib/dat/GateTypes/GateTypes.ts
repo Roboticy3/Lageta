@@ -91,7 +91,7 @@ const SevenSegmentNames = [
     'a', 'b', 'c', 'd', 'e', 'f', 'g'
 ]
 export const SevenSegmentOutput:GateTypeParameters = {
-    name: "7-Segment Display", inputs:7, outputs:0, gridSize:[5, 6], 
+    name: "7-Segment Display", inputs:7, outputs:0, gridSize:[4, 6], 
     inputLabels: ['Segment A', 'Segment B', 'Segment C', 'Segment D', 'Segment E', 'Segment F', 'Segment G'],
     draw: (s) => {
         let result = ''

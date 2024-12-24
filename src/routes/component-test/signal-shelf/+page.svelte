@@ -7,6 +7,7 @@
     import SignalShelf from "$lib/components/GameView/Signal/SignalShelf.svelte";
     import SignalViewer from "$lib/components/GameView/Signal/SignalViewer.svelte";
     import { FourBitAdder, getLevel } from "$lib/dat/Levels/Levels";
+    import { gridSourceToGrid } from "$lib/level_types/GameViewParameters";
     import { CircuitSignalSetView } from "$lib/signal_types/SignalSetView";
     import { CircuitSignalSetViewEventTarget } from "$lib/signal_types/SignalSetViewEvent";
     import { CircuitStorage } from "$lib/storage_types/CircuitStorage";
@@ -17,13 +18,13 @@
     function loadGrid() {
         if (!gameParams) return undefined
 
-        const circuitStorage = new CircuitStorage(gameParams.name)
+        const circuitStorage = new CircuitStorage(gameParams.name || "?")
         const gridResult = circuitStorage.loadNew()
 
         if (gridResult instanceof GateGrid) {
             return gridResult
         }
-        return gameParams.grid
+        return gridSourceToGrid(gameParams.grid)
     }
 
     $: circuitController = gameParams ? new CircuitController(loadGrid(), undefined, gameParams.completeCondition?.solver):undefined
@@ -42,7 +43,7 @@
 </script>
 
 {#if gameParams && circuitController && signalSetView}
-<div class="signal" title="Signal Player" style="height:100%;">
+<div class="signal" style="height:100%;">
   <SignalShelf 
       circuitController={circuitController} 
       signalSetView={signalSetView} 

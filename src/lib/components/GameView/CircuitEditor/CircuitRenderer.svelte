@@ -887,7 +887,7 @@
 >
 
     <g transform="scale(1, 1)">
-        <g id="circuit-bounding-box">
+        {#if rendererParams.showGrid !== false}<g id="circuit-bounding-box">
             <!--white border forces the size to be more consistent-->
             <rect 
                 stroke="white"
@@ -912,7 +912,7 @@
         
         <!-- Use the pattern to fill the background -->
         <rect width={gridSize[0] * cellOffset} height={gridSize[1] * cellOffset} fill="url(#circlePattern)" />
-    </g>
+    </g> {/if}
 
         <g bind:this={wireGroup} stroke="var(--gate-color)" stroke-width="0.5px" fill="none"></g>
         

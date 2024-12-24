@@ -4,7 +4,6 @@
     import { onMount } from "svelte";
     import CircuitDraggable from "$lib/components/GameView/CircuitEditor/CircuitDraggable.svelte";
     import GameViewCircuitPanel from "$lib/components/GameView/CircuitEditor/GameViewCircuitPanel.svelte";
-    import { GameViewParameters } from "$lib/level_types/GameViewParameters";
     import { GameViewCircuitPanelEventTarget } from "$lib/circuit_types/GameViewCircuitPanelEvent";
     import GameViewShelf from "./Shelf/GameViewShelf.svelte";
     import { GameViewShelfTree, ShelfTreeNode } from "$lib/dat/Shelf/ShelfTree";
@@ -30,11 +29,6 @@
     */
     export let stickerController = new StickerController()
 
-    /**
-     * @type {GameViewParameters}
-     */
-    export let gameParams
-    
     /**
      * @type {any}
      */
@@ -180,26 +174,17 @@
         <div 
             class="circuit-panel" 
             bind:this={circuitContainer}
-            title="Circuit"
         >    
             <GameViewCircuitPanel 
                 bind:this={circuitPanel}
-                gameParams={gameParams}
                 circuitController={circuitController}
+                stickerController={stickerController}
                 circuitDraggable={circuitDraggable}
                 editorParams={editorParams}
                 rendererParams={rendererParams}
                 bind:editorEventTarget={editorEventTarget}
                 signalSetViewEventTarget={signalSetViewEventTarget}
             >
-                <div style="position:absolute; height:100%; width:100%; pointer-events:none;">
-                    <GameViewStickerPanel
-                        bind:editorEventTarget={editorEventTarget}
-                        circuitController={circuitController}
-                        stickerController={stickerController}
-                    >
-                    </GameViewStickerPanel>
-                </div>
                 <slot />
             </GameViewCircuitPanel>   
         </div>

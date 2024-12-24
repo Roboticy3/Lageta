@@ -17,11 +17,12 @@
     import { browser } from "$app/environment";
     import TutorialFrame from "$lib/components/GameView/Tutorial/TutorialFrame.svelte";
     import { ShelfTreeNode } from "$lib/dat/Shelf/ShelfTree";
+    import { gridSourceToGrid } from "$lib/level_types/GameViewParameters";
 
     /**
      * @type {CircuitController}
      */
-    const circuitController = Tutorial.params.initializeGrid()
+    const circuitController = new CircuitController(gridSourceToGrid(Tutorial.params.grid), undefined, Tutorial.completeCondition?.solver)
     circuitController.setInputs([true])
 
     let progressStorage = null
@@ -86,7 +87,6 @@
     eventStagesController.signalEventTarget.addEventListener('step', (evt) => { 
         state.isCircuitValid = gameView?.isCircuitValid()
         state = state
-        console.log("tutorial checking circuit valid: ", state.isCircuitValid)
     })
 
     let size = 100
@@ -134,7 +134,13 @@
 
     onMount(() => {
         eventStagesController.prepareNextEvent(createGameViewCircuitPanelEvent("changed", new CircuitControllerQueryResult(), new CircuitControllerQueryResult(), editor))
-    })    
+    })   
+
+    $: editorParams = {
+        inputCheckboxes:state.showInputCheckboxes,
+        showShelf:state.showShelf,
+        signalSpeed:(frame) => 100
+    }
 
 </script>
 
@@ -152,10 +158,7 @@
             bind:this={editor}
             gameParams={Tutorial.params}
             circuitController={circuitController}
-            editorParams={{
-                inputCheckboxes:state.showInputCheckboxes,
-                showShelf:state.showShelf
-            }}
+            editorParams={editorParams}
             bind:rendererParams={state.rendererParams}
             bind:shelf={shelf}
             editorEventTarget={eventStagesController.editorEventTarget}
@@ -175,10 +178,7 @@
             
             gameParams={Tutorial.params}
             circuitController={circuitController}
-            editorParams={{
-                canDragGates:false,
-                inputCheckBoxes:state.showInputCheckboxes
-            }}
+            editorParams={editorParams}
             existingEditor={editor}
             signalSetViewEventTarget={eventStagesController.signalEventTarget}
             bind:maxSizeState={maxSizeState}

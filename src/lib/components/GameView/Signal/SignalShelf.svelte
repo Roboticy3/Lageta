@@ -50,21 +50,20 @@
 
     export let initialFrameTime = 100
     $: frameTime = initialFrameTime
-
+    
     /**
      * @param {number} currentFrame
-     * @returns {number}
      */
-    function timingFunction(currentFrame) {
+    function defaultTimingFunction(currentFrame){
         if (currentFrame >= 15 && circuitValid && frameTime >= 2) frameTime -= 2
 
         if (!circuitValid) frameTime = initialFrameTime
 
         return frameTime
     }
-
+    
     onMount(async () => {
-        signalSetView.createPlayer(timingFunction)
+        signalSetView.createPlayer(editorParams.signalSpeed || defaultTimingFunction)
         signalSetView.sendPlayerToController(circuitController)
 
         if (!signalSetViewEventTarget) signalSetViewEventTarget = new CircuitSignalSetViewEventTarget()

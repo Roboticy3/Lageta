@@ -64,7 +64,6 @@ import { StickerType } from "$lib/circuit_types/sticker/Sticker";    import { Pr
 
 <div 
     class="shelf" 
-    title="Shelf"
 >
     {#each processedItems as item}
         <div class="shelf-button-container">
