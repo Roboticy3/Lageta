@@ -2,28 +2,27 @@
 
 <script>
     import { CircuitController } from "$lib/circuit_types/CircuitController";
-    import { CircuitSignalSetView, SignalSetView } from "$lib/signal_types/SignalSetView";
+    import { CircuitSignalSetView } from "$lib/signal_types/SignalSetView";
     import { ProgressStorage } from "$lib/storage_types/ProgressStore";
     import SignalShelf from "./Signal/SignalShelf.svelte";
     import CompletionDisplay from "$lib/components/GameView/Dialogs/CompletionDisplay.svelte";
     import CircuitEditorComponent from "./CircuitEditor/CircuitEditorComponent.svelte";
     import { onMount, tick } from "svelte";
-    import { CircuitSignalSetViewEventTarget, SignalSetViewEventTarget } from "$lib/signal_types/SignalSetViewEvent";
+    import { CircuitSignalSetViewEventTarget } from "$lib/signal_types/SignalSetViewEvent";
     import { GameViewCircuitPanelEventTarget } from "$lib/circuit_types/GameViewCircuitPanelEvent";
-    import { getGateTypeNoRegister, FullAdder, getGateType, getGateTypeParams } from "$lib/dat/GateTypes/GateTypes";
+    import { getGateTypeParams, all_gates } from "$lib/dat/GateTypes/GateTypes";
     import { getLevelParams } from "$lib/dat/Levels/Levels";
     import SignalViewer from "./Signal/SignalViewer.svelte";
     import { filterShelfTreeWithUnlocks, GameViewShelfTree, ShelfTreeNode } from "$lib/dat/Shelf/ShelfTree";
     import TruthTableView from "./TruthTableView.svelte";
     import { TruthTable } from "$lib/circuit_types/TruthTable";
-    import { CowSticker, getToolParams } from "$lib/dat/Tools/Tools";
-    import { StickerType } from "$lib/circuit_types/sticker/Sticker";
+    import { getToolParams } from "$lib/dat/Tools/Tools";
     import GameViewDialog from "$lib/components/GameView/Dialogs/GameViewDialog.svelte";
     import { SFXPlayer } from "$lib/misc_types/SFXPlayer";
     import { browser } from "$app/environment";
     import { CircuitStorage } from "$lib/storage_types/CircuitStorage";
     import { GateGrid } from "$lib/circuit_types/GateGrid";
-    import { SerializableSticker, StickerStorage } from "$lib/storage_types/StickerStorage";
+    import { StickerStorage } from "$lib/storage_types/StickerStorage";
     import { StickerController } from "$lib/circuit_types/sticker/StickerController"
     import { gridSourceToGrid } from "$lib/level_types/GameViewParameters";
 
@@ -335,7 +334,7 @@
                     maxSizeState={maxSizeState}
                     bind:editorEventTarget={editorEventTarget}
                     bind:signalSetViewEventTarget={signalSetViewEventTarget}
-                    shelf={gameParams.allUnlocks ? GameViewShelfTree:shelf}
+                    shelf={gameParams.allUnlocks ? filterShelfTreeWithUnlocks(all_gates.keys(), GameViewShelfTree):shelf}
                     progress={progressStorage}
                 />
             {/if}

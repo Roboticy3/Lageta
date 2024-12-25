@@ -191,7 +191,6 @@
 
         {#if editorParams.showShelf !== false}
             <GameViewShelf
-                maxSizeState={maxSizeState}
                 items={shelf.children}
                 circuitDraggable={circuitDraggable}
                 progress={progress}

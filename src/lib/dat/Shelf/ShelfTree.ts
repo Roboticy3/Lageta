@@ -61,9 +61,10 @@ export const GameViewShelfTree = new ShelfTreeNode(
     ]
 )
 
-export function filterShelfTreeWithUnlocks(unlocks:string[], tree:ShelfTreeNode) {
+export function filterShelfTreeWithUnlocks(unlocks:Iterable<string>, tree:ShelfTreeNode) {
 
-    const initialUnlocks = new Map(unlocks.map((v) => [v, false]))
+    const initialUnlocks = new Map<string, boolean>()
+    for (const u of unlocks) initialUnlocks.set(u, false)
     console.log("filtering tree ", tree, " with unlocks ", unlocks)
     const result = filterShelfTreeWithUnlocksStep(initialUnlocks, tree, 1)
     console.log("finished filtering tree ", result)
@@ -71,7 +72,7 @@ export function filterShelfTreeWithUnlocks(unlocks:string[], tree:ShelfTreeNode)
 
     //if the final recursion returns undefined, simply convert the unlocks into a one-layer "tree"
     return new ShelfTreeNode(
-        tree.name, unlocks
+        tree.name, Array.from(unlocks)
     )
 }
 
