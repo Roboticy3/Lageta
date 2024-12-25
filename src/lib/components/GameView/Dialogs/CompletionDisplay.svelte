@@ -130,7 +130,6 @@
             <div>Try out new gates here!</div>
             <div style="width:100%; height:100%; padding:3%; box-sizing:border-box;">
                 <CircuitEditorComponent
-                    gameParams={gameParams}
                     editorParams={editorParams}
                     rendererParams={rendererParams}
                     circuitController={circuitController}

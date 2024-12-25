@@ -550,10 +550,10 @@ export class GateGraph extends GateGraphEventTarget {
             }
         }
 
-        let outputs = {override:[]}
+        let outputs:GateState = {override:[]}
 
         if (mutate) {
-            let outputs = gate.execute()
+            outputs = gate.execute()
             this.dispatchEvent(createCustomEvent({id:gate.id}, "update", null))
         }
 
