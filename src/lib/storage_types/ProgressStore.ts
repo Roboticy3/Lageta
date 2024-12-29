@@ -106,14 +106,18 @@ export class ProgressStorage {
         return this.progressStorage.levels.findIndex((v) => v.name === levelName)
     }
 
-    addLevel(item:string) {
-        const params = getLevelParams(item)
-        console.log(params)
-        if (params !== undefined && this.findLevel(item) === -1) {
-            this.progressStorage.levels.push({name:item, new:true, complete:false})
+    addLevel(levelName:string) {
+        const params = getLevelParams(levelName)
+        if (params !== undefined && this.findLevel(levelName) === -1) {
+            this.progressStorage.levels.push({name:levelName, new:true, complete:false})
         }
         this.commit()
-        console.log("Unlocked level ", item)
+        console.log("Unlocked level ", levelName)
+    }
+
+    addHintTokens(count=1) {
+        this.progressStorage.hintTokens += count
+        this.commit()
     }
 
     findTool(toolName:string) {
@@ -188,6 +192,8 @@ class ProgressStorageObject {
 
     currentTutorial:string = "Tutorial"
 
+    hintTokens=0
+
     push(p:ProgressStorageObject) {
         this.gates.push(...p.gates)
         this.levels.push(...p.levels)
@@ -195,6 +201,8 @@ class ProgressStorageObject {
         this.passedTutorials.push(...p.passedTutorials)
 
         this.currentTutorial = p.currentTutorial
+
+        this.hintTokens += p.hintTokens
     }
 }
 

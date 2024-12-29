@@ -26,6 +26,7 @@
     import { StickerController } from "$lib/circuit_types/sticker/StickerController"
     import { gridSourceToGrid } from "$lib/level_types/GameViewParameters";
 
+    if (!browser) throw Error("GameView requires 'browser' to be the active environment")
 
     /**
      * @type {import("$lib/level_types/GameViewParameters").GameViewParameters}
@@ -131,7 +132,8 @@
     const signalSetView = gameParams.completeCondition ? 
         new CircuitSignalSetView(gameParams.completeCondition) : undefined
 
-    let progressStorage = new ProgressStorage()
+    let progressStorage = new ProgressStorage() 
+    let levelProgress = progressStorage.getLevelProgress(gameParams.name || "?")
     export let shelf = new ShelfTreeNode("None", [])
     
     function readProgress() {
@@ -243,15 +245,15 @@
             progressStorage.passTutorial()
         }
 
-        levelRewards?.map(progressStorage.addLevel.bind(progressStorage))
-        gateRewards?.map(progressStorage.addGate.bind(progressStorage))
-        toolRewards?.map(progressStorage.addTool.bind(progressStorage))
+        levelRewards?.forEach(progressStorage.addLevel.bind(progressStorage))
+        gateRewards?.forEach(progressStorage.addGate.bind(progressStorage))
+        toolRewards?.forEach(progressStorage.addTool.bind(progressStorage))
 
         progressStorage.completeLevel(getName())
 
         completionPopup.show()
 
-        if (!toolRewards || toolRewards.length > 0) {
+        if (toolRewards && toolRewards.length > 0) {
             SFXPlayer.play("outro2.wav")
         }
         else {
@@ -393,7 +395,14 @@
 </div>
 
 <GameViewDialog bind:this={completionPopup}>
-    <CompletionDisplay newGates={gateRewards} newLevels={levelRewards} newTools={toolRewards} on:close={() => {completionPopup.close()}}/>
+    <CompletionDisplay 
+        newGates={gateRewards} 
+        newLevels={levelRewards} 
+        newTools={toolRewards} 
+        hintToken={!levelProgress?.complete && (!levelRewards || levelRewards.length === 0)}
+        alreadyCompleted={levelProgress?.complete}
+        on:close={() => {completionPopup.close()}}
+    />
 </GameViewDialog>
 
 <style>
