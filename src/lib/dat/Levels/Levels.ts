@@ -104,6 +104,7 @@ function countingSignal(solver: GateTypeController, step: number, repeat?: numbe
   console.log("created counting signal ", result);
   return result;
 }
+
 export const SevenSegmentLevel:LevelParameters = {
   params: {
     name: "Seven Segment Display",
@@ -254,51 +255,6 @@ export const RandomLevel1:LevelParameters = {
   type: RandomGate1,
   playCondition: [false, false]
 };
-export const NorLevel:LevelParameters = {
-  params: {
-    name: "No Join",
-    directions: `
-        <p>This level requires making a "Nor" gate to win.</p>
-        <p>Nor stands for "Not Or" and will always output the opposite of an Or gate with the same inputs.</p>
-        `,
-    grid: {
-      gateTypes: [getGateType(InputLabelledPrebaked[2]), getGateType(OutputLabelledPrebaked[1]), getGateType(Or)],
-      gates: [{
-        x: 0,
-        y: 3,
-        type: "Input2Labelled",
-        id: 0
-      } as SerializableGate, {
-        x: 14,
-        y: 4,
-        type: "Output1Labelled",
-        id: 1
-      } as SerializableGate, {
-        x: 6,
-        y: 3,
-        type: "Or",
-        id: 2
-      } as SerializableGate],
-      connections: [new Connection(0, 0, 2, 0), new Connection(0, 1, 2, 1), new Connection(2, 0, 1, 0)],
-      size: [16, 8]
-    } as GridSource,
-    completeCondition: new ConnectionValueSignalSet([new Signal<ConnectionValue>([{
-      frame: 0,
-      value: false
-    }]).push(oscillator(10, 5)), new Signal<ConnectionValue>([{
-      frame: 0,
-      value: false
-    }, {
-      frame: 50,
-      value: true
-    }])], 100, getGateType(Nor)),
-    completeRewards: [getGateType(Nor).name]
-  },
-  x: 0,
-  y: 2,
-  desiredId: 13,
-  type: Nor
-};
 export const XandLevel:LevelParameters = {
   params: {
     name: "Exclusion 2",
@@ -350,7 +306,6 @@ export const FullAdderLevel:LevelParameters = {
     name: "Full Adder",
     directions: `
         <p>This level requires a <span style="color:var(--circuit-color);">circuit</span> that adds two 2-digit binary numbers.</p>
-        <p>Adding binary numbers is enough like adding decimal numbers that it can be written on paper in the same way:</p>
         <div style="display:flex; justify-content:space-evenly;">
             <div style="display:grid; grid-template-columns: 1fr 1fr 1fr 1fr; grid-template-rows: 1fr 1fr 1fr 1fr 1fr; width:25%; text-wrap:nowrap;">
                 <div style="grid-column: 2; grid-row: 1;">1</div><div style="grid-column: 3; grid-row: 1;">1</div>
@@ -367,23 +322,10 @@ export const FullAdderLevel:LevelParameters = {
             </div>
         </div>
         <p>Adding the 1's places together is the same as the last adder level, and has been filled in for you.</p>
-        <p>The point in the <span style="color:var(--circuit-color);">circuit</span> labelled "C In" represents the carry from the addition of the 1's places.</p>
-        <p>"C out" is the carry from the addition of the 2's places.</p>
-        <div style="display:grid; grid-template-columns: 1fr 1fr 1fr 1fr; grid-template-rows: 1fr 1fr 1fr 1fr 1fr 1fr; text-align:center; text-wrap:nowrap;">
-            <div style="grid-column: 2; grid-row: 1;">"C Out"</div><div style="grid-column: 3; grid-row: 1;">"C In"</div>
-            <div style="grid-column: 2; grid-row: 2;">1</div><div style="grid-column: 3; grid-row: 2;">1</div>
-            <div style="grid-column: 3; grid-row: 3;">0</div><div style="grid-column: 4; grid-row: 3;">1</div>
-            <div style="grid-column: 1; grid-row: 4;">+</div><div style="grid-column: 3; grid-row: 4;">1</div><div style="grid-column: 4; grid-row: 4;">1</div>
-            <div style="grid-column: 2; grid-row: 5;">1</div><div style="grid-column: 3; grid-row: 5;">0</div><div style="grid-column: 4; grid-row: 5;">0</div>
-            <div style="grid-column: 1 / 5; grid-row: 5; width:100%; height:100%; border-top: 2px solid black;" ></div>
-        </div>
-        <p>Note that to add together the 2's places, you have to consider the carry from the 1's places as well as X1 and Y1.</p>
+        <p>To complete the addition, you need to continue carrying numbers. This requires you to translate 3 inputs - the second binary digits of each number, and the carry from adding the first digits, to 2 outputs, the second binary digit of the sum and a final carry.</p>
         `,
     grid: {
-      gateTypes: [getGateType(InputVariable(2, "X")), getGateType(InputVariable(2, "Y")), getGateType(OutputVariable(2, "S")), getGateType(exampleOutputVariable('C Out')), getGateType(Xor), getGateType(combineGateTypeParameters(And, {
-        name: "Carry And",
-        outputLabels: ["C in"]
-      }))],
+      gateTypes: [getGateType(InputVariable(2, "X")), getGateType(InputVariable(2, "Y")), getGateType(OutputVariable(2, "S")), getGateType(exampleOutputVariable('C Out')), getGateType(HalfAdder)],
       gates: [{
         x: 0,
         y: 1,
@@ -407,15 +349,10 @@ export const FullAdderLevel:LevelParameters = {
       } as SerializableGate, {
         x: 5,
         y: 0,
-        type: "Xor",
+        type: "HalfAdder",
         id: 4
-      } as SerializableGate, {
-        x: 5,
-        y: 2,
-        type: "Carry And",
-        id: 5
       } as SerializableGate],
-      connections: [new Connection(0, 0, 4, 0), new Connection(1, 0, 4, 1), new Connection(4, 0, 2, 0), new Connection(0, 0, 5, 0), new Connection(1, 0, 5, 1)],
+      connections: [new Connection(0, 0, 4, 0), new Connection(1, 0, 4, 1), new Connection(4, 0, 2, 0)],
       size: [20, 9]
     } as GridSource,
     completeCondition: countingSignal(getGateType(Add2), 10, 2),
@@ -423,7 +360,7 @@ export const FullAdderLevel:LevelParameters = {
   },
   x: 18,
   y: 6,
-  desiredId: 11,
+  desiredId: 10,
   type: FullAdder,
   playCondition: [true, true]
 };
@@ -474,9 +411,9 @@ export const CarryLevel:LevelParameters = {
   },
   x: 16,
   y: 4,
-  desiredId: 10,
+  desiredId: 9,
   type: HalfAdder,
-  playCondition: [false, true]
+  playCondition: [true, false]
 };
 export const AdderLevel:LevelParameters = {
   params: {
@@ -523,7 +460,7 @@ export const AdderLevel:LevelParameters = {
   },
   x: 14,
   y: 5,
-  desiredId: 9,
+  desiredId: 8,
   type: AdderNoCarry1
 };
 export const DecoderLevel:LevelParameters = {
@@ -621,96 +558,9 @@ export const EncoderLevel:LevelParameters = {
   },
   x: 14,
   y: 0,
-  desiredId: 8,
+  desiredId: 1000,
   type: Encoder4t2,
   playCondition: [true, true]
-};
-export const XorLevel:LevelParameters = {
-  params: {
-    name: "Exclusion",
-    directions: `
-        <p>Beating this level requires constructing a "Xor" gate, which is like an Or gate but more... exclusive.</p>
-        <p>The Xor gate should output <span style="color:var(--connection-color-on);">high</span> when only one of its inputs are <span style="color:var(--connection-color-on);">high</span>.</p>
-        `,
-    grid: {
-      gateTypes: [getGateType(InputLabelledPrebaked[2]), getGateType(OutputLabelledPrebaked[1]), getGateType(Or)],
-      gates: [{
-        x: 0,
-        y: 3,
-        type: "Input2Labelled",
-        id: 0
-      } as SerializableGate, {
-        x: 14,
-        y: 3,
-        type: "Output1Labelled",
-        id: 1
-      } as SerializableGate, {
-        x: 6,
-        y: 4,
-        type: "Or",
-        id: 2
-      } as SerializableGate],
-      connections: [new Connection(0, 0, 2, 0), new Connection(0, 1, 2, 1), new Connection(2, 0, 1, 0)],
-      size: [16, 8]
-    } as GridSource,
-    completeCondition: new ConnectionValueSignalSet([new Signal<ConnectionValue>([{
-      frame: 0,
-      value: false
-    }]).push(oscillator(10, 10)), new Signal<ConnectionValue>([{
-      frame: 5,
-      value: false
-    }]).push(oscillator(10, 9))], 200, getGateType(Xor)),
-    completeRewards: [getGateType(Xor).name, AdderLevel.params?.name || "?", EncoderLevel.params?.name || "?", XandLevel.params?.name || "?"]
-  },
-  x: 11,
-  y: 2,
-  desiredId: 6,
-  type: Xor
-};
-export const NandLevel:LevelParameters = {
-  params: {
-    name: "No Combo",
-    directions: `
-        <p>This level requires making a "Nand" gate to win.</p>
-        <p>Nand stands for "Not And" and will always output the opposite of an And gate with the same inputs.</p>
-        `,
-    grid: {
-      gateTypes: [getGateType(InputLabelledPrebaked[2]), getGateType(OutputLabelledPrebaked[1]), getGateType(And)],
-      gates: [{
-        x: 0,
-        y: 3,
-        type: "Input2Labelled",
-        id: 0
-      } as SerializableGate, {
-        x: 14,
-        y: 4,
-        type: "Output1Labelled",
-        id: 1
-      } as SerializableGate, {
-        x: 6,
-        y: 3,
-        type: "And",
-        id: 2
-      } as SerializableGate],
-      connections: [new Connection(0, 0, 2, 0), new Connection(0, 1, 2, 1), new Connection(2, 0, 1, 0)],
-      size: [16, 8]
-    } as GridSource,
-    completeCondition: new ConnectionValueSignalSet([new Signal<ConnectionValue>([{
-      frame: 0,
-      value: false
-    }]).push(oscillator(10, 5)), new Signal<ConnectionValue>([{
-      frame: 0,
-      value: false
-    }, {
-      frame: 50,
-      value: true
-    }])], 100, getGateType(Nand)),
-    completeRewards: [getGateType(Nand).name, XorLevel.params?.name || "?"]
-  },
-  x: 9,
-  y: 0,
-  desiredId: 5,
-  type: Nand
 };
 const Or3LevelInputs = [new Signal<ConnectionValue>([{
   frame: 0,
@@ -779,6 +629,48 @@ const Or3LevelInputs = [new Signal<ConnectionValue>([{
   frame: 3,
   value: false
 }]).push(oscillator(3, 3))];
+export const XorLevel:LevelParameters = {
+  params: {
+    name: "Exclusion",
+    directions: `
+        <p>Beating this level requires constructing a "Xor" gate, which is like an Or gate but more... exclusive.</p>
+        <p>The Xor gate should output <span style="color:var(--connection-color-on);">high</span> when only one of its inputs are <span style="color:var(--connection-color-on);">high</span>.</p>
+        `,
+    grid: {
+      gateTypes: [getGateType(InputLabelledPrebaked[2]), getGateType(OutputLabelledPrebaked[1]), getGateType(Or)],
+      gates: [{
+        x: 0,
+        y: 3,
+        type: "Input2Labelled",
+        id: 0
+      } as SerializableGate, {
+        x: 14,
+        y: 3,
+        type: "Output1Labelled",
+        id: 1
+      } as SerializableGate, {
+        x: 6,
+        y: 4,
+        type: "Or",
+        id: 2
+      } as SerializableGate],
+      connections: [new Connection(0, 0, 2, 0), new Connection(0, 1, 2, 1), new Connection(2, 0, 1, 0)],
+      size: [16, 8]
+    } as GridSource,
+    completeCondition: new ConnectionValueSignalSet([new Signal<ConnectionValue>([{
+      frame: 0,
+      value: false
+    }]).push(oscillator(10, 10)), new Signal<ConnectionValue>([{
+      frame: 5,
+      value: false
+    }]).push(oscillator(10, 9))], 200, getGateType(Xor)),
+    completeRewards: [getGateType(Xor).name, AdderLevel.params?.name || "?"]
+  },
+  x: 11,
+  y: 2,
+  desiredId: 7,
+  type: Xor
+};
 export const And3Level:LevelParameters = {
   params: {
     name: "Bigger Combo",
@@ -789,11 +681,11 @@ export const And3Level:LevelParameters = {
         `,
     grid: In3Out1,
     completeCondition: new ConnectionValueSignalSet(Or3LevelInputs.map(s => inverter(s)), 60, getGateType(And3)),
-    completeRewards: [getGateType(And3).name, getGateType(And4).name]
+    completeRewards: [getGateType(And3).name, getGateType(And4).name, StickersTool.name]
   },
   x: 8,
   y: 2,
-  desiredId: 4,
+  desiredId: 5,
   type: And3
 };
 export const Or3Level:LevelParameters = {
@@ -810,9 +702,101 @@ export const Or3Level:LevelParameters = {
   },
   x: 4,
   y: 5,
-  desiredId: 3,
+  desiredId: 6,
   type: Or3
 };
+export const NorLevel:LevelParameters = {
+  params: {
+    name: "No Join",
+    directions: `
+        <p>This level requires making a "Nor" gate to win.</p>
+        <p>Nor stands for "Not Or" and will always output the opposite of an Or gate with the same inputs.</p>
+        `,
+    grid: {
+      gateTypes: [getGateType(InputLabelledPrebaked[2]), getGateType(OutputLabelledPrebaked[1]), getGateType(Or)],
+      gates: [{
+        x: 0,
+        y: 3,
+        type: "Input2Labelled",
+        id: 0
+      } as SerializableGate, {
+        x: 14,
+        y: 4,
+        type: "Output1Labelled",
+        id: 1
+      } as SerializableGate, {
+        x: 6,
+        y: 3,
+        type: "Or",
+        id: 2
+      } as SerializableGate],
+      connections: [new Connection(0, 0, 2, 0), new Connection(0, 1, 2, 1), new Connection(2, 0, 1, 0)],
+      size: [16, 8]
+    } as GridSource,
+    completeCondition: new ConnectionValueSignalSet([new Signal<ConnectionValue>([{
+      frame: 0,
+      value: false
+    }]).push(oscillator(10, 5)), new Signal<ConnectionValue>([{
+      frame: 0,
+      value: false
+    }, {
+      frame: 50,
+      value: true
+    }])], 100, getGateType(Nor)),
+    completeRewards: [getGateType(Nor).name, Or3Level.params?.name || "?"]
+  },
+  x: 0,
+  y: 2,
+  desiredId: 4,
+  type: Nor,
+  playCondition:[false]
+};
+export const NandLevel:LevelParameters = {
+  params: {
+    name: "No Combo",
+    directions: `
+        <p>This level requires making a "Nand" gate to win.</p>
+        <p>Nand stands for "Not And" and will always output the opposite of an And gate with the same inputs.</p>
+        `,
+    grid: {
+      gateTypes: [getGateType(InputLabelledPrebaked[2]), getGateType(OutputLabelledPrebaked[1]), getGateType(And)],
+      gates: [{
+        x: 0,
+        y: 3,
+        type: "Input2Labelled",
+        id: 0
+      } as SerializableGate, {
+        x: 14,
+        y: 4,
+        type: "Output1Labelled",
+        id: 1
+      } as SerializableGate, {
+        x: 6,
+        y: 3,
+        type: "And",
+        id: 2
+      } as SerializableGate],
+      connections: [new Connection(0, 0, 2, 0), new Connection(0, 1, 2, 1), new Connection(2, 0, 1, 0)],
+      size: [16, 8]
+    } as GridSource,
+    completeCondition: new ConnectionValueSignalSet([new Signal<ConnectionValue>([{
+      frame: 0,
+      value: false
+    }]).push(oscillator(10, 5)), new Signal<ConnectionValue>([{
+      frame: 0,
+      value: false
+    }, {
+      frame: 50,
+      value: true
+    }])], 100, getGateType(Nand)),
+    completeRewards: [getGateType(Nand).name, And3Level.params?.name || "?"]
+  },
+  x: 9,
+  y: 0,
+  desiredId: 3,
+  type: Nand
+};
+
 export const OrLevel:LevelParameters = {
   params: {
     name: "Join",
@@ -853,7 +837,7 @@ export const OrLevel:LevelParameters = {
       frame: 3,
       value: false
     }])).push(oscillator(3, 4))], 70, getGateType(Or)),
-    completeRewards: [Or3Level.params?.name || "?", NorLevel.params?.name || "?", StickersTool.name]
+    completeRewards: [NorLevel.params?.name || "?"]
   },
   x: 4,
   y: 3,
@@ -879,7 +863,7 @@ export const AndLevel:LevelParameters = {
       frame: 50,
       value: true
     }])], 100, getGateType(And)),
-    completeRewards: [And3Level.params?.name || "?", NandLevel.params?.name || "?"]
+    completeRewards: [NandLevel.params?.name || "?"]
   },
   x: 6,
   y: 1,

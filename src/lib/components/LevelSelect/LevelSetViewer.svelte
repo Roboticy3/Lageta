@@ -5,7 +5,7 @@
     import LevelViewer from "./LevelViewer.svelte";
     import InputCheckBox from "$lib/components/GameView/CircuitEditor/InputCheckBox.svelte";
     import CircuitDiv from "../GameView/CircuitDiv.svelte";
-    import { Input, getGateType } from "$lib/dat/GateTypes/GateTypes";
+    import { AdderNoCarry1, Input, getGateType } from "$lib/dat/GateTypes/GateTypes";
     import { browser } from "$app/environment";
     import CircuitEditorComponent from "../GameView/CircuitEditor/CircuitEditorComponent.svelte";
     import { GameViewCircuitPanelEventTarget } from "$lib/circuit_types/GameViewCircuitPanelEvent";
@@ -43,10 +43,27 @@
         editorEventTarget.addEventListener("setinput", readInputCheckBox) 
     })
 
+    export let storageKey = "Stage 1"
+    export let storageName = "Stage 1"
+
     $: if (browser) {
-        const circuitStorage = new CircuitStorage("Stage 1", undefined, "Stage 1")
-        const grid = circuitStorage.loadNew()
-        if (typeof grid !== "string") circuitController = new CircuitController(grid)
+        //load the gate type for the simple input, this allows for the input to be used even though its loaded dynamically
+        //if other gates "break" (i.e. appear as buf on this screen), register them here in the same way
+        getGateType(Input(1))
+        getGateType(AdderNoCarry1)
+        //then, load the saved circuit for this campaign screen from the given key and name
+        const circuitStorage = new CircuitStorage(storageKey, undefined, storageName)
+        const gridOrError = circuitStorage.loadNew()
+        if (typeof gridOrError !== "string") {
+            const grid = gridOrError
+            circuitController = new CircuitController(grid)
+        }
+        else {
+            const error = gridOrError
+            console.log("LevelSetViewer failed to load grid ", storageKey, storageName, " with code ", error)
+        }
+
+        circuitController?.setInputs([true], false)
     }
 
     /**
@@ -54,7 +71,6 @@
      */
     let circuitController
     const editorEventTarget = new GameViewCircuitPanelEventTarget()
-    $: console.log("level viewer circuitcontroller", circuitController)
 
     /**
      * editorParams allows for a set of uninteractive gates to be passed. This should be the complement on the set of unlocked levels

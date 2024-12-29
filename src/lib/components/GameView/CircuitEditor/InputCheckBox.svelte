@@ -164,14 +164,25 @@
         bind:this={checkbox} 
         on:click={onChange}
     >
-    <div style="display:flex; position:absolute; width:100%; height:100%; top:0; left:8%; font-size:small; box-sizing:border-box; padding:5%;">
-        <Led color={lowColor} on={lowLedOn}/>
-        <Led color={highColor} on={highLedOn}/>
-    </div>
+        <div class="check">
+            <Led color={lowColor} on={lowLedOn}/>
+            <Led color={highColor} on={highLedOn}/>
+        </div>
     
         
-    </HeavyButton>
-    
-    
-    
+    </HeavyButton>  
 </CircuitDiv>
+
+<style>
+    .check {
+        display:flex;
+        position:absolute;
+        width:100%;
+        height:100%;
+        top:0;
+        left:8%;
+        font-size:small;
+        box-sizing:border-box;
+        padding:5%;
+    }
+</style>

@@ -40,6 +40,8 @@ export class CircuitController {
             this.gateGrid = gateGrid
         }
 
+        console.log("Created CircuitController ", this)
+
         this.onComplete = onComplete
         this.setSolver(solver)
     }

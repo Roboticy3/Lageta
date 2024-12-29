@@ -402,6 +402,8 @@
         display:flex;
         flex-direction: column;
         height:100%;
+
+        box-sizing: border-box;
     }
 
     .base-vertical .sandbox-horizontal {
@@ -410,6 +412,8 @@
         display:flex;
         flex-direction: row;
         height:70%;
+
+        box-sizing: border-box;
     }
 
     .sandbox-horizontal .circuit-editor {
@@ -421,6 +425,8 @@
 
     .sandbox-horizontal .instructions {
         background-color: var(--tertiary-bg-color);
+
+        box-sizing: border-box;
 
         padding: 3%;
         overflow-y: scroll;

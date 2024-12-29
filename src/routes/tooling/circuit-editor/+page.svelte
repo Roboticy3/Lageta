@@ -4,16 +4,18 @@
     import { GateGrid } from "$lib/circuit_types/GateGrid";
   import GameView from "$lib/components/GameView/GameView.svelte";
   import HeavyButton from "$lib/components/Misc/HeavyButton.svelte";
-    import { getGateType, Input, registerGateType } from "$lib/dat/GateTypes/GateTypes";
+    import { AdderNoCarry1, Buf, getGateType, getGateTypeParams, Input, registerGateType } from "$lib/dat/GateTypes/GateTypes";
   import { Freeplay } from "$lib/dat/Levels/Levels";
   import { CircuitStorage } from "$lib/storage_types/CircuitStorage";
-    import { tick } from "svelte";
+    import { onMount, tick } from "svelte";
 
   const circuitName = "Stage 1"
 
   const circuitStorageKey = "Stage 1"
 
-  const Input1 = getGateType(Input(1))
+  onMount(() => {
+    
+  })
 
   /**
      * @type {CircuitController}
@@ -42,13 +44,14 @@
   name:circuitName,
   directions:"",
   grid:{
-    gateTypes:[Input1],
+    gateTypes:[getGateType(Input(1)), getGateType(AdderNoCarry1)],
     size:[20,10]
   },
   completeRewards:[],
   allUnlocks:true,
   storageKey:circuitStorageKey}} 
   bind:circuitController={circuitController}
+  rendererParams={{showIds:true}}
 > 
   <div style="display:flex; ">
     <HeavyButton on:click={onSave}>Save</HeavyButton>
