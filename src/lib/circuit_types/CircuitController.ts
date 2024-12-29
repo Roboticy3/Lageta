@@ -27,7 +27,8 @@ export class CircuitController {
     constructor(
         gateGrid?:GateGrid,
         onComplete:() => void = () => {},
-        solver?:GateTypeController
+        solver?:GateTypeController,
+        simulationMask?:Set<number>
     )
     {
 
@@ -35,7 +36,7 @@ export class CircuitController {
             this.gateGrid = gateGrid
         }
         else {
-            let graph = new GateGraph()
+            let graph = new GateGraph(undefined, simulationMask)
             let gateGrid = new GateGrid(graph)
             this.gateGrid = gateGrid
         }
@@ -52,6 +53,10 @@ export class CircuitController {
 
     getRenderer() {
         return this.renderer
+    }
+
+    giveSimulationMask(simulationMask:Set<number>) {
+        this.gateGrid.graph.simulationMask = simulationMask
     }
 
     /**

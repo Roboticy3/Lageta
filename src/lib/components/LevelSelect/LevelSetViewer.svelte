@@ -17,7 +17,10 @@
     import { CowSticker } from "$lib/dat/Tools/Tools";
     import { CircuitController } from "$lib/circuit_types/CircuitController";
 
-    const interactionMask = new Set()
+    /**
+     * @type {Set<number>}
+     */
+    let interactionMask = new Set()
     let editorParams = {
         canDragGates:false, 
         showShelf:false, 
@@ -53,7 +56,7 @@
         getGateType(AdderNoCarry1)
         //then, load the saved circuit for this campaign screen from the given key and name
         const circuitStorage = new CircuitStorage(storageKey, undefined, storageName)
-        const gridOrError = circuitStorage.loadNew()
+        const gridOrError = circuitStorage.loadNew(undefined, false)
         if (typeof gridOrError !== "string") {
             const grid = gridOrError
             circuitController = new CircuitController(grid)
@@ -63,7 +66,7 @@
             console.log("LevelSetViewer failed to load grid ", storageKey, storageName, " with code ", error)
         }
 
-        circuitController?.setInputs([true], false)
+        console.log("LevelSetViewer updated circuitController: ", circuitController)
     }
 
     /**
@@ -92,8 +95,10 @@
             maskNegative, 
             interactionMask
         )
-
         editorParams = editorParams
+
+        circuitController?.giveSimulationMask(interactionMask)
+        circuitController?.setInputs([true])
     }
 
     /**

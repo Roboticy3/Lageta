@@ -558,7 +558,7 @@ export const EncoderLevel:LevelParameters = {
   },
   x: 14,
   y: 0,
-  desiredId: 1000,
+  desiredId: 20,
   type: Encoder4t2,
   playCondition: [true, true]
 };
