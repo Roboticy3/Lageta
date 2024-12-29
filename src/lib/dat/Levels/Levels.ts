@@ -221,7 +221,7 @@ export const FourBitAdder:LevelParameters = {
   },
   x: 22,
   y: 2,
-  desiredId: 15,
+  desiredId: 11,
   type: getGateType(Add4),
   playCondition: [false, false, false, true, false]
 };

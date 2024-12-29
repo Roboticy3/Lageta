@@ -13,10 +13,6 @@
 
   const circuitStorageKey = "Stage 1"
 
-  onMount(() => {
-    
-  })
-
   /**
      * @type {CircuitController}
      */
