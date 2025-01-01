@@ -40,9 +40,14 @@
     console.log("set to unlock", gateRewards, levelRewards, JSON.stringify(toolRewards))
 
     $: hintActive = levelProgress?.hintUsed
+    /**
+     * Keep a copy of the player's current number of hint tokens
+     */
+    $: hintTokenView = progressStorage?.getHintTokens()
     function onUseHintToken() {
         progressStorage.useHint(gameParams.name || "?")
         hintActive = true
+        hintTokenView = progressStorage?.getHintTokens()
     }
 
     $: hintTokenReward = !levelProgress?.complete && (!levelRewards || levelRewards.length === 0)
@@ -373,6 +378,7 @@
                 {#if !hintActive}
                     <HeavyButton on:click={onUseHintToken} unavailable={progressStorage?.getHintTokens() < 1}>Use Hint Token?</HeavyButton>
                 {/if}
+                You have {hintTokenView || "?"} hint tokens.
             {/if}
             {#if hintActive}
                 <div class="flash">

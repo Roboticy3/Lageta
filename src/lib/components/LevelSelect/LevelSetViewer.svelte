@@ -35,6 +35,9 @@
 
     $: progress = browser ? new ProgressStorage() : undefined
     $: levelSet = progress?.levels() || []
+
+    $: hintTokenView = progress?.getHintTokens()
+
     const nonLevelIds = [0]
 
     /**
@@ -149,6 +152,15 @@
             >
                 Back
             </HeavyButton>
+        </CircuitDiv>
+
+        <CircuitDiv
+            circuitController={circuitController} 
+            position={[16, 9.5]} 
+            size={[4, 0.5]} 
+            active={true}
+        >
+            You have {hintTokenView || "?"} hint tokens.
         </CircuitDiv>
     </CircuitEditorComponent>
 </div>{/if}

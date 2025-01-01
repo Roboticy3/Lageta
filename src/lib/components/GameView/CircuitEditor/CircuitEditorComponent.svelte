@@ -11,8 +11,6 @@
     import { ProgressStorage } from "$lib/storage_types/ProgressStore";
     import { TruthTableTool } from "$lib/dat/Tools/Tools";
     import { CircuitSignalSetViewEventTarget } from "$lib/signal_types/SignalSetViewEvent";
-    import GameViewStickerPanel from "./Sticker/GameViewStickerPanel.svelte";
-    import { SerializableSticker } from "$lib/storage_types/StickerStorage";
     import { StickerController } from "$lib/circuit_types/sticker/StickerController";
 
     /**
