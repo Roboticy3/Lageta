@@ -3,7 +3,7 @@
     
     import CircuitDraggable from "$lib/components/GameView/CircuitEditor/CircuitDraggable.svelte";
     import { Buf, getGateType, wrapGateTypeViewInSvgHeader } from "$lib/dat/GateTypes/GateTypes";
-    import { GateType, GateTypeController, GateTypeView } from "$lib/circuit_types/GateType";
+    import { GateTypeController } from "$lib/circuit_types/GateType";
     import { GameViewCircuitPanelEventTarget } from "$lib/circuit_types/GameViewCircuitPanelEvent";
     import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControllerQueryResult";
     import { createCustomEvent } from "$lib/misc_types/CustomEventSystem";
@@ -67,5 +67,6 @@
     onMouseDown={onMouseDown}
     name={gateType.view.name}
 >
-    {@html wrapGateTypeViewInSvgHeader(gateType.view.gridWidth, gateType.view.gridHeight, render, `width="100%" height="100%"`)}
+    {@html wrapGateTypeViewInSvgHeader(gateType.view.gridWidth, gateType.view.gridHeight, render, `height="10vh" width="100%"`)}
+    
 </GameViewShelfButton>

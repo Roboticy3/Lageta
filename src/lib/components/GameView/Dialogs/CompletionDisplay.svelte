@@ -35,6 +35,16 @@
     $: if (newTools) newToolsCopy = Array.from(newTools)
 
     /**
+     * @type {boolean | undefined}
+     */
+    export let hintToken = false
+
+    /**
+     * @type {boolean | undefined}
+     */
+    export let alreadyCompleted = false
+
+    /**
      * @type {string | undefined}
      */
     let currentTool = undefined
@@ -90,6 +100,7 @@
         completeRewards:[], 
         allUnlocks:false
     }
+    $: console.log("updated completion display gameParams to ", gameParams)
 
     /**
      * @type {CircuitController | null}
@@ -103,14 +114,14 @@
 </script>
 
 {#if !currentTool}
-<div style="display:flex; height:100%;" >
+<div style="display:flex; height:100%; justify-content:space-evenly;" >
     <div class="end-container">
         <div class="title-container">
             <div class="title">
                 You Win!
             </div>
         </div>
-        <div class="rewards-container">
+        {#if !alreadyCompleted} <div class="rewards-container">
             {#if newGates && newGates.length > 0} <div>
                 <h2>New Gates:</h2>
                 {#each newGates as gate}
@@ -123,14 +134,20 @@
                     <div>{level}</div>
                 {/each}
             </div> {/if}
-        </div>
+
+            {#if hintToken} <div>
+                <h2>1 Hint Token!</h2>
+                <p>Spend hint tokens by clicking the button beneath the instructions on some levels.</p>
+            </div> {/if}
+        </div> {:else} <div>
+            You already beat this level.
+        </div> {/if}
     </div>
-    {#if gameParams}
+    {#if gameParams && !alreadyCompleted}
         <div style="display:flex; flex-direction:column; width:100%;">
             <div>Try out new gates here!</div>
             <div style="width:100%; height:100%; padding:3%; box-sizing:border-box;">
                 <CircuitEditorComponent
-                    gameParams={gameParams}
                     editorParams={editorParams}
                     rendererParams={rendererParams}
                     circuitController={circuitController}

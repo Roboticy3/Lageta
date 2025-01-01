@@ -69,7 +69,7 @@ import { StickerType } from "$lib/circuit_types/sticker/Sticker";    import { Pr
         display:none;
         position:absolute;
         background:var(--main-bg-color);
-        height:10vh;
+        height:125%;
         top:100%;
     }
 </style>

@@ -110,7 +110,7 @@
 </script>
 
 <div 
-    class="circuit-div {hidden ? 'hidden':''} {active ? '':'unavailable'} {bob ? 'bobbing-circuit-div':''} {smooth ? 'smooth-circuit-div':''} {flash ? 'flash-circuit-div':''} {border ? 'ridge':''}" 
+    class="circuit-div {hidden ? 'hidden':''} {active ? '':'unavailable'} {bob ? 'bobbing-circuit-div':''} {smooth ? 'smooth-circuit-div':''} {flash ? 'flash':''} {border ? 'ridge':''}" 
     style="left:{rect.left}px; top:{rect.top}px; width:{rect.width}px; height:{rect.height}px; {extraStyle}" 
     bind:this={container}
 >
@@ -141,10 +141,6 @@
         transition: left var(--animation-speed), top var(--animation-speed), opacity var(--animation-speed);
     }
 
-    .flash-circuit-div {
-        animation:tilt-shaking var(--animation-speed);
-    }
-
     .hidden {
         opacity: 0%;
     }
@@ -156,13 +152,5 @@
         100% {
             transform:translateY(10%);
         }
-    }
-
-    @keyframes tilt-shaking {
-        0% { transform: rotate(0deg) scale(1); }
-        25% { transform: rotate(5deg) scale(1.2); }
-        50% { transform: rotate(0eg) scale(1.25); }
-        75% { transform: rotate(-5deg) scale(1.2); }
-        100% { transform: rotate(0deg) scale(1); }
     }
 </style>

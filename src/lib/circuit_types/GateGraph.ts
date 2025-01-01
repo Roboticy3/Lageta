@@ -16,13 +16,16 @@ export class GateGraph extends GateGraphEventTarget {
     inputs:Array<Array<Connection | undefined>> = []
     outputs:Array<Array<Connection | undefined>> = []
     gates:Array<Gate | undefined> = []
+    simulationMask?:Set<number>
 
-    constructor(grid?:GateGrid) {
+    constructor(grid?:GateGrid, simulationMask?:Set<number>) {
         super()
         if (grid === undefined) {
             return
         }
         this.fromGrid(grid)
+
+        this.simulationMask = simulationMask
     }
     
 
@@ -102,7 +105,7 @@ export class GateGraph extends GateGraphEventTarget {
      * @param c 
      * @returns 
      */
-    addConnection(c:Connection): CircuitResolutionResult {
+    addConnection(c:Connection, mutate=true): CircuitResolutionResult {
         //check that the connection points to valid gates
         if (!this.verifyConnection(c)) {
             return Corrupted
@@ -115,7 +118,7 @@ export class GateGraph extends GateGraphEventTarget {
         }
 
         //if there was no cycle, the circuit can be resolved safely
-        this.addConnectionPropogate(c)
+        if (mutate) this.addConnectionPropogate(c)
 
         //check if a connection already exists at the output point
         //if so, merge with the existing connection
@@ -436,8 +439,16 @@ export class GateGraph extends GateGraphEventTarget {
         depth:number=0,
         mutate=true
     ): CircuitResolutionResult {
-        console.log("resolving to ", gate)
+
         const gType = gate.type
+
+        if (this.simulationMask?.has(gate.id)) {
+            return {
+                error:"",
+                result:gate.state,
+                exitDepth:depth
+            }
+        }
 
         if (cycleCheck.has(gate)) {
             return {
@@ -446,6 +457,8 @@ export class GateGraph extends GateGraphEventTarget {
                 exitDepth:depth
             }
         }
+
+        console.log("resolving to ", gate)
 
         let result = {
             error:"",
@@ -471,7 +484,8 @@ export class GateGraph extends GateGraphEventTarget {
         depth:number=0,
         mutate=true
     ): CircuitResolutionResult {
-        if (gate.state.override[inputIndex] !== undefined) {
+        
+        if (gate.state.override[inputIndex] !== undefined || this.simulationMask?.has(gate.id)) {
             return {
                 error:"",
                 result:gate.state,
@@ -539,8 +553,15 @@ export class GateGraph extends GateGraphEventTarget {
         depth:number=0,
         mutate=true
     ): CircuitResolutionResult {
-        console.log("resolving from ", gate)
         const gType = gate.type
+
+        if (this.simulationMask?.has(gate.id)) {
+            return {
+                error:"",
+                result:gate.state,
+                exitDepth:depth
+            }
+        }
 
         if (cycleCheck.has(gate)) {
             return {
@@ -550,10 +571,12 @@ export class GateGraph extends GateGraphEventTarget {
             }
         }
 
-        let outputs = {override:[]}
+        console.log("resolving from ", gate, (new Error()).stack)
+
+        let outputs:GateState = {override:[]}
 
         if (mutate) {
-            let outputs = gate.execute()
+            outputs = gate.execute()
             this.dispatchEvent(createCustomEvent({id:gate.id}, "update", null))
         }
 

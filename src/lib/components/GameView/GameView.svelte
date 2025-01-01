@@ -2,31 +2,32 @@
 
 <script>
     import { CircuitController } from "$lib/circuit_types/CircuitController";
-    import { CircuitSignalSetView, SignalSetView } from "$lib/signal_types/SignalSetView";
+    import { CircuitSignalSetView } from "$lib/signal_types/SignalSetView";
     import { ProgressStorage } from "$lib/storage_types/ProgressStore";
     import SignalShelf from "./Signal/SignalShelf.svelte";
     import CompletionDisplay from "$lib/components/GameView/Dialogs/CompletionDisplay.svelte";
     import CircuitEditorComponent from "./CircuitEditor/CircuitEditorComponent.svelte";
     import { onMount, tick } from "svelte";
-    import { CircuitSignalSetViewEventTarget, SignalSetViewEventTarget } from "$lib/signal_types/SignalSetViewEvent";
+    import { CircuitSignalSetViewEventTarget } from "$lib/signal_types/SignalSetViewEvent";
     import { GameViewCircuitPanelEventTarget } from "$lib/circuit_types/GameViewCircuitPanelEvent";
-    import { getGateTypeNoRegister, FullAdder, getGateType, getGateTypeParams } from "$lib/dat/GateTypes/GateTypes";
+    import { getGateTypeParams, all_gates } from "$lib/dat/GateTypes/GateTypes";
     import { getLevelParams } from "$lib/dat/Levels/Levels";
     import SignalViewer from "./Signal/SignalViewer.svelte";
     import { filterShelfTreeWithUnlocks, GameViewShelfTree, ShelfTreeNode } from "$lib/dat/Shelf/ShelfTree";
     import TruthTableView from "./TruthTableView.svelte";
     import { TruthTable } from "$lib/circuit_types/TruthTable";
-    import { CowSticker, getToolParams } from "$lib/dat/Tools/Tools";
-    import { StickerType } from "$lib/circuit_types/sticker/Sticker";
+    import { getToolParams } from "$lib/dat/Tools/Tools";
     import GameViewDialog from "$lib/components/GameView/Dialogs/GameViewDialog.svelte";
     import { SFXPlayer } from "$lib/misc_types/SFXPlayer";
     import { browser } from "$app/environment";
     import { CircuitStorage } from "$lib/storage_types/CircuitStorage";
     import { GateGrid } from "$lib/circuit_types/GateGrid";
-    import { SerializableSticker, StickerStorage } from "$lib/storage_types/StickerStorage";
+    import { StickerStorage } from "$lib/storage_types/StickerStorage";
     import { StickerController } from "$lib/circuit_types/sticker/StickerController"
     import { gridSourceToGrid } from "$lib/level_types/GameViewParameters";
+    import HeavyButton from "../Misc/HeavyButton.svelte";
 
+    if (!browser) throw Error("GameView requires 'browser' to be the active environment")
 
     /**
      * @type {import("$lib/level_types/GameViewParameters").GameViewParameters}
@@ -37,6 +38,19 @@
     $: toolRewards = gameParams.completeRewards?.filter((v) => getToolParams(v) !== undefined)
     $: solver = gameParams.completeCondition?.solver
     console.log("set to unlock", gateRewards, levelRewards, JSON.stringify(toolRewards))
+
+    $: hintActive = levelProgress?.hintUsed
+    /**
+     * Keep a copy of the player's current number of hint tokens
+     */
+    $: hintTokenView = progressStorage?.getHintTokens()
+    function onUseHintToken() {
+        progressStorage.useHint(gameParams.name || "?")
+        hintActive = true
+        hintTokenView = progressStorage?.getHintTokens()
+    }
+
+    $: hintTokenReward = !levelProgress?.complete && (!levelRewards || levelRewards.length === 0)
 
     /**
      * @type {any}
@@ -132,7 +146,8 @@
     const signalSetView = gameParams.completeCondition ? 
         new CircuitSignalSetView(gameParams.completeCondition) : undefined
 
-    let progressStorage = new ProgressStorage()
+    let progressStorage = new ProgressStorage() 
+    let levelProgress = progressStorage.getLevelProgress(gameParams.name || "?")
     export let shelf = new ShelfTreeNode("None", [])
     
     function readProgress() {
@@ -244,21 +259,24 @@
             progressStorage.passTutorial()
         }
 
-        levelRewards?.map(progressStorage.addLevel.bind(progressStorage))
-        gateRewards?.map(progressStorage.addGate.bind(progressStorage))
-        toolRewards?.map(progressStorage.addTool.bind(progressStorage))
+        levelRewards?.forEach(progressStorage.addLevel.bind(progressStorage))
+        gateRewards?.forEach(progressStorage.addGate.bind(progressStorage))
+        toolRewards?.forEach(progressStorage.addTool.bind(progressStorage))
 
         progressStorage.completeLevel(getName())
 
         completionPopup.show()
 
-        if (!toolRewards || toolRewards.length > 0) {
+        if (toolRewards && toolRewards.length > 0) {
             SFXPlayer.play("outro2.wav")
         }
         else {
             SFXPlayer.play("outro1.wav")
+        }    
+
+        if (hintTokenReward) {
+            progressStorage.addHintTokens()
         }
-        
     }
 
     function placeExistingEditor() {
@@ -335,7 +353,7 @@
                     maxSizeState={maxSizeState}
                     bind:editorEventTarget={editorEventTarget}
                     bind:signalSetViewEventTarget={signalSetViewEventTarget}
-                    shelf={gameParams.allUnlocks ? GameViewShelfTree:shelf}
+                    shelf={gameParams.allUnlocks ? filterShelfTreeWithUnlocks(all_gates.keys(), GameViewShelfTree):shelf}
                     progress={progressStorage}
                 />
             {/if}
@@ -355,6 +373,17 @@
                             circuitController.getInputLabels().concat(circuitController.getOutputLabels())
                     }
                 />
+            {/if}
+            {#if gameParams.hint && !levelProgress?.complete}
+                {#if !hintActive}
+                    <HeavyButton on:click={onUseHintToken} unavailable={progressStorage?.getHintTokens() < 1}>Use Hint Token?</HeavyButton>
+                {/if}
+                You have {hintTokenView || "?"} hint tokens.
+            {/if}
+            {#if hintActive}
+                <div class="flash">
+                    {@html gameParams.hint || "?"}
+                </div>
             {/if}
         </div>
     </div>
@@ -394,7 +423,14 @@
 </div>
 
 <GameViewDialog bind:this={completionPopup}>
-    <CompletionDisplay newGates={gateRewards} newLevels={levelRewards} newTools={toolRewards} on:close={() => {completionPopup.close()}}/>
+    <CompletionDisplay 
+        newGates={gateRewards} 
+        newLevels={levelRewards} 
+        newTools={toolRewards} 
+        hintToken={hintTokenReward}
+        alreadyCompleted={levelProgress?.complete}
+        on:close={() => {completionPopup.close()}}
+    />
 </GameViewDialog>
 
 <style>
@@ -403,6 +439,8 @@
         display:flex;
         flex-direction: column;
         height:100%;
+
+        box-sizing: border-box;
     }
 
     .base-vertical .sandbox-horizontal {
@@ -411,6 +449,8 @@
         display:flex;
         flex-direction: row;
         height:70%;
+
+        box-sizing: border-box;
     }
 
     .sandbox-horizontal .circuit-editor {
@@ -422,6 +462,8 @@
 
     .sandbox-horizontal .instructions {
         background-color: var(--tertiary-bg-color);
+
+        box-sizing: border-box;
 
         padding: 3%;
         overflow-y: scroll;

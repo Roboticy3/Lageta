@@ -101,7 +101,7 @@ export class CircuitStorage {
         }
     }
 
-    loadNew(name?:string) {
+    loadNew(name?:string, resolveState=true) {
         if (name !== undefined) {
             this.name = name
         }
@@ -113,7 +113,7 @@ export class CircuitStorage {
 
         let circuit = new OrganizedCircuit(existing)
 
-        const newGrid = circuit.unpack()
+        const newGrid = circuit.unpack(resolveState)
         if (newGrid === undefined) {
             return "Grid Failed To Unpack"
         }
@@ -273,7 +273,7 @@ export class OrganizedCircuit {
         this.offset = ob.offset || this.offset
     }
 
-    unpack() {
+    unpack(resolveState=true) {
         const graph = new GateGraph()
         const grid = new GateGrid(graph, this.size[0], this.size[1])
 
@@ -294,7 +294,7 @@ export class OrganizedCircuit {
 
         graph.fromGrid(grid)
 
-        this.connections.forEach((c) => graph.addConnection(c))
+        this.connections.forEach((c) => graph.addConnection(c, resolveState))
         return grid
     }
 

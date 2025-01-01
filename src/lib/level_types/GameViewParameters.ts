@@ -3,6 +3,7 @@ import { ConnectionValueSignalSet, SignalSet } from "$lib/signal_types/Signal"
 import { OrganizedCircuit, type OrganizedCircuitContents } from "$lib/storage_types/CircuitStorage"
 
 export type GameViewParameters = {
+    hint?: string;
     name?:string
     directions?:string
     grid?:GridSource

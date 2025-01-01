@@ -2,13 +2,13 @@
 
 <script>
     import { GameViewCircuitPanelEventTarget } from "$lib/circuit_types/GameViewCircuitPanelEvent";
-    import { GateType, GateTypeController } from "$lib/circuit_types/GateType";
+    import { GateTypeController } from "$lib/circuit_types/GateType";
     import GameViewShelfButton from "$lib/components/GameView/CircuitEditor/Shelf/GameViewShelfGate.svelte";
-    import { Buf, getGateType, getGateTypeParams } from "$lib/dat/GateTypes/GateTypes";
+    import { getGateTypeNoRegister } from "$lib/dat/GateTypes/GateTypes";
     import { ShelfTreeNode } from "$lib/dat/Shelf/ShelfTree";
     import { onMount, tick } from "svelte";
     import GameViewShelfFolder from "./GameViewShelfFolder.svelte";
-    import { getToolParams, StickersTool } from "$lib/dat/Tools/Tools";
+    import { StickersTool } from "$lib/dat/Tools/Tools";
 import { StickerType } from "$lib/circuit_types/sticker/Sticker";    import { ProgressStorage } from "$lib/storage_types/ProgressStore";
     import GameViewShelfSticker from "./GameViewShelfSticker.svelte";
 
@@ -16,7 +16,7 @@ import { StickerType } from "$lib/circuit_types/sticker/Sticker";    import { Pr
      * Currently broken, supposed to make the shelf slide in. Should use css animations instead of this bs
      * @type {any}
      */
-    export let maxSizeState = {}
+    //export let maxSizeState = {}
 
     /**
      * @type {ProgressStorage | null}
@@ -34,10 +34,9 @@ import { StickerType } from "$lib/circuit_types/sticker/Sticker";    import { Pr
     $: processedItems = items.map((item) => {
         if (item instanceof ShelfTreeNode) return item
 
-        const gParams = getGateTypeParams(item)
-        console.log("adding item ", gParams)
-        if (gParams) return getGateType(gParams)
-
+        const cType = getGateTypeNoRegister({name:item})
+        if (cType) return cType
+        
         const sticker = stickers?.find((v) => v.name === item)
         if (sticker) return sticker
     })
@@ -125,6 +124,8 @@ import { StickerType } from "$lib/circuit_types/sticker/Sticker";    import { Pr
 
         display: flex;
         flex-direction: row;
+
+        max-width: 100%;
 
         transition:max-height 3s;
 
