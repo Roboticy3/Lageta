@@ -679,6 +679,9 @@ export const And3Level:LevelParameters = {
         only when all of its inputs are <span style="color:var(--connection-color-on);">high</span>.</p>
         <p>However, you might not have this exact gate already. If not, you'll have to connect multiple gates together to win.</p>
         `,
+    hint: `
+      <p>Only using regular And gates, there's only a few ways you can arrange them to get a circuit with 3 inputs and 1 output</p>
+    `,
     grid: In3Out1,
     completeCondition: new ConnectionValueSignalSet(Or3LevelInputs.map(s => inverter(s)), 60, getGateType(And3)),
     completeRewards: [getGateType(And3).name, getGateType(And4).name, StickersTool.name]

@@ -120,6 +120,10 @@ export class ProgressStorage {
         this.commit()
     }
 
+    getHintTokens() {
+        return this.progressStorage.hintTokens
+    }
+
     findTool(toolName:string) {
         return this.progressStorage.tools.findIndex((p) => p.name === toolName)
     }

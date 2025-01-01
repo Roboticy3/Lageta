@@ -77,4 +77,16 @@
 		border: ridge 4px black;
 		border-radius: 4px;
 	}
+
+	.flash {
+		animation:tilt-shaking var(--animation-speed);
+	}
+
+	@keyframes tilt-shaking {
+		0% { transform: rotate(0deg) scale(1); }
+		25% { transform: rotate(5deg) scale(1.2); }
+		50% { transform: rotate(0eg) scale(1.25); }
+		75% { transform: rotate(-5deg) scale(1.2); }
+		100% { transform: rotate(0deg) scale(1); }
+	}
 </style>

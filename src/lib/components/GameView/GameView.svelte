@@ -25,6 +25,7 @@
     import { StickerStorage } from "$lib/storage_types/StickerStorage";
     import { StickerController } from "$lib/circuit_types/sticker/StickerController"
     import { gridSourceToGrid } from "$lib/level_types/GameViewParameters";
+    import HeavyButton from "../Misc/HeavyButton.svelte";
 
     if (!browser) throw Error("GameView requires 'browser' to be the active environment")
 
@@ -37,6 +38,14 @@
     $: toolRewards = gameParams.completeRewards?.filter((v) => getToolParams(v) !== undefined)
     $: solver = gameParams.completeCondition?.solver
     console.log("set to unlock", gateRewards, levelRewards, JSON.stringify(toolRewards))
+
+    let hintActive = false
+    function onUseHintToken() {
+        progressStorage?.addHintTokens(-1)
+        hintActive = true
+    }
+
+    $: hintTokenReward = !levelProgress?.complete && (!levelRewards || levelRewards.length === 0)
 
     /**
      * @type {any}
@@ -258,8 +267,11 @@
         }
         else {
             SFXPlayer.play("outro1.wav")
+        }    
+
+        if (hintTokenReward) {
+            progressStorage.addHintTokens()
         }
-        
     }
 
     function placeExistingEditor() {
@@ -357,6 +369,16 @@
                     }
                 />
             {/if}
+            {#if gameParams.hint && !levelProgress?.complete}
+                {#if !hintActive}
+                    <HeavyButton on:click={onUseHintToken} unavailable={progressStorage?.getHintTokens() < 1}>Use Hint Token?</HeavyButton>
+                {/if}
+                {#if hintActive}
+                    <div class="flash">
+                        {@html gameParams.hint}
+                    </div>
+                {/if}
+            {/if}
         </div>
     </div>
     {#if signalSetView}
@@ -399,7 +421,7 @@
         newGates={gateRewards} 
         newLevels={levelRewards} 
         newTools={toolRewards} 
-        hintToken={!levelProgress?.complete && (!levelRewards || levelRewards.length === 0)}
+        hintToken={hintTokenReward}
         alreadyCompleted={levelProgress?.complete}
         on:close={() => {completionPopup.close()}}
     />
