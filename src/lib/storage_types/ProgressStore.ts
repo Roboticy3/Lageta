@@ -109,7 +109,7 @@ export class ProgressStorage {
     addLevel(levelName:string) {
         const params = getLevelParams(levelName)
         if (params !== undefined && this.findLevel(levelName) === -1) {
-            this.progressStorage.levels.push({name:levelName, new:true, complete:false})
+            this.progressStorage.levels.push({name:levelName, new:true})
         }
         this.commit()
         console.log("Unlocked level ", levelName)
@@ -183,6 +183,17 @@ export class ProgressStorage {
         }
     }
 
+    useHint(level:string) {
+        let levelProgress = this.getLevelProgress(level)
+        if (levelProgress && !levelProgress.hintUsed && this.getHintTokens() >= 1) {
+            levelProgress.hintUsed = true
+            this.progressStorage.hintTokens -= 1
+            this.commit()
+            return true
+        }
+        return false
+    }
+
     getLevelProgress(level:string) {
         return this.progressStorage.levels.find((v) => v.name === level) 
     }
@@ -213,7 +224,8 @@ class ProgressStorageObject {
 type LevelProgress = {
     name:string,
     new:boolean,
-    complete:boolean
+    complete?:boolean,
+    hintUsed?:boolean
 }
 
 type ToolProgress = {

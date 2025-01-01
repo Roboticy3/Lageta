@@ -39,9 +39,9 @@
     $: solver = gameParams.completeCondition?.solver
     console.log("set to unlock", gateRewards, levelRewards, JSON.stringify(toolRewards))
 
-    let hintActive = false
+    $: hintActive = levelProgress?.hintUsed
     function onUseHintToken() {
-        progressStorage?.addHintTokens(-1)
+        progressStorage.useHint(gameParams.name || "?")
         hintActive = true
     }
 
@@ -373,11 +373,11 @@
                 {#if !hintActive}
                     <HeavyButton on:click={onUseHintToken} unavailable={progressStorage?.getHintTokens() < 1}>Use Hint Token?</HeavyButton>
                 {/if}
-                {#if hintActive}
-                    <div class="flash">
-                        {@html gameParams.hint}
-                    </div>
-                {/if}
+            {/if}
+            {#if hintActive}
+                <div class="flash">
+                    {@html gameParams.hint || "?"}
+                </div>
             {/if}
         </div>
     </div>
