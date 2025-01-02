@@ -937,10 +937,8 @@ export const Tutorial:LevelParameters= {
       frame: 0,
       value: false
     }]).push(oscillator(10, 7))], 141, getGateType(Not)),
-    completeRewards: [getGateType(Not).name, getGateType(Or).name, getGateType(And).name, getGateType(Buf).name, AndLevel.params?.name || "?", OrLevel.params?.name || "?"]
+    completeRewards: [getGateType(Not).name, AndLevel.params?.name || "?", OrLevel.params?.name || "?"]
   },
-  x: 6,
-  y: 1,
   type: Not
 };
 const all_params = new Map<string, LevelParameters>([

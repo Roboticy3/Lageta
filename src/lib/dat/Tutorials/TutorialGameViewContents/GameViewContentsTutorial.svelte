@@ -36,6 +36,9 @@
                         await delayedContinue()
                         break
                     case 17:
+                    case 13:
+                        pauseSignalPlayer()
+                        break
                     case 23:
                         restartSignalPlayer()
                         document.querySelector('#signal-play-button')?.setAttribute('disabled', 'disabled')
@@ -69,6 +72,19 @@
                     value:[]
                 },
                 "restart",
+                null
+            )
+        )
+    }
+
+    function pauseSignalPlayer() {
+        eventStagesController.signalEventTarget.dispatchEvent(
+            createCustomEvent(
+                {
+                    frame:0,
+                    value:[]
+                },
+                "pause",
                 null
             )
         )
@@ -233,7 +249,7 @@
     >
         <div style="color:black; width:80vw;">
             <div>This is the <span style="color:var(--circuit-color);">signal</span>. Press the play button</div>
-            <div>to see what happens in the circuit.</div>
+            <div>to see what happens in the <span style="color:var(--circuit-color);">circuit</span>.</div>
         </div>
     </TutorialText>
 {/if}

@@ -15,21 +15,31 @@
 
     export let smooth = true;
 
+    /**
+     * @type {[number, number] | null}
+     */
+    export let size = [0.75, 1]
+
     export let variant = 0;
     const variants = [
         `
             <div style="
                 justify-content:center; 
-                font-size:min(1.5vh, 1.5vw);
+                font-size:1em;
+                padding:5%;
             ">
                 <div>Click below!</div>
                 <div>V</div>
             </div>
         `,
         `
-            <div style="justify-content:center; font-size:min(1.5vh, 1.5vw);">
+            <div style="
+                justify-content:center; 
+                font-size:1em; 
+                padding:5%;
+            ">
                 <div style="rotate:180deg;">V</div>
-                <div>Click above!</div>
+                <div >Click above!</div>
             </div>
         `,
     ];
@@ -42,14 +52,14 @@
     /**
      * @param {import("$lib/circuit_types/CircuitController").ConnectionIndex} index
      */
-    export function setPositionToConnectionPoint(index) {
+    export function setPositionToConnectionPoint(index, extraOffset=(size ? [-size[0] / 2, -size[1]]:[-1.0, -1.5])) {
         const offset = circuitController.getConnectionPoint(index)
         const gPos = circuitController.getGatePosition(index.id)
         if (!gPos || !offset) return
         /**
          * @type {[number, number]}
          */
-        position = [(gPos[0] + offset[0] / 10) - 0.5, (gPos[1] + offset[1] / 10) - 1.5]
+        position = [(gPos[0] + offset[0] / 10) + extraOffset[0], (gPos[1] + offset[1] / 10) + extraOffset[1]]
         console.log("set indicator position to ", position)
         
     }
@@ -74,10 +84,11 @@
     bind:this={container}
     circuitController={circuitController}
     position={position}
-    size={[0.75, 0.75]}
+    size={size}
     active={true}
     bob={true}
     smooth={smooth}
+    extraStyle={"background-color:transparent; pointer-events:none;"}
 >
     {@html variants[variant]}
 </CircuitDiv>

@@ -21,6 +21,14 @@
     $: state.indicator = indicator
 
     /**
+     * @type {[number, number] | null}
+     */ 
+    let mainIndicatorSize = [1, 1.25]
+    $: if (state.currentEvent > 12) {
+        mainIndicatorSize = null
+    }
+
+    /**
      * @type {CircuitController}
      */
     export let circuitController
@@ -88,6 +96,7 @@
 <TutorialIndicator 
     bind:this={indicator}
     circuitController={circuitController}
+    size={mainIndicatorSize}
 />
 
 {#if state.currentEvent >= 20 && (state.isCircuitValid !== true)}
@@ -108,12 +117,14 @@
         circuitController={circuitController}
         variant={1}
         position={[0.5, 0]}
+        size={null}
     />
 {/if}
 
 {#if state.currentEvent === 13}
     <TutorialText
         position={[40, 5]}
+        initialPosition={[40,5]}
         on:continue={dispatch.bind(dispatch, 'continue')}
         showButton={true}
     >   

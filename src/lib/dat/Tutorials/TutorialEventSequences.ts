@@ -156,7 +156,9 @@ export function EventSequenceTutorial(state:any): TutorialEventSequence {return 
         eventName:"continue",f:async (evt) => {
             if (
                 state.isCircuitValid !== true
-            ) return 1
+            ) {
+                return 1
+            }
             else {
                 state.indicator.hide()
                 return 14

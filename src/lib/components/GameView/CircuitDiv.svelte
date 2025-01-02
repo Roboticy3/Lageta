@@ -13,15 +13,15 @@
     export let position
 
     /**
-     * @type {[number, number]}
+     * @type {[number, number] | null}
      */
     export let size
 
     $: setOffset({
         left:position[0], 
         top:position[1], 
-        width:size[0], 
-        height:size[1]})
+        width:size ? size[0]:0, 
+        height:size ? size[1]:0})
 
     export let bob = false
 
@@ -67,8 +67,8 @@
     export function setOffsetNoArgs() {setOffset({
         left:position[0], 
         top:position[1], 
-        width:size[0], 
-        height:size[1]}
+        width:size? size[0]:0, 
+        height:size? size[1]:0}
     )}
 
     let resizeObserver = null
@@ -111,7 +111,7 @@
 
 <div 
     class="circuit-div {hidden ? 'hidden':''} {active ? '':'unavailable'} {bob ? 'bobbing-circuit-div':''} {smooth ? 'smooth-circuit-div':''} {flash ? 'flash':''} {border ? 'ridge':''}" 
-    style="left:{rect.left}px; top:{rect.top}px; width:{rect.width}px; height:{rect.height}px; {extraStyle}" 
+    style="left:{rect.left}px; top:{rect.top}px; {size? `width:${rect.width}px; height:${rect.height}px;`:""} {extraStyle}" 
     bind:this={container}
 >
     <slot/>
