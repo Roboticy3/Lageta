@@ -38,6 +38,7 @@ import { StickerType } from "$lib/circuit_types/sticker/Sticker";
 
 
     export function resolveContents() {
+
         switch (query.type) {
             case "Gate":
                 const vType = query.gateTypeController?.view
@@ -64,7 +65,7 @@ import { StickerType } from "$lib/circuit_types/sticker/Sticker";
     /**
      * @param {string} name
      */
-    export function setContentsToName(name) {
+    export function setContentsToName(name, duration=0) {
         contents = `<div style="background:white; width:fit-content;"><p>${name || "?"}</p></div>`
         const gParams = getGateTypeParams(name)
         const gType = gParams ? getGateType(gParams) : undefined
@@ -75,6 +76,13 @@ import { StickerType } from "$lib/circuit_types/sticker/Sticker";
         )
         {
             hoverGateType = gType
+        }
+
+        if (duration && duration >= 1) {
+            setTimeout(() => {
+                contents = ""
+                resolveContents()
+            }, duration)
         }
             
     }

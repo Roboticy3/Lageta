@@ -833,7 +833,7 @@
      * @param {CircuitControllerQueryResult} q
      */
     export function onEntered(q) {
-        if (q.type === "Gate") {
+        if (q.type === "Gate" && rendererParams.showGates) {
             circuitDraggable.setContentsToName(
                 q.getGateType()?.name || "?"
             )

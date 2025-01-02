@@ -639,6 +639,15 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
             SFXPlayer.play(flipped ? "outputgrab.wav":"inputgrab.wav")
         }
         else {
+            switch (result.error) {
+                case 'Cycle':
+                    circuitDraggable.setContentsToName("No cycles allowed!", 3000)
+                    break
+                case 'Corrupted':
+                case 'Stupid':
+                    circuitDraggable.setContentsToName("Error!", 3000)
+            }
+            
             SFXPlayer.play("wiredrop.wav")
         }
     }
