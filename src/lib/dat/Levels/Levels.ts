@@ -840,7 +840,7 @@ export const OrLevel:LevelParameters = {
       frame: 3,
       value: false
     }])).push(oscillator(3, 4))], 70, getGateType(Or)),
-    completeRewards: [NorLevel.params?.name || "?"]
+    completeRewards: [Or.name, NorLevel.params?.name || "?"]
   },
   x: 4,
   y: 3,
@@ -866,7 +866,7 @@ export const AndLevel:LevelParameters = {
       frame: 50,
       value: true
     }])], 100, getGateType(And)),
-    completeRewards: [NandLevel.params?.name || "?"]
+    completeRewards: [And.name, NandLevel.params?.name || "?"]
   },
   x: 6,
   y: 1,
@@ -966,6 +966,12 @@ export function getLevel(name: string) {
   const params = getLevelParams(name);
   if (params) return new Level(params);
 }
+
+export function getLevelFromParams(params:LevelParameters) {
+  return new Level(params)
+}
+  
+
 export function getLevelParams(name:string) {
   return all_params.get(name);
 }

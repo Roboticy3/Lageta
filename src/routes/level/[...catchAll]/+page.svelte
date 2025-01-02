@@ -25,11 +25,3 @@
     Failed to load {levelName || "level"}! Please return to homescreen.
 </h1>
 {/if}
-
-<style>
-    .fullscreen-message {
-        text-align: center;
-        width: 100%;
-        height: 100%;
-    }
-</style>

@@ -148,34 +148,40 @@
 
     let progressStorage = new ProgressStorage() 
     let levelProgress = progressStorage.getLevelProgress(gameParams.name || "?")
-    export let shelf = new ShelfTreeNode("None", [])
+    /**
+     * @type {ShelfTreeNode | undefined}
+     */
+     export let shelf = undefined
     
     function readProgress() {
         console.log("reading progress...")
 
-        //if there are fewer than 7 gates, don't run to algorithm that splits things into folders
-        if (progressStorage.gateNames().length < 7) {
-            let newShelf = new ShelfTreeNode(
-                "Shelf", progressStorage.gateNames()
-            )
+        //if a shelf has been provided, don't construct a new one
+        if (!shelf) {
+            //if there are fewer than 7 gates, don't run to algorithm that splits things into folders
+            if (progressStorage.gateNames().length < 7) {
+                let newShelf = new ShelfTreeNode(
+                    "Shelf", progressStorage.gateNames()
+                )
 
-            //add stickers into their own folder
-            appendStickersToShelf(newShelf)
+                //add stickers into their own folder
+                appendStickersToShelf(newShelf)
 
-            shelf = newShelf
-        }
-        //otherwise, do, packing as many gates as possible into easily legible folders
-        else {
-            const unlocks = progressStorage.gateNames()
-            //pack the tree into folders
-            let newShelf = filterShelfTreeWithUnlocks(
-                unlocks, GameViewShelfTree
-            )
-            //add stickers into their own folder
-            appendStickersToShelf(newShelf)
-            
-            //update the shelf
-            shelf = newShelf
+                shelf = newShelf
+            }
+            //otherwise, do, packing as many gates as possible into easily legible folders
+            else {
+                const unlocks = progressStorage.gateNames()
+                //pack the tree into folders
+                let newShelf = filterShelfTreeWithUnlocks(
+                    unlocks, GameViewShelfTree
+                )
+                //add stickers into their own folder
+                appendStickersToShelf(newShelf)
+                
+                //update the shelf
+                shelf = newShelf
+            }
         }
 
         //remove the current level as a "new" level, so it doesn't direct the player's attention anymore on the level select screen
