@@ -64,20 +64,25 @@
         }
     }
 
-    export function setOffsetNoArgs() {setOffset({
+    export function setOffsetNoArgs() {
+
+        setOffset({
         left:position[0], 
         top:position[1], 
         width:size? size[0]:0, 
-        height:size? size[1]:0}
-    )}
+        height:size? size[1]:0})
+
+
+    }
 
     let resizeObserver = null
 
     onMount(async () => {
         if (container?.parentElement) {
-            resizeObserver = new ResizeObserver(setOffsetNoArgs)
+            resizeObserver = new ResizeObserver(() => {
+                requestAnimationFrame(setOffsetNoArgs)
+            })
             resizeObserver.observe(container.parentElement)
-            window.addEventListener('resize', setOffsetNoArgs)
         }
 
         await tick()
