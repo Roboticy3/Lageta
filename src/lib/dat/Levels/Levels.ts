@@ -701,7 +701,7 @@ export const Or3Level:LevelParameters = {
         `,
     grid: In3Out1,
     completeCondition: new ConnectionValueSignalSet(Or3LevelInputs, 60, getGateType(Or3)),
-    completeRewards: [getGateType(Or3).name, getGateType(Or4).name, XorLevel.params?.name || "?"]
+    completeRewards: [getGateType(Or3).name, getGateType(Or4).name]
   },
   x: 4,
   y: 5,
@@ -746,7 +746,7 @@ export const NorLevel:LevelParameters = {
       frame: 50,
       value: true
     }])], 100, getGateType(Nor)),
-    completeRewards: [getGateType(Nor).name, Or3Level.params?.name || "?"]
+    completeRewards: [getGateType(Nor).name, Or3Level.params?.name || "?", XorLevel.params?.name || "?"]
   },
   x: 0,
   y: 2,

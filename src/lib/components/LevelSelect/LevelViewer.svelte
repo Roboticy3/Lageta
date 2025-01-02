@@ -97,6 +97,17 @@
 
         window.location.href = '/level/' + level.name()
     }
+
+    let flash = (levelProgress.new) || false
+    export let flashTime = 10000
+
+    if (flash) setInterval(() => {
+        flash = true;
+        // Reset the animation after it's finished
+        setTimeout(() => {
+        flash = false;
+        }, flashTime - 500); // Match the animation duration
+    }, flashTime); // Match the interval
 </script>
 
 <CircuitDiv 
@@ -105,7 +116,7 @@
     bob={false}
     smooth={false}
     size={gType ? [gType.view.gridWidth - 0.6, gType.view.gridHeight - 0.6] : [1, 1]}
-    flash={levelProgress.new || false}
+    flash={flash}
     border={true}
     extraStyle={"pointer-events:none;"}
     bind:this={container}
