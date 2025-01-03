@@ -64,3 +64,22 @@ export type TruthTableParameters = {
     matrix?:boolean[][],
     columnLabels?:string[]
 } | GateTypeController
+
+export function randomTruthTable(params:TruthTableParameters, highP:number, name:string) {
+    const randomGateType = params instanceof GateTypeController ? params.model:new GateTypeController({
+        name:name,
+        inputs:params.sizeIn,
+        outputs:params.sizeOut,
+        f: () => {
+            const override = new Array(params.sizeOut || 1)
+            for (let i = 0; i < override.length; i++) {
+                override[i] = Math.random() >= highP
+            }
+            return {override:override}
+        }
+    },
+    false
+    )
+
+    return new TruthTable(randomGateType)
+}

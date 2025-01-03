@@ -136,7 +136,8 @@ export class GateTypeController {
     readonly variant:GateTypeVariant
 
     constructor(
-        params:GateTypeParameters
+        params:GateTypeParameters,
+        register=true
     ) {
         this.model = new GateType(params);
         this.view = new GateTypeView(params);
@@ -144,7 +145,7 @@ export class GateTypeController {
         this.name = params.name || "Buf"
         this.variant = params.variant || "Gate"
 
-        registerGateType(this);
+        if (register) registerGateType(this);
     }
 
     generateDefaultState() {
