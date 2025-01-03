@@ -12,5 +12,6 @@
     <TruthTableView 
         truthTable={new TruthTable(getGateType(Not))} 
         customLabels={["Input", "Output"]}
+        truthTableData={{}}
     />
 </div>

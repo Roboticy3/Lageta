@@ -36,6 +36,11 @@ import { StickerType } from "$lib/circuit_types/sticker/Sticker";
         window.addEventListener("mousemove", onMouseMove)
     })
 
+    /**
+     * @type {any}
+     */
+    export let truthTableProgress = undefined
+
 
     export function resolveContents() {
 
@@ -143,7 +148,7 @@ import { StickerType } from "$lib/circuit_types/sticker/Sticker";
 <div class="contents {contents || (showTruthTables && hoverGateType) ? 'ridge':''}" style="top:{posY}px; left:{posX}px;">
     {@html contents}
     {#if showTruthTables && hoverGateType}
-        <TruthTableView truthTable={new TruthTable(hoverGateType)} border={false}/>
+        <TruthTableView truthTable={new TruthTable(hoverGateType)} border={false} truthTableData={truthTableProgress?.data}/>
     {/if}
 </div>
 

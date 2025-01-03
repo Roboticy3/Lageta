@@ -198,6 +198,7 @@
 
         <CircuitDraggable 
             showTruthTables={showTruthTables}
+            truthTableProgress={progress?.getTool("TruthTable")}
             bind:editorEventTarget={editorEventTarget}
             bind:this={circuitDraggable}
         />

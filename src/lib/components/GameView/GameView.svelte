@@ -52,6 +52,8 @@
 
     $: hintTokenReward = !levelProgress?.complete && (!levelRewards || levelRewards.length === 0)
 
+    $: truthTableProgress = progressStorage?.getTool("TruthTable")
+
     /**
      * @type {any}
      */
@@ -366,7 +368,7 @@
         </div>
         <div class="instructions {slidinParams ? 'slidein':''}" style="flex:{maxSizeState.instructionsFlex};">
             {@html gameParams.directions}
-            {#if progressStorage?.findTool("TruthTable") !== -1 && 
+            {#if truthTableProgress && 
                 solver?.variant === "Gate" &&
                 solver.view.sizeIn < 5
             }
@@ -378,6 +380,8 @@
                             :
                             circuitController.getInputLabels().concat(circuitController.getOutputLabels())
                     }
+                    truthTableData={truthTableProgress.data}
+
                 />
             {/if}
             {#if gameParams.hint && !levelProgress?.complete && hintTokenView !== undefined}
