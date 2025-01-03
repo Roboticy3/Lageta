@@ -135,6 +135,8 @@ export class GateTypeController {
     readonly name:string
     readonly variant:GateTypeVariant
 
+    readonly params:GateTypeParameters
+
     constructor(
         params:GateTypeParameters,
         register=true
@@ -144,6 +146,8 @@ export class GateTypeController {
 
         this.name = params.name || "Buf"
         this.variant = params.variant || "Gate"
+
+        this.params = params
 
         if (register) registerGateType(this);
     }

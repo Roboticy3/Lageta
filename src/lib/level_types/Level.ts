@@ -3,7 +3,7 @@ import { GateGraph } from "$lib/circuit_types/GateGraph"
 import type { GateGrid } from "$lib/circuit_types/GateGrid"
 import { GateType, GateTypeController, randomGateType, type ConnectionValue } from "$lib/circuit_types/GateType"
 import { CompleteCondition, type GameViewParameters } from "./GameViewParameters"
-import { Buf, type GateTypeParameters, Input, LevelGateType, Output, getGateType } from "../dat/GateTypes/GateTypes"
+import { Buf, type GateTypeParameters, Input, Output, getGateType } from "../dat/GateTypes/GateTypes"
 import { countingSignal, type LevelParameters } from "$lib/dat/Levels/Levels"
 import { type OrganizedCircuitContents } from "$lib/storage_types/CircuitStorage"
 

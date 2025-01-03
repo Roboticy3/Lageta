@@ -1,9 +1,8 @@
 import { Connection } from "$lib/circuit_types/GateGraph";
 import { GateType, GateTypeController, type ConnectionValue } from "$lib/circuit_types/GateType";
-import { Add2, Add4, AdderNoCarry1, And, And3, And4, BCDDecoder, Buf, Decoder2t4, Encoder4t2, FullAdder, HalfAdder, Input, InputDecodePrebaked, InputLabelledPrebaked, InputVariable, NBitAdder, Nand, Nor, Not, Or, Or3, Or4, Output, OutputDecodePrebaked, OutputLabelledPrebaked, OutputVariable, RandomGate1, SevenSegmentDecoder, SevenSegmentOutput, Xand, Xor, combineGateTypeParameters, drawGateTypeDecode, exampleInputVariable, exampleOutputVariable, getGateType, type GateTypeParameters } from "$lib/dat/GateTypes/GateTypes";
-import { ConnectionValueSignalSet, Signal, SignalSet, inverter, oscillator, repeater } from "$lib/signal_types/Signal";
+import { Add2, Add4, AdderNoCarry1, And, And3, And4, BCDDecoder, Buf, Decoder2t4, Encoder4t2, FullAdder, HalfAdder, Input, InputDecodePrebaked, InputLabelledPrebaked, InputVariable, NBitAdder, Nand, Nor, Not, Or, Or3, Or4, Output, OutputDecodePrebaked, OutputLabelledPrebaked, OutputVariable, SevenSegmentDecoder, SevenSegmentOutput, Xand, Xor, combineGateTypeParameters, drawGateTypeDecode, exampleInputVariable, exampleOutputVariable, getGateType, type GateTypeParameters } from "$lib/dat/GateTypes/GateTypes";
+import { ConnectionValueSignalSet, Signal, inverter, oscillator, repeater } from "$lib/signal_types/Signal";
 import type { OrganizedCircuitContents, SerializableGate } from "$lib/storage_types/CircuitStorage";
-import { ProgressStorage } from "$lib/storage_types/ProgressStore";
 import type { GameViewParameters, GridSource } from "$lib/level_types/GameViewParameters";
 import { Level } from "../../level_types/Level";
 import { StickersTool, TruthTableTool } from "../Tools/Tools";
@@ -225,36 +224,6 @@ export const FourBitAdder:LevelParameters = {
   type: getGateType(Add4),
   playCondition: [false, false, false, true, false]
 };
-export const RandomLevel1:LevelParameters = {
-  params: {
-    name: "Random 1",
-    directions: `
-        <p>The <span style="color:var(--circuit-color);">circuit</span> you need to win has been randomly generated!</p>
-        `,
-    grid: {
-      gateTypes: [getGateType(InputLabelledPrebaked[2]), getGateType(OutputLabelledPrebaked[2])],
-      gates: [{
-        x: 0,
-        y: 3,
-        type: "Input2Labelled",
-        id: 0
-      } as SerializableGate, {
-        x: 14,
-        y: 3,
-        type: "Output2Labelled",
-        id: 1
-      } as SerializableGate],
-      size: [16, 8]
-    } as GridSource,
-    completeCondition: countingSignal(getGateType(RandomGate1), 5, 3),
-    completeRewards: [TruthTableTool.name]
-  },
-  x: 0,
-  y: 6,
-  desiredId: 14,
-  type: RandomGate1,
-  playCondition: [false, false]
-};
 export const XandLevel:LevelParameters = {
   params: {
     name: "Exclusion 2",
@@ -294,7 +263,7 @@ export const XandLevel:LevelParameters = {
       frame: 5,
       value: false
     }]).push(oscillator(10, 9))], 200, getGateType(Xand)),
-    completeRewards: [getGateType(Xand).name, RandomLevel1.params?.name || "?"]
+    completeRewards: [getGateType(Xand).name]
   },
   x: 0,
   y: 4,
@@ -957,7 +926,6 @@ const all_params = new Map<string, LevelParameters>([
   [AdderLevel.params?.name || "?", AdderLevel],
   [CarryLevel.params?.name || "?", CarryLevel],
   [FullAdderLevel.params?.name || "?", FullAdderLevel],
-  [RandomLevel1.params?.name || "?", RandomLevel1],
   [FourBitAdder.params?.name || "?", FourBitAdder],
   [FourBitDecoder.params?.name || "?", FourBitDecoder],
   [SevenSegmentLevel.params?.name || "?", SevenSegmentLevel]]);

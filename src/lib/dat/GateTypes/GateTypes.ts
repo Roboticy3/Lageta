@@ -18,6 +18,19 @@ function isFloating(input:Iterable<ConnectionValue>) {
     } return true
 }
 
+function countHigh(input:Iterable<ConnectionValue>) {
+    let result = undefined
+    for (const i of input) {
+        if (i === undefined) continue
+        if (result === undefined) {
+            if (i) result = 1
+            else result = 0
+        }
+        else if (i) result++
+    }
+    return result
+}
+
 const Andf = (s:GateState) => {
     const f = isFloating(s.override)
     return {override:f ? [undefined]:[(s.override[0] || false) && (s.override[1] || false) ]}; 
@@ -74,14 +87,35 @@ export const Xand:GateTypeParameters = {
     draw: (s) => {return `<path d="M 4 2 C 22 4 22 16 4 18 C 7 18 7 2 4 2 Z" style="pointer-events:none;" />\n<path d="M 2 18 C 5 18 5 2 2 2" style="pointer-events:none;" />\n<circle cx=18 cy=10 r="2" style="pointer-events:none;" />\n`}
 }
 
-export const RandomGate1:GateTypeParameters = {
-    name: "Random Gate 1", inputs: 2, outputs: 2,
-    f: (s:GateState) => {
-        return {override:[
-            !(s.override[1]),
-            !(s.override[0] && s.override[1])
-        ]}
+//Multi-input Xor is equivalent to testing if the input has an odd number of "high" inputs, which can be seen via using exclusive or's associativity to chain xors together
+const countOdd = (s:GateState) => {
+    const h = countHigh(s.override)
+    if (h !== undefined) {
+        if (h % 2 === 1) return {override:[true]}
+        else return {override:[false]}
+    } else {
+        return {override:[undefined]}
     }
+}
+
+export const Xor3:GateTypeParameters = { 
+    name: "3-Input Xor", inputs: 3, outputs: 1, gridSize:[2, 3], 
+    f: countOdd,
+    draw: (s) => {return `<path d="M 4 2 C 22 4 22 26 4 28 C 7 28 7 2 4 2 Z" style="pointer-events:none;" />\n<path d="M 2 28 C 5 28 5 2 2 2" style="pointer-events:none;" />\n`}
+}
+
+export const Xand3:GateTypeParameters = { 
+    name: "3-Input Xand", inputs: 3, outputs: 1, gridSize:[2, 3],
+    f: (s:GateState) => {
+        const o = countOdd(s)
+        switch (o.override[0]) {
+            case undefined: return {override:[undefined]}
+            case true:
+            case false:
+                return {override:[!o.override[0]]}
+        }
+    },
+    draw: (s) => {return `<path d="M 4 2 C 22 4 22 26 4 28 C 7 28 7 2 4 2 Z" style="pointer-events:none;" />\n<path d="M 2 28 C 5 28 5 2 2 2" style="pointer-events:none;" />\n<circle cx=18 cy=15 r="2" style="pointer-events:none;" />\n`}
 }
 
 export const AdderNoCarry1:GateTypeParameters = {
@@ -176,42 +210,6 @@ export const SevenSegmentDecoder:GateTypeParameters = {
         }
     }
 }
-
-export const LevelGateType:GateTypeParameters = { name: "LevelGateType", gridSize: [2, 2], moveable: false };
-
-export let all_gates: Map<string, GateTypeController> = new Map();
-
-/**
- * Get an existing GateType from the given parameters, or create a new one if necessary
- * @param params 
- * @returns 
- */
-export function getGateType(params:GateTypeParameters) {
-    const result = all_gates.get(params.name)
-    if (result) {
-        return result
-    }
-
-    const c = new GateTypeController(params)
-    registerGateType(c)
-
-    console.log("registered ", JSON.stringify(params))
-    console.log("registered type", c, " registered list:",Array.from(all_gates.keys()))
-
-    return c
-}
-
-export function getGateTypeNoRegister(params:GateTypeParameters) {
-    const result = all_gates.get(params.name)
-    if (result) {
-        return result
-    }
-}
-
-export const registerGateType = (gateType: GateTypeController) => {
-    console.log("registering ", gateType)
-    all_gates.set(gateType.name, gateType);
-};
 
 /**
  * Set of optional arguments for constructing a GateType
@@ -654,28 +652,62 @@ export function NBitAdder(bits:number, otherParams?:GateTypeParameters) {
 export const Add2 = NBitAdder(2)
 export const Add4 = NBitAdder(4)
 
-const all_params = new Map([
-    [Buf.name, Buf],
-    [Not.name, Not],
-    [And.name, And],
-    [Or.name, Or],
-    [And3.name, And3],
-    [Or3.name, Or3],
-    [And4.name, And4],
-    [Or4.name, Or4],
-    [Nand.name, Nand],
-    [Nor.name, Nor],
-    [Xor.name, Xor],
-    [Xand.name, Xand],
-    [Decoder2t4.name, Decoder2t4],
-    [BCDDecoder.name, BCDDecoder],
-    [Encoder4t2.name, Encoder4t2],
-    [HalfAdder.name, HalfAdder],
-    [FullAdder.name, FullAdder],
-    [SevenSegmentOutput.name, SevenSegmentOutput],
-    [SevenSegmentDecoder.name, SevenSegmentDecoder]
-])
+export let all_gates: Map<string, GateTypeController> = new Map();
+
+/**
+ * Get an existing GateType from the given parameters, or create a new one if necessary
+ * @param params 
+ * @returns 
+ */
+export function getGateType(params:GateTypeParameters) {
+    const result = all_gates.get(params.name)
+    if (result) {
+        return result
+    }
+
+    const c = new GateTypeController(params)
+    registerGateType(c)
+
+    console.log("registered ", JSON.stringify(params))
+    console.log("registered type", c, " registered list:",Array.from(all_gates.keys()))
+
+    return c
+}
+
+export function getGateTypeNoRegister(params:GateTypeParameters) {
+    const result = all_gates.get(params.name)
+    if (result) {
+        return result
+    }
+}
+
+export const registerGateType = (gateType: GateTypeController) => {
+    console.log("registering ", gateType)
+    all_gates.set(gateType.name, gateType);
+};
 
 export function getGateTypeParams(name:string) {
-    return all_params.get(name)
+    return all_gates.get(name)?.params
 }
+
+export const registerThesePlease = [
+    Buf,
+    Not,
+    Or,
+    And,
+    Or3,
+    Or4,
+    And3,
+    And4,
+    Xor,
+    Xand,
+    Xor3,
+    Xand3,
+    Add2,
+    Add4,
+    HalfAdder,
+    FullAdder,
+    SevenSegmentDecoder,
+    SevenSegmentOutput,
+    BCDDecoder
+]

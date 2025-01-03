@@ -2,9 +2,10 @@
   import { browser } from "$app/environment";
   import { CircuitController } from "$lib/circuit_types/CircuitController";
     import { GateGrid } from "$lib/circuit_types/GateGrid";
+    import { GateTypeController } from "$lib/circuit_types/GateType";
   import GameView from "$lib/components/GameView/GameView.svelte";
   import HeavyButton from "$lib/components/Misc/HeavyButton.svelte";
-    import { AdderNoCarry1, Buf, getGateType, getGateTypeParams, Input, registerGateType } from "$lib/dat/GateTypes/GateTypes";
+    import { AdderNoCarry1, Buf, getGateType, getGateTypeParams, Input, registerGateType, registerThesePlease } from "$lib/dat/GateTypes/GateTypes";
   import { Freeplay } from "$lib/dat/Levels/Levels";
   import { CircuitStorage } from "$lib/storage_types/CircuitStorage";
     import { onMount, tick } from "svelte";
@@ -34,6 +35,8 @@
     console.log("Grid loaded with code ", result)
   }
 
+
+  registerThesePlease.forEach((gParams) => {new GateTypeController(gParams)})
 </script>
 
 {#if browser}<GameView gameParams={{
