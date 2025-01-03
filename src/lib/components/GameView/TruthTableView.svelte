@@ -15,6 +15,9 @@
 
     export let border = true
 
+    export let highText = 'high'
+    export let lowText = 'low'
+
     /**
      * @param {boolean} value
      */
@@ -22,10 +25,10 @@
         let color = ""
         switch (value) {
             case true: 
-                color = `<div style="color:var(--connection-color-on);">1</div>`
+                color = `<div style="color:var(--connection-color-on); padding-left:0.25em; padding-right:0.25em;">${highText}</div>`
                 break
             case false: 
-                color = `<div style="color:var(--connection-color-off);">0</div>`
+                color = `<div style="color:var(--connection-color-off); padding-left:0.25em; padding-right:0.25em;">${lowText}</div>`
                 break
         }
         return color
@@ -54,11 +57,15 @@
 
     <div class="title-bar" style="grid-column:1 / {truthTable.getWidth() + 1}; grid-row:1;"></div>
 
+    {#if /* make this section reactive with the contents of these variables, so the text can be changed out*/ 
+        highText && lowText 
+    } 
     {#each truthTable.matrix as row, i}
         {#each row as v, j}
             <div style="grid-column:{j + 1}; grid-row:{i + 2}; background-color:{getBackgroundColorOfRow(i)}">{@html booleanToLabel(v)}</div>
         {/each}
     {/each}
+    {/if}
 
     {#each verticalSeparators as verticalSeparator} 
         <div class="column-bar" style="grid-column: {verticalSeparator + 1}; grid-row: 1 / {truthTable.getHeight() + 2};"></div>
