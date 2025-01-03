@@ -380,11 +380,13 @@
                     }
                 />
             {/if}
-            {#if gameParams.hint && !levelProgress?.complete}
+            {#if gameParams.hint && !levelProgress?.complete && hintTokenView !== undefined}
+                <div style="height:1em;"></div>
+                This level has a hint! 
                 {#if !hintActive}
                     <HeavyButton on:click={onUseHintToken} unavailable={progressStorage?.getHintTokens() < 1}>Use Hint Token?</HeavyButton>
                 {/if}
-                You have {hintTokenView || "?"} hint tokens.
+                You have {hintTokenView} hint tokens.
             {/if}
             {#if hintActive}
                 <div class="flash">
