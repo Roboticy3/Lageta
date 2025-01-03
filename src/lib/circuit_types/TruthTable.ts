@@ -1,4 +1,4 @@
-import { GateType, GateTypeController } from "./GateType"
+import { GateType, GateTypeController, randomGateType } from "./GateType"
 
 /**
  * Represent a truth table in a matrix
@@ -66,20 +66,12 @@ export type TruthTableParameters = {
 } | GateTypeController
 
 export function randomTruthTable(params:TruthTableParameters, highP:number, name:string) {
-    const randomGateType = params instanceof GateTypeController ? params.model:new GateTypeController({
-        name:name,
+    const gType = params instanceof GateTypeController ? params.model:randomGateType({
+        name:name, 
         inputs:params.sizeIn,
-        outputs:params.sizeOut,
-        f: () => {
-            const override = new Array(params.sizeOut || 1)
-            for (let i = 0; i < override.length; i++) {
-                override[i] = Math.random() >= highP
-            }
-            return {override:override}
-        }
-    },
-    false
-    )
+        outputs:params.sizeOut
+    }, highP)
+    
 
-    return new TruthTable(randomGateType)
+    return new TruthTable(gType)
 }

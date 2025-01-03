@@ -228,7 +228,6 @@ export type GateTypeParameters = {
     variant?:GateTypeVariant, //variants allow support for extending gates to other types, like designating inputs as "Flows" when they have 0 inputs and their state is used as their outputs rather than inputs
     f?:(s:GateState) => GateState, //the computation this gate performs on its inputs
     draw?:(s:GateState) => string, //the svg appearance of this gate in the grid
-    register?:boolean, //whether this gate should be registered to all_gates on creation or not, true if not given
 }
 
 /**
@@ -252,7 +251,6 @@ export function combineGateTypeParameters(a:GateTypeParameters, b:GateTypeParame
         variant:b.variant || a.variant,
         f:b.f || a.f,
         draw:b.draw || a.draw,
-        register:b.register !== undefined ? b.register : a.register,
     } as GateTypeParameters
 
     console.log("combined parameters:", result)

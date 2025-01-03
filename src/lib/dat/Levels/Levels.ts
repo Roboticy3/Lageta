@@ -76,7 +76,7 @@ const DecoderLevelSignal = new ConnectionValueSignalSet([new Signal<ConnectionVa
  * @param repeat if given, the signal will be repeated this many times
  * @returns 
  */
-function countingSignal(solver: GateTypeController, step: number, repeat?: number, maxCount?: number) {
+export function countingSignal(solver: GateTypeController, step: number, repeat?: number, maxCount?: number) {
   const bits = solver.model.sizeIn;
   let block = new Array<Signal<ConnectionValue>>(bits);
   //the permutations is usually 2^bits, but if a smaller cutoff is provided, that takes priority

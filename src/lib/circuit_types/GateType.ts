@@ -155,3 +155,15 @@ export class GateTypeController {
         return s
     }
 }
+
+export function randomGateType(params:GateTypeParameters, highP:number) {
+    const newParams = {...params}
+    newParams.f = () => {  
+        const override = params.outputs instanceof Array ? new Array(params.outputs.length):new Array(params.outputs || 1)
+        for (let i = 0; i < override.length; i++) {
+            override[i] = Math.random() >= highP
+        }
+        return {override:override}
+    }
+    return new GateTypeController(newParams, false)
+}
