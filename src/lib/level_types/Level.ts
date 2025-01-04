@@ -1,9 +1,9 @@
 import { CircuitController } from "$lib/circuit_types/CircuitController"
 import { GateGraph } from "$lib/circuit_types/GateGraph"
 import type { GateGrid } from "$lib/circuit_types/GateGrid"
-import { GateType, GateTypeController, randomGateType, type ConnectionValue } from "$lib/circuit_types/GateType"
+import { GateType, GateTypeController, type ConnectionValue } from "$lib/circuit_types/GateType"
 import { CompleteCondition, type GameViewParameters } from "./GameViewParameters"
-import { Buf, type GateTypeParameters, Input, Output, getGateType } from "../dat/GateTypes/GateTypes"
+import { Buf, type GateTypeParameters, Input, Output, getGateType, randomGateType } from "../dat/GateTypes/GateTypes"
 import { countingSignal, type LevelParameters } from "$lib/dat/Levels/Levels"
 import { type OrganizedCircuitContents } from "$lib/storage_types/CircuitStorage"
 
@@ -56,9 +56,13 @@ export class Level {
     }
 }
 
-export function randomLevel(lParams:LevelParameters, gParams:GateTypeParameters, highP:number) {
+export function randomLevel(lParams:LevelParameters, gParams:GateTypeParameters, highP:number, serializable=false) {
+    const newGParams = {...gParams}
+    newGParams.inputs ||= lParams.inputs
+    newGParams.outputs ||= lParams.outputs
+
     //generate a random gate type to be the solver for this level
-    const gType = randomGateType(gParams, highP)
+    const gType = randomGateType(newGParams, highP)
     console.log("creating random level... generated gate type: ", gType)
 
     //use the gate type to modify lParams
@@ -67,6 +71,7 @@ export function randomLevel(lParams:LevelParameters, gParams:GateTypeParameters,
     //make shallow copies of the big objects in the parameters
     const newLParams = {...lParams}
     const newParams = {...lParams.params}
+    newParams.serializable = serializable
     newLParams.params = newParams
 
     //grid size will give 2 grid squares above and below the inputs and outputs
@@ -98,8 +103,8 @@ export function randomLevel(lParams:LevelParameters, gParams:GateTypeParameters,
     console.log("creating random level... generated grid: ", newParams.grid)
 
     //repeat the signal as many times as it takes to pass 500 frames
-    const stepSize = 2
-    const targetLength = 500
+    const stepSize = 5
+    const targetLength = 200
     const repeatCount = Math.ceil(targetLength / (stepSize * Math.pow(2, inSize)))
     const signal = countingSignal(gType, stepSize, repeatCount)
 

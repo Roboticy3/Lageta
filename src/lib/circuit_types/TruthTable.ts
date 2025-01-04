@@ -1,4 +1,5 @@
-import { GateType, GateTypeController, randomGateType } from "./GateType"
+import { randomGateType } from "$lib/dat/GateTypes/GateTypes"
+import { GateType, GateTypeController } from "./GateType"
 
 /**
  * Represent a truth table in a matrix

@@ -364,6 +364,14 @@ export const SevenSegmentDecoder:GateTypeParameters = {
     }
 }
 
+export function labelPoints(template:string, length:number, format:(string | RegExp)="{i}") {
+    const result = new Array<string>(length)
+    for (let i = 0; i < length; i++) {
+        result[i] = template.replace(format, (i + 1).toString())
+    }
+    return result
+}
+
 export function Input(size: number, otherParams?: GateTypeParameters ) {
     const otherSize = otherParams?.gridSize || [undefined, undefined]
     const gridWidth = otherSize[0] || 2
@@ -371,6 +379,7 @@ export function Input(size: number, otherParams?: GateTypeParameters ) {
     let params: GateTypeParameters = {
         name: "Input" + String(size),
         inputs: 0, outputs: size,
+        outputLabels: labelPoints("Input {i}", size),
         gridSize: [gridWidth, gridHeight],
         variant: "Flow",
         moveable: false,
@@ -387,6 +396,7 @@ export function Output(size: number, otherParams?: GateTypeParameters) {
     let params: GateTypeParameters = {
         name: "Output" + String(size),
         inputs: size, outputs: 0,
+        inputLabels: labelPoints("Output {i}", size),
         gridSize: [gridWidth, gridHeight],
         moveable: false,
         draw: (s) => {return drawGateTypeRect(gridWidth, gridHeight)}
@@ -739,3 +749,23 @@ export const registerThesePlease = [
     BCDDecoder,
     InputDown
 ]
+
+export function randomGateType(params:GateTypeParameters, highP:number) {
+    //to create a random gate type, create a table of inSize^2 times outSize entries, and fill with random numbers
+    const inSize = (params.inputs instanceof Array ? params.inputs.length:(params.inputs || 1))
+    const outSize = (params.outputs instanceof Array ? params.outputs.length:(params.outputs || 1))
+    const table = new Array(Math.pow(2, inSize) * outSize)
+    for (let i = 0; i < table.length; i++) {
+        table[i] = Math.random() >= highP
+    }
+    console.log("creating random gate type... activation table: ", table, "size: ", inSize, outSize)
+
+    //then, decode the input into an integer, and return that row of the table
+    const newParams = {...params}
+    newParams.f = (s:GateState) => {
+        const x = decodeInternal(s, inSize)
+        return {override:table.slice(outSize * x, outSize * (x + 1))}
+    }
+    
+    return new GateTypeController(newParams, false)
+}

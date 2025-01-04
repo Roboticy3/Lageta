@@ -16,6 +16,8 @@ export type GameViewParameters = {
     rendererParams?:Object
 
     storageKey?:string
+
+    serializable?:boolean
 }
 
 export const MissingParameters = {

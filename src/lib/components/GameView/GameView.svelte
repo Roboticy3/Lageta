@@ -193,12 +193,11 @@
     }
 
     /**
-     * GameView checks shouldSave every 20 seconds. If true, the circuit is saved under the current level name, then shouldSave is set to false
+     * check if the circuit should be saved. ignored if gameParams.serializable is set to false
      */
     let shouldSave = false
-    export let saveDisabled = false
     function checkSave() {
-        if (browser && !saveDisabled) {
+        if (browser && gameParams.serializable !== false) {
             console.log("checking if the circuit should save...")
             if (shouldSave) {
                 console.log("saving!")

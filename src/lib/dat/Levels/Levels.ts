@@ -534,9 +534,12 @@ export const EncoderLevel:LevelParameters = {
   playCondition: [true, true]
 };
 
+const RandomLevelDirections = "This level is randomly generated every time you visit the page. Beating random levels will always give a hint token, and give you some practice with analyzing truth tables. Good luck!"
+
 export const Random1:LevelParameters = {
   params:{
-    name:"Random 1"
+    name:"Random 1",
+    directions:RandomLevelDirections
   },
   desiredId:14,
   inputs:2,outputs:1
@@ -561,7 +564,8 @@ export const AtLeast2Level:LevelParameters = {
 
 export const Random2:LevelParameters = {
   params:{
-    name:"Random 2"
+    name:"Random 2",
+    directions:RandomLevelDirections
   },
   desiredId: 15,
   inputs:2,outputs:2

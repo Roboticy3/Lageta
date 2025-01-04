@@ -2,14 +2,30 @@
 
 <script>
     import { page } from '$app/stores';
-    import { Freeplay, getLevel } from "$lib/dat/Levels/Levels";
+    import { Freeplay, getLevel, getLevelParams } from "$lib/dat/Levels/Levels";
     import { browser } from '$app/environment';
     import LevelTemplate from '$lib/components/GameView/LevelTemplate.svelte';
+    import { randomLevel } from '$lib/level_types/Level';
 
     const pathParams = $page.params.catchAll.split('/')
     $: levelName = pathParams[0] || undefined
-    $: level = browser && levelName ? getLevel(levelName) : undefined
+
+
+    /**
+     * @type {import("$lib/dat/Levels/Levels").LevelParameters | undefined}
+     */
+    let level = undefined
+    $: if (browser && levelName) {
+        level = browser && levelName ? 
+            (levelName.startsWith("Random") ? 
+                randomLevel(getLevelParams(levelName) || {}, {name:levelName}, 0.5)
+                :
+                getLevelParams(levelName))
+            : 
+            undefined
+    }
+    
     
 </script>
 
-<LevelTemplate allParams={{gameParams:level?.unpack()}} levelName={levelName}/>
+<LevelTemplate allParams={{gameParams:level?.params || "?"}} levelName={levelName}/>
