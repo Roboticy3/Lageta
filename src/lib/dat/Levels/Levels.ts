@@ -4,7 +4,7 @@ import { Add2, Add4, AdderNoCarry1, And, And3, And4, AtLeast2, BCDDecoder, Buf, 
 import { ConnectionValueSignalSet, Signal, inverter, oscillator, repeater } from "$lib/signal_types/Signal";
 import type { OrganizedCircuitContents, SerializableGate } from "$lib/storage_types/CircuitStorage";
 import type { GameViewParameters, GridSource } from "$lib/level_types/GameViewParameters";
-import { Level } from "../../level_types/Level";
+import { Level, randomLevel } from "../../level_types/Level";
 import { StickersTool, TruthTableTool } from "../Tools/Tools";
 export type LevelParameters = {
   params?: GameViewParameters;
@@ -14,6 +14,8 @@ export type LevelParameters = {
   type?: GateTypeParameters;
   playCondition?: boolean[];
   register?: boolean;
+  inputs?:number; //input and output counts, only used to substitute gateType data when generating random levels
+  outputs?:number;
 };
 const MinCircuit: OrganizedCircuitContents = {
   gateTypes: [getGateType(InputLabelledPrebaked[1]), getGateType(OutputLabelledPrebaked[1])],
@@ -542,7 +544,7 @@ export const AtLeast2Level:LevelParameters = {
     hint:`You already have a gate for measuring when exactly 2 inputs are <span style="color:var(--connection-color-on);">high</span>. There are 3 ways to pick 2 pins out of 3, so you'll need to join 3 of these gates.`,
     grid: In3Out1,
     completeCondition: countingSignal(getGateType(AtLeast2), 4, 3),
-    completeRewards: [AtLeast2.name]
+    completeRewards: [AtLeast2.name, "Random 1"]
   },
   desiredId: 13,
   type: AtLeast2,
@@ -561,7 +563,7 @@ But, in this case, we're talking about a gate that outputs <span style="color:va
     hint:`The solution is very similar to the other 'bigger' level.`,
     grid: In3Out1,
     completeCondition: countingSignal(getGateType(Xor3), 4, 3),
-    completeRewards: [Xor3.name, Xor4.name]
+    completeRewards: [Xor3.name, Xor4.name, "Random 2"]
   },
   desiredId: 12,
   type: Xor3,
@@ -977,7 +979,6 @@ export function getLevel(name: string) {
 export function getLevelFromParams(params:LevelParameters) {
   return new Level(params)
 }
-  
 
 export function getLevelParams(name:string) {
   return all_params.get(name);

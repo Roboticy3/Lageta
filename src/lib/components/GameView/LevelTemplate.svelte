@@ -11,7 +11,7 @@
   export let allParams
 
 </script>
-{#if allParams.gameParams !== undefined}
+{#if browser && allParams.gameParams !== undefined}
 <GameView {...allParams}/>
 {:else if !browser}
 <h1 class="fullscreen-message">

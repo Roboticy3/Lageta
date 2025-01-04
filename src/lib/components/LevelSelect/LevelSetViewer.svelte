@@ -10,7 +10,7 @@
     import CircuitEditorComponent from "../GameView/CircuitEditor/CircuitEditorComponent.svelte";
     import { GameViewCircuitPanelEventTarget } from "$lib/circuit_types/GameViewCircuitPanelEvent";
     import { CircuitStorage } from "$lib/storage_types/CircuitStorage";
-    import { Level } from "$lib/level_types/Level";
+    import { Level, randomLevel } from "$lib/level_types/Level";
     import HeavyButton from "../Misc/HeavyButton.svelte";
     import CircuitStickerContainer from "../GameView/CircuitEditor/Sticker/CircuitStickerContainer.svelte";
     import StickerViewer from "../GameView/CircuitEditor/Sticker/StickerViewer.svelte";
@@ -39,7 +39,7 @@
     $: hintTokenView = progress?.getHintTokens()
 
     const nonLevelIds = [0]
-
+    
     /**
      * @type {GameViewCircuitPanel}
      */
@@ -124,11 +124,20 @@
         rendererParams={rendererParams}
     >
         {#each levelSet as params}
+            {#if params.x && params.y}
+            <LevelViewer 
+                params={params} 
+                circuitController={circuitController} 
+                levelProgress={progress?.getLevelProgress(params.params?.name || "") || {}}
+                gPos={[params.x, params.y]}
+            />
+            {:else}
             <LevelViewer 
                 params={params} 
                 circuitController={circuitController} 
                 levelProgress={progress?.getLevelProgress(params.params?.name || "") || {}}
             />
+            {/if}
         {/each}
 
         <InputCheckBox 

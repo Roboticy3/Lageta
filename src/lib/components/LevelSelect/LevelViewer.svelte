@@ -39,7 +39,8 @@
     /**
      * @type {[number, number] | undefined}
      */
-    let gPos = [0, 0]
+    export let gPos = undefined
+    $: console.log("level set viewer position: ", gPos)
     /**
      * @type {GateTypeController | undefined}
      */
@@ -53,30 +54,29 @@
 
         container.setOffsetNoArgs()
 
-        const id = level.desiredId
-        
-        if (id === undefined) {
-            console.log("Unable to set gateId of ", level, "!")
-            return
-        }
-
         circuitController.addGraphListener("update", ({id}) => {
             if (id === id) {
                 updateAvailability()
             }
         })
 
+        const id = level.desiredId
         level.playCondition.forEach((v, i) => {
-            circuitController.setDesiredValue({id:id, type:"Output", index:i}, v)
+            if (id) circuitController.setDesiredValue({id:id, type:"Output", index:i}, v)
         })
+
         updateAvailability()
     })
 
     function updateAvailability() {
+        //if there is no gate under this level, it shouldn't deactivate because of anything to do with the circuit
         const id = level.desiredId
-        if (id === undefined) return
-        const value = circuitController.getGateOutputs(id)?.override
-        if (value === undefined) return
+        const value = id ? circuitController.getGateOutputs(id)?.override : undefined
+        if (id === undefined || value === undefined) {
+            container.activate()
+            button.setUnavailable(false)
+            return
+        }
 
         let activate = true
         for (let i = 0; i < value.length; i++) {

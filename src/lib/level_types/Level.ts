@@ -70,8 +70,8 @@ export function randomLevel(lParams:LevelParameters, gParams:GateTypeParameters,
     newLParams.params = newParams
 
     //grid size will give 2 grid squares above and below the inputs and outputs
-    const inSize = gType.model.sizeIn
-    const outSize = gType.model.sizeOut
+    const inSize = lParams.inputs || gType.model.sizeIn
+    const outSize = lParams.outputs || gType.model.sizeOut
     const pinMax = Math.max(...[inSize, outSize])
     const inputType = new GateTypeController(Input(inSize))
     const outputType = new GateTypeController(Output(outSize))
@@ -120,7 +120,7 @@ export function randomLevel(lParams:LevelParameters, gParams:GateTypeParameters,
 
     console.log("creating random level... generated play condition: ", newLParams.playCondition)
 
-    return new Level(newLParams)
+    return newLParams
 
 }
 
