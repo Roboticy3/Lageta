@@ -44,6 +44,10 @@ import { StickerType } from "$lib/circuit_types/sticker/Sticker";
 
     export function resolveContents() {
 
+
+        contents = ""
+        hoverGateType = null
+
         switch (query.type) {
             case "Gate":
                 const vType = query.gateTypeController?.view
@@ -58,13 +62,9 @@ import { StickerType } from "$lib/circuit_types/sticker/Sticker";
                 if (stickerType !== undefined) {
                     contents = wrapSticker(stickerType)
                     console.log("resolving contents ", contents)
-                    hoverGateType = null
                     return
                 }
         }
-        
-        contents = ""
-        hoverGateType = null
     }
 
     /**
@@ -72,6 +72,7 @@ import { StickerType } from "$lib/circuit_types/sticker/Sticker";
      */
     export function setContentsToName(name, duration=0) {
         contents = `<div style="background:white; width:fit-content;"><p>${name || "?"}</p></div>`
+        console.log("manually resolving contents to name ", name)
         const gParams = getGateTypeParams(name)
         const gType = gParams ? getGateType(gParams) : undefined
         if (gType &&
@@ -85,7 +86,6 @@ import { StickerType } from "$lib/circuit_types/sticker/Sticker";
 
         if (duration && duration >= 1) {
             setTimeout(() => {
-                contents = ""
                 resolveContents()
             }, duration)
         }
@@ -145,7 +145,7 @@ import { StickerType } from "$lib/circuit_types/sticker/Sticker";
     }
 </script>
 
-<div class="contents {contents || (showTruthTables && hoverGateType) ? 'ridge':''}" style="top:{posY}px; left:{posX}px;">
+<div class="contents {(showTruthTables && hoverGateType) ? 'ridge':''} {hoverGateType === null ? 'clear':''}" style="top:{posY}px; left:{posX}px;">
     {@html contents}
     {#if showTruthTables && hoverGateType}
         <TruthTableView truthTable={new TruthTable(hoverGateType)} border={false} truthTableData={truthTableProgress?.data}/>
@@ -159,8 +159,14 @@ import { StickerType } from "$lib/circuit_types/sticker/Sticker";
         display:flex;
         flex-direction: column;
 
-        background-color: white;
+        background-color: var(--tertiary-bg-color);
 
         align-items: center;
+
+        min-width: min(7vw, 7vh);
+    }
+
+    .clear {
+        background-color:transparent;
     }
 </style>
