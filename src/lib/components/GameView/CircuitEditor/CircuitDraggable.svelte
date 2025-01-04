@@ -71,7 +71,7 @@ import { StickerType } from "$lib/circuit_types/sticker/Sticker";
      * @param {string} name
      */
     export function setContentsToName(name, duration=0) {
-        contents = `<div style="background:white; width:fit-content;"><p>${name || "?"}</p></div>`
+        contents = `<div style="background:white; max-width:fit-content; min-width:100%; text-align:center;"><p>${name || "?"}</p></div>`
         console.log("manually resolving contents to name ", name)
         const gParams = getGateTypeParams(name)
         const gType = gParams ? getGateType(gParams) : undefined
@@ -145,7 +145,7 @@ import { StickerType } from "$lib/circuit_types/sticker/Sticker";
     }
 </script>
 
-<div class="contents {(showTruthTables && hoverGateType) ? 'ridge':''} {hoverGateType === null ? 'clear':''}" style="top:{posY}px; left:{posX}px;">
+<div class="contents {(contents || (showTruthTables && hoverGateType)) ? 'ridge':''} {hoverGateType === null ? 'clear':''}" style="top:{posY}px; left:{posX}px;">
     {@html contents}
     {#if showTruthTables && hoverGateType}
         <TruthTableView truthTable={new TruthTable(hoverGateType)} border={false} truthTableData={truthTableProgress?.data}/>
