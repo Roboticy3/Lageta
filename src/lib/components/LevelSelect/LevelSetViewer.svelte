@@ -5,7 +5,7 @@
     import LevelViewer from "./LevelViewer.svelte";
     import InputCheckBox from "$lib/components/GameView/CircuitEditor/InputCheckBox.svelte";
     import CircuitDiv from "../GameView/CircuitDiv.svelte";
-    import { AdderNoCarry1, Input, getGateType } from "$lib/dat/GateTypes/GateTypes";
+    import { AdderNoCarry1, Input, InputDown, getGateType } from "$lib/dat/GateTypes/GateTypes";
     import { browser } from "$app/environment";
     import CircuitEditorComponent from "../GameView/CircuitEditor/CircuitEditorComponent.svelte";
     import { GameViewCircuitPanelEventTarget } from "$lib/circuit_types/GameViewCircuitPanelEvent";
@@ -25,7 +25,8 @@
         canDragGates:false, 
         showShelf:false, 
         slotInFront:false,
-        interactionMask:interactionMask
+        interactionMask:interactionMask,
+        inputCheckboxes:false
     }
     const rendererParams = {
         showGates:false, 
@@ -57,6 +58,7 @@
         //if other gates "break" (i.e. appear as buf on this screen), register them here in the same way
         getGateType(Input(1))
         getGateType(AdderNoCarry1)
+        getGateType(InputDown)
         //then, load the saved circuit for this campaign screen from the given key and name
         const circuitStorage = new CircuitStorage(storageKey, undefined, storageName)
         const gridOrError = circuitStorage.loadNew(undefined, false)
@@ -101,7 +103,7 @@
         editorParams = editorParams
 
         circuitController?.giveSimulationMask(interactionMask)
-        circuitController?.setInputs([true])
+        circuitController?.setInputs([true, true, true])
     }
 
     /**

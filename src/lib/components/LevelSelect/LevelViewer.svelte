@@ -40,13 +40,26 @@
      * @type {[number, number] | undefined}
      */
     export let gPos = undefined
-    $: console.log("level set viewer position: ", gPos)
+    
     /**
      * @type {GateTypeController | undefined}
      */
     let gType = undefined
+
+    export let gridMargin = 0.15
+    export let gridMin = 1
+    //compute the size to give a margin between adjacent levels, but also clamp it to a minimum of 1x1 so levels still look good
+    /**
+     * @type {[number, number]}
+     */
+    $: size = gType ? [Math.max(gType.view.gridWidth - 3 * gridMargin, gridMin), Math.max(gType.view.gridHeight - 3 * gridMargin, gridMin)] : [gridMin, gridMin]
+    $: isGridMin = [size[0] == gridMin, size[1] == gridMin]
+    $: positionMargin = [isGridMin[0] ? 0:gridMargin, isGridMin[1] ? 0:gridMargin]
+    $: console.log("positionMargin: ", positionMargin)
+
     $: if (level.desiredId) gPos = circuitController.getGatePosition(level.desiredId)
     $: if (level.desiredId) gType = circuitController.getGateTypeController(level.desiredId)
+    
 
     onMount(async () => {
         console.log("Mounting level selector for ",level)
@@ -112,10 +125,10 @@
 
 <CircuitDiv 
     circuitController={circuitController} 
-    position={gPos ? [gPos[0] + 0.2, gPos[1] + 0.2] : [0, 0]} 
+    position={gPos ? [gPos[0] + positionMargin[0], gPos[1] + positionMargin[1]] : [0, 0]} 
     bob={false}
     smooth={false}
-    size={gType ? [gType.view.gridWidth - 0.6, gType.view.gridHeight - 0.6] : [1, 1]}
+    size={size}
     flash={flash}
     border={true}
     extraStyle={"pointer-events:none;"}

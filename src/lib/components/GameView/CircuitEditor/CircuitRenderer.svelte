@@ -928,7 +928,7 @@
             <rect width={gridSize[0] * cellOffset} height={gridSize[1] * cellOffset} fill="url(#circlePattern)" />
         </g> {/if}
 
-        <g bind:this={wireGroup} stroke="var(--gate-color)" stroke-width="0.5px" fill="none"></g>
+        <g bind:this={wireGroup} stroke="var(--gate-color)" stroke-width="0.5px" fill="none" ></g>
         
         <g bind:this={gateGroup} stroke="var(--gate-color)" stroke-width="0.5px" fill="var(--tertiary-bg-color)"></g>
         <g bind:this={activeGroup} stroke="var(--gate-color)" stroke-width="0.5px" fill="none"></g>

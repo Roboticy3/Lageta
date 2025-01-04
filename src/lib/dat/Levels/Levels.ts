@@ -538,7 +538,7 @@ export const Random1:LevelParameters = {
   params:{
     name:"Random 1"
   },
-  x:0, y:5,
+  desiredId:14,
   inputs:2,outputs:1
 }
 
@@ -563,7 +563,7 @@ export const Random2:LevelParameters = {
   params:{
     name:"Random 2"
   },
-  x:1, y:5,
+  desiredId: 15,
   inputs:2,outputs:2
 }
 
