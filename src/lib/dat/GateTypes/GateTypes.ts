@@ -235,10 +235,26 @@ export const Xor3:GateTypeParameters = {
     draw: (s) => {return `<path d="M 4 2 C 22 4 22 26 4 28 C 7 28 7 2 4 2 Z" style="pointer-events:none;" />\n<path d="M 2 28 C 5 28 5 2 2 2" style="pointer-events:none;" />\n`}
 }
 
+export const Xor4:GateTypeParameters = { 
+    name: "4-Input Xor", inputs: 4, outputs: 1, gridSize:[2, 3], 
+    f: countOdd,
+    draw: (s) => {return `<path d="M 4 2 C 22 4 22 26 4 28 C 7 28 7 2 4 2 Z" style="pointer-events:none;" />\n<path d="M 2 28 C 5 28 5 2 2 2" style="pointer-events:none;" />\n`}
+}
+
 export const Xand3:GateTypeParameters = { 
     name: "3-Input Xand", inputs: 3, outputs: 1, gridSize:[2, 3],
     f: (s:GateState) => {
-        return {override:[!countHigh(s.override)]}
+        const x = countOdd(s)
+        return {override:[!x.override[0]]}
+    },
+    draw: (s) => {return `<path d="M 4 2 C 22 4 22 26 4 28 C 7 28 7 2 4 2 Z" style="pointer-events:none;" />\n<path d="M 2 28 C 5 28 5 2 2 2" style="pointer-events:none;" />\n<circle cx=18 cy=15 r="2" style="pointer-events:none;" />\n`}
+}
+
+export const Xand4:GateTypeParameters = { 
+    name: "4-Input Xand", inputs: 4, outputs: 1, gridSize:[2, 3],
+    f: (s:GateState) => {
+        const x = countOdd(s)
+        return {override:[!x.override[0]]}
     },
     draw: (s) => {return `<path d="M 4 2 C 22 4 22 26 4 28 C 7 28 7 2 4 2 Z" style="pointer-events:none;" />\n<path d="M 2 28 C 5 28 5 2 2 2" style="pointer-events:none;" />\n<circle cx=18 cy=15 r="2" style="pointer-events:none;" />\n`}
 }
@@ -708,7 +724,9 @@ export const registerThesePlease = [
     Xor,
     Xand,
     Xor3,
+    Xor4,
     Xand3,
+    Xand4,
     AtLeast2,
     Add2,
     Add4,

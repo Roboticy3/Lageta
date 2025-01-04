@@ -1,6 +1,6 @@
 import { Connection } from "$lib/circuit_types/GateGraph";
 import { GateType, GateTypeController, type ConnectionValue } from "$lib/circuit_types/GateType";
-import { Add2, Add4, AdderNoCarry1, And, And3, And4, AtLeast2, BCDDecoder, Buf, Decoder2t4, Encoder4t2, FullAdder, HalfAdder, Input, InputDecodePrebaked, InputLabelledPrebaked, InputVariable, NBitAdder, Nand, Nor, Not, Or, Or3, Or4, Output, OutputDecodePrebaked, OutputLabelledPrebaked, OutputVariable, SevenSegmentDecoder, SevenSegmentOutput, Xand, Xor, Xor3, combineGateTypeParameters, drawGateTypeDecode, exampleInputVariable, exampleOutputVariable, getGateType, type GateTypeParameters } from "$lib/dat/GateTypes/GateTypes";
+import { Add2, Add4, AdderNoCarry1, And, And3, And4, AtLeast2, BCDDecoder, Buf, Decoder2t4, Encoder4t2, FullAdder, HalfAdder, Input, InputDecodePrebaked, InputLabelledPrebaked, InputVariable, NBitAdder, Nand, Nor, Not, Or, Or3, Or4, Output, OutputDecodePrebaked, OutputLabelledPrebaked, OutputVariable, SevenSegmentDecoder, SevenSegmentOutput, Xand, Xor, Xor3, Xor4, combineGateTypeParameters, drawGateTypeDecode, exampleInputVariable, exampleOutputVariable, getGateType, type GateTypeParameters } from "$lib/dat/GateTypes/GateTypes";
 import { ConnectionValueSignalSet, Signal, inverter, oscillator, repeater } from "$lib/signal_types/Signal";
 import type { OrganizedCircuitContents, SerializableGate } from "$lib/storage_types/CircuitStorage";
 import type { GameViewParameters, GridSource } from "$lib/level_types/GameViewParameters";
@@ -561,7 +561,7 @@ But, in this case, we're talking about a gate that outputs <span style="color:va
     hint:`The solution is very similar to the other 'bigger' level.`,
     grid: In3Out1,
     completeCondition: countingSignal(getGateType(Xor3), 4, 3),
-    completeRewards: [Xor3.name]
+    completeRewards: [Xor3.name, Xor4.name]
   },
   desiredId: 12,
   type: Xor3,
