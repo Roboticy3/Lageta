@@ -39,7 +39,7 @@
     $: hintTokenView = progress?.getHintTokens()
 
     const nonLevelIds = [0]
-    
+
     /**
      * @type {GameViewCircuitPanel}
      */
@@ -124,7 +124,7 @@
         rendererParams={rendererParams}
     >
         {#each levelSet as params}
-            {#if params.x && params.y}
+            {#if params.x !== undefined && params.y !== undefined}
             <LevelViewer 
                 params={params} 
                 circuitController={circuitController} 

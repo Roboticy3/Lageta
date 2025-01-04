@@ -4,7 +4,7 @@ import { Add2, Add4, AdderNoCarry1, And, And3, And4, AtLeast2, BCDDecoder, Buf, 
 import { ConnectionValueSignalSet, Signal, inverter, oscillator, repeater } from "$lib/signal_types/Signal";
 import type { OrganizedCircuitContents, SerializableGate } from "$lib/storage_types/CircuitStorage";
 import type { GameViewParameters, GridSource } from "$lib/level_types/GameViewParameters";
-import { Level, randomLevel } from "../../level_types/Level";
+import { Level } from "../../level_types/Level";
 import { StickersTool, TruthTableTool } from "../Tools/Tools";
 export type LevelParameters = {
   params?: GameViewParameters;
@@ -534,6 +534,14 @@ export const EncoderLevel:LevelParameters = {
   playCondition: [true, true]
 };
 
+export const Random1:LevelParameters = {
+  params:{
+    name:"Random 1"
+  },
+  x:0, y:5,
+  inputs:2,outputs:1
+}
+
 export const AtLeast2Level:LevelParameters = {
   params: {
     name:"At Least 2",
@@ -544,11 +552,19 @@ export const AtLeast2Level:LevelParameters = {
     hint:`You already have a gate for measuring when exactly 2 inputs are <span style="color:var(--connection-color-on);">high</span>. There are 3 ways to pick 2 pins out of 3, so you'll need to join 3 of these gates.`,
     grid: In3Out1,
     completeCondition: countingSignal(getGateType(AtLeast2), 4, 3),
-    completeRewards: [AtLeast2.name, "Random 1"]
+    completeRewards: [AtLeast2.name, Random1.params?.name || "?"]
   },
   desiredId: 13,
   type: AtLeast2,
   playCondition: [true]
+}
+
+export const Random2:LevelParameters = {
+  params:{
+    name:"Random 2"
+  },
+  x:1, y:5,
+  inputs:2,outputs:2
 }
 
 export const Xor3Level:LevelParameters = {
@@ -563,7 +579,7 @@ But, in this case, we're talking about a gate that outputs <span style="color:va
     hint:`The solution is very similar to the other 'bigger' level.`,
     grid: In3Out1,
     completeCondition: countingSignal(getGateType(Xor3), 4, 3),
-    completeRewards: [Xor3.name, Xor4.name, "Random 2"]
+    completeRewards: [Xor3.name, Xor4.name, Random2.params?.name || "?"]
   },
   desiredId: 12,
   type: Xor3,
@@ -949,6 +965,8 @@ export const Tutorial:LevelParameters= {
   },
   type: Not
 };
+
+
 const all_params = new Map<string, LevelParameters>([
   [Freeplay.params?.name || "?", Freeplay],
   [BufLevel.params?.name || "?", BufLevel],
@@ -962,6 +980,8 @@ const all_params = new Map<string, LevelParameters>([
   [XandLevel.params?.name || "?", XandLevel],
   [Xor3Level.params?.name || "?", Xor3Level],
   [AtLeast2Level.params?.name || "?", AtLeast2Level],
+  [Random1.params?.name || "?", Random1],
+  [Random2.params?.name || "?", Random2],
   [DecoderLevel.params?.name || "?", DecoderLevel],
   [EncoderLevel.params?.name || "?", EncoderLevel],
   [AdderLevel.params?.name || "?", AdderLevel],
