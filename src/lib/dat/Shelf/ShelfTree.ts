@@ -31,7 +31,7 @@ export const GameViewShelfTree = new ShelfTreeNode(
         new ShelfTreeNode(
             "3-Input",
             [
-                "3-Input Or","3-Input And","3-Input Xor","3-Input Xand","FullAdder"
+                "3-Input Or","3-Input And","3-Input Xor","3-Input Xand","FullAdder","At Least 2 of 3"
             ]
         ),
         new ShelfTreeNode(

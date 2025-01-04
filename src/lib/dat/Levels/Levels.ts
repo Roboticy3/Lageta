@@ -1,6 +1,6 @@
 import { Connection } from "$lib/circuit_types/GateGraph";
 import { GateType, GateTypeController, type ConnectionValue } from "$lib/circuit_types/GateType";
-import { Add2, Add4, AdderNoCarry1, And, And3, And4, BCDDecoder, Buf, Decoder2t4, Encoder4t2, FullAdder, HalfAdder, Input, InputDecodePrebaked, InputLabelledPrebaked, InputVariable, NBitAdder, Nand, Nor, Not, Or, Or3, Or4, Output, OutputDecodePrebaked, OutputLabelledPrebaked, OutputVariable, SevenSegmentDecoder, SevenSegmentOutput, Xand, Xor, combineGateTypeParameters, drawGateTypeDecode, exampleInputVariable, exampleOutputVariable, getGateType, type GateTypeParameters } from "$lib/dat/GateTypes/GateTypes";
+import { Add2, Add4, AdderNoCarry1, And, And3, And4, AtLeast2, BCDDecoder, Buf, Decoder2t4, Encoder4t2, FullAdder, HalfAdder, Input, InputDecodePrebaked, InputLabelledPrebaked, InputVariable, NBitAdder, Nand, Nor, Not, Or, Or3, Or4, Output, OutputDecodePrebaked, OutputLabelledPrebaked, OutputVariable, SevenSegmentDecoder, SevenSegmentOutput, Xand, Xor, Xor3, combineGateTypeParameters, drawGateTypeDecode, exampleInputVariable, exampleOutputVariable, getGateType, type GateTypeParameters } from "$lib/dat/GateTypes/GateTypes";
 import { ConnectionValueSignalSet, Signal, inverter, oscillator, repeater } from "$lib/signal_types/Signal";
 import type { OrganizedCircuitContents, SerializableGate } from "$lib/storage_types/CircuitStorage";
 import type { GameViewParameters, GridSource } from "$lib/level_types/GameViewParameters";
@@ -145,7 +145,7 @@ export const FourBitDecoder:LevelParameters = {
         <p>That's because this particular input represents a "Binary Coded Decimal," or BCD.</p>
         <p>BCD's are the same as any other binary number, except any value above 9 is discarded.</p>
         <p>If the input has a value of 10 through 15, you must not setting any of the outputs to <span style="color:var(--connection-color-on);">high</span>.</p>
-        <p>Lageta largely automates displaying numbers for your circuits. But in real life, displaying numbers from circuits takes a lot of work. Understanding BCD's is the first step to learning how to make your own displays.</p>
+        <p>Lageta largely automates displaying numbers for your <span style="color:var(--circuit-color);">circuits</span>. But in real life, displaying numbers from circuits takes a lot of work. Understanding BCD's is the first step to learning how to make your own displays.</p>
         `,
     grid: {
       gateTypes: [getGateType(InputVariable(4, "X")), getGateType(Output(10, {
@@ -229,7 +229,7 @@ export const XandLevel:LevelParameters = {
     name: "Exclusion 2",
     directions: `
         <p>Beating this level requires constructing a "Xand" gate.</p>
-        <p>However, it may be more useful to refer to it as an "Equals" gate, since this circuit should only output <span style="color:var(--connection-color-on);">high</span> when:
+        <p>However, it may be more useful to refer to it as an "Equals" gate, since this <span style="color:var(--circuit-color);">circuit</span> should only output <span style="color:var(--connection-color-on);">high</span> when:
             <p>both of its inputs are <span style="color:var(--connection-color-on);">high</span></p>
             <p>or</p>
             <p>both of its inputs are <span style="color:var(--connection-color-off);">low</span></p>
@@ -267,7 +267,7 @@ export const XandLevel:LevelParameters = {
   },
   x: 0,
   y: 4,
-  desiredId: 12,
+  desiredId: 20,
   type: Xand
 };
 export const FullAdderLevel:LevelParameters = {
@@ -531,6 +531,43 @@ export const EncoderLevel:LevelParameters = {
   type: Encoder4t2,
   playCondition: [true, true]
 };
+
+export const AtLeast2Level:LevelParameters = {
+  params: {
+    name:"At Least 2",
+    directions:`
+<p>To beat this level, you need to build a <span style="color:var(--circuit-color);">circuit</span> that outputs <span style="color:var(--connection-color-on);">high</span> when <span style="font-style:italic;">at least</span> 2 inputs are <span style="color:var(--connection-color-on);">high</span></p>
+<p>Try first building a <span style="color:var(--circuit-color);">circuit</span> with one output for each combination of 2 inputs that could be <span style="color:var(--connection-color-on);">high</span>, then joining those outputs together.</p>
+`,
+    hint:`You already have a gate for measuring when exactly 2 inputs are <span style="color:var(--connection-color-on);">high</span>. There are 3 ways to pick 2 pins out of 3, so you'll need to join 3 of these gates.`,
+    grid: In3Out1,
+    completeCondition: countingSignal(getGateType(AtLeast2), 4, 3),
+    completeRewards: [AtLeast2.name]
+  },
+  desiredId: 13,
+  type: AtLeast2,
+  playCondition: [true]
+}
+
+export const Xor3Level:LevelParameters = {
+  params: {
+    name:"Bigger Exclusion",
+    directions:`
+<p>There are multiple ways to interperet a 'larger' Xor gate.
+A Xor gate with more than 2 inputs may refer to a gate that outputs <span style="color:var(--connection-color-on);">high</span> when <span style="font-style:italic;">exactly</span> 1 of the inputs is <span style="color:var(--connection-color-on);">high</span>.
+But, in this case, we're talking about a gate that outputs <span style="color:var(--connection-color-on);">high</span> when any odd number of inputs are <span style="color:var(--connection-color-on);">high</span>.</p>
+<p>This might seem like a random choice, but measuring an odd number of pins is actually easier than counting exactly 1, and will be more relevant in later levels.</p>
+`,
+    hint:`The solution is very similar to the other 'bigger' level.`,
+    grid: In3Out1,
+    completeCondition: countingSignal(getGateType(Xor3), 4, 3),
+    completeRewards: [Xor3.name]
+  },
+  desiredId: 12,
+  type: Xor3,
+  playCondition: [true]
+}
+
 const Or3LevelInputs = [new Signal<ConnectionValue>([{
   frame: 0,
   value: false
@@ -633,7 +670,7 @@ export const XorLevel:LevelParameters = {
       frame: 5,
       value: false
     }]).push(oscillator(10, 9))], 200, getGateType(Xor)),
-    completeRewards: [getGateType(Xor).name, AdderLevel.params?.name || "?"]
+    completeRewards: [getGateType(Xor).name, AdderLevel.params?.name || "?", Xor3Level.params?.name || "?"]
   },
   x: 11,
   y: 2,
@@ -649,7 +686,7 @@ export const And3Level:LevelParameters = {
         <p>However, you might not have this exact gate already. If not, you'll have to connect multiple gates together to win.</p>
         `,
     hint: `
-      <p>Only using regular And gates, there's only a few ways you can arrange them to get a circuit with 3 inputs and 1 output</p>
+      <p>Only using regular And gates, there's only a few ways you can arrange them to get a <span style="color:var(--circuit-color);">circuit</span> with 3 inputs and 1 output</p>
     `,
     grid: In3Out1,
     completeCondition: new ConnectionValueSignalSet(Or3LevelInputs.map(s => inverter(s)), 60, getGateType(And3)),
@@ -670,7 +707,7 @@ export const Or3Level:LevelParameters = {
         `,
     grid: In3Out1,
     completeCondition: new ConnectionValueSignalSet(Or3LevelInputs, 60, getGateType(Or3)),
-    completeRewards: [getGateType(Or3).name, getGateType(Or4).name]
+    completeRewards: [getGateType(Or3).name, getGateType(Or4).name, AtLeast2Level.params?.name || "?"]
   },
   x: 4,
   y: 5,
@@ -921,6 +958,8 @@ const all_params = new Map<string, LevelParameters>([
   [NorLevel.params?.name || "?", NorLevel],
   [XorLevel.params?.name || "?", XorLevel],
   [XandLevel.params?.name || "?", XandLevel],
+  [Xor3Level.params?.name || "?", Xor3Level],
+  [AtLeast2Level.params?.name || "?", AtLeast2Level],
   [DecoderLevel.params?.name || "?", DecoderLevel],
   [EncoderLevel.params?.name || "?", EncoderLevel],
   [AdderLevel.params?.name || "?", AdderLevel],
