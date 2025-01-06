@@ -1007,3 +1007,9 @@ export function getLevelFromParams(params:LevelParameters) {
 export function getLevelParams(name:string) {
   return all_params.get(name);
 }
+
+
+//default grid for stage 1. Update as you go ons
+export const CampaignGrids = new Map([
+  ["Stage 1", `[{"k":"Stage 1","v":{"gates":[{"x":0,"y":4,"id":0,"type":"Input1"},{"x":3,"y":2,"id":1,"type":"And"},{"x":3,"y":5,"id":2,"type":"Or"},{"x":3,"y":0,"id":3,"type":"Nand"},{"x":3,"y":7,"id":4,"type":"Nor"},{"x":6,"y":0,"id":5,"type":"3-Input And"},{"x":5,"y":6,"id":6,"type":"3-Input Or"},{"x":7,"y":3,"id":7,"type":"Xor"},{"x":10,"y":4,"id":8,"type":"AdderNoCarry1"},{"x":9,"y":1,"id":9,"type":"HalfAdder"},{"x":0,"y":8,"id":10,"type":"FullAdder"},{"x":18,"y":2,"id":11,"type":"4-Bit Adder"},{"x":8,"y":5,"id":12,"type":"3-Input Xor"},{"x":10,"y":6,"id":13,"type":"At Least 2 of 3"},{"x":0,"y":5,"id":14,"type":"Input1Down"},{"x":1,"y":5,"id":15,"type":"Input1Down"}],"gateTypes":["Input1","And","Or","Nand","Nor","3-Input And","3-Input Or","Xor","AdderNoCarry1","HalfAdder","FullAdder","4-Bit Adder","3-Input Xor","At Least 2 of 3","Input1Down"],"connections":[{"from":[0,0],"to":[[2,0],[1,1],[1,0],[3,0],[4,0]]},{"from":[0,0],"to":[[2,0],[1,1],[1,0],[3,0],[4,0]]},{"from":[0,0],"to":[[2,0],[1,1],[1,0],[3,0],[4,0]]},{"from":[0,0],"to":[[2,0],[1,1],[1,0],[3,0],[4,0]]},{"from":[0,0],"to":[[2,0],[1,1],[1,0],[3,0],[4,0]]},{"from":[1,0],"to":[[5,1]]},{"from":[2,0],"to":[[6,0]]},{"from":[3,0],"to":[[5,0]]},{"from":[5,0],"to":[[7,0]]},{"from":[6,0],"to":[[5,2],[13,2]]},{"from":[6,0],"to":[[5,2],[13,2]]},{"from":[7,0],"to":[[12,0],[8,1],[9,1]]},{"from":[7,0],"to":[[12,0],[8,1],[9,1]]},{"from":[7,0],"to":[[12,0],[8,1],[9,1]]},{"from":[9,0],"to":[[10,2]]},{"from":[10,0],"to":[[11,7]]},{"from":[12,0],"to":[[13,0]]},{"from":[14,0],"to":[[10,0]]},{"from":[15,0],"to":[[10,1]]}],"size":[20,10],"offset":[0,0]}}]`],
+])

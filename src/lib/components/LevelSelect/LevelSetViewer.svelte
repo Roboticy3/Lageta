@@ -16,6 +16,7 @@
     import StickerViewer from "../GameView/CircuitEditor/Sticker/StickerViewer.svelte";
     import { CowSticker } from "$lib/dat/Tools/Tools";
     import { CircuitController } from "$lib/circuit_types/CircuitController";
+    import { CampaignGrids } from "$lib/dat/Levels/Levels";
 
     /**
      * @type {Set<number>}
@@ -45,9 +46,19 @@
      * @type {GameViewCircuitPanel}
      */
     let circuitPanel
+
+    /**
+     * @type {CircuitStorage | undefined}
+     */
+    let circuitStorage = undefined
     
     onMount(async () => {
         editorEventTarget.addEventListener("setinput", readInputCheckBox) 
+
+        editorEventTarget.addUpdateListener(() => {
+            circuitStorage = new CircuitStorage(storageName, circuitController, storageKey)
+            circuitStorage?.save()
+        })
     })
 
     export let storageKey = "Stage 1"
@@ -60,15 +71,28 @@
         getGateType(AdderNoCarry1)
         getGateType(InputDown)
         //then, load the saved circuit for this campaign screen from the given key and name
-        const circuitStorage = new CircuitStorage(storageKey, undefined, storageName)
-        const gridOrError = circuitStorage.loadNew(undefined, false)
+        circuitStorage = new CircuitStorage(storageKey, undefined, storageName)
+        let gridOrError = circuitStorage.loadNew(undefined, false)
         if (typeof gridOrError !== "string") {
             const grid = gridOrError
             circuitController = new CircuitController(grid)
         }
         else {
             const error = gridOrError
-            console.log("LevelSetViewer failed to load grid ", storageKey, storageName, " with code ", error)
+            console.log("LevelSetViewer failed to load grid ", storageKey, storageName, " with code ", error, " Resolving to default...")
+            const fresh = CampaignGrids.get(storageKey)
+            localStorage.setItem(storageKey, fresh === undefined ? "":fresh)
+            circuitStorage = new CircuitStorage(storageKey, undefined, storageName)
+            gridOrError = circuitStorage.loadNew(undefined, false)
+        }
+
+        if (typeof gridOrError !== "string") {
+            const grid = gridOrError
+            circuitController = new CircuitController(grid)
+        }
+        else {
+            const error = gridOrError
+            console.log("LevelSetViewer failed to load DEFAULT grid ", storageKey, storageName, " with code ", error)
         }
 
         console.log("LevelSetViewer updated circuitController: ", circuitController)

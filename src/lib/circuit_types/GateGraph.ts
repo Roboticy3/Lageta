@@ -571,7 +571,7 @@ export class GateGraph extends GateGraphEventTarget {
             }
         }
 
-        console.log("resolving from ", gate, (new Error()).stack)
+        console.log("resolving from ", gate)
 
         let outputs:GateState = {override:[]}
 
