@@ -67,15 +67,15 @@
 
         container.setOffsetNoArgs()
 
-        circuitController.addGraphListener("update", ({id}) => {
-            if (id === id) {
+        if (level.desiredId) circuitController.addGraphListener("update", ({id}) => {
+            console.log("checking availability: recieved update from id ", id)
+            if (id === level.desiredId) {
                 updateAvailability()
             }
         })
 
-        const id = level.desiredId
         level.playCondition.forEach((v, i) => {
-            if (id) circuitController.setDesiredValue({id:id, type:"Output", index:i}, v)
+            if (level.desiredId) circuitController.setDesiredValue({id:level.desiredId, type:"Output", index:i}, v)
         })
 
         updateAvailability()
@@ -85,22 +85,26 @@
         //if there is no gate under this level, it shouldn't deactivate because of anything to do with the circuit
         const id = level.desiredId
         const value = id ? circuitController.getGateOutputs(id)?.override : undefined
-        if (id === undefined || value === undefined) {
+        console.log("checking availability of level ", levelProgress, " with values ", id, value)
+        if ((id === undefined) || (value === undefined)) {
+            console.log("checking availability: missing id or value... making available by default")
             container.activate()
             button.setUnavailable(false)
             return
         }
 
-        let activate = true
+        console.log("checking availability: comparing ", value, " with expected ", level.playCondition)
+        let shouldActivate = true
         for (let i = 0; i < value.length; i++) {
             if( (value[i]) !== (level.playCondition[i])) {
-                activate = false
+                shouldActivate = false
                 break
             }
         }
-        if (activate) container.activate()
+        console.log("checking availability: should activate? ", shouldActivate)
+        if (shouldActivate) container.activate()
         else container.deactivate()
-        button.setUnavailable(!activate)
+        button.setUnavailable(!shouldActivate)
     }
 
     async function playLevel() {
