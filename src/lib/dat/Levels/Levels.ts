@@ -276,25 +276,37 @@ export const FullAdderLevel:LevelParameters = {
   params: {
     name: "Full Adder",
     directions: `
-        <p>This level requires a {Circuit} that adds two 2-digit binary numbers.</p>
+        <p>To complete this level, you need to complete a 2-digit binary adder.</p>
+        <p>Below is a diagram representing 1 + 3 in binary.</p>
         <div style="display:flex; justify-content:space-evenly;">
-            <div style="display:grid; grid-template-columns: 1fr 1fr 1fr 1fr; grid-template-rows: 1fr 1fr 1fr 1fr 1fr; width:25%; text-wrap:nowrap;">
-                <div style="grid-column: 2; grid-row: 1;">1</div><div style="grid-column: 3; grid-row: 1;">1</div>
-                <div style="grid-column: 3; grid-row: 2;">0</div><div style="grid-column: 4; grid-row: 2;">1</div>
-                <div style="grid-column: 1; grid-row: 3;">+</div><div style="grid-column: 3; grid-row: 3;">1</div><div style="grid-column: 4; grid-row: 3;">1</div>
-                <div style="grid-column: 2; grid-row: 4;">1</div><div style="grid-column: 3; grid-row: 4;">0</div><div style="grid-column: 4; grid-row: 4;">0</div>
-                <div style="grid-column: 1 / 5; grid-row: 4; width:100%; height:100%; border-top: 2px solid black;" ></div>
-            </div>
             <div style="display:grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr 1fr 1fr 1fr; width:12%; text-wrap:nowrap;">
                 <div style="grid-column: 2; grid-row: 2;">1</div>
                 <div style="grid-column: 1; grid-row: 3;">+</div><div style="grid-column: 2; grid-row: 3;">3</div>
                 <div style="grid-column: 2; grid-row: 4;">4</div>
                 <div style="grid-column: 1 / 5; grid-row: 4; width:100%; height:100%; border-top: 2px solid black;" ></div>
             </div>
+            <div style="display:flex; flex-direction:column; justify-content:center;"> --> </div>
+            <div style="display:grid; grid-template-columns: 1fr 1fr 1fr 1fr; grid-template-rows: 1fr 1fr 1fr 1fr 1fr; width:25%; text-wrap:nowrap;">
+                <div style="grid-column: 2; grid-row: 1;">{1}</div><div style="grid-column: 3; grid-row: 1;">{1}</div>
+                <div style="grid-column: 3; grid-row: 2;">{0}</div><div style="grid-column: 4; grid-row: 2;">{1}</div>
+                <div style="grid-column: 1; grid-row: 3;">+</div><div style="grid-column: 3; grid-row: 3;">{1}</div><div style="grid-column: 4; grid-row: 3;">{1}</div>
+                <div style="grid-column: 2; grid-row: 4;">{1}</div><div style="grid-column: 3; grid-row: 4;">{0}</div><div style="grid-column: 4; grid-row: 4;">{0}</div>
+                <div style="grid-column: 1 / 5; grid-row: 4; width:100%; height:100%; border-top: 2px solid black;" ></div>
+            </div>
+            
         </div>
-        <p>Adding the 1's places together is the same as the last adder level, and has been filled in for you.</p>
-        <p>To complete the addition, you need to continue carrying numbers. This requires you to translate 3 inputs - the second binary digits of each number, and the carry from adding the first digits, to 2 outputs, the second binary digit of the sum and a final carry.</p>
+        <p>The logic for the rightmost column of the sum already exists in your {Circuit}... unless you deleted it.</p>
+        <p>So, you only need to worry about the 3 inputs relevant to adding the second digit column above:</p>
+        <p>X1, Y1, and C, the carry from adding the first digit column.</p>
         `,
+    hint:`
+      <p>Filling in this {Circuit} requires a "Full Adder".</p>
+      <p>You've already made a "Half Adder", which is considered only a "Half" because it does not account for a "Carry In"</p>
+      <p>This seems like a dumb way to think about things, but the reality is that a Half Adder and Full Adder are very similar.</p>
+      <p>A Half Adder has 2 inputs and 2 outputs, while a Full Adder is 3 to 2.</p>
+      <p>A Half Adder can be constructed from a Xor gate and an And gate.</p>
+      <p>You may be on the right track if you had something like a Xor gate, and something- sort of -like an And gate, that could each take 3 inputs instead of 2.</p>
+    `,
     grid: {
       gateTypes: [getGateType(InputVariable(2, "X")), getGateType(InputVariable(2, "Y")), getGateType(OutputVariable(2, "S")), getGateType(exampleOutputVariable('C Out')), getGateType(HalfAdder)],
       gates: [{
