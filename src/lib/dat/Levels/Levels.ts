@@ -353,7 +353,6 @@ export const CarryLevel:LevelParameters = {
         <p>When the sum of two digits in the same place exceeds 9, you carry the remainder to the sum of the next digit. We can do the same with {1} and {0}</p>
         <p>When X and Y are 1, they sum to 2, which is too large to represent with one output, so we set Carry to high and S to 0.</p>
         `,
-    hint: `Unless you were messing with the campaign screen, you should already have the right gate for this level now that you're here.`,
     grid: {
       gateTypes: [getGateType(exampleInputVariable('X')), getGateType(exampleInputVariable('Y')), getGateType(exampleOutputVariable('S')), getGateType(exampleOutputVariable('Carry'))],
       gates: [{
@@ -566,10 +565,14 @@ export const Xor3Level:LevelParameters = {
   params: {
     name:"Bigger Exclusion",
     directions:`
-<p>There are multiple ways to interperet a 'larger' Xor gate.
-A Xor gate with more than 2 inputs may refer to a gate that outputs {High} when <span style="font-style:italic;">exactly</span> 1 of the inputs is {High}.
-But, in this case, we're talking about a gate that outputs {High} when any odd number of inputs are {High}.</p>
-<p>This might seem like a random choice, but measuring an odd number of pins is actually easier than counting exactly 1, and will be more relevant in later levels.</p>
+<p>There are multiple ways to interperet a 'larger' Xor gate.</p>
+<p>A Xor gate with more than 2 inputs may refer to:</p>
+<ul>
+  <li>a gate that outputs {High} when <span style="font-style:italic;">exactly</span> 1 of the inputs is {High}, or,</li>
+  <li>a gate that outputs {High} when any odd number of inputs are {High}.</li>
+</ul>
+<p>We're going with the second choice.</p>
+<p>This might seem a little random, but measuring an odd number of pins is actually easier than counting exactly 1, and will be more relevant in later levels.</p>
 `,
     hint:`The solution is very similar to the other 'bigger' level.`,
     grid: In3Out1,
