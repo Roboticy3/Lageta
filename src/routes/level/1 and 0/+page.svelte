@@ -3,11 +3,11 @@
   import GameView from "$lib/components/GameView/GameView.svelte";
   import LevelTemplate from "$lib/components/GameView/LevelTemplate.svelte";
   import { HalfAdder } from "$lib/dat/GateTypes/GateTypes";
-  import { getLevelFromParams, AdderLevel } from "$lib/dat/Levels/Levels";
+  import { getLevelFromParams, MulLevel } from "$lib/dat/Levels/Levels";
   import { ShelfTreeNode } from "$lib/dat/Shelf/ShelfTree";
     import { ProgressStorage } from "$lib/storage_types/ProgressStore";
 
-  $: level = browser ? getLevelFromParams(AdderLevel):undefined
+  $: level = browser ? getLevelFromParams(MulLevel):undefined
 
   //add a custom progress upon visiting this level:
   //change the truth table labels from high/low to 1/0
@@ -24,5 +24,5 @@
 
 </script> 
 {#if ready}
-<LevelTemplate allParams={{gameParams:level?.unpack()}} levelName={AdderLevel.params?.name}/>
+<LevelTemplate allParams={{gameParams:level?.unpack()}} levelName={MulLevel.params?.name}/>
 {/if}

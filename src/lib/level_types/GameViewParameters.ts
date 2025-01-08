@@ -1,4 +1,5 @@
 import { CircuitController } from "$lib/circuit_types/CircuitController"
+import { Symbols } from "$lib/dat/Symbols/Symbols";
 import { ConnectionValueSignalSet, SignalSet } from "$lib/signal_types/Signal"
 import { OrganizedCircuit, type OrganizedCircuitContents } from "$lib/storage_types/CircuitStorage"
 
@@ -56,3 +57,15 @@ export function gridSourceToGrid(source:GridSource) {
 
 export type GridSource = CircuitController | OrganizedCircuitContents | undefined
 export type CompleteConditionSource = ConnectionValueSignalSet | undefined
+
+export function parseDirections(directions?:string, symbols=Symbols) {
+    if (directions === undefined) return undefined
+
+    let newDirections = directions
+
+    symbols.entries().forEach(([k, v]) => {
+        newDirections = newDirections.replaceAll(`{${k}}`, v)
+    })
+
+    return newDirections
+}

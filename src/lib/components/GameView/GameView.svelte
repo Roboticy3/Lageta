@@ -24,7 +24,7 @@
     import { GateGrid } from "$lib/circuit_types/GateGrid";
     import { StickerStorage } from "$lib/storage_types/StickerStorage";
     import { StickerController } from "$lib/circuit_types/sticker/StickerController"
-    import { gridSourceToGrid } from "$lib/level_types/GameViewParameters";
+    import { gridSourceToGrid, parseDirections } from "$lib/level_types/GameViewParameters";
     import HeavyButton from "../Misc/HeavyButton.svelte";
 
     if (!browser) throw Error("GameView requires 'browser' to be the active environment")
@@ -366,7 +366,7 @@
             {/if}
         </div>
         <div class="instructions {slidinParams ? 'slidein':''}" style="flex:{maxSizeState.instructionsFlex};">
-            {@html gameParams.directions}
+            {@html parseDirections(gameParams.directions)}
             {#if truthTableProgress && 
                 solver?.variant === "Gate" &&
                 solver.view.sizeIn < 5
@@ -393,7 +393,7 @@
             {/if}
             {#if hintActive}
                 <div class="flash">
-                    {@html gameParams.hint || "?"}
+                    {@html parseDirections(gameParams.hint) || "?"}
                 </div>
             {/if}
         </div>

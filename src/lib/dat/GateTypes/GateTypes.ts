@@ -413,7 +413,7 @@ export const InputLabelledPrebaked = [
     Input(4,{ name:"Input4Labelled", outputLabels: ["Input 1", "Input 2", "Input 3", "Input 4"], gridSize: [2, 4] })
 ]
 
-export const InputDown = Input(1, {name:"Input1Down", gridSize:[1,2], outputs:[[5,18]]})
+export const InputDown = Input(1, {name:"Input1Down", gridSize:[1,2], outputs:[[5,18]], outputLabels:[""]})
 
 export const InputDecodePrebaked = [
     Buf,

@@ -47,10 +47,6 @@ export class Level {
         return this.params;
     }
 
-    description() {
-        return this.params.directions
-    }
-
     name() {
         return this.params.name
     }
