@@ -15,6 +15,10 @@
      * @type {CircuitController}
      */
     export let circuitController
+    $: circuitController.addGraphListener("update", ({id}) => {
+        console.log("renderer caught update", id)
+        updateGate(id)
+    })
 
     /**
      * @type {CircuitDraggable}
@@ -113,12 +117,6 @@
 
         editorEventTarget?.addEventListener("drag", drawActive)
         editorEventTarget?.addEventListener("drop", clearActives)
-
-        circuitController.addGraphListener("update", evt => {
-            const q = circuitDraggable.getQuery()
-            const id = q.getId()
-            if (id !== undefined) updateGate(id)
-        })
 
         SFXPlayer.loadAudio(["hover.wav"])
     })
