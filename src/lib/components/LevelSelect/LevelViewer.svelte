@@ -59,6 +59,7 @@
 
     $: if (level.desiredId) gPos = circuitController.getGatePosition(level.desiredId)
     $: if (level.desiredId) gType = circuitController.getGateTypeController(level.desiredId)
+    $: if (level.desiredId !== undefined) circuitController.addGraphListener("update", onGraphUpdate)
     
 
     onMount(async () => {
@@ -67,19 +68,23 @@
 
         container.setOffsetNoArgs()
 
-        if (level.desiredId) circuitController.addGraphListener("update", ({id}) => {
-            console.log("checking availability: recieved update from id ", id)
-            if (id === level.desiredId) {
-                updateAvailability()
-            }
-        })
-
         level.playCondition.forEach((v, i) => {
-            if (level.desiredId) circuitController.setDesiredValue({id:level.desiredId, type:"Output", index:i}, v)
+            if (level.desiredId !== undefined) circuitController.setDesiredValue({id:level.desiredId, type:"Output", index:i}, v)
         })
 
         updateAvailability()
     })
+
+    /**
+     * 
+     * @param {{id:number}} param0
+     */
+    function onGraphUpdate({id}) {
+        console.log("checking availability: recieved update from id ", id)
+        if (id === level.desiredId) {
+            updateAvailability()
+        }
+    }
 
     function updateAvailability() {
         //if there is no gate under this level, it shouldn't deactivate because of anything to do with the circuit

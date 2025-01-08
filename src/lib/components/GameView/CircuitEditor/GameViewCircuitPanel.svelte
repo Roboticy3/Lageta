@@ -89,9 +89,6 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
     $: {
         if (circuitRenderer) {
             circuitController.giveRenderer(circuitRenderer)
-            circuitController.addGraphListener("update", ({id}) => {
-                circuitRenderer.updateGate(id)
-            })
         }
     }
 
