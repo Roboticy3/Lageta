@@ -302,7 +302,7 @@
     function connectionPointLabelConstructor(index, cType, gPos) {
         const id = index.id
 
-        if (rendererParams.showMask?.has(id)) return svgWrapGroup('')
+        if (rendererParams.showConnectionLabels === false || rendererParams.showMask?.has(id)) return svgWrapGroup('')
 
         const gateIdString = idSpace.gateIdString(id)
         let svg = svgHead.querySelector(`#${gateIdString}`)
@@ -927,7 +927,6 @@
         </g> {/if}
 
         <g bind:this={wireGroup} stroke="var(--gate-color)" stroke-width="0.5px" fill="none" ></g>
-        
         <g bind:this={gateGroup} stroke="var(--gate-color)" stroke-width="0.5px" fill="var(--tertiary-bg-color)"></g>
         <g bind:this={activeGroup} stroke="var(--gate-color)" stroke-width="0.5px" fill="none"></g>
     </g>

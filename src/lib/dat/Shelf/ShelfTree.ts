@@ -37,7 +37,7 @@ export const GameViewShelfTree = new ShelfTreeNode(
         new ShelfTreeNode(
             "Nibbles",
             [
-                "4-Input Or","4-Input And","4-2 Encoder","Binary Coded Decimal to 7-Segment Decoder"
+                "4-Input Or","4-Input And","4-2 Encoder","BCD to 7-Segment Decoder","BCD Decoder"
             ]
         ),
         new ShelfTreeNode(
@@ -49,8 +49,8 @@ export const GameViewShelfTree = new ShelfTreeNode(
         new ShelfTreeNode(
             "Displays",
             [
-                "7-Segment Display"
-            ]
+                "7-Segment Display", "7-Segment Encoder"
+            ], 0
         ),
         new ShelfTreeNode(
             "Bigger",

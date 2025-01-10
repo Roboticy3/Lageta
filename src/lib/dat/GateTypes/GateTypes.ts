@@ -320,49 +320,75 @@ const SevenSegmentTransforms = [
 const SevenSegmentNames = [
     'a', 'b', 'c', 'd', 'e', 'f', 'g'
 ]
+function SevenSegmentDraw(s:GateState) {
+    let result = '<g transform="scale(0.825) translate(-2, 0)">'
+    for (let i = 0; i < 7; i++) {
+        const value = s.override[i]
+        const color = connectionValueToColor(value)
+        const fill = value ? `fill="${color}" fill-opacity="0.8"` : ''
+        const stroke = `stroke="${color}"`
+        const transform = SevenSegmentTransforms[i]
+        result += `
+            <g transform="${transform}">
+                <path d="${LEDSegmentPath}" ${stroke} ${fill} />
+                <text fill="black" stroke="none" y="3.5" x="8.5" style="pointer-events:none; font-size:4px;" >${SevenSegmentNames[i]}</text>
+            </g>\n`
+    }
+    result += "</g>"
+    return result
+}
 export const SevenSegmentOutput:GateTypeParameters = {
     name: "7-Segment Display", inputs:7, outputs:0, gridSize:[3, 5], 
     inputLabels: SevenSegmentNames,
-    draw: (s) => {
-        let result = '<g transform="scale(0.9)">'
-        for (let i = 0; i < 7; i++) {
-            const value = s.override[i]
-            const color = connectionValueToColor(value)
-            const fill = value ? `fill="${color}" fill-opacity="0.8"` : ''
-            const stroke = `stroke="${color}"`
-            const transform = SevenSegmentTransforms[i]
-            result += `
-                <g transform="${transform}">
-                    <path d="${LEDSegmentPath}" ${stroke} ${fill} />
-                    <text fill="black" stroke="none" y="3.5" x="8.5" style="pointer-events:none; font-size:4px;" >${SevenSegmentNames[i]}</text>
-                </g>\n`
-        }
-        result += "</g>"
-        return result
-    }
+    draw: SevenSegmentDraw
 
+}
+
+function SevenSegementEncoding(v:number): GateState {
+    switch (v) {
+        case 0: return {override:[true, true, true, true, true, true, false]}
+        case 1: return {override:[false, true, true, false, false, false, false]}
+        case 2: return {override:[true, true, false, true, true, false, true]}
+        case 3: return {override:[true, true, true, true, false, false, true]}
+        case 4: return {override:[false, true, true, false, false, true, true]}
+        case 5: return {override:[true, false, true, true, false, true, true]}
+        case 6: return {override:[true, false, true, true, true, true, true]}
+        case 7: return {override:[true, true, true, false, false, false, false]}
+        case 8: return {override:[true, true, true, true, true, true, true]}
+        case 9: return {override:[true, true, true, false, false, true, true]}
+        default: return {override:new Array(7).fill(undefined)}
+    }
 }
 
 export const SevenSegmentDecoder:GateTypeParameters = {
-    name: "Binary Coded Decimal to 7-Segment Decoder", inputs:4, outputs:7, gridSize:[3, 6],
+    name: "BCD to 7-Segment Decoder", inputs:4, outputs:7, gridSize:[3, 5],
     inputLabels:['1', '2', '4', '8'], outputLabels: ['a', 'b', 'c', 'd', 'e', 'f', 'g'],
     f: (s) => {
         const v = decodeInternal(s, 4)
-        switch (v) {
-            case 0: return {override:[true, true, true, true, true, true, false]}
-            case 1: return {override:[false, true, true, false, false, false, false]}
-            case 2: return {override:[true, true, false, false, true, false, true]}
-            case 3: return {override:[true, true, true, true, false, false, true]}
-            case 4: return {override:[false, true, true, false, false, true, true]}
-            case 5: return {override:[true, false, true, true, false, true, true]}
-            case 6: return {override:[true, false, true, true, true, true, true]}
-            case 7: return {override:[true, true, true, false, false, false, false]}
-            case 8: return {override:[true, true, true, true, true, true, true]}
-            case 9: return {override:[true, true, true, false, false, true, true]}
-            default: return {override:new Array(7).fill(undefined)}
-        }
+        return SevenSegementEncoding(v)
     }
 }
+
+function SevenSegmentEncoderf(s:GateState) {
+    const i = s.override.lastIndexOf(true)
+    if (i === -1) return {override:new Array(7).fill(undefined)}
+    return SevenSegementEncoding(i)
+}
+
+export const SevenSegmentEncoder:GateTypeParameters = {
+    name: "7-Segment Encoder", inputs:10, outputs:7, gridSize:[3, 5],
+    inputLabels:['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'], outputLabels: ['a', 'b', 'c', 'd', 'e', 'f', 'g'],
+    f: (s) => {
+        const i = s.override.lastIndexOf(true)
+        if (i === -1) return {override:new Array(7).fill(undefined)}
+        return SevenSegementEncoding(i)
+    },
+    draw: (s) => {
+        return drawGateTypeRect(3, 5) + SevenSegmentDraw(SevenSegmentEncoderf(s))
+    }
+}
+
+export const SevenSegmentEncoderUnlabelled = combineGateTypeParameters(SevenSegmentEncoder, {name:"7-Segment Encoder Unlabelled", inputLabels:new Array(10).fill(""), outputLabels:(new Array(7).fill(""))})
 
 function logGridSize(bits: number): number {
     return Math.ceil(Math.log2(bits)) + 1;
@@ -522,7 +548,7 @@ function decodeInternal(s:GateState, bits:number) {
 export function Decoder(bits:number, otherParams?: GateTypeParameters) {
     const outSize = Math.pow(2, bits)
     const otherSize = otherParams?.gridSize || [undefined, undefined]
-    const gridWidth = otherSize[0] || Math.ceil(logGridSize(outSize) / 2) + 1
+    const gridWidth = otherSize[0] || Math.ceil(logGridSize(outSize) / 3) + 1
     const gridHeight = otherSize[1] || logGridSize(outSize)
     let params: GateTypeParameters = {
         name: `${bits}-${outSize} Decoder`,
@@ -547,7 +573,6 @@ export const Decoder1t2 = Decoder(1)
 export const Decoder2t4 = Decoder(2)
 export const BCDDecoder = Decoder(4, 
     {name:"BCD Decoder", 
-        gridSize:[3, 8], 
         outputs: 10, 
         outputLabels:(new Array(10).fill('').map((_v, i) => `${i}`)),
         f: (s) => {
@@ -559,6 +584,8 @@ export const BCDDecoder = Decoder(4,
         },
     }
 )
+
+export const BCDDecoderUnlabelled = combineGateTypeParameters(BCDDecoder, {name:"BCD Decoder Unlabelled", inputLabels:new Array(4).fill(""), outputLabels:(new Array(10).fill(""))})
 
 function encodeInternal(v:number, bits:number) {
     let result = new Array(bits).fill(false)
@@ -573,7 +600,7 @@ function encodeInternal(v:number, bits:number) {
 export function Encoder(bits:number, otherParams?: GateTypeParameters) {
     const inSize = Math.pow(2, bits)
     const otherSize = otherParams?.gridSize || [undefined, undefined]
-    const gridWidth = otherSize[0] || Math.ceil(logGridSize(inSize) / 2) + 1
+    const gridWidth = otherSize[0] || Math.ceil(logGridSize(inSize) / 3) + 1
     const gridHeight = otherSize[1] || logGridSize(inSize)
     let params: GateTypeParameters = {
         name: `${inSize}-${bits} Encoder`,
@@ -692,6 +719,8 @@ export function NBitAdder(bits:number, otherParams?:GateTypeParameters) {
 export const Add2 = NBitAdder(2)
 export const Add4 = NBitAdder(4)
 
+export const Add4Unlabelled = combineGateTypeParameters(Add4, {name:"4-Bit Adder Unlabelled", inputLabels:new Array(8).fill(""), outputLabels:(new Array(5).fill(""))})
+
 export let all_gates: Map<string, GateTypeController> = new Map();
 
 /**
@@ -750,11 +779,13 @@ export const registerThesePlease = [
     Add4,
     HalfAdder,
     FullAdder,
+    SevenSegmentEncoder,
     SevenSegmentDecoder,
     SevenSegmentOutput,
     Decoder1t2,
     Decoder2t4,
     BCDDecoder,
+    BCDDecoderUnlabelled,
     Encoder2t1,
     Encoder4t2,
     InputDown

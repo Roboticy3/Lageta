@@ -219,7 +219,8 @@ export const SevenSegmentLevel:LevelParameters = {
   type: getGateType(SevenSegmentDecoder),
   x: 10,
   y: 4,
-  desiredId: 17
+  desiredId: 20,
+  playCondition: [true, true, true, true, false, false, true]
 };
 export const FourBitDecoder:LevelParameters = {
   params: {
@@ -252,12 +253,13 @@ export const FourBitDecoder:LevelParameters = {
       size: [22, 12]
     } as GridSource,
     completeCondition: countingSignal(getGateType(BCDDecoder), 5, 1, 10),
-    completeRewards: []
+    completeRewards: [SevenSegmentLevel.params?.name || "?", BCDDecoder.name]
   },
   type: getGateType(OutputVariable(4, 'X')),
   x: 15,
   y: 7,
-  desiredId: 16
+  desiredId: 19,
+  playCondition:[false, false, false, true, false, false, false, false, false, false]
 };
 export const FourBitAdder:LevelParameters = {
   params: {

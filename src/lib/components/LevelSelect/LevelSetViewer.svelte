@@ -5,7 +5,7 @@
     import LevelViewer from "./LevelViewer.svelte";
     import InputCheckBox from "$lib/components/GameView/CircuitEditor/InputCheckBox.svelte";
     import CircuitDiv from "../GameView/CircuitDiv.svelte";
-    import { AdderNoCarry1, Input, InputDown, getGateType } from "$lib/dat/GateTypes/GateTypes";
+    import { AdderNoCarry1, BCDDecoder, Input, InputDown, SevenSegmentDecoder, SevenSegmentEncoder, getGateType } from "$lib/dat/GateTypes/GateTypes";
     import { browser } from "$app/environment";
     import CircuitEditorComponent from "../GameView/CircuitEditor/CircuitEditorComponent.svelte";
     import { GameViewCircuitPanelEventTarget } from "$lib/circuit_types/GameViewCircuitPanelEvent";
@@ -31,7 +31,8 @@
     const rendererParams = {
         showGates:false, 
         showGrid:false,
-        showMask:interactionMask
+        showMask:interactionMask,
+        showConnectionLabels:false
     }
 
     $: progress = browser ? new ProgressStorage() : undefined
@@ -69,6 +70,10 @@
         getGateType(Input(1))
         getGateType(AdderNoCarry1)
         getGateType(InputDown)
+        getGateType(SevenSegmentEncoder)
+        getGateType(SevenSegmentDecoder)
+        getGateType(BCDDecoder)
+
         //then, load the saved circuit for this campaign screen from the given key and name
         circuitStorage = new CircuitStorage(storageKey, undefined, storageName)
         let gridOrError = circuitStorage.loadNew(undefined, false)
