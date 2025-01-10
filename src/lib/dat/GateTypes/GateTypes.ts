@@ -91,7 +91,7 @@ export const drawGateTypeEncode = (s:GateState, gridWidth:number, gridHeight:num
     fill="black" stroke="none"
     style="pointer-events:none;"
     >
-    ${v === -1 ? 0:v}
+    ${v === -1 ? "?":v}
 </text>`
     )
     return result.join()
