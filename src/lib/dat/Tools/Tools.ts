@@ -12,14 +12,12 @@ export const CowSticker = new StickerType(
 
 export const FrogSticker = new StickerType(
     "Frog",
-    "https://cdn.pixabay.com/photo/2016/05/25/17/53/frog-1415516_1280.png", 
-    {license: "Pixabay"}
+    "https://cdn.pixabay.com/photo/2016/05/25/17/53/frog-1415516_1280.png"
 )
 
 export const BoredomSticker = new StickerType(
     "Boredom",
     "https://media1.tenor.com/m/G7VbtYRypMkAAAAd/filosofia.gif",
-    {license: "Tenor"}
 )
 
 export const StickersTool = {

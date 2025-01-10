@@ -91,7 +91,7 @@ export const drawGateTypeEncode = (s:GateState, gridWidth:number, gridHeight:num
     fill="black" stroke="none"
     style="pointer-events:none;"
     >
-    ${v === -1 ? "":v}
+    ${v === -1 ? 0:v}
 </text>`
     )
     return result.join()
@@ -364,6 +364,10 @@ export const SevenSegmentDecoder:GateTypeParameters = {
     }
 }
 
+function logGridSize(bits: number): number {
+    return Math.ceil(Math.log2(bits)) + 1;
+}
+
 export function labelPoints(template:string, length:number, format:(string | RegExp)="{i}") {
     const result = new Array<string>(length)
     for (let i = 0; i < length; i++) {
@@ -518,8 +522,8 @@ function decodeInternal(s:GateState, bits:number) {
 export function Decoder(bits:number, otherParams?: GateTypeParameters) {
     const outSize = Math.pow(2, bits)
     const otherSize = otherParams?.gridSize || [undefined, undefined]
-    const gridWidth = otherSize[0] || 3
-    const gridHeight = otherSize[1] || outSize
+    const gridWidth = otherSize[0] || Math.ceil(logGridSize(outSize) / 2) + 1
+    const gridHeight = otherSize[1] || logGridSize(outSize)
     let params: GateTypeParameters = {
         name: `${bits}-${outSize} Decoder`,
         inputs: bits, outputs: outSize,
@@ -539,6 +543,7 @@ export function Decoder(bits:number, otherParams?: GateTypeParameters) {
     return params;
 }
 
+export const Decoder1t2 = Decoder(1)
 export const Decoder2t4 = Decoder(2)
 export const BCDDecoder = Decoder(4, 
     {name:"BCD Decoder", 
@@ -568,8 +573,8 @@ function encodeInternal(v:number, bits:number) {
 export function Encoder(bits:number, otherParams?: GateTypeParameters) {
     const inSize = Math.pow(2, bits)
     const otherSize = otherParams?.gridSize || [undefined, undefined]
-    const gridWidth = otherSize[0] || 3
-    const gridHeight = otherSize[1] || inSize
+    const gridWidth = otherSize[0] || Math.ceil(logGridSize(inSize) / 2) + 1
+    const gridHeight = otherSize[1] || logGridSize(inSize)
     let params: GateTypeParameters = {
         name: `${inSize}-${bits} Encoder`,
         inputs: inSize, outputs: bits,
@@ -586,10 +591,11 @@ export function Encoder(bits:number, otherParams?: GateTypeParameters) {
     return params;
 }
 
+export const Encoder2t1 = Encoder(1)
 export const Encoder4t2 = Encoder(2)
 
 export function NInputAnd(bits:number, otherParams?:GateTypeParameters) {
-    const [gridWidth, gridHeight] = otherParams?.gridSize || [2, Math.ceil(Math.log2(bits)) + 1]
+    const [gridWidth, gridHeight] = otherParams?.gridSize || [2, logGridSize(bits)]
     let params: GateTypeParameters = {
         name: `${bits}-Input And`,
         inputs: bits, outputs: 1,
@@ -746,7 +752,11 @@ export const registerThesePlease = [
     FullAdder,
     SevenSegmentDecoder,
     SevenSegmentOutput,
+    Decoder1t2,
+    Decoder2t4,
     BCDDecoder,
+    Encoder2t1,
+    Encoder4t2,
     InputDown
 ]
 

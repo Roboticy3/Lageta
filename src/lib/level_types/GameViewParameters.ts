@@ -1,4 +1,5 @@
 import { CircuitController } from "$lib/circuit_types/CircuitController"
+import { GateTypeController } from "$lib/circuit_types/GateType";
 import { Symbols } from "$lib/dat/Symbols/Symbols";
 import { ConnectionValueSignalSet, SignalSet } from "$lib/signal_types/Signal"
 import { OrganizedCircuit, type OrganizedCircuitContents } from "$lib/storage_types/CircuitStorage"
@@ -9,6 +10,8 @@ export type GameViewParameters = {
     directions?:string
     grid?:GridSource
     completeCondition?:CompleteConditionSource
+    solverOverride?:string | GateTypeController
+
     completeRewards?:string[]
 
     allUnlocks?:boolean

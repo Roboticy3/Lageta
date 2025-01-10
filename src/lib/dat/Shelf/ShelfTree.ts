@@ -43,7 +43,7 @@ export const GameViewShelfTree = new ShelfTreeNode(
         new ShelfTreeNode(
             "Arithmetic",
             [
-                "4-2 Encoder", "2-4 Decoder", "HalfAdder", "FullAdder"
+                "1-2 Encoder", "4-2 Encoder", "1-2 Decoder", "2-4 Decoder", "HalfAdder", "FullAdder"
             ]
         ),
         new ShelfTreeNode(

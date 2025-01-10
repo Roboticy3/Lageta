@@ -10,7 +10,7 @@
     import { onMount, tick } from "svelte";
     import { CircuitSignalSetViewEventTarget } from "$lib/signal_types/SignalSetViewEvent";
     import { GameViewCircuitPanelEventTarget } from "$lib/circuit_types/GameViewCircuitPanelEvent";
-    import { getGateTypeParams, all_gates } from "$lib/dat/GateTypes/GateTypes";
+    import { getGateTypeParams, all_gates, getGateType, Buf } from "$lib/dat/GateTypes/GateTypes";
     import { getLevelParams } from "$lib/dat/Levels/Levels";
     import SignalViewer from "./Signal/SignalViewer.svelte";
     import { filterShelfTreeWithUnlocks, GameViewShelfTree, ShelfTreeNode } from "$lib/dat/Shelf/ShelfTree";
@@ -26,6 +26,7 @@
     import { StickerController } from "$lib/circuit_types/sticker/StickerController"
     import { gridSourceToGrid, parseDirections } from "$lib/level_types/GameViewParameters";
     import HeavyButton from "../Misc/HeavyButton.svelte";
+    import { GateTypeController } from "$lib/circuit_types/GateType";
 
     if (!browser) throw Error("GameView requires 'browser' to be the active environment")
 
@@ -36,8 +37,19 @@
     $: gateRewards = gameParams.completeRewards?.filter((v) => getGateTypeParams(v) !== undefined)
     $: levelRewards = gameParams.completeRewards?.filter((v) => getLevelParams(v) !== undefined)
     $: toolRewards = gameParams.completeRewards?.filter((v) => getToolParams(v) !== undefined)
-    $: solver = gameParams.completeCondition?.solver
-    console.log("set to unlock", gateRewards, levelRewards, JSON.stringify(toolRewards))
+    $: solver = getSolver(gameParams)
+    /**
+     * @param {import("$lib/level_types/GameViewParameters").GameViewParameters} params
+     */
+    function getSolver(params) {
+        if (typeof params.solverOverride === "string") {
+            return getGateType(getGateTypeParams(params.solverOverride) || Buf)
+        } else if (params.solverOverride instanceof GateTypeController) {
+            return params.solverOverride
+        } else {
+            return params.completeCondition?.solver
+        }
+    }
 
     $: hintActive = levelProgress?.hintUsed
     /**
@@ -53,6 +65,7 @@
     $: hintTokenReward = !levelProgress?.complete && (!levelRewards || levelRewards.length === 0)
 
     $: truthTableProgress = progressStorage?.getTool("TruthTable")
+    $: console.log("determining if truth table should display", truthTableProgress, solver)
 
     /**
      * @type {any}

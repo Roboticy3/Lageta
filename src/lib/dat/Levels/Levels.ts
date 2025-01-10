@@ -1,11 +1,11 @@
 import { Connection } from "$lib/circuit_types/GateGraph";
 import { GateType, GateTypeController, type ConnectionValue } from "$lib/circuit_types/GateType";
-import { Add2, Add4, AdderNoCarry1, And, And3, And4, AtLeast2, BCDDecoder, Buf, Decoder2t4, Encoder4t2, FullAdder, HalfAdder, Input, InputDecodePrebaked, InputLabelledPrebaked, InputVariable, NBitAdder, Nand, Nor, Not, Or, Or3, Or4, Output, OutputDecodePrebaked, OutputLabelledPrebaked, OutputVariable, SevenSegmentDecoder, SevenSegmentOutput, Xand, Xor, Xor3, Xor4, combineGateTypeParameters, drawGateTypeDecode, exampleInputVariable, exampleOutputVariable, getGateType, type GateTypeParameters } from "$lib/dat/GateTypes/GateTypes";
+import { Add2, Add4, AdderNoCarry1, And, And3, And4, AtLeast2, BCDDecoder, Buf, Decoder1t2, Decoder2t4, Encoder4t2, FullAdder, HalfAdder, Input, InputDecodePrebaked, InputLabelledPrebaked, InputVariable, NBitAdder, Nand, Nor, Not, Or, Or3, Or4, Output, OutputDecodePrebaked, OutputLabelledPrebaked, OutputVariable, SevenSegmentDecoder, SevenSegmentOutput, Xand, Xor, Xor3, Xor4, combineGateTypeParameters, drawGateTypeDecode, exampleInputVariable, exampleOutputVariable, getGateType, randomGateType, type GateTypeParameters } from "$lib/dat/GateTypes/GateTypes";
 import { ConnectionValueSignalSet, Signal, inverter, oscillator, repeater } from "$lib/signal_types/Signal";
 import type { OrganizedCircuitContents, SerializableGate } from "$lib/storage_types/CircuitStorage";
 import type { GameViewParameters, GridSource } from "$lib/level_types/GameViewParameters";
-import { Level } from "../../level_types/Level";
-import { StickersTool, TruthTableTool } from "../Tools/Tools";
+import { Level } from "$lib/level_types/Level";
+import { StickersTool, TruthTableTool } from "$lib/dat/Tools/Tools";
 export type LevelParameters = {
   params?: GameViewParameters;
   x?: number;
@@ -104,6 +104,89 @@ export function countingSignal(solver: GateTypeController, step: number, repeat?
   const result = new ConnectionValueSignalSet(block, length, solver);
   console.log("created counting signal ", result);
   return result;
+}
+
+//given two gate type parameters for a single input and single output gate, generate grid data automatically
+//since most levels only have one input and output gate, this is very helpful for desigining levels
+export function autoGrid(inputParams:GateTypeParameters, outputParams:GateTypeParameters, lParamsOverride?:LevelParameters): OrganizedCircuitContents {
+    
+  const inputType = getGateType(inputParams)
+  const outputType = getGateType(outputParams)
+  
+  //sketchy tertiary logic with numbers... suspect if something goes wrong
+  const inSize = lParamsOverride?.inputs || inputType.model.gridHeight
+  const outSize = lParamsOverride?.outputs || outputType.model.gridHeight
+  const pinMax = Math.max(...[inSize, outSize])
+
+  const verticalGridMargin = 3
+  const verticalGridScale = 1
+  const gridHeight = verticalGridScale * pinMax + 2 * verticalGridMargin
+
+  //grid will have a width of the input width + the output width + 2 * the same maximum
+  const horizontalGridScale = 5
+  const gridWidth = horizontalGridScale * pinMax + inputType.model.gridWidth + outputType.model.gridWidth
+
+  //grid contents will contain one input and output of the correct size
+  return {
+      size:[gridWidth, gridHeight],
+      gateTypes:[inputType, outputType],
+      gates:[
+          {x:0,y:verticalGridMargin + (pinMax - inSize),id:0,type:inputType.name},
+          {x:gridWidth - outputType.model.gridWidth,y:verticalGridMargin + (pinMax - outSize),id:1,type:outputType.name},
+      ]
+  }
+}
+
+export function randomLevel(lParams:LevelParameters, gParams:GateTypeParameters, highP:number, serializable=false) {
+  const newGParams = {...gParams}
+  newGParams.inputs ||= lParams.inputs
+  newGParams.outputs ||= lParams.outputs
+
+  //generate a random gate type to be the solver for this level
+  const gType = randomGateType(newGParams, highP)
+  console.log("creating random level... generated gate type: ", gType)
+
+  //use the gate type to modify lParams
+  //the random gate must be used to compute the grid size, contents, complete condition, and play condition. Everything else should be left unmodified
+  
+  //make shallow copies of the big objects in the parameters
+  const newLParams = {...lParams}
+  const newParams = {...lParams.params}
+  newParams.serializable = serializable
+  newLParams.params = newParams
+
+  //grid size will give 2 grid squares above and below the inputs and outputs
+  const [inSize, outSize] = [gType.model.sizeIn, gType.model.sizeOut]
+  const grid = autoGrid(Input(inSize), Output(outSize), lParams)
+
+  newParams.grid = grid
+  console.log("creating random level... generated grid: ", newParams.grid)
+
+  //repeat the signal as many times as it takes to pass 500 frames
+  const stepSize = 5
+  const targetLength = 200
+  const repeatCount = Math.ceil(targetLength / (stepSize * Math.pow(2, inSize)))
+  const signal = countingSignal(gType, stepSize, repeatCount)
+
+  newParams.completeCondition = signal
+  console.log("creating random level... generated signal: ", newParams.completeCondition)
+
+  //finally, generate a random input string, compute the expected output, and set that to the play condition
+  const randomInput = new Array(inSize)
+  for (let i = 0; i < inSize; i++) {
+      randomInput[i] = Math.random() >= highP
+  }
+  const randomState = gType.model.f({override:randomInput})
+
+  newLParams.playCondition = new Array(outSize)
+  for (let i = 0; i < outSize; i++) {
+      newLParams.playCondition[i] = randomState.override[i] || false
+  }
+
+  console.log("creating random level... generated play condition: ", newLParams.playCondition)
+
+  return newLParams
+
 }
 
 export const SevenSegmentLevel:LevelParameters = {
@@ -399,46 +482,9 @@ export const CarryLevel:LevelParameters = {
   type: HalfAdder,
   playCondition: [true, false]
 };
-export const MulLevel:LevelParameters = {
-  params: {
-    name: "1 and 0",
-    directions: `
-        <p>It's normal to think of {High} voltage as {1} and {Low} voltage as {0}</p>
-        <p>Treating the voltages this way, you can imagine "multiplying" two voltages together.</p>
-        <p>Here, the output should be {High} ({1}) when the two inputs X and Y "multiply" to {1},
-        and {Low} ({0}) otherwise.</p>
-        `,
-    grid: {
-      gateTypes: [getGateType(exampleInputVariable('X')), getGateType(exampleInputVariable('Y')), getGateType(exampleOutputVariable('P'))],
-      gates: [{
-        x: 0,
-        y: 2,
-        type: "InputVariableX1",
-        id: 0
-      } as SerializableGate, {
-        x: 0,
-        y: 4,
-        type: "InputVariableY1",
-        id: 1
-      } as SerializableGate, {
-        x: 14,
-        y: 2,
-        type: "OutputVariableP1",
-        id: 2
-      } as SerializableGate],
-      size: [16, 7]
-    } as GridSource,
-    completeCondition: countingSignal(getGateType(And), 5, 3),
-    completeRewards: [CarryLevel.params?.name || "?"]
-  },
-  x: 14,
-  y: 5,
-  desiredId: 8,
-  type: And
-};
 export const DecoderLevel:LevelParameters = {
   params: {
-    name: "Counting",
+    name: "Counting Backwards",
     directions: `
         <p>The number "19" has a "1" in the 10's place and a "9" in the 1's place.</p>
         <div style="display:grid; grid-template-columns: 1fr 1fr 1fr 1fr; grid-template-rows: 1fr 1fr 1fr; align-self:center; text-align:center; text-wrap:nowrap;">
@@ -487,13 +533,37 @@ export const DecoderLevel:LevelParameters = {
   },
   x: 18,
   y: 0,
-  desiredId: 7,
+  desiredId: 17,
   type: Decoder2t4,
-  playCondition: [false, false, true, false]
+  playCondition: [false, false, false, true]
 };
+
+export const SmallDecoderLevel:LevelParameters = {
+  params: {
+    name: "Decision",
+    directions:`
+      <p>You've seen that we can <span style="font-style:italic;">encode</span> numbers from inputs.</p>
+      <p>To complete this level, you need to <span style="font-style:italic;">decode</span> numbers into outputs.</p>
+      <p>This is remarkably more difficult than encoding, so we're going to start small.</p>
+      <p>Recall that a single voltage can represent {0} or {1}.</p>
+      <p>To complete this level, construct a {Circuit} that sets the output to {High} that matches the number represented by the input, and the other output to {Low}.</p>
+    `,
+    grid: autoGrid(InputLabelledPrebaked[1], Output(2, {name:"Decoded Output", outputLabels:["0", "1"]})),
+    completeCondition:new ConnectionValueSignalSet([new Signal<ConnectionValue>([{
+      frame: 0,
+      value: false
+    }]).push(oscillator(10, 7))], 141, getGateType(Decoder1t2)), //copy of Tutorial's signal, with the solver swapped out for the encoder
+    completeRewards:[DecoderLevel.params?.name || "?", Decoder1t2.name]
+  },
+  type:Encoder4t2,
+  playCondition:[false, true],
+  desiredId:18,
+}
+
+
 export const EncoderLevel:LevelParameters = {
   params: {
-    name: "Counting Backwards",
+    name: "Counting",
     directions: `
         <p>2 voltages together can represent any number from 0 to 3.</p>
         <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; grid-template-rows: 1fr 1fr 1fr 1fr 1fr; width:50%; margin-left:25%; text-align:center;">
@@ -503,10 +573,14 @@ export const EncoderLevel:LevelParameters = {
             <div style="grid-column: 1; grid-row: 4; color:var(--connection-color-off);">0</div><div style="grid-column: 2; grid-row: 4; color:var(--connection-color-on);">1</div><div style="grid-column: 3; grid-row: 4;">2</div>
             <div style="grid-column: 1; grid-row: 5; color:var(--connection-color-on);">1</div><div style="grid-column: 2; grid-row: 5; color:var(--connection-color-on);">1</div><div style="grid-column: 3; grid-row: 5;">3</div>
         </div>
-        <p>This {Circuit} has a pair of outputs: X0 and X1.</p>
-        <p>The pair has its matching number displayed next to it.</p>
-        <p>Your goal here is to "encode" the input, which is either 0, 1, 2, or 3, to the correct pair of outputs, X0 and X1, according to the table above.</p>
+        <p>This {Circuit} has a pair of outputs, X0 and X1, representing a number.</p>
+        <p>Your goal here is to "encode" the input, which is either 0, 1, 2, or 3, to the correct pair of outputs, X0 and X1.</p>
         `,
+    hint:`
+        <p>Think of how each output relates to the inputs independently.</p>
+        <p>This is generally a good trick for circuits with multiple outputs.</p>
+        <p>Since electricity leaves the circuit through the outputs, you'll always be able to separate them like this.</p>
+    `,
     grid: {
       gateTypes: [getGateType(Input(4, {
         name: "Input4Decoded",
@@ -527,15 +601,52 @@ export const EncoderLevel:LevelParameters = {
       size: [20, 11]
     } as GridSource,
     completeCondition: DecoderLevelSignal.flipInputsOutputs() as ConnectionValueSignalSet,
-    completeRewards: [getGateType(Encoder4t2).name, DecoderLevel.params?.name || "?"]
+    completeRewards: [getGateType(Encoder4t2).name, SmallDecoderLevel.params?.name || "?"]
   },
   x: 14,
   y: 0,
-  desiredId: 20,
+  desiredId: 16,
   type: Encoder4t2,
   playCondition: [true, true]
 };
 
+export const MulLevel:LevelParameters = {
+  params: {
+    name: "1 and 0",
+    directions: `
+        <p>It's normal to think of {High} voltage as {1} and {Low} voltage as {0}</p>
+        <p>Treating the voltages this way, you can imagine "multiplying" two voltages together.</p>
+        <p>Here, the output should be {High} ({1}) when the two inputs X and Y "multiply" to {1},
+        and {Low} ({0}) otherwise.</p>
+        `,
+    grid: {
+      gateTypes: [getGateType(exampleInputVariable('X')), getGateType(exampleInputVariable('Y')), getGateType(exampleOutputVariable('P'))],
+      gates: [{
+        x: 0,
+        y: 2,
+        type: "InputVariableX1",
+        id: 0
+      } as SerializableGate, {
+        x: 0,
+        y: 4,
+        type: "InputVariableY1",
+        id: 1
+      } as SerializableGate, {
+        x: 14,
+        y: 2,
+        type: "OutputVariableP1",
+        id: 2
+      } as SerializableGate],
+      size: [16, 7]
+    } as GridSource,
+    completeCondition: countingSignal(getGateType(And), 5, 3),
+    completeRewards: [CarryLevel.params?.name || "?", EncoderLevel.params?.name || "?"]
+  },
+  x: 14,
+  y: 5,
+  desiredId: 8,
+  type: And
+};
 const RandomLevelDirections = "This level is randomly generated every time you visit the page. Beating random levels will always give a hint token, and give you some practice with analyzing truth tables. Good luck!"
 
 export const Random1:LevelParameters = {
@@ -992,6 +1103,7 @@ const all_params = new Map<string, LevelParameters>([
   [Random2.params?.name || "?", Random2],
   [DecoderLevel.params?.name || "?", DecoderLevel],
   [EncoderLevel.params?.name || "?", EncoderLevel],
+  [SmallDecoderLevel.params?.name || "?", SmallDecoderLevel],
   [MulLevel.params?.name || "?", MulLevel],
   [CarryLevel.params?.name || "?", CarryLevel],
   [FullAdderLevel.params?.name || "?", FullAdderLevel],
@@ -1016,6 +1128,6 @@ export function getLevelParams(name:string) {
 //default grid for stage 1. Update as you go ons
 export const CampaignGrids = new Map([
   ["Stage 1", `
-[{"k":"Stage 1","v":{"gates":[{"x":0,"y":4,"id":0,"type":"Input1"},{"x":3,"y":2,"id":1,"type":"And"},{"x":3,"y":5,"id":2,"type":"Or"},{"x":3,"y":0,"id":3,"type":"Nand"},{"x":3,"y":7,"id":4,"type":"Nor"},{"x":6,"y":0,"id":5,"type":"3-Input And"},{"x":5,"y":6,"id":6,"type":"3-Input Or"},{"x":7,"y":3,"id":7,"type":"Xor"},{"x":10,"y":4,"id":8,"type":"And"},{"x":9,"y":1,"id":9,"type":"HalfAdder"},{"x":0,"y":8,"id":10,"type":"FullAdder"},{"x":18,"y":2,"id":11,"type":"4-Bit Adder"},{"x":8,"y":5,"id":12,"type":"3-Input Xor"},{"x":10,"y":6,"id":13,"type":"At Least 2 of 3"},{"x":0,"y":5,"id":14,"type":"Input1Down"},{"x":1,"y":5,"id":15,"type":"Input1Down"}],"gateTypes":["Input1","And","Or","Nand","Nor","3-Input And","3-Input Or","Xor","HalfAdder","FullAdder","4-Bit Adder","3-Input Xor","At Least 2 of 3","Input1Down"],"connections":[{"from":[0,0],"to":[[2,0],[1,1],[1,0],[3,0],[4,0]]},{"from":[0,0],"to":[[2,0],[1,1],[1,0],[3,0],[4,0]]},{"from":[0,0],"to":[[2,0],[1,1],[1,0],[3,0],[4,0]]},{"from":[0,0],"to":[[2,0],[1,1],[1,0],[3,0],[4,0]]},{"from":[0,0],"to":[[2,0],[1,1],[1,0],[3,0],[4,0]]},{"from":[1,0],"to":[[8,0],[5,2]]},{"from":[1,0],"to":[[8,0],[5,2]]},{"from":[2,0],"to":[[6,0]]},{"from":[3,0],"to":[[5,0]]},{"from":[5,0],"to":[[7,0]]},{"from":[6,0],"to":[[13,2],[5,1]]},{"from":[6,0],"to":[[13,2],[5,1]]},{"from":[7,0],"to":[[12,0],[9,1]]},{"from":[7,0],"to":[[12,0],[9,1]]},{"from":[9,0],"to":[[10,2]]},{"from":[10,0],"to":[[11,7]]},{"from":[12,0],"to":[[13,0],[8,1]]},{"from":[12,0],"to":[[13,0],[8,1]]},{"from":[14,0],"to":[[10,0]]},{"from":[15,0],"to":[[10,1]]}],"size":[20,10],"offset":[0,0]}}]
+[{"k":"Stage 1","v":{"gates":[{"x":0,"y":4,"id":0,"type":"Input1"},{"x":4,"y":3,"id":1,"type":"And"},{"x":3,"y":5,"id":2,"type":"Or"},{"x":2,"y":0,"id":3,"type":"Nand"},{"x":3,"y":7,"id":4,"type":"Nor"},{"x":4,"y":0,"id":5,"type":"3-Input And"},{"x":5,"y":6,"id":6,"type":"3-Input Or"},{"x":7,"y":3,"id":7,"type":"Xor"},{"x":10,"y":3,"id":8,"type":"And"},{"x":7,"y":1,"id":9,"type":"HalfAdder"},{"x":0,"y":8,"id":10,"type":"FullAdder"},{"x":19,"y":2,"id":11,"type":"4-Bit Adder"},{"x":8,"y":5,"id":12,"type":"3-Input Xor"},{"x":10,"y":6,"id":13,"type":"At Least 2 of 3"},{"x":0,"y":5,"id":14,"type":"Input1Down"},{"x":1,"y":5,"id":15,"type":"Input1Down"},{"x":12,"y":0,"id":16,"type":"4-2 Encoder"},{"x":15,"y":0,"id":17,"type":"2-4 Decoder"},{"x":9,"y":0,"id":18,"type":"1-2 Decoder"}],"gateTypes":["Input1","And","Or","Nand","Nor","3-Input And","3-Input Or","Xor","HalfAdder","FullAdder","4-Bit Adder","3-Input Xor","At Least 2 of 3","Input1Down","4-2 Encoder","2-4 Decoder","1-2 Decoder"],"connections":[{"from":[0,0],"to":[[2,0],[3,0],[4,0],[1,1],[1,0]]},{"from":[0,0],"to":[[2,0],[3,0],[4,0],[1,1],[1,0]]},{"from":[0,0],"to":[[2,0],[3,0],[4,0],[1,1],[1,0]]},{"from":[0,0],"to":[[2,0],[3,0],[4,0],[1,1],[1,0]]},{"from":[0,0],"to":[[2,0],[3,0],[4,0],[1,1],[1,0]]},{"from":[1,0],"to":[[5,1],[8,0]]},{"from":[1,0],"to":[[5,1],[8,0]]},{"from":[2,0],"to":[[6,0]]},{"from":[3,0],"to":[[5,0]]},{"from":[5,0],"to":[[7,0]]},{"from":[6,0],"to":[[13,2],[5,2]]},{"from":[6,0],"to":[[13,2],[5,2]]},{"from":[7,0],"to":[[12,0],[9,1]]},{"from":[7,0],"to":[[12,0],[9,1]]},{"from":[9,0],"to":[[18,0],[16,3]]},{"from":[9,0],"to":[[18,0],[16,3]]},{"from":[10,0],"to":[[11,7]]},{"from":[12,0],"to":[[13,0],[8,1]]},{"from":[12,0],"to":[[13,0],[8,1]]},{"from":[14,0],"to":[[10,2]]},{"from":[15,0],"to":[[10,1]]},{"from":[16,0],"to":[[17,0]]},{"from":[16,1],"to":[[17,1]]},{"from":[17,3],"to":[[10,0]]}],"size":[21,10],"offset":[0,0]}}]
 `]
 ])
