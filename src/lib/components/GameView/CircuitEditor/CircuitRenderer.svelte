@@ -162,7 +162,7 @@
 
         const g = svgWrapGroup('', gateTransform, idString)
         
-        if (rendererParams.showGates !== false && !rendererParams.showMask?.has(id)) g.appendChild(gate)
+        g.appendChild(gate)
 
         gateGroup.appendChild(g)
 
@@ -183,7 +183,8 @@
         svg.setAttribute('transform',gateTransform)
 
         const body = svg.querySelector(`#${idString}-body`)
-        if (body) {
+        console.log("should I draw a gate here?... ", body, rendererParams)
+        if (body && !rendererParams.showBodyMask?.has(id)) {
             body.innerHTML = svgGateBody(cType, id)
         }
 
@@ -381,6 +382,8 @@
      * @param {number} id
      */
     export function updateGate(id) {
+
+        if (rendererParams.showMask?.has(id)) return
 
         const cType = circuitController.getGateTypeController(id)
         const gPos = circuitController.getGatePosition(id)
@@ -831,7 +834,7 @@
      * @param {CircuitControllerQueryResult} q
      */
     export function onEntered(q) {
-        if (q.type === "Gate" && rendererParams.showGates !== false) {
+        if (q.type === "Gate" && !rendererParams.showBodyMask?.has(q.getId())) {
             circuitDraggable.setContentsToName(
                 q.getGateType()?.name || "?"
             )

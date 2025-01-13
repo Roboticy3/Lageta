@@ -16,11 +16,13 @@
     import { CowSticker } from "$lib/dat/Tools/Tools";
     import { CircuitController } from "$lib/circuit_types/CircuitController";
     import { CampaignGrids } from "$lib/dat/Levels/Levels";
+    import { all_levels } from "$lib/level_types/Level";
 
     /**
      * @type {Set<number>}
      */
     let interactionMask = new Set()
+
     let editorParams = {
         canDragGates:false, 
         showShelf:false, 
@@ -28,19 +30,20 @@
         interactionMask:interactionMask,
         inputCheckboxes:false
     }
-    const rendererParams = {
-        showGates:false, 
+
+    const nonLevelIds = [0, 21]
+
+    let rendererParams = {
         showGrid:false,
         showMask:interactionMask,
-        showConnectionLabels:false
+        showConnectionLabels:false,
+        showBodyMask:new Set()
     }
 
     $: progress = browser ? new ProgressStorage() : undefined
     $: levelSet = progress?.levels() || []
 
     $: hintTokenView = progress?.getHintTokens()
-
-    const nonLevelIds = [0]
 
     /**
      * @type {GameViewCircuitPanel}
@@ -109,7 +112,9 @@
     const editorEventTarget = new GameViewCircuitPanelEventTarget()
 
     /**
-     * editorParams allows for a set of uninteractive gates to be passed. This should be the complement on the set of unlocked levels
+     * editorParams allows for a set of uninteractive gates to be passed. This should be the complement on the set of unlocked levels' desiredIds
+     * additonally, rendererParams allows for a set of gates whose bodies should not be drawn to be passed. This should be the complement on the set of levels desiredIds
+     * the same mask is also used to prevent gates from being drawn or simulated
      * @param {number} universe
      * @param {Set<number>} lSet
      * @param {Set<number>} iMask
@@ -120,15 +125,21 @@
             if (!lSet.has(id)) iMask.add(id)
         }
     }
-    $: {
-        const maskNegative = new Set(levelSet.map(p => p.desiredId || -1))
-        nonLevelIds.forEach(id => maskNegative.add(id))
+    $: if (circuitController) {
+        const interactionMaskNegative = new Set(levelSet.map(p => p.desiredId || -1))
+        nonLevelIds.forEach(id => {
+            interactionMaskNegative.add(id)
+        })
         updateInteractionMask(
-            circuitController?.getGateIdLength() || -1, 
-            maskNegative, 
+            circuitController.getGateIdLength() || -1, 
+            interactionMaskNegative, 
             interactionMask
         )
         editorParams = editorParams
+
+        rendererParams.showBodyMask = new Set(levelSet.map(p => p.desiredId || -1))
+        rendererParams = rendererParams
+        console.log("updated rendererParams: ", rendererParams)
 
         circuitController?.giveSimulationMask(interactionMask)
         circuitController?.setInputs([true, true, true])

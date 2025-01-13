@@ -28,12 +28,9 @@ export class Level {
         this.params = params.params || {}
 
         this.type = getGateType(params.type || Buf)
-
-        console.log(this.type)
-
         this.playCondition = params.playCondition || new Array<boolean>(this.type.model.sizeOut).fill(true)
 
-        if (params.register && params.params?.name) {
+        if (params.register !== false && params.params?.name) {
             all_levels.set(params.params.name, this)
         }
 
