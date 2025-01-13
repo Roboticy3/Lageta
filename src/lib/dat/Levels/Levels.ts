@@ -1,6 +1,6 @@
 import { Connection } from "$lib/circuit_types/GateGraph";
 import { GateType, GateTypeController, type ConnectionValue } from "$lib/circuit_types/GateType";
-import { Add2, Add4, AdderNoCarry1, And, And3, And4, AtLeast2, BCDDecoder, Buf, Decoder1t2, Decoder2t4, Encoder4t2, FullAdder, HalfAdder, Input, InputDecodePrebaked, InputLabelledPrebaked, InputVariable, NBitAdder, Nand, Nor, Not, Or, Or3, Or4, Output, OutputDecodePrebaked, OutputLabelledPrebaked, OutputVariable, SevenSegmentDecoder, SevenSegmentOutput, Xand, Xor, Xor3, Xor4, combineGateTypeParameters, drawGateTypeDecode, exampleInputVariable, exampleOutputVariable, getGateType, randomGateType, type GateTypeParameters } from "$lib/dat/GateTypes/GateTypes";
+import { Add2, Add4, AdderNoCarry1, And, And3, And4, AtLeast2, BCDDecoder, Buf, Decoder1t2, Decoder2t4, Encoder4t2, FullAdder, HalfAdder, Input, InputDecodePrebaked, InputLabelledPrebaked, InputVariable, NBitAdder, NInputOr, Nand, Nor, Not, Or, Or10, Or3, Or4, Output, OutputDecodePrebaked, OutputLabelledPrebaked, OutputVariable, SevenSegmentDecoder, SevenSegmentOutput, Xand, Xor, Xor3, Xor4, combineGateTypeParameters, drawGateTypeDecode, drawGateTypeRect, exampleInputVariable, exampleOutputVariable, getGateType, randomGateType, type GateTypeParameters } from "$lib/dat/GateTypes/GateTypes";
 import { ConnectionValueSignalSet, Signal, inverter, oscillator, repeater } from "$lib/signal_types/Signal";
 import type { OrganizedCircuitContents, SerializableGate } from "$lib/storage_types/CircuitStorage";
 import type { GameViewParameters, GridSource } from "$lib/level_types/GameViewParameters";
@@ -189,6 +189,35 @@ export function randomLevel(lParams:LevelParameters, gParams:GateTypeParameters,
 
 }
 
+export const MorLevel:LevelParameters = {
+  params:{
+    name: "Mor",
+    directions: `
+      <p>Like an Or gate, but mor.</p>
+    `,
+    grid: {
+      gateTypes: [getGateType(Input(10)), getGateType(Output(1))],
+      gates: [{
+        x: 0,
+        y: 0,
+        type: "Input10",
+        id: 0
+      } as SerializableGate, {
+        x: 13,
+        y: 5,
+        type: "Output1",
+        id: 1
+      } as SerializableGate],
+      size: [15, 10]
+    } as GridSource,
+    completeCondition: countingSignal(getGateType(Or10), 2, 1),
+    completeRewards: [Or10.name]
+  },
+  type: getGateType(combineGateTypeParameters(Or10, {name:"Small Mor", gridSize:[2, 2], draw:(s) => drawGateTypeRect(2, 2)})),
+  desiredId:22,
+  playCondition:[true]  
+}
+
 export const SevenSegmentLevel:LevelParameters = {
   params: {
     name: "Seven Segment Display",
@@ -196,7 +225,7 @@ export const SevenSegmentLevel:LevelParameters = {
         <p>Each output corresponds to one of the lights in the seven-segment display.</p>
         <p>Given a number, 0 to 9, from the input, display the appropriate number in the seven segment display.</p>
         <p>Good luck!</p>
-        <p>Lageta largely automates displaying numbers for your <span style="color:var(--circuit-color);">circuits</span>. But in real life, displaying numbers from circuits takes a lot of work. Understanding BCD's is the first step to learning how to make your own displays.</p>
+        <p>Lageta largely automates displaying numbers for your <span style="color:var(--circuit-color);">circuits</span>. But in real life, this is a pretty good approximation of how those displays would work.</p>
         `,
     grid: {
       gateTypes: [getGateType(InputVariable(4, 'X')), getGateType(SevenSegmentOutput)],
@@ -528,7 +557,7 @@ export const DecoderLevel:LevelParameters = {
       size: [20, 11]
     } as GridSource,
     completeCondition: DecoderLevelSignal,
-    completeRewards: [getGateType(Decoder2t4).name, FullAdderLevel.params?.name || "?", FourBitDecoder.params?.name || "?"]
+    completeRewards: [getGateType(Decoder2t4).name, MorLevel.params?.name || "?", FourBitDecoder.params?.name || "?"]
     
   },
   x: 18,
@@ -655,7 +684,8 @@ const RandomLevelDirections = "This level is randomly generated every time you v
 export const Random1:LevelParameters = {
   params:{
     name:"Random 1",
-    directions:RandomLevelDirections
+    directions:RandomLevelDirections,
+    completeRewards:[]
   },
   desiredId:14,
   inputs:2,outputs:1
@@ -687,7 +717,8 @@ export const AtLeast2Level:LevelParameters = {
 export const Random2:LevelParameters = {
   params:{
     name:"Random 2",
-    directions:RandomLevelDirections
+    directions:RandomLevelDirections,
+    completeRewards:[]
   },
   desiredId: 15,
   inputs:2,outputs:2
@@ -1119,7 +1150,9 @@ const all_params = new Map<string, LevelParameters>([
   [FullAdderLevel.params?.name || "?", FullAdderLevel],
   [FourBitAdder.params?.name || "?", FourBitAdder],
   [FourBitDecoder.params?.name || "?", FourBitDecoder],
-  [SevenSegmentLevel.params?.name || "?", SevenSegmentLevel]]);
+  [SevenSegmentLevel.params?.name || "?", SevenSegmentLevel],
+  [MorLevel.params?.name || "?", MorLevel]
+]);
 
 export function getLevel(name: string) {
   const params = getLevelParams(name);

@@ -32,13 +32,13 @@ export const GameViewShelfTree = new ShelfTreeNode(
             "3-Input",
             [
                 "3-Input Or","3-Input And","3-Input Xor","3-Input Xand","FullAdder","At Least 2 of 3"
-            ]
+            ], 2
         ),
         new ShelfTreeNode(
-            "Nibbles",
+            "4-Input",
             [
                 "4-Input Or","4-Input And","4-2 Encoder","BCD to 7-Segment Decoder","BCD Decoder"
-            ]
+            ], 2
         ),
         new ShelfTreeNode(
             "Arithmetic",
@@ -52,12 +52,6 @@ export const GameViewShelfTree = new ShelfTreeNode(
                 "7-Segment Display", "7-Segment Encoder"
             ], 2
         ),
-        new ShelfTreeNode(
-            "Bigger",
-            [
-                "3-Input Or","4-Input Or","3-Input And","4-Input And","3-Input Xor","4-Input Xor","3-Input Xand","4-Input Xand"
-            ]
-        )
     ]
 )
 

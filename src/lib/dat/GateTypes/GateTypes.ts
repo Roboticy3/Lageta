@@ -701,6 +701,7 @@ export const And3 = NInputAnd(3)
 export const And4 = NInputAnd(4)
 export const Or3 = NInputOr(3)
 export const Or4 = NInputOr(4)
+export const Or10 = NInputOr(10)
 
 export function NBitAdder(bits:number, otherParams?:GateTypeParameters) {
     let params: GateTypeParameters = {
@@ -786,6 +787,7 @@ export const registerThesePlease = [
     And,
     Or3,
     Or4,
+    Or10,
     And3,
     And4,
     Xor,
