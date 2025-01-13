@@ -194,9 +194,9 @@ export const SevenSegmentLevel:LevelParameters = {
     name: "Seven Segment Display",
     directions: `
         <p>Each output corresponds to one of the lights in the seven-segment display.</p>
-        <p>Given a number in binary, display the appropriate number in the seven segment display.</p>
-        <p>Try to match the signal for each output one-by-one.</p>
+        <p>Given a number, 0 to 9, from the input, display the appropriate number in the seven segment display.</p>
         <p>Good luck!</p>
+        <p>Lageta largely automates displaying numbers for your <span style="color:var(--circuit-color);">circuits</span>. But in real life, displaying numbers from circuits takes a lot of work. Understanding BCD's is the first step to learning how to make your own displays.</p>
         `,
     grid: {
       gateTypes: [getGateType(InputVariable(4, 'X')), getGateType(SevenSegmentOutput)],
@@ -226,13 +226,30 @@ export const FourBitDecoder:LevelParameters = {
   params: {
     name: "BCD",
     directions: `
-        <p>With 4 bits, the input can represent any number from 0 through 15.</p>
+        <p>In this {Circuit}:</p>
+        <ul>
+          <li>The input X0 represents {0} or {1}</li>
+          <li>The input X1 represents {0} or {2}</li>
+          <li>The input X2 represents 0 or 4</li>
+          <li>The input X3 represents 0 or 8</li>
+        </ul>
+        <p>With 4 voltages, the input can represent any number from 0 through 15:</p>
+        <div style="text-align:center;">1 * X0 + 2 * X1 + 4 * X2 + 8 * X3</div>
+        <div style="text-align:center;">= at most 1 + 2 + 4 + 8 = 15</div>
         <p>However, this output only has pins for 0 through 9.</p>
         <p>That's because this particular input represents a "Binary Coded Decimal," or BCD.</p>
         <p>BCD's are the same as any other binary number, except any value above 9 is discarded.</p>
-        <p>If the input has a value of 10 through 15, you must not setting any of the outputs to {High}.</p>
-        <p>Lageta largely automates displaying numbers for your <span style="color:var(--circuit-color);">circuits</span>. But in real life, displaying numbers from circuits takes a lot of work. Understanding BCD's is the first step to learning how to make your own displays.</p>
+        <p>If you play through the signal, you'll see that your {Circuit} won't have to handle any values above 9.</p>
         `,
+    hint: `
+        <p>You've already unlocked a Decoder that can decode 2 voltages into 4 outputs.</p>
+        <p>One way you may have completed that level is by using 2 1-2 decoders that you unlocked previously.</p>
+        <p>A similar strategy applies here:</p>
+        <p>The number represented by the input is equal to 1 * X0 + 2 * X1 + 4 * X2 + 8 * X3.</p>
+        <p>Another way to think of this is as 1 * (1 * X0 + 2 * X1) + 4 * (1 * X2 + 2 * X3).<p>
+        <p>The expressions in parentheses are exactly the type of input decoded by the 2-4 Decoder you unlocked recently.</p>
+        <p>So, if you attach 2 2-4 Decoders to the inputs, they can represent the number as 1 * (first decoder's value) + 4 * (second decoder's value).</p>
+    `,
     grid: {
       gateTypes: [getGateType(InputVariable(4, "X")), getGateType(Output(10, {
         name: "Output10Decoded",
@@ -439,16 +456,7 @@ export const CarryLevel:LevelParameters = {
         <p>The single output "S" can only be {0} or {1}.</p>
         <p>To "add" voltages, we'll need more outputs to represent larger values.</p>
         <p>In this {Circuit}, there's an extra output called "Carry"</p>
-        <p>Think of adding two numbers on paper.</p>
-        <div style="display:grid; grid-template-columns: 1fr 1fr 1fr 1fr; grid-template-rows: 1fr 1fr 1fr 1fr 1fr; width:25%; margin-left:25%;">
-            <div style="grid-column: 3; grid-row: 1;">1</div>
-            <div style="grid-column: 3; grid-row: 2;">1</div><div style="grid-column: 4; grid-row: 2;">9</div>
-            <div style="grid-column: 1; grid-row: 3;">+</div><div style="grid-column: 3; grid-row: 3;">2</div><div style="grid-column: 4; grid-row: 3;">1</div>
-            <div style="grid-column: 3; grid-row: 4;">4</div><div style="grid-column: 4; grid-row: 4;">0</div>
-            <div style="grid-column: 1 / 5; grid-row: 4; width:100%; height:100%; border-top: 2px solid black;" ></div>
-        </div>
-        <p>When the sum of two digits in the same place exceeds 9, you carry the remainder to the sum of the next digit. We can do the same with {1} and {0}</p>
-        <p>When X and Y are 1, they sum to 2, which is too large to represent with one output, so we set Carry to high and S to 0.</p>
+        <p>When X and Y are {1}, they sum to 2, which is too large to represent with one output, so we set Carry to {1} and S to {0}.</p>
         `,
     grid: {
       gateTypes: [getGateType(exampleInputVariable('X')), getGateType(exampleInputVariable('Y')), getGateType(exampleOutputVariable('S')), getGateType(exampleOutputVariable('Carry'))],
@@ -488,29 +496,18 @@ export const DecoderLevel:LevelParameters = {
   params: {
     name: "Counting Backwards",
     directions: `
-        <p>The number "19" has a "1" in the 10's place and a "9" in the 1's place.</p>
-        <div style="display:grid; grid-template-columns: 1fr 1fr 1fr 1fr; grid-template-rows: 1fr 1fr 1fr; align-self:center; text-align:center; text-wrap:nowrap;">
-            <div style="grid-column: 1; grid-row: 1;">place</div><div style="grid-column: 2; grid-row: 1;">10's</div><div style="grid-column: 3; grid-row: 1;">1's</div>
-            <div style="grid-column: 1 / 4; grid-row: 2; border-top: solid black 2px; width:100%"></div>
-            <div style="grid-column: 1; grid-row: 2;">digit</div><div style="grid-column: 2; grid-row: 2;">1</div><div style="grid-column: 3; grid-row: 2;">9</div>
-            <div style="grid-column: 1 / 4; grid-row: 3; border-top: solid black 2px; width:100%"></div>
-            <div style="grid-column: 2; grid-row: 3;">10 * 1 + </div><div style="grid-column: 3; grid-row: 3;">9 = </div>
-            <div style="grid-column: 4; grid-row: 3; border: dashed var(--verification-color) 4px; border-radius: 25%;">19</div>
-        </div>
-        <p>This is a "base 10" number. However, circuits represent numbers in "base 2."</p>
-        <p>Instead of a 1's place, 10's place, 100's place and so on, base 2 numbers have a 1's place, 2's place, 4's place and so on.</p>
-        <p>This level requires you to "decode" X0 and X1 from a base 2 representation, to one of the outputs labelled in base 10.</p>
-        <div style="display:grid; grid-template-columns: 1fr 1fr 1fr 1fr; grid-template-rows: 1fr 1fr 1fr; align-self:center; text-align:center; text-wrap:nowrap;">
-            <div style="grid-column: 1; grid-row: 1;">place</div><div style="grid-column: 2; grid-row: 1;">2's</div><div style="grid-column: 3; grid-row: 1;">1's</div>
-            <div style="grid-column: 1 / 4; grid-row: 2; border-top: solid black 2px; width:100%"></div>
-            <div style="grid-column: 1; grid-row: 2;">digit</div><div style="grid-column: 2; grid-row: 2;">X1</div><div style="grid-column: 3; grid-row: 2;">X0</div>
-            <div style="grid-column: 1 / 4; grid-row: 3; border-top: solid black 2px; width:100%"></div>
-            <div style="grid-column: 2; grid-row: 3;">2 * X1 + </div><div style="grid-column: 3; grid-row: 3;">X0 = </div>
-            <div style="grid-column: 4; grid-row: 3; border: dashed var(--verification-color) 4px; border-radius: 25%; color: var(--verification-color);">?</div>
-        </div>
-        <p>This is the opposite of the "encoder" {Circuit} you made before, and it turns out to be significantly more complicated.</p>
-        <p>Take your time, most levels are optional to beat the final level!</p>
+        <p>In this {Circuit}, the input X0 represents {0} or {1} and the input X1 represents {0} or {2}.</p>
+        <p>To complete this level, you need to construct a {Circuit} that only powers the output matching the input number.</p>
+        <p>Out of the levels you might have unlocked so far, this one requires the most gates, no matter which approach you use.</p>
+        <p>But, while other levels had gates with unique functions, approaches to this level should involve placing gates in patterns.</p>
+        <p>Feel free to come back when you have more experience (and hint tokens).</p>
         `,
+    hint: `
+        <p>The input has 2 pins, X0 and X1.</p>
+        <p>The number represented by the input is equal to 1 * X0 + 2 * X1.</p>
+        <p>So, if you placed two of the small decoders you should have recently unlocked, one for X0 and one for X1, when both decoders select "1", they really mean 1 + 2.</p>
+        <p>When X0's decoder selects "1" and X1's decoder selects "0", they really mean 1 + 0.</p>
+    `,
     grid: {
       gateTypes: [getGateType(InputVariable(2, 'X')), getGateType(Output(4, {
         name: "Output4Decoded",
@@ -532,6 +529,7 @@ export const DecoderLevel:LevelParameters = {
     } as GridSource,
     completeCondition: DecoderLevelSignal,
     completeRewards: [getGateType(Decoder2t4).name, FullAdderLevel.params?.name || "?", FourBitDecoder.params?.name || "?"]
+    
   },
   x: 18,
   y: 0,
@@ -546,11 +544,11 @@ export const SmallDecoderLevel:LevelParameters = {
     directions:`
       <p>You've seen that we can <span style="font-style:italic;">encode</span> numbers from inputs.</p>
       <p>To complete this level, you need to <span style="font-style:italic;">decode</span> numbers into outputs.</p>
-      <p>This is remarkably more difficult than encoding, so we're going to start small.</p>
-      <p>Recall that a single voltage can represent {0} or {1}.</p>
-      <p>To complete this level, construct a {Circuit} that sets the output to {High} that matches the number represented by the input, and the other output to {Low}.</p>
+      <p>This is literally the reverse of encoding, and is remarkably more difficult, so we're going to start small.</p>
+      <p>The input here represents either a 0 or a 1, and there is one output for 0 and another for 1.</p>
+      <p>To complete this level, construct a {Circuit} that only powers the output matching the value of the input.</p>
     `,
-    grid: autoGrid(InputLabelledPrebaked[1], Output(2, {name:"Decoded Output", outputLabels:["0", "1"]})),
+    grid: autoGrid(exampleInputVariable('X'), Output(2, {name:"Decoded Output", inputLabels:["0", "1"]})),
     completeCondition:new ConnectionValueSignalSet([new Signal<ConnectionValue>([{
       frame: 0,
       value: false
@@ -567,22 +565,25 @@ export const EncoderLevel:LevelParameters = {
   params: {
     name: "Counting",
     directions: `
-        <p>2 voltages together can represent any number from 0 to 3.</p>
+        <p>In this {Circuit}, the output X0 should represent {0} or {1} and the output X1 should represent {0} or {2}.</p>
+        <p>Together, they can represent 0 through 3.</p>
         <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; grid-template-rows: 1fr 1fr 1fr 1fr 1fr; width:50%; margin-left:25%; text-align:center;">
             <div style="grid-column: 1; grid-row: 1;">X0</div><div style="grid-column: 2; grid-row: 1;">X1</div><div style="grid-column: 3; grid-row: 1;">number</div>
-            <div style="grid-column: 1; grid-row: 2; color:var(--connection-color-off);">0</div><div style="grid-column: 2; grid-row: 2; color:var(--connection-color-off);">0</div><div style="grid-column: 3; grid-row: 2;">0</div>
-            <div style="grid-column: 1; grid-row: 3; color:var(--connection-color-on);">1</div><div style="grid-column: 2; grid-row: 3; color:var(--connection-color-off);">0</div><div style="grid-column: 3; grid-row: 3;">1</div>
-            <div style="grid-column: 1; grid-row: 4; color:var(--connection-color-off);">0</div><div style="grid-column: 2; grid-row: 4; color:var(--connection-color-on);">1</div><div style="grid-column: 3; grid-row: 4;">2</div>
-            <div style="grid-column: 1; grid-row: 5; color:var(--connection-color-on);">1</div><div style="grid-column: 2; grid-row: 5; color:var(--connection-color-on);">1</div><div style="grid-column: 3; grid-row: 5;">3</div>
+            <div style="grid-column: 1; grid-row: 2;">{0}</div><div style="grid-column: 2; grid-row: 2;">{0}</div><div style="grid-column: 3; grid-row: 2;">0</div>
+            <div style="grid-column: 1; grid-row: 3;">{1}</div><div style="grid-column: 2; grid-row: 3;">{0}</div><div style="grid-column: 3; grid-row: 3;">1</div>
+            <div style="grid-column: 1; grid-row: 4;">{0}</div><div style="grid-column: 2; grid-row: 4;">{2}</div><div style="grid-column: 3; grid-row: 4;">2</div>
+            <div style="grid-column: 1; grid-row: 5;">{1}</div><div style="grid-column: 2; grid-row: 5;">{2}</div><div style="grid-column: 3; grid-row: 5;">3</div>
         </div>
-        <p>This {Circuit} has a pair of outputs, X0 and X1, representing a number.</p>
+        <p>It's also standard to write the voltages as {1} or {0}, regardless of their "place".</p>
+        <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; grid-template-rows: 1fr 1fr 1fr 1fr 1fr; width:50%; margin-left:25%; text-align:center;">
+            <div style="grid-column: 1; grid-row: 1;">X0</div><div style="grid-column: 2; grid-row: 1;">X1</div><div style="grid-column: 3; grid-row: 1;">number</div>
+            <div style="grid-column: 1; grid-row: 2;">{0}</div><div style="grid-column: 2; grid-row: 2;">{0}</div><div style="grid-column: 3; grid-row: 2;">0</div>
+            <div style="grid-column: 1; grid-row: 3;">{1}</div><div style="grid-column: 2; grid-row: 3;">{0}</div><div style="grid-column: 3; grid-row: 3;">1</div>
+            <div style="grid-column: 1; grid-row: 4;">{0}</div><div style="grid-column: 2; grid-row: 4;">{1}</div><div style="grid-column: 3; grid-row: 4;">2</div>
+            <div style="grid-column: 1; grid-row: 5;">{1}</div><div style="grid-column: 2; grid-row: 5;">{1}</div><div style="grid-column: 3; grid-row: 5;">3</div>
+        </div>
         <p>Your goal here is to "encode" the input, which is either 0, 1, 2, or 3, to the correct pair of outputs, X0 and X1.</p>
         `,
-    hint:`
-        <p>Think of how each output relates to the inputs independently.</p>
-        <p>This is generally a good trick for circuits with multiple outputs.</p>
-        <p>Since electricity leaves the circuit through the outputs, you'll always be able to separate them like this.</p>
-    `,
     grid: {
       gateTypes: [getGateType(Input(4, {
         name: "Input4Decoded",
@@ -666,8 +667,14 @@ export const AtLeast2Level:LevelParameters = {
     directions:`
 <p>To beat this level, you need to build a {Circuit} that outputs {High} when <span style="font-style:italic;">at least</span> 2 of the 3 inputs are {High}</p>
 <p>Try first building a {Circuit} with one output for each combination of 2 inputs that could be {High}, then joining those outputs together.</p>
+<p>Your progress on any level saves whenever you play the signal, so feel free to come back later.</p>
 `,
-    hint:`You already have a gate for measuring when exactly 2 inputs are {High}. There are 3 ways to pick 2 pins out of 3, so you'll need to join 3 of these gates.`,
+    hint:`
+<p>This level requires constructing an "At Least 2 of 3" {Circuit}.
+<p>You already have a gate that can be described as "At Least 2 of 2".</p> 
+<p>There are 3 ways to pick 2 pins out of 3: (1, 2), (2, 3), (1, 3)</p>
+<p>So, if you place a "2 of 2" gate for each choice, then join their results, every way that at least 2 inputs can be {High} will be covered.</p>
+`,
     grid: In3Out1,
     completeCondition: countingSignal(getGateType(AtLeast2), 4, 3),
     completeRewards: [AtLeast2.name, Random1.params?.name || "?"]
@@ -690,11 +697,12 @@ export const Xor3Level:LevelParameters = {
   params: {
     name:"Bigger Exclusion",
     directions:`
-<p>There are multiple ways to interperet a 'larger' Xor gate.</p>
-<p>A Xor gate with more than 2 inputs may refer to:</p>
+<p>A previous level had you construct an "Exclusive Or" or "Xor" gate.</p>
+<p>Completing this level requires constructing a 3-Input Xor gate.</p>
+<p>However, there are multiple ways to interperet what 'larger' Xor gate might mean:</p>
 <ul>
   <li>a gate that outputs {High} when <span style="font-style:italic;">exactly</span> 1 of the inputs is {High}, or,</li>
-  <li>a gate that outputs {High} when any odd number of inputs are {High}.</li>
+  <li>a gate that outputs {High} when any <span style="font-style:italic;">odd number</span> of inputs are {High}.</li>
 </ul>
 <p>We're going with the second choice.</p>
 <p>This might seem a little random, but measuring an odd number of pins is actually easier than counting exactly 1, and will be more relevant in later levels.</p>
@@ -842,7 +850,7 @@ export const Or3Level:LevelParameters = {
     name: "Joinyer",
     directions: `
         <p>This level requires constructing a 3-Input Or gate, which outputs {High}
-        only when any of its inputs are {High}.</p>
+        when any of its inputs are {High}.</p>
         `,
     grid: In3Out1,
     completeCondition: new ConnectionValueSignalSet(Or3LevelInputs, 60, getGateType(Or3)),

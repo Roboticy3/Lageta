@@ -50,7 +50,7 @@ export const GameViewShelfTree = new ShelfTreeNode(
             "Displays",
             [
                 "7-Segment Display", "7-Segment Encoder"
-            ], 0
+            ], 2
         ),
         new ShelfTreeNode(
             "Bigger",

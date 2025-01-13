@@ -83,7 +83,7 @@ export const drawGateTypeRect = (gridWidth:number, gridHeight:number) => {
 
 export const drawGateTypeEncode = (s:GateState, gridWidth:number, gridHeight:number) => {
     const result = [drawGateTypeRect(gridWidth, gridHeight)]
-    const v = s.override.indexOf(true)
+    const v = findLastHigh(s)
     result.push(
 `<text 
     x="${gridWidth * 10 / 2 - 5}" 
@@ -91,7 +91,7 @@ export const drawGateTypeEncode = (s:GateState, gridWidth:number, gridHeight:num
     fill="black" stroke="none"
     style="pointer-events:none;"
     >
-    ${v === -1 ? "?":v}
+    ${(v === undefined) ? "?":v}
 </text>`
     )
     return result.join()
@@ -344,7 +344,7 @@ export const SevenSegmentOutput:GateTypeParameters = {
 
 }
 
-function SevenSegementEncoding(v:number): GateState {
+function SevenSegementEncoding(v:number | undefined): GateState {
     switch (v) {
         case 0: return {override:[true, true, true, true, true, true, false]}
         case 1: return {override:[false, true, true, false, false, false, false]}
@@ -538,10 +538,13 @@ export function exampleOutputVariable(variableName:string) {
 function decodeInternal(s:GateState, bits:number) {
     let idx = 0
     let pow = 1
+    let floating = true
     for (let i = 0; i < bits; i++) {
+        if (floating && s.override[i] !== undefined) floating = false
         if (s.override[i] === true) idx += pow
         pow *= 2
     }
+    if (floating) return undefined
     return idx
 }
 
@@ -557,6 +560,7 @@ export function Decoder(bits:number, otherParams?: GateTypeParameters) {
         gridSize: [gridWidth, gridHeight],
         f: (s) => {
             const idx = decodeInternal(s, bits)
+            if (idx === undefined) return {override:new Array(outSize).fill(undefined)}
             let result = new Array(outSize).fill(false)
             result[idx] = true
             return {override:result}
@@ -577,7 +581,7 @@ export const BCDDecoder = Decoder(4,
         outputLabels:(new Array(10).fill('').map((_v, i) => `${i}`)),
         f: (s) => {
             const idx = decodeInternal(s, 4)
-            if (idx > 9) return {override:new Array(10).fill(undefined)}
+            if (idx === undefined || idx > 9) return {override:new Array(10).fill(undefined)}
             let result = new Array(10).fill(false)
             result[idx] = true
             return {override:result}
@@ -587,7 +591,10 @@ export const BCDDecoder = Decoder(4,
 
 export const BCDDecoderUnlabelled = combineGateTypeParameters(BCDDecoder, {name:"BCD Decoder Unlabelled", inputLabels:new Array(4).fill(""), outputLabels:(new Array(10).fill(""))})
 
-function encodeInternal(v:number, bits:number) {
+function encodeInternal(v:number | undefined, bits:number) {
+    if (v === undefined) {
+        return {override:new Array(bits).fill(undefined)}
+    }
     let result = new Array(bits).fill(false)
     for (let i = 0; i < bits; i++) {
         const r = v % 2
@@ -595,6 +602,16 @@ function encodeInternal(v:number, bits:number) {
         v = Math.floor(v / 2)
     }
     return {override:result}
+}
+
+function findLastHigh(s:GateState) {
+    let floating = true
+    for (let i = s.override.length - 1; i >= 0; i--) {
+        if (floating && (s.override[i] !== undefined)) floating = false
+        if (s.override[i] === true) return i;
+    }
+
+    return floating ? undefined:-1
 }
 
 export function Encoder(bits:number, otherParams?: GateTypeParameters) {
@@ -608,7 +625,8 @@ export function Encoder(bits:number, otherParams?: GateTypeParameters) {
         inputLabels: (new Array(inSize)).fill(undefined).map((_v, i) => `${i}`),
         gridSize: [gridWidth, gridHeight],
         f: (s) => {
-            return encodeInternal(s.override.lastIndexOf(true), bits)
+            const v = findLastHigh(s)
+            return encodeInternal(v, bits)
         },
         draw: (s) => {
             return drawGateTypeEncode(s, gridWidth, gridHeight)
@@ -706,8 +724,10 @@ export function NBitAdder(bits:number, otherParams?:GateTypeParameters) {
         gridSize: [2, 2 * bits],
         f: (s) => {
             const x = decodeInternal(s, bits)
+            if (x === undefined) return {override: new Array(bits + 1).fill(undefined)}
             const s2 = {override:s.override.slice(bits)}
             const y = decodeInternal(s2, bits)
+            if (y === undefined) return {override: new Array(bits + 1).fill(undefined)}
             const sum = x + y
             return encodeInternal(sum, bits + 1)
         }
@@ -805,6 +825,7 @@ export function randomGateType(params:GateTypeParameters, highP:number) {
     const newParams = {...params}
     newParams.f = (s:GateState) => {
         const x = decodeInternal(s, inSize)
+        if (x === undefined) return {override: new Array(outSize).fill(undefined)}
         return {override:table.slice(outSize * x, outSize * (x + 1))}
     }
     

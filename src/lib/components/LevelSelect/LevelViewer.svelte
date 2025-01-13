@@ -30,6 +30,10 @@
      * @type {CircuitDiv}
      */
     let container
+    /**
+     * @type {boolean | undefined}
+     */
+    let active = undefined
 
     /**
      * @type {HeavyButton}
@@ -90,15 +94,13 @@
         //if there is no gate under this level, it shouldn't deactivate because of anything to do with the circuit
         const id = level.desiredId
         const value = id ? circuitController.getGateOutputs(id)?.override : undefined
-        console.log("checking availability of level ", levelProgress, " with values ", id, value)
         if ((id === undefined) || (value === undefined)) {
-            console.log("checking availability: missing id or value... making available by default")
             container.activate()
             button.setUnavailable(false)
+            active = false
             return
         }
 
-        console.log("checking availability: comparing ", value, " with expected ", level.playCondition)
         let shouldActivate = true
         for (let i = 0; i < value.length; i++) {
             if( (value[i]) !== (level.playCondition[i])) {
@@ -106,10 +108,11 @@
                 break
             }
         }
-        console.log("checking availability: should activate? ", shouldActivate)
+
         if (shouldActivate) container.activate()
         else container.deactivate()
         button.setUnavailable(!shouldActivate)
+        active = shouldActivate
     }
 
     async function playLevel() {
@@ -120,16 +123,24 @@
         window.location.href = '/level/' + level.name()
     }
 
-    let flash = (levelProgress.new) || false
-    export let flashTime = 10000
+    $: flash = (levelProgress.new && active) || false
+    $: console.log("should flash ", levelProgress, active)
+    export let flashTime = 5000
+    /**
+     * @type {string | number | NodeJS.Timeout | undefined}
+     */
+    let flashInterval = undefined
 
-    if (flash) setInterval(() => {
-        flash = true;
-        // Reset the animation after it's finished
-        setTimeout(() => {
-        flash = false;
-        }, flashTime - 500); // Match the animation duration
-    }, flashTime); // Match the interval
+    $: if (flash) {
+        if (flashInterval) clearTimeout(flashInterval)
+        flashInterval = setInterval(() => {
+            flash = true;
+            // Reset the animation after it's finished
+            setTimeout(() => {
+            flash = false;
+            }, flashTime - 500); // Match the animation duration
+        }, flashTime); // Match the interval
+    }
 </script>
 
 <CircuitDiv 
