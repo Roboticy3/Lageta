@@ -24,7 +24,7 @@
     let editorParams = {
         canDragGates:false, 
         showShelf:false, 
-        slotInFront:false,
+        slotInFront:true,
         interactionMask:interactionMask,
         inputCheckboxes:false
     }

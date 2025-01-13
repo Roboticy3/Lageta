@@ -151,10 +151,10 @@
     size={size}
     flash={flash}
     border={true}
-    extraStyle={"pointer-events:none;"}
+    extraStyle={`pointer-events:none;`}
     bind:this={container}
 >
-<div style="display:flex; flex-direction:column; justify-content:center; height:100%;">
+<div style="display:flex; flex-direction:column; justify-content:center; height:100%;" class="{levelProgress.new ? "gold":""}">
     <p style="overflow-wrap:break-word;">{level.name()}</p>
     {#if levelProgress.complete}
         <div>⭐</div>

@@ -135,11 +135,7 @@
     }
 
     .bobbing-circuit-div {
-        animation-name:bob-y;
-        animation-duration: calc(var(--animation-speed) * 2);
-        animation-iteration-count:infinite;
-        animation-direction: alternate;
-        animation-timing-function: ease-in-out;
+        animation:bob-y calc(var(--animation-speed) * 2) alternate infinite ease-in-out;
     }
 
     .smooth-circuit-div {
