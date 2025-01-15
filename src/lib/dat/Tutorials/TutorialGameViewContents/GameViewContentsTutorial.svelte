@@ -39,6 +39,9 @@
                     case 13:
                         pauseSignalPlayer()
                         break
+                    case 18:
+                        restartSignalPlayer()
+                        break
                     case 23:
                         restartSignalPlayer()
                         document.querySelector('#signal-play-button')?.setAttribute('disabled', 'disabled')
@@ -194,8 +197,8 @@
 
 {#if state.currentEvent === 17}
     <TutorialText
-        position={[85, 20]}
-        initialPosition={[85, 30]}
+        position={[50, 20]}
+        initialPosition={[50, 20]}
         on:continue={dispatch.bind(dispatch, "continue")}
     >
     <div style="color:black; width:25vw;">

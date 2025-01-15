@@ -182,9 +182,11 @@
         showButton={false}
     >
         <p style="color:black; font-size:min(3vw, 3vh);">
+            <!--
             When points are not connected to anything, they have
             <span style="color:var(--connection-color-x)">neither</span>
             high or low voltage.
+            -->
         </p>
     </TutorialText>
 {/if}
