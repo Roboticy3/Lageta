@@ -43,7 +43,7 @@
         showShelf:false,
         signalPlaying:false,
         rendererParams: {
-            showGates:false,
+            showBodyMask:new Set([0, 1]),
             showLabels:false
         },
         isCircuitValid:false

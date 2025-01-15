@@ -8,5 +8,9 @@
 
   $: level = browser ? getLevelFromParams(OrLevel):undefined
 
+  const editorParams = {
+    signalSpeed:() => 100
+  }
+
 </script> 
-<LevelTemplate allParams={{gameParams:level?.unpack(), shelf:new ShelfTreeNode("Custom Shelf", [Or.name])}} levelName={OrLevel.params?.name}/>
+<LevelTemplate allParams={{gameParams:level?.unpack(), shelf:new ShelfTreeNode("Custom Shelf", [Or.name]), editorParams:editorParams}} levelName={OrLevel.params?.name}/>

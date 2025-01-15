@@ -122,6 +122,11 @@
         return [gateOffset[0] + connectionOffset[0] / 10 + safeGridOffset[0], gateOffset[1] + connectionOffset[1] / 10 + safeGridOffset[1]]
     }
 
+    const divStyle = 
+`
+    background:transparent;
+`
+
     const checkboxStyle =
 `
     font-size:min(3vw, 4vh);
@@ -156,6 +161,7 @@
     size={[1.1, 0.6]}
     active={active}
     smooth={true}
+    extraStyle={divStyle}
     >
     
     <HeavyButton 

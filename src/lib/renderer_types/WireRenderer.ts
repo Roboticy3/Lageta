@@ -229,7 +229,7 @@ export class WireRenderer {
         const [ax, ay, bx, by] = [a[0], a[1], b[0], b[1]]
 
         //if the points are too close together, fallback to a simple straight line
-        if ((Math.abs(ax - bx) + Math.abs(ay - by)) < 2 * minStride) {
+        if ((Math.abs(ax - bx) + Math.abs(ay - by)) < 3 * minStride) {
             return [a, b]
         }
 
@@ -272,7 +272,7 @@ export class WireRenderer {
         const points = this.drawWirePoints(a, b, minStride, circuitController, seed)
 
         const inner = this.pointsToSvgPath(points)
-        const border = this.pointsToSvgPath(points, `stroke-width="${borderWidth}" stroke="white"`)
+        const border = this.pointsToSvgPath(points, `stroke-width="${borderWidth}" stroke="var(--main-bg-color)"`)
 
         return `${border}\n${inner}`
     }

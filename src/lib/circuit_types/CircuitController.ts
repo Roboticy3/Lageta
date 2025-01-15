@@ -127,23 +127,25 @@ export class CircuitController {
         const vType = cType.view
 
         const inputOffsets = vType.inputOffsets
-        let i = 0;
-        for (; i < gType.sizeIn; i++) {
+        let minD = 5
+        let minI = -1
+        for (let i = 0; i < gType.sizeIn; i++) {
             const offset = [inputOffsets[i][0] + gridOffsetX, inputOffsets[i][1] + gridOffsetY]
             const dX = localX - offset[0]
             const dY = localY - offset[1]
 
             const d = this.gridEuclidDistance(dX, dY)
-            if (d < 5) {
-                break
+            if (d < 5 && d < minD) {
+                minD = d
+                minI = i
             }
         }
 
-        if (i != gType.sizeIn) {
+        if (minI != -1) {
             return new CircuitControllerQueryResult({
                 gate:gate,
                 type:"Input",
-                connectionIndex:i,
+                connectionIndex:minI,
                 gateTypeController:cType,
                 localOffset:[localX, localY],
                 pageOffset:[pageX, pageY],
@@ -152,23 +154,25 @@ export class CircuitController {
         }
 
         const outputOffsets = vType.outputOffsets
-        i = 0
-        for (; i < gType.sizeOut; i++) {
+        minD = 5
+        minI = -1
+        for (let i = 0; i < gType.sizeOut; i++) {
             const offset = [outputOffsets[i][0] + gridOffsetX, outputOffsets[i][1] + gridOffsetY]
             const dX = localX - offset[0]
             const dY = localY - offset[1]
 
             const d = this.gridEuclidDistance(dX, dY)
-            if (d < 5) {
-                break
+            if (d < 5 && d < minD) {
+                minD = d
+                minI = i
             }
         }
 
-        if (i != gType.sizeOut) {
+        if (minI != -1) {
             return new CircuitControllerQueryResult({
                 gate:gate,
                 type:"Output",
-                connectionIndex:i,
+                connectionIndex:minI,
                 gateTypeController:cType,
                 localOffset:[localX, localY],
                 pageOffset:[pageX, pageY],

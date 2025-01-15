@@ -2,10 +2,9 @@
 
 <script>
     import { page } from '$app/stores';
-    import { Freeplay, getLevel, getLevelParams } from "$lib/dat/Levels/Levels";
+    import { Freeplay, getLevel, getLevelParams, randomLevel } from "$lib/dat/Levels/Levels";
     import { browser } from '$app/environment';
     import LevelTemplate from '$lib/components/GameView/LevelTemplate.svelte';
-    import { randomLevel } from '$lib/level_types/Level';
 
     const pathParams = $page.params.catchAll.split('/')
     $: levelName = pathParams[0] || undefined

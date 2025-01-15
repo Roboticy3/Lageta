@@ -7,7 +7,7 @@ import { GateType, GateTypeController } from "./GateType"
 export class TruthTable {
     readonly params:TruthTableParameters
 
-    readonly matrix:boolean[][]
+    readonly matrix:any[][]
 
     readonly columnLabels:string[]
 
@@ -20,7 +20,7 @@ export class TruthTable {
         this.params = params
 
         if (params instanceof GateTypeController) {
-            this.matrix = TruthTable.gateTypeToMatrix(params.model)
+            this.matrix = TruthTable.gateTypeToMatrix(params)
             this.columnLabels = params.view.inputLabels.concat(params.view.outputLabels)
             this.sizeIn = params.model.sizeIn
             this.sizeOut = params.model.sizeOut
@@ -33,17 +33,22 @@ export class TruthTable {
         }
     }
 
-    static gateTypeToMatrix(gateType:GateType) {
-        const rows = Math.pow(2, gateType.sizeIn)
+    static gateTypeToMatrix(gateType:GateTypeController) {
+        let rows = Math.pow(2, gateType.model.sizeIn)
+        const limit = gateType.view.limitRows
+        if (limit && limit < rows) {
+            rows = limit
+        }
+        
         const result = []
         for (let r = 0; r < rows; r++) {
-            const rowResult = new Array(gateType.sizeIn)
+            const rowResult = new Array(gateType.model.sizeIn)
             //fill the first half of the matrix with inputs
-            for (let c = 0; c < gateType.sizeIn; c++) {
+            for (let c = 0; c < gateType.model.sizeIn; c++) {
                 const fac = Math.pow(2, c)
                 rowResult[c] = (Math.floor(r / fac) % 2 === 1)
             }
-            rowResult.push(...(gateType.f({override:rowResult}).override))
+            rowResult.push(...(gateType.model.f({override:rowResult}).override))
             result[r] = rowResult
         }
         return result
@@ -62,7 +67,7 @@ export type TruthTableParameters = {
     sizeIn?:number,
     intermediate?:number,
     sizeOut?:number,
-    matrix?:boolean[][],
+    matrix?:any[][],
     columnLabels?:string[]
 } | GateTypeController
 

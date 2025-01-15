@@ -676,7 +676,18 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
     function checkEntered(q) {     
         if (!currentQuery.contentEquals(q)) {
             circuitRenderer.onExited(currentQuery)
-            circuitRenderer.onEntered(q)
+            let shouldEnter = true
+            switch (q.type) {
+                case "Gate": 
+                    shouldEnter = (editorParams.canDragGates !== false)
+                    break
+                case "Input":
+                case "Output":
+                    shouldEnter = (editorParams.canDragConnections !== false)
+            }
+            if (shouldEnter) {
+                circuitRenderer.onEntered(q)
+            }
         }
         currentQuery = q
     }

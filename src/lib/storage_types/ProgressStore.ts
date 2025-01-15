@@ -185,8 +185,15 @@ export class ProgressStorage {
 
     useHint(level:string) {
         let levelProgress = this.getLevelProgress(level)
-        if (levelProgress && !levelProgress.hintUsed && this.getHintTokens() >= 1) {
-            levelProgress.hintUsed = true
+        if (!levelProgress?.hintUsed && this.getHintTokens() >= 1) {
+            if (!levelProgress) {
+                this.addLevel(level)
+                levelProgress = this.getLevelProgress(level)
+                if (levelProgress) levelProgress.hintUsed = true
+            }
+            else {
+                levelProgress.hintUsed = true
+            }
             this.progressStorage.hintTokens -= 1
             this.commit()
             return true

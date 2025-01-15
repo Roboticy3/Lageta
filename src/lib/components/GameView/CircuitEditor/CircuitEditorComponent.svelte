@@ -215,8 +215,6 @@
     .circuit-panel {
         flex:7;
 
-        background-color: var(--main-bg-color);
-
         border: thick double;
         color: var(--circuit-color);
 

@@ -18,22 +18,25 @@
     /**
      * @type {any}
      */
-    export let truthTableData
+    export let truthTableData = {}
 
     /**
      * @param {boolean} value
      */
     function booleanToLabel(value) { 
-        let color = ""
+        let label = ""
         switch (value) {
             case true: 
-                color = `<div style="color:var(--connection-color-on); padding-left:0.25em; padding-right:0.25em;">${truthTableData?.highText || "high"}</div>`
+                label = `<div style="color:var(--connection-color-on); padding-left:0.25em; padding-right:0.25em;">${truthTableData?.highText || "high"}</div>`
                 break
             case false: 
-                color = `<div style="color:var(--connection-color-off); padding-left:0.25em; padding-right:0.25em;">${truthTableData?.lowText || "low"}</div>`
+                label = `<div style="color:var(--connection-color-off); padding-left:0.25em; padding-right:0.25em;">${truthTableData?.lowText || "low"}</div>`
+                break
+            default:
+                label = `${value}`
                 break
         }
-        return color
+        return label
     }
 
     /**
@@ -77,7 +80,7 @@
         text-align: center;
         background-color: var(--main-bg-color);
 
-        min-width:100%;
+        width: 100%;
     }
 
     .title-bar {

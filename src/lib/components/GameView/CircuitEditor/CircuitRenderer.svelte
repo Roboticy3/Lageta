@@ -162,7 +162,7 @@
 
         const g = svgWrapGroup('', gateTransform, idString)
         
-        if (rendererParams.showGates !== false && !rendererParams.showMask?.has(id)) g.appendChild(gate)
+        g.appendChild(gate)
 
         gateGroup.appendChild(g)
 
@@ -183,7 +183,8 @@
         svg.setAttribute('transform',gateTransform)
 
         const body = svg.querySelector(`#${idString}-body`)
-        if (body) {
+        console.log("should I draw a gate here?... ", body, rendererParams)
+        if (body && !rendererParams.showBodyMask?.has(id)) {
             body.innerHTML = svgGateBody(cType, id)
         }
 
@@ -302,7 +303,7 @@
     function connectionPointLabelConstructor(index, cType, gPos) {
         const id = index.id
 
-        if (rendererParams.showMask?.has(id)) return svgWrapGroup('')
+        if (rendererParams.showConnectionLabels === false || rendererParams.showMask?.has(id)) return svgWrapGroup('')
 
         const gateIdString = idSpace.gateIdString(id)
         let svg = svgHead.querySelector(`#${gateIdString}`)
@@ -381,6 +382,8 @@
      * @param {number} id
      */
     export function updateGate(id) {
+
+        if (rendererParams.showMask?.has(id)) return
 
         const cType = circuitController.getGateTypeController(id)
         const gPos = circuitController.getGatePosition(id)
@@ -742,15 +745,15 @@
     }
 
     function svgConnectionPoint(extraParams = '') {
-        return `<path d="M -1 -1 l 2 1 l -2 1 Z" stroke-width=".25px" style="pointer-events:none;" fill="white" ${extraParams} />`
+        return `<path d="M -1 -1 l 2 1 l -2 1 Z" stroke-width=".25px" style="pointer-events:none;" fill="var(--main-bg-color)" ${extraParams} />`
     }
 
     function svgInputPoint(extraParams = '') {
-        return `<path d="M -1.5 -1 l 1 0 l 1.5 1 l -1.5 1 l -1 0 Z" stroke-width=".25px" style="pointer-events:none;" fill="white" ${extraParams} />`
+        return `<path d="M -1.5 -1 l 1 0 l 1.5 1 l -1.5 1 l -1 0 Z" stroke-width=".25px" style="pointer-events:none;" fill="var(--main-bg-color)" ${extraParams} />`
     }
 
     function svgOutputPoint(extraParams = '') {
-        return `<rect x="-1" width="2" y="-1" height="2" rx=".25"  stroke-width=".25px" style="pointer-events:none;" fill="white" ${extraParams} />`
+        return `<rect x="-1" width="2" y="-1" height="2" rx=".25"  stroke-width=".25px" style="pointer-events:none;" fill="var(--main-bg-color)" ${extraParams} />`
     }
 
     function svgConnectionPointLabel(label = 'bingus', extraParams = '') {
@@ -831,7 +834,7 @@
      * @param {CircuitControllerQueryResult} q
      */
     export function onEntered(q) {
-        if (q.type === "Gate" && rendererParams.showGates !== false) {
+        if (q.type === "Gate" && !rendererParams.showBodyMask?.has(q.getId())) {
             circuitDraggable.setContentsToName(
                 q.getGateType()?.name || "?"
             )
@@ -895,9 +898,9 @@
 
     <g transform="scale(1, 1)">
         <g id="circuit-bounding-box">
-            <!--white border forces the size to be more consistent-->
+            <!--var(--main-bg-color) border forces the size to be more consistent-->
             <rect 
-                stroke="white"
+                stroke="var(--main-bg-color)"
                 fill="none"
                 width="{gridSize[0] * cellOffset}" 
                 height="{gridSize[1] * cellOffset}"
@@ -908,7 +911,7 @@
         {#if rendererParams.showGrid !== false}
             <g 
                 bind:this={gridGroup} 
-                stroke="white" stroke-width="0.25px" fill="var(--connection-color-x)" 
+                stroke="var(--main-bg-color)" stroke-width="0.25px" fill="var(--connection-color-x)" 
                 pointer-events="none"
             >
 
@@ -927,7 +930,6 @@
         </g> {/if}
 
         <g bind:this={wireGroup} stroke="var(--gate-color)" stroke-width="0.5px" fill="none" ></g>
-        
         <g bind:this={gateGroup} stroke="var(--gate-color)" stroke-width="0.5px" fill="var(--tertiary-bg-color)"></g>
         <g bind:this={activeGroup} stroke="var(--gate-color)" stroke-width="0.5px" fill="none"></g>
     </g>

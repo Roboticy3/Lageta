@@ -10,7 +10,7 @@
     import { onMount, tick } from "svelte";
     import { CircuitSignalSetViewEventTarget } from "$lib/signal_types/SignalSetViewEvent";
     import { GameViewCircuitPanelEventTarget } from "$lib/circuit_types/GameViewCircuitPanelEvent";
-    import { getGateTypeParams, all_gates } from "$lib/dat/GateTypes/GateTypes";
+    import { getGateTypeParams, all_gates, getGateType, Buf } from "$lib/dat/GateTypes/GateTypes";
     import { getLevelParams } from "$lib/dat/Levels/Levels";
     import SignalViewer from "./Signal/SignalViewer.svelte";
     import { filterShelfTreeWithUnlocks, GameViewShelfTree, ShelfTreeNode } from "$lib/dat/Shelf/ShelfTree";
@@ -24,8 +24,9 @@
     import { GateGrid } from "$lib/circuit_types/GateGrid";
     import { StickerStorage } from "$lib/storage_types/StickerStorage";
     import { StickerController } from "$lib/circuit_types/sticker/StickerController"
-    import { gridSourceToGrid } from "$lib/level_types/GameViewParameters";
+    import { gridSourceToGrid, parseDirections } from "$lib/level_types/GameViewParameters";
     import HeavyButton from "../Misc/HeavyButton.svelte";
+    import { GateTypeController } from "$lib/circuit_types/GateType";
 
     if (!browser) throw Error("GameView requires 'browser' to be the active environment")
 
@@ -36,8 +37,19 @@
     $: gateRewards = gameParams.completeRewards?.filter((v) => getGateTypeParams(v) !== undefined)
     $: levelRewards = gameParams.completeRewards?.filter((v) => getLevelParams(v) !== undefined)
     $: toolRewards = gameParams.completeRewards?.filter((v) => getToolParams(v) !== undefined)
-    $: solver = gameParams.completeCondition?.solver
-    console.log("set to unlock", gateRewards, levelRewards, JSON.stringify(toolRewards))
+    $: solver = getSolver(gameParams)
+    /**
+     * @param {import("$lib/level_types/GameViewParameters").GameViewParameters} params
+     */
+    function getSolver(params) {
+        if (typeof params.solverOverride === "string") {
+            return getGateType(getGateTypeParams(params.solverOverride) || Buf)
+        } else if (params.solverOverride instanceof GateTypeController) {
+            return params.solverOverride
+        } else {
+            return params.completeCondition?.solver
+        }
+    }
 
     $: hintActive = levelProgress?.hintUsed
     /**
@@ -45,9 +57,9 @@
      */
     $: hintTokenView = progressStorage?.getHintTokens()
     function onUseHintToken() {
-        progressStorage.useHint(gameParams.name || "?")
-        hintActive = true
-        hintTokenView = progressStorage?.getHintTokens()
+        if (progressStorage === undefined || hintActive) return
+        hintActive = progressStorage.useHint(gameParams.name || "?")
+        hintTokenView = progressStorage.getHintTokens()
     }
 
     $: hintTokenReward = !levelProgress?.complete && (!levelRewards || levelRewards.length === 0)
@@ -142,14 +154,20 @@
      * @type {CircuitEditorComponent | null}
      */
     export let existingEditor = null
-
-    console.log("initializing GameView with params: ",gameParams)
     
     const signalSetView = gameParams.completeCondition ? 
         new CircuitSignalSetView(gameParams.completeCondition) : undefined
 
-    let progressStorage = new ProgressStorage() 
-    let levelProgress = progressStorage.getLevelProgress(gameParams.name || "?")
+    /**
+     * @type {ProgressStorage | undefined}
+     */
+    let progressStorage =  undefined
+    $: if (browser) {
+        progressStorage = new ProgressStorage()
+    }
+    $: levelProgress = progressStorage?.getLevelProgress(gameParams.name || "?")
+
+    console.log("initializing GameView with params: ",gameParams, progressStorage, levelProgress)
     /**
      * @type {ShelfTreeNode | undefined}
      */
@@ -159,7 +177,7 @@
         console.log("reading progress...")
 
         //if a shelf has been provided, don't construct a new one
-        if (!shelf) {
+        if (!shelf && progressStorage) {
             //if there are fewer than 7 gates, don't run to algorithm that splits things into folders
             if (progressStorage.gateNames().length < 7) {
                 let newShelf = new ShelfTreeNode(
@@ -187,7 +205,7 @@
         }
 
         //remove the current level as a "new" level, so it doesn't direct the player's attention anymore on the level select screen
-        progressStorage.removeNewLevel(getName())
+        progressStorage?.removeNewLevel(getName())
 
         console.log("gameview loaded shelf ", shelf, " and unmarked ", getName(), " as new!")
     }
@@ -217,7 +235,7 @@
      * @param {ShelfTreeNode} shelf
      */
     function appendStickersToShelf(shelf) {
-        const stickers = progressStorage.getTool("Stickers")?.data?.stickers
+        const stickers = progressStorage?.getTool("Stickers")?.data?.stickers
         
         if (stickers && stickers.length > 0) {
             shelf.children.push(new ShelfTreeNode("Stickers", (
@@ -262,15 +280,22 @@
     let editorContainerResizeObserver
 
     function onComplete() {
-        if (getName() === progressStorage.getCurrentTutorial()) {
-            progressStorage.passTutorial()
+        if (progressStorage) {
+            if (getName() === progressStorage.getCurrentTutorial()) {
+                progressStorage.passTutorial()
+            }
+
+            levelRewards?.forEach(progressStorage.addLevel.bind(progressStorage))
+            gateRewards?.forEach(progressStorage.addGate.bind(progressStorage))
+            toolRewards?.forEach(progressStorage.addTool.bind(progressStorage))
+
+            progressStorage.completeLevel(getName())
+
+            if (hintTokenReward) {
+                progressStorage.addHintTokens()
+            }
         }
-
-        levelRewards?.forEach(progressStorage.addLevel.bind(progressStorage))
-        gateRewards?.forEach(progressStorage.addGate.bind(progressStorage))
-        toolRewards?.forEach(progressStorage.addTool.bind(progressStorage))
-
-        progressStorage.completeLevel(getName())
+        
 
         completionPopup.show()
 
@@ -281,9 +306,7 @@
             SFXPlayer.play("outro1.wav")
         }    
 
-        if (hintTokenReward) {
-            progressStorage.addHintTokens()
-        }
+       
     }
 
     function placeExistingEditor() {
@@ -366,10 +389,10 @@
             {/if}
         </div>
         <div class="instructions {slidinParams ? 'slidein':''}" style="flex:{maxSizeState.instructionsFlex};">
-            {@html gameParams.directions}
+            {@html parseDirections(gameParams.directions)}
             {#if truthTableProgress && 
                 solver?.variant === "Gate" &&
-                solver.view.sizeIn < 5
+                solver.view.sizeIn < 6
             }
                 <TruthTableView 
                     truthTable={(new TruthTable(solver))}
@@ -383,18 +406,25 @@
 
                 />
             {/if}
-            {#if gameParams.hint && !levelProgress?.complete && hintTokenView !== undefined}
+            {#if  gameParams.hint && !levelProgress?.complete && !hintActive && hintTokenView !== undefined}
                 <div style="height:1em;"></div>
                 This level has a hint! 
-                {#if !hintActive}
-                    <HeavyButton on:click={onUseHintToken} unavailable={progressStorage?.getHintTokens() < 1}>Use Hint Token?</HeavyButton>
-                {/if}
+                <HeavyButton on:click={onUseHintToken} unavailable={(progressStorage?.getHintTokens() || -1) < 1}>Use Hint Token?</HeavyButton>
                 You have {hintTokenView} hint tokens.
             {/if}
             {#if hintActive}
-                <div class="flash">
-                    {@html gameParams.hint || "?"}
-                </div>
+                <b>You've used a hint:</b>
+                {#each parseDirections(gameParams.hint) || ["?"] as p}
+                    {#if typeof p === "string"}
+                        <div class="flash">
+                            {@html p}
+                        </div>
+                    {:else if p.truthTable}
+                        <div class="flash">
+                            <TruthTableView truthTable={p.truthTable} truthTableData={truthTableProgress?.data || {}}/>
+                        </div>
+                    {/if}
+                {/each}
             {/if}
         </div>
     </div>
