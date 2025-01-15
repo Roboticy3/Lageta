@@ -53,12 +53,6 @@
 
 <style>
 
-    .options {
-        display:flex;
-        flex-direction:column;
-        gap:1em;
-    }
-
     .smaller {
         width:20%;
         height:30%; 

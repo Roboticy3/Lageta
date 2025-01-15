@@ -272,7 +272,7 @@ export class WireRenderer {
         const points = this.drawWirePoints(a, b, minStride, circuitController, seed)
 
         const inner = this.pointsToSvgPath(points)
-        const border = this.pointsToSvgPath(points, `stroke-width="${borderWidth}" stroke="white"`)
+        const border = this.pointsToSvgPath(points, `stroke-width="${borderWidth}" stroke="var(--main-bg-color)"`)
 
         return `${border}\n${inner}`
     }

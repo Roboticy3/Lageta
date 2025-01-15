@@ -745,15 +745,15 @@
     }
 
     function svgConnectionPoint(extraParams = '') {
-        return `<path d="M -1 -1 l 2 1 l -2 1 Z" stroke-width=".25px" style="pointer-events:none;" fill="white" ${extraParams} />`
+        return `<path d="M -1 -1 l 2 1 l -2 1 Z" stroke-width=".25px" style="pointer-events:none;" fill="var(--main-bg-color)" ${extraParams} />`
     }
 
     function svgInputPoint(extraParams = '') {
-        return `<path d="M -1.5 -1 l 1 0 l 1.5 1 l -1.5 1 l -1 0 Z" stroke-width=".25px" style="pointer-events:none;" fill="white" ${extraParams} />`
+        return `<path d="M -1.5 -1 l 1 0 l 1.5 1 l -1.5 1 l -1 0 Z" stroke-width=".25px" style="pointer-events:none;" fill="var(--main-bg-color)" ${extraParams} />`
     }
 
     function svgOutputPoint(extraParams = '') {
-        return `<rect x="-1" width="2" y="-1" height="2" rx=".25"  stroke-width=".25px" style="pointer-events:none;" fill="white" ${extraParams} />`
+        return `<rect x="-1" width="2" y="-1" height="2" rx=".25"  stroke-width=".25px" style="pointer-events:none;" fill="var(--main-bg-color)" ${extraParams} />`
     }
 
     function svgConnectionPointLabel(label = 'bingus', extraParams = '') {
@@ -898,9 +898,9 @@
 
     <g transform="scale(1, 1)">
         <g id="circuit-bounding-box">
-            <!--white border forces the size to be more consistent-->
+            <!--var(--main-bg-color) border forces the size to be more consistent-->
             <rect 
-                stroke="white"
+                stroke="var(--main-bg-color)"
                 fill="none"
                 width="{gridSize[0] * cellOffset}" 
                 height="{gridSize[1] * cellOffset}"
@@ -911,7 +911,7 @@
         {#if rendererParams.showGrid !== false}
             <g 
                 bind:this={gridGroup} 
-                stroke="white" stroke-width="0.25px" fill="var(--connection-color-x)" 
+                stroke="var(--main-bg-color)" stroke-width="0.25px" fill="var(--connection-color-x)" 
                 pointer-events="none"
             >
 

@@ -202,7 +202,6 @@
     .title {
         margin: 1em;
         font-size: min(5vw, 5vh);
-        color:var(--text-color);
         text-shadow: 0.06em 0.06em var(--connection-color-on), -0.06em -0.06em var(--connection-color-off);
     }
 

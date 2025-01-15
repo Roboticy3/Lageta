@@ -308,11 +308,5 @@ import { Sticker, StickerType } from "$lib/circuit_types/sticker/Sticker";    im
         flex:1;
     }
 
-    .options {
-        display:flex;
-        flex-direction:column;
-        gap:1em;
-    }
-
     
 </style>
