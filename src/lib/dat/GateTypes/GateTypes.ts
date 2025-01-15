@@ -13,6 +13,7 @@ export type GateTypeParameters = {
     inputLabels?:string[], //the labels of each input point
     outputLabels?:string[], //the labels of each output point
     moveable?:boolean, //whether the gate can be moved by the user or not, true if not given
+    limitRows?:number, //a cap on the number of rows in truth tables generated from this gate type
     variant?:GateTypeVariant, //variants allow support for extending gates to other types, like designating inputs as "Flows" when they have 0 inputs and their state is used as their outputs rather than inputs
     f?:(s:GateState) => GateState, //the computation this gate performs on its inputs
     draw?:(s:GateState) => string, //the svg appearance of this gate in the grid
@@ -366,7 +367,8 @@ export const SevenSegmentDecoder:GateTypeParameters = {
     f: (s) => {
         const v = decodeInternal(s, 4)
         return SevenSegementEncoding(v)
-    }
+    },
+    limitRows:10
 }
 
 function SevenSegmentEncoderf(s:GateState) {

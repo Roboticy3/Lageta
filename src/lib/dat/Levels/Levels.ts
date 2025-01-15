@@ -227,6 +227,38 @@ export const SevenSegmentLevel:LevelParameters = {
         <p>Good luck!</p>
         <p>Lageta largely automates displaying numbers for your <span style="color:var(--circuit-color);">circuits</span>. But in real life, this is a pretty good approximation of how those displays would work.</p>
         `,
+    hint:`
+        <p>Each row of a truth table indicates a set of inputs and expected outputs.</p>
+        <p>But, have you ever thought about the order of the rows? or even the "order" of the {Signal} on a lot of levels?</p>
+        <p>For most levels, the row number, starting from 0, is <i>equal</i> to the number encoded by the input.</p>
+TruthTable({
+  "sizeIn":5,
+  "sizeOut":7,
+  "matrix":[
+    [0, false,false,false,false,true ,true ,true ,true ,true ,true ,false],
+    [1, true ,false,false,false,false,true ,true ,false,false,false,false],
+    [2, false,true ,false,false,true ,true ,false,true ,true ,false,true ],
+    [3, true ,true ,false,false,true ,true ,true ,true ,false,false,true ],
+    [4, false,false,true ,false,false,true ,true ,false,false,true ,true ],
+    [5, true ,false,true ,false,true ,false,true ,true ,false,true ,true ],
+    [6, false,true ,true ,false,true ,false,true ,true ,true ,true ,true ],
+    [7, true ,true ,true ,false,true ,true ,true ,false,false,false,false],
+    [8, false,false,false,true ,true ,true ,true ,true ,true ,true ,true ],
+    [9, true ,false,false,true ,true ,true ,true ,false,false,true ,true ]
+  ],
+  "columnLabels":["row","","","","","a","b","c","d","e","f","g"]
+})EndTruthTable
+        <p>So, we can think of any output column like:</p>
+        <p>"set 'a' to {High} when the input number is 0, or 2, or 3, or 5.." and so on.</p>
+        <p>To translate this logic into a {Circuit}, we need something to:</p>
+        <ul>
+          <li>Decode the input, and something to</li>
+          <li>Join the decoded values together, one of these for each output</li>
+        </ul>
+        <p>And that's it! If you have the right gates unlocked, this level only requires 2 unique gate types.</p>
+        <p>Though, you will need a lot of those joiners...</p>
+        <p>If you have any complaints about the game not being fun, being broken, or not being fun, fill out the feedback form from the {Options} menu :)</p>
+    `,
     grid: {
       gateTypes: [getGateType(InputVariable(4, 'X')), getGateType(SevenSegmentOutput)],
       gates: [{
@@ -268,7 +300,7 @@ export const FourBitDecoder:LevelParameters = {
         <p>However, this output only has pins for 0 through 9.</p>
         <p>That's because this particular input represents a "Binary Coded Decimal," or BCD.</p>
         <p>BCD's are the same as any other binary number, except any value above 9 is discarded.</p>
-        <p>If you play through the signal, you'll see that your {Circuit} won't have to handle any values above 9.</p>
+        <p>If you play through the {Signal}, you'll see that your {Circuit} won't have to handle any values above 9.</p>
         `,
     hint: `
         <p>You've already unlocked a Decoder that can decode 2 voltages into 4 outputs.</p>
@@ -697,7 +729,7 @@ export const AtLeast2Level:LevelParameters = {
     directions:`
 <p>To beat this level, you need to build a {Circuit} that outputs {High} when <span style="font-style:italic;">at least</span> 2 of the 3 inputs are {High}</p>
 <p>Try first building a {Circuit} with one output for each combination of 2 inputs that could be {High}, then joining those outputs together.</p>
-<p>Your progress on any level saves whenever you play the signal, so feel free to come back later.</p>
+<p>Your progress on any level saves whenever you play the {Signal}, so feel free to come back later.</p>
 `,
     hint:`
 <p>This level requires constructing an "At Least 2 of 3" {Circuit}.
