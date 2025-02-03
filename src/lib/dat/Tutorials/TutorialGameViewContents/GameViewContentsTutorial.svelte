@@ -202,7 +202,7 @@
         on:continue={dispatch.bind(dispatch, "continue")}
     >
     <div style="color:black; width:25vw; pointer-events:all;">
-        <div>Click on gates to pick them up and move them around. </div>
+        <div>Click on some gates to pick them up and move them around. </div>
         <div>You can also hold shift (
             <span style="margin-left:-0.5em; margin-right:-1em;">
                 <svg style="display:inline; width:2.5em; vertical-align: bottom;" height=1em viewBox="0 0 100 50" fill="none">
