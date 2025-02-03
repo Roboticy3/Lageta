@@ -201,8 +201,20 @@
         initialPosition={[50, 20]}
         on:continue={dispatch.bind(dispatch, "continue")}
     >
-    <div style="color:black; width:25vw;">
-        You can add more gates, and this one can be picked up and moved.
+    <div style="color:black; width:25vw; pointer-events:all;">
+        <div>Click on some gates to pick them up and move them around. </div>
+        <div>You can also hold shift (
+            <span style="margin-left:-0.5em; margin-right:-1em;">
+                <svg style="display:inline; width:2.5em; vertical-align: bottom;" height=1em viewBox="0 0 100 50" fill="none">
+                    <rect width="100" height="50" rx="15" fill="black"/>
+                    <rect x=5 y=5 width="90" height="40" rx="15" stroke="white" stroke-width=3/>
+                    <g transform="translate(25 0)">
+                      <path d="M 20 40 L 30 40 L 30 20 L 35 20 L 25 10 L 15 20 L 20 20 Z" stroke="white" stroke-width=3/>
+                    </g>
+                    
+                </svg>
+            </span> 
+        ) while clicking to delete gates. </div>
     </div>
     </TutorialText>
 {/if}
