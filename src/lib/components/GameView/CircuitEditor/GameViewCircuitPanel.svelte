@@ -130,6 +130,8 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
         circuitContainer.removeEventListener("mousemove", drag)
         window.removeEventListener("mouseup", drop)
 
+        circuitContainer.addEventListener("mousemove", onClick)
+
     }
 
     function addDragEventListeners() {
@@ -237,6 +239,16 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
             id === undefined || !circuitContainer || 
             editorParams.dispatchEvents === false
         ) return
+
+        if (e.button === 0 && e.getModifierState("Shift")) {
+            editorEventTarget?.dispatchEvent(
+                createGameViewCircuitPanelEvent(
+                    "removegate", q, q, circuitContainer
+                )
+            )
+
+            return
+        }
 
         if (q.type === "Input" || q.type === "Output") { 
             if (index === undefined) return
@@ -569,7 +581,6 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
             if (circuitContainer) editorEventTarget?.dispatchEvent(
                 createGameViewCircuitPanelEvent("removegate", from, to, circuitContainer)
             )
-            SFXPlayer.play("gatefail.wav")
         }
     }
 
@@ -579,6 +590,8 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
     function onRemoveGate({from}) {
         const id = from.getId()
         if (!id) return 
+
+        SFXPlayer.play("gatefail.wav")
         
         circuitController.removeGate(id)
     }
@@ -690,6 +703,13 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
             }
         }
         currentQuery = q
+    }
+
+    /**
+     * @param {MouseEvent} e
+     */
+    function onClick(e) {
+        
     }
 
 </script>
