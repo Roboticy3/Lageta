@@ -240,7 +240,7 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
             editorParams.dispatchEvents === false
         ) return
 
-        if (e.button === 0 && e.getModifierState("Shift")) {
+        if (e.getModifierState("Shift") && canDragStartGate(q)) {
             editorEventTarget?.dispatchEvent(
                 createGameViewCircuitPanelEvent(
                     "removegate", q, q, circuitContainer
@@ -589,7 +589,7 @@ import { CircuitControllerQueryResult } from "$lib/circuit_types/CircuitControll
      */
     function onRemoveGate({from}) {
         const id = from.getId()
-        if (!id) return 
+        if (id === undefined) return 
 
         SFXPlayer.play("gatefail.wav")
         
