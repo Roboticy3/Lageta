@@ -38,6 +38,7 @@ export function combineGateTypeParameters(a:GateTypeParameters, b:GateTypeParame
         buttonOffset:b.buttonOffset || a.buttonOffset,
         moveable:b.moveable !== undefined ? b.moveable : a.moveable,
         variant:b.variant || a.variant,
+        limitRows:b.limitRows !== undefined ? b.limitRows : a.limitRows,
         f:b.f || a.f,
         draw:b.draw || a.draw,
     } as GateTypeParameters
@@ -578,7 +579,8 @@ export function Decoder(bits:number, otherParams?: GateTypeParameters) {
 export const Decoder1t2 = Decoder(1)
 export const Decoder2t4 = Decoder(2)
 export const BCDDecoder = Decoder(4, 
-    {name:"BCD Decoder", 
+    {
+        name:"BCD Decoder", 
         outputs: 10, 
         outputLabels:(new Array(10).fill('').map((_v, i) => `${i}`)),
         f: (s) => {
@@ -588,6 +590,7 @@ export const BCDDecoder = Decoder(4,
             result[idx] = true
             return {override:result}
         },
+        limitRows:10
     }
 )
 
