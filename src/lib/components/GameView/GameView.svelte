@@ -88,8 +88,7 @@
 
     function loadGrid() {
         
-        const circuitStorage = new CircuitStorage(getName(), undefined, gameParams.storageKey)
-        const gridResult = circuitStorage.loadNew()
+        const gridResult = circuitStorage?.loadNew()
 
         if (gridResult instanceof GateGrid) {
             return gridResult
@@ -137,7 +136,11 @@
     });
     }
     
-    export let circuitController = new CircuitController(loadGrid(), gameParams.completeCondition ? onComplete:undefined, gameParams.completeCondition?.solver)
+    /**
+     * @type {CircuitController | undefined}
+     */
+     export let circuitController = undefined
+    $: if (circuitStorage) circuitController = new CircuitController(loadGrid(), gameParams.completeCondition ? onComplete:undefined, gameParams.completeCondition?.solver)
     $: console.log("circuit controller ", circuitController, gridSourceToGrid(gameParams.grid))
 
     /**
@@ -165,6 +168,11 @@
     $: progressStorage?.removeNewLevel(getName())
     $: levelProgress = progressStorage?.getLevelProgress(gameParams.name || "?")
 
+    /**
+     * @type {CircuitStorage | undefined}
+     */
+    let circuitStorage = undefined
+
     console.log("initializing GameView with params: ",gameParams, progressStorage, levelProgress)
     /**
      * @type {ShelfTreeNode | undefined}
@@ -179,6 +187,7 @@
         console.log("reading progress...")
 
         progressStorage = new ProgressStorage()
+        circuitStorage = new CircuitStorage(getName(), undefined, gameParams.storageKey)
 
         console.log("gameview loaded shelf ", shelf, " and unmarked ", getName(), " as new!")
     }
@@ -315,9 +324,10 @@
     }
 
     function placeExistingEditor() {
-        if (!existingEditor) return
+        if (!existingEditor || !circuitController) return
 
         existingEditor.pickup()
+        
         circuitController.onComplete = onComplete
         editorContainerResizeObserver = new ResizeObserver(moveExistingEditor)
         editorContainerResizeObserver.observe(editorContainer)
@@ -370,13 +380,15 @@
         setTimeout(slideIn, 200)
 
         readProgress()
+
+        
     })
 
     
 
 </script>
 
-<div class="base-vertical" data-sveltekit-noscroll>
+{#if circuitController} <div class="base-vertical" data-sveltekit-noscroll>
     <div class="sandbox-horizontal">
         <div class="circuit-editor"bind:this={editorContainer}>
             {#if !existingEditor}
@@ -466,7 +478,7 @@
         </div>
     {/if}
     <slot />
-</div>
+</div> {/if}
 
 <GameViewDialog bind:this={completionPopup}>
     <CompletionDisplay 
