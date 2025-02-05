@@ -162,20 +162,28 @@
      * @type {ProgressStorage | undefined}
      */
     let progressStorage =  undefined
-    $: if (browser) {
-        progressStorage = new ProgressStorage()
-    }
+    $: progressStorage?.removeNewLevel(getName())
     $: levelProgress = progressStorage?.getLevelProgress(gameParams.name || "?")
 
     console.log("initializing GameView with params: ",gameParams, progressStorage, levelProgress)
     /**
      * @type {ShelfTreeNode | undefined}
      */
-     export let shelf = undefined
-    
+    export let shelf = undefined
+    $: if (progressStorage) {
+        updateShelf()
+    }
+
+
     function readProgress() {
         console.log("reading progress...")
 
+        progressStorage = new ProgressStorage()
+
+        console.log("gameview loaded shelf ", shelf, " and unmarked ", getName(), " as new!")
+    }
+
+    function updateShelf() {
         //if a shelf has been provided, don't construct a new one
         if (!shelf && progressStorage) {
             //if there are fewer than 7 gates, don't run to algorithm that splits things into folders
@@ -203,11 +211,19 @@
                 shelf = newShelf
             }
         }
+    }
 
-        //remove the current level as a "new" level, so it doesn't direct the player's attention anymore on the level select screen
-        progressStorage?.removeNewLevel(getName())
-
-        console.log("gameview loaded shelf ", shelf, " and unmarked ", getName(), " as new!")
+    /**
+     * @param {ShelfTreeNode} shelf
+     */
+    function appendStickersToShelf(shelf) {
+        const stickers = progressStorage?.getTool("Stickers")?.data?.stickers
+        
+        if (stickers && stickers.length > 0) {
+            shelf.children.push(new ShelfTreeNode("Stickers", (
+                stickers instanceof Array ? stickers : []
+            ).map((/** @type {{ name: string; }} */ s) => s.name)))
+        }
     }
 
     /**
@@ -231,18 +247,7 @@
         }
     }
 
-    /**
-     * @param {ShelfTreeNode} shelf
-     */
-    function appendStickersToShelf(shelf) {
-        const stickers = progressStorage?.getTool("Stickers")?.data?.stickers
-        
-        if (stickers && stickers.length > 0) {
-            shelf.children.push(new ShelfTreeNode("Stickers", (
-                stickers instanceof Array ? stickers : []
-            ).map((/** @type {{ name: string; }} */ s) => s.name)))
-        }
-    }
+    
 
     /**
      * @type {GameViewCircuitPanelEventTarget | null}
