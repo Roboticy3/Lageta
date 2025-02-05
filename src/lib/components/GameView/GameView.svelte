@@ -139,8 +139,11 @@
     /**
      * @type {CircuitController | undefined}
      */
-     export let circuitController = undefined
-    $: if (circuitStorage) circuitController = new CircuitController(loadGrid(), gameParams.completeCondition ? onComplete:undefined, gameParams.completeCondition?.solver)
+    export let circuitController = undefined
+    $: if (circuitStorage) {
+        console.log("reading progress: creating circuit controller")
+        circuitController = new CircuitController(loadGrid(), gameParams.completeCondition ? onComplete:undefined, gameParams.completeCondition?.solver)
+    }
     $: console.log("circuit controller ", circuitController, gridSourceToGrid(gameParams.grid))
 
     /**
@@ -245,8 +248,7 @@
             if (shouldSave) {
                 console.log("saving!")
                 //save the current level, including all gates and stickers
-                const circuitStorage = new CircuitStorage(getName(), circuitController)
-                circuitStorage.save()
+                circuitStorage?.save()
 
                 const stickerStorage = new StickerStorage(getName(), stickerController)
                 stickerStorage.save()
