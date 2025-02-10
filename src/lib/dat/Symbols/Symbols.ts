@@ -10,4 +10,4 @@ export const Symbols = new Map([
   ["Options", `<a href="/options">Options</a>`]
 ])
 
-export const TruthTableMacro = /TruthTable\((.*)\)EndTruthTable/s
+export const TruthTableMacro = /BeginTruthTable\((.*)\)EndTruthTable/s

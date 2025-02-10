@@ -231,7 +231,7 @@ export const SevenSegmentLevel:LevelParameters = {
         <p>Each row of a truth table indicates a set of inputs and expected outputs.</p>
         <p>But, have you ever thought about the order of the rows? or even the "order" of the {Signal} on a lot of levels?</p>
         <p>For most levels, the row number, starting from 0, is <i>equal</i> to the number encoded by the input.</p>
-TruthTable({
+BeginTruthTable({
   "sizeIn":5,
   "sizeOut":7,
   "matrix":[
@@ -458,20 +458,31 @@ export const FullAdderLevel:LevelParameters = {
             </div>
             
         </div>
-        <p>The logic for the rightmost column of the sum already exists in your {Circuit}... unless you deleted it.</p>
-        <p>So, you only need to worry about the 3 inputs relevant to adding the second digit column above:</p>
-        <p>X1, Y1, and C, the carry from adding the first digit column.</p>
+        <p>The logic for adding the first digits is already in place.</p>
+        <p>In this level, you get a hint for free: </p>
+        <p>There are 2 primary approaches to construct this {Circuit}, one uses 3 gates, and the other only uses 2! So don't overthink it. </p>
         `,
     hint:`
       <p>Filling in this {Circuit} requires a "Full Adder".</p>
-      <p>You've already made a "Half Adder", which is considered only a "Half" because it does not account for a "Carry In"</p>
-      <p>This seems like a dumb way to think about things, but the reality is that a Half Adder and Full Adder are very similar.</p>
+      <p>You've already made a "Half Adder". The key idea for this approach is that:</p>
+      <p>A Half Adder and a Full Adder are actually very similar.</p>
       <p>A Half Adder has 2 inputs and 2 outputs, while a Full Adder is 3 to 2.</p>
       <p>A Half Adder can be constructed from a Xor gate and an And gate.</p>
-      <p>You may be on the right track if you had something like a Xor gate, and something- sort of -like an And gate, that could each take 3 inputs instead of 2.</p>
+      <p>You may be on the right track if you had something like a Xor gate, and something- sort of -like an And gate, but each took 3 inputs instead of 2.</p>
+      <p>Then, wire them up in the same way did for the Half Adder.</p>
     `,
     grid: {
-      gateTypes: [getGateType(InputVariable(2, "X")), getGateType(InputVariable(2, "Y")), getGateType(OutputVariable(2, "S")), getGateType(exampleOutputVariable('C Out')), getGateType(HalfAdder)],
+      gateTypes: [
+        getGateType(InputVariable(2, "X")), 
+        getGateType(InputVariable(2, "Y")), 
+        getGateType(OutputVariable(2, "S")), 
+        getGateType(exampleOutputVariable('Carry Out')), 
+        getGateType(combineGateTypeParameters(HalfAdder, {
+          name:"HalfAdderIntegrated",
+          outputLabels:["S", "Carry In"],
+          moveable:false
+        }))
+      ],
       gates: [{
         x: 0,
         y: 1,
@@ -490,19 +501,24 @@ export const FullAdderLevel:LevelParameters = {
       } as SerializableGate, {
         x: 18,
         y: 4,
-        type: "OutputVariableC Out1",
+        type: "OutputVariableCarry Out1",
         id: 3
       } as SerializableGate, {
         x: 5,
         y: 0,
-        type: "HalfAdder",
+        type: "HalfAdderIntegrated",
         id: 4
       } as SerializableGate],
       connections: [new Connection(0, 0, 4, 0), new Connection(1, 0, 4, 1), new Connection(4, 0, 2, 0)],
       size: [20, 9]
     } as GridSource,
     completeCondition: countingSignal(getGateType(Add2), 10, 2),
-    completeRewards: [FullAdder.name, FourBitAdder.params?.name || "?"]
+    completeRewards: [FullAdder.name, FourBitAdder.params?.name || "?"],
+    solverOverride: getGateType(combineGateTypeParameters(FullAdder, {
+      name:"Full Adder Label Overrides",
+      inputLabels: ["C in", "X1", "Y1"],
+      outputLabels: ["S1", "C out"]
+    }))
   },
   x: 18,
   y: 6,
