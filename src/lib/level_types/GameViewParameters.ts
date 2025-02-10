@@ -6,23 +6,39 @@ import { ConnectionValueSignalSet, SignalSet } from "$lib/signal_types/Signal"
 import { OrganizedCircuit, type OrganizedCircuitContents } from "$lib/storage_types/CircuitStorage"
 
 export type GameViewParameters = {
-    hint?: string;
+
+    //The name of the circuit
     name?:string
+
+    //The text shown to the player when they enter a GameView
+    //directions automatically are concatenated with the truth table of completeCondition?.solver
     directions?:string
+    //The text shown to the player when they spend a hint token in a GameView
+    hint?: string;
+
+    //The circuit loaded into this GameView if CircuitStorage can't find an existing circuit under name
     grid?:GridSource
+    //The place where this GameView will look for existing circuits
+    storageKey?:string
+    //whether the circuit made in this GameView should be saved to CircuitStorage. Set to false for levels that are randomly generated
+    serializable?:boolean
+
+    //The signal that must be satisfied to complete this GameView
     completeCondition?:CompleteConditionSource
+    //visual solver override. Used to make the truth table in a level's directions different from the actual solver's truth table
     solverOverride?:string | GateTypeController
 
+    //The gates, levels, and tools awarded to the player on completion, listed by name
     completeRewards?:string[]
 
+    //Whether this GameView should respect the player's current progress, or give them access to all loaded GateTypes
     allUnlocks?:boolean
 
+    //extra parameters to send to the GameView, can toggle things like whether gates can be moved or connection point can be seen
     editorParams?:Object
     rendererParams?:Object
 
-    storageKey?:string
-
-    serializable?:boolean
+    
 }
 
 export const MissingParameters = {
