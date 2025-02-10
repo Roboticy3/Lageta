@@ -514,7 +514,11 @@ export const FullAdderLevel:LevelParameters = {
     } as GridSource,
     completeCondition: countingSignal(getGateType(Add2), 10, 2),
     completeRewards: [FullAdder.name, FourBitAdder.params?.name || "?"],
-    solverOverride: getGateType(FullAdder)
+    solverOverride: getGateType(combineGateTypeParameters(FullAdder, {
+      name:"Full Adder Label Overrides",
+      inputLabels: ["C in", "X1", "Y1"],
+      outputLabels: ["S1", "C out"]
+    }))
   },
   x: 18,
   y: 6,

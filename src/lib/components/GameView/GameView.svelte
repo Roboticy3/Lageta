@@ -397,7 +397,7 @@
                 <TruthTableView 
                     truthTable={(new TruthTable(solver))}
                     customLabels={
-                        rendererParams.useSolverForTruthTableLabels ? 
+                        gameParams.solverOverride ? 
                             solver.view.inputLabels.concat(solver.view.outputLabels)
                             :
                             circuitController.getInputLabels().concat(circuitController.getOutputLabels())
