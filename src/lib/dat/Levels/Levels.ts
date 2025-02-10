@@ -231,7 +231,7 @@ export const SevenSegmentLevel:LevelParameters = {
         <p>Each row of a truth table indicates a set of inputs and expected outputs.</p>
         <p>But, have you ever thought about the order of the rows? or even the "order" of the {Signal} on a lot of levels?</p>
         <p>For most levels, the row number, starting from 0, is <i>equal</i> to the number encoded by the input.</p>
-TruthTable({
+BeginTruthTable({
   "sizeIn":5,
   "sizeOut":7,
   "matrix":[
