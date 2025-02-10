@@ -192,4 +192,6 @@
       DeleteGateSprite.draw(), `height="20px"`
     )}
   </HeavyButton>
+
+  <a href="https://docs.google.com/forms/d/e/1FAIpQLSf6k94PZheGtxlVmohpA4gS5yakfqrxgs8T-if8nzvlwqcYOg/viewform?usp=dialog">feedback form!</a>
 </div>

@@ -225,7 +225,7 @@ export const SevenSegmentLevel:LevelParameters = {
         <p>Each output corresponds to one of the lights in the seven-segment display.</p>
         <p>Given a number, 0 to 9, from the input, display the appropriate number in the seven segment display.</p>
         <p>Good luck!</p>
-        <p>Lageta largely automates displaying numbers for your <span style="color:var(--circuit-color);">circuits</span>. But in real life, this is a pretty good approximation of how those displays would work.</p>
+        <p>Lageta largely automates displaying numbers for your <span style="color:var(--circuit-color);">circuits</span>. But in real life, there needs to be circuitry dedicated to the display.</p>
         `,
     hint:`
         <p>Each row of a truth table indicates a set of inputs and expected outputs.</p>
@@ -260,7 +260,10 @@ BeginTruthTable({
         <p>If you have any complaints about the game not being fun, being broken, or not being fun, fill out the feedback form from the {Options} menu :)</p>
     `,
     grid: {
-      gateTypes: [getGateType(InputVariable(4, 'X')), getGateType(SevenSegmentOutput)],
+      gateTypes: [getGateType(InputVariable(4, 'X')), getGateType(combineGateTypeParameters(SevenSegmentOutput, {
+        name:"7-Segment Display Integrated",
+        moveable: false
+      }))],
       gates: [{
         x: 0,
         y: 6,
@@ -269,7 +272,7 @@ BeginTruthTable({
       } as SerializableGate, {
         x: 31,
         y: 5,
-        type: "7-Segment Display",
+        type: "7-Segment Display Integrated",
         id: 1
       } as SerializableGate],
       size: [36, 16]
