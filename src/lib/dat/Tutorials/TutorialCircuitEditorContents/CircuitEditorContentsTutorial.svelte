@@ -156,7 +156,7 @@
             Are you ready to solve some puzzles?
         </p>
         <p style="color:black;">
-            (Reconnect the points to continue)
+            (Reconnect the boxes to continue)
         </p>
     </TutorialText>
 {/if}
