@@ -1178,7 +1178,7 @@ export const Tutorial:LevelParameters= {
 };
 
 
-export const all_params = new Map<string, LevelParameters>([
+const all_params = new Map<string, LevelParameters>([
   [Freeplay.params?.name || "?", Freeplay],
   [BufLevel.params?.name || "?", BufLevel],
   [AndLevel.params?.name || "?", AndLevel],
